@@ -16,6 +16,11 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
   const active = items.filter((i) => i.status === 'active')
   const archived = items.filter((i) => i.status !== 'active')
   const sampleLoaded = items.some((i) => i.source === 'sample')
+  // Sample-data button shows in dev, or on the live app when opened with ?demo
+  // (e.g. your-url/?demo) so the staples feature can be seen without days of use.
+  const showSeed =
+    import.meta.env.DEV ||
+    (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('demo'))
 
   const soonCount = useMemo(
     () => active.filter((i) => ['soon', 'expired'].includes(expiryState(i))).length,
@@ -66,12 +71,12 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
         </span>
       </header>
 
-      {import.meta.env.DEV && (
+      {showSeed && (
         <button
           className="dev-seed"
           onClick={() => (sampleLoaded ? clearSample() : seedSample())}
         >
-          {sampleLoaded ? 'Clear sample data' : 'Load sample data (dev)'}
+          {sampleLoaded ? 'Clear sample data' : 'Load sample data'}
         </button>
       )}
 
