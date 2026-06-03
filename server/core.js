@@ -28,24 +28,54 @@ const NO_KEY = {
   }
 }
 
-// Pull the first JSON array/object out of a model response, tolerating stray
-// prose or ```json fences.
+// Pull JSON out of a model response, tolerating ```json fences and the odd
+// line of prose. Uses outermost-bracket slicing rather than naive bracket
+// counting, so item names/units containing [ ] { } can't truncate the parse.
 function extractJson(text) {
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i)
-  const candidate = fenced ? fenced[1] : text
-  const start = candidate.search(/[[{]/)
-  if (start === -1) throw new Error('No JSON found in model response')
-  const open = candidate[start]
-  const close = open === '[' ? ']' : '}'
-  let depth = 0
-  for (let i = start; i < candidate.length; i++) {
-    if (candidate[i] === open) depth++
-    else if (candidate[i] === close) {
-      depth--
-      if (depth === 0) return JSON.parse(candidate.slice(start, i + 1))
+  if (!text || !text.trim()) throw new Error('Empty model response')
+  let s = text.trim()
+  const fenced = s.match(/```(?:json)?\s*([\s\S]*?)```/i)
+  if (fenced) s = fenced[1].trim()
+
+  // 1) The whole thing is already valid JSON (the expected case).
+  try {
+    return JSON.parse(s)
+  } catch {
+    /* fall through */
+  }
+  // 2) Slice from the first '[' to the last ']' (a bare array with stray prose).
+  const a0 = s.indexOf('[')
+  const a1 = s.lastIndexOf(']')
+  if (a0 !== -1 && a1 > a0) {
+    try {
+      return JSON.parse(s.slice(a0, a1 + 1))
+    } catch {
+      /* fall through */
     }
   }
-  throw new Error('Unbalanced JSON in model response')
+  // 3) Same for a single object.
+  const o0 = s.indexOf('{')
+  const o1 = s.lastIndexOf('}')
+  if (o0 !== -1 && o1 > o0) {
+    try {
+      return JSON.parse(s.slice(o0, o1 + 1))
+    } catch {
+      /* fall through */
+    }
+  }
+  throw new Error('Could not parse JSON from model response')
+}
+
+// The prompt asks for a bare array, but tolerate the model wrapping it in an
+// object like {"items":[...]} so we never silently drop everything.
+function asItemArray(parsed) {
+  if (Array.isArray(parsed)) return parsed
+  if (parsed && typeof parsed === 'object') {
+    if (Array.isArray(parsed.items)) return parsed.items
+    const firstArray = Object.values(parsed).find(Array.isArray)
+    if (firstArray) return firstArray
+  }
+  return []
 }
 
 // Turn an Anthropic SDK error into a clear, specific message. The two common
@@ -147,7 +177,7 @@ export async function visionHandler(body = {}) {
     })
     const text = message.content.find((b) => b.type === 'text')?.text || ''
     const parsed = extractJson(text)
-    const items = (Array.isArray(parsed) ? parsed : [])
+    const items = asItemArray(parsed)
       .map((it) => ({
         name: String(it.name || '').trim(),
         category: CATEGORIES.includes(it.category) ? it.category : 'other',
