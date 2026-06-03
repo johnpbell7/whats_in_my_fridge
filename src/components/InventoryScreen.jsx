@@ -6,6 +6,7 @@ import { suggestLocation } from '../lib/location.js'
 import { sortByExpiry, expiryState } from '../lib/expiry.js'
 import ItemRow from './ItemRow.jsx'
 import StaplesBanner from './StaplesBanner.jsx'
+import StaplesList from './StaplesList.jsx'
 import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle } from '../icons.jsx'
 
 export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }) {
@@ -99,6 +100,9 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
         <button role="tab" aria-pressed={view === 'archive'} onClick={() => setView('archive')}>
           Used &amp; gone
         </button>
+        <button role="tab" aria-pressed={view === 'staples'} onClick={() => setView('staples')}>
+          Staples
+        </button>
       </div>
 
       {view === 'active' && active.length > 0 && (
@@ -128,7 +132,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
         </button>
       )}
 
-      {(view === 'active' ? active.length : archived.length) > 0 && (
+      {((view === 'active' && active.length > 0) || (view === 'archive' && archived.length > 0)) && (
         <div className="search">
           <IconSearch size={18} />
           <input
@@ -141,7 +145,9 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
         </div>
       )}
 
-      {visible.length === 0 ? (
+      {view === 'staples' ? (
+        <StaplesList items={items} />
+      ) : visible.length === 0 ? (
         <EmptyInventory
           view={view}
           place={place}

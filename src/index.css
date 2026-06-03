@@ -782,6 +782,41 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .staple-add:hover { background: var(--accent-press); }
 .staple-add:active { transform: scale(0.96); }
 
+/* ----- Staples list (inventory "Staples" view) ----- */
+.staples-intro {
+  margin: -4px 0 14px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+.staple-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-sm);
+}
+.staple-card .staple-info { flex: 1; min-width: 0; }
+.staple-status { font-weight: 700; }
+.staple-status.in { color: var(--accent); }
+.staple-status.out { color: var(--warn); }
+.staple-pin {
+  color: var(--ink-faint);
+  padding: 7px;
+  border-radius: 8px;
+  transition: color 140ms, background 140ms;
+}
+.staple-pin[aria-pressed='true'] { color: var(--accent); background: var(--accent-soft); }
+.staple-onlist {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent-press);
+  padding: 0 4px;
+}
+
 /* ----- Staple suggestion chips (shopping) ----- */
 .suggest-block { margin-bottom: 18px; }
 .suggest-label {
