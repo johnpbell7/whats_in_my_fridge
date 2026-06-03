@@ -81,6 +81,44 @@ Change anything, then from the project folder:
 npx vercel --prod
 ```
 
+---
+
+## Automatic deploys (optional, set up once)
+
+Instead of running `npx vercel --prod` every time, you can have GitHub deploy
+for you whenever `main` changes. There's a ready-made workflow at
+`.github/workflows/deploy.yml`; it just needs three secrets.
+
+### Step A — get the three values
+
+You already linked this project when you first deployed, so the two IDs are in
+`.vercel/project.json` (run `npx vercel link` first if that file isn't there):
+
+```bash
+cat .vercel/project.json
+# -> { "orgId": "...", "projectId": "..." }
+```
+
+For the token: <https://vercel.com/account/tokens> → **Create Token** → copy it.
+
+### Step B — add them to GitHub
+
+In the repo on GitHub: **Settings → Secrets and variables → Actions → New
+repository secret**, and add all three (names must match exactly):
+
+| Secret name         | Value                                  |
+| ------------------- | -------------------------------------- |
+| `VERCEL_TOKEN`      | the token you just created             |
+| `VERCEL_ORG_ID`     | `orgId` from `.vercel/project.json`    |
+| `VERCEL_PROJECT_ID` | `projectId` from `.vercel/project.json`|
+
+That's it. From now on, every push/merge to `main` publishes to your live URL
+automatically (watch it under the repo's **Actions** tab). Your
+`ANTHROPIC_API_KEY` stays in Vercel's own settings — the workflow pulls it in at
+deploy time and never sees it in GitHub. You can still run `npx vercel --prod`
+by hand anytime, and you can trigger a deploy manually from the Actions tab
+(**Run workflow**).
+
 ## Good to know
 
 - **Where your data lives:** your inventory is stored in your phone's browser
