@@ -53,7 +53,7 @@ A single household cook on their own phone. The design optimises for **one perso
 
 | Tab | Purpose |
 | --- | --- |
-| **Inventory** | What you have now; expiry alerts; staple "running low" alerts; archive of used/gone items. |
+| **Inventory** | What you have now; expiry alerts; staple "running low" alerts; archive of used/gone items; a Staples view of your usuals. |
 | **Shopping** | The buy list; staple suggestions; "put away" purchased items into the fridge. |
 | **Scan** | Add items in bulk from a photo of your fridge/groceries, or from a till receipt. |
 | **Chat** | Ask questions about your fridge and get meal ideas. |
@@ -79,7 +79,7 @@ The fastest way to fill the fridge.
 
 The home screen and source of truth.
 
-- **In stock vs Used & gone:** a segmented toggle. Active items are the live fridge; the archive holds things you've marked used or thrown out (so you can restore one if you change your mind).
+- **In stock · Used & gone · Staples:** a segmented toggle. _In stock_ is the live fridge; _Used & gone_ is the archive of things you've marked used or thrown out (restore one if you change your mind); _Staples_ lists your frequently-stocked items (see 8.5).
 - **Location filter chips:** All / Fridge / Freezer / Pantry, each with a live count.
 - **Search** by name.
 - **Expiry-first sorting:** expired items first, then soonest to expire, then dated, then undated — so the things that need attention float to the top.
@@ -109,10 +109,11 @@ A bottom-sheet form for precise control.
 The app learns your habits and nudges you before you run out.
 
 - **Automatic detection:** every item (active or archived) is grouped by name; anything seen on **3+ separate days** becomes a **staple**. Spellings are folded so "Eggs"/"egg" and "Tomatoes"/"tomato" count together.
-- **Missing = a staple with zero stock.** These surface in two places:
+- **See them all — the Staples view:** a third segment on the Inventory screen (_In stock · Used & gone · Staples_) lists every staple, in stock or run out, with its status ("N in stock" / "None in stock") and how often it recurs. From here you can **add** a run-out staple to the list, **pin/unpin** one, or **remove** ("not a staple") — so you can browse and curate your usuals any time, not only when something has run out.
+- **Missing = a staple with zero stock.** These also surface where you'll act on them:
   - **Inventory:** a green _"Running low on the usuals"_ banner, each with one-tap **Add to list** and a **dismiss (✕)**.
   - **Shopping:** the _"Usually stocked"_ suggestion chips.
-- **You stay in control:** pin anything as a staple (the "Keep this stocked" toggle), or dismiss an auto-detected one as "not a staple." These preferences are stored durably and separately from the inventory.
+- **You stay in control:** pin anything as a staple (the "Keep this stocked" toggle, or the pin in the Staples view), or dismiss an auto-detected one as "not a staple." These preferences are stored durably and separately from the inventory.
 - **Closes the loop:** putting a staple away (restocking it) removes it from the "running low" list automatically.
 
 ### 8.6 Chat: ask your fridge / get meal ideas
