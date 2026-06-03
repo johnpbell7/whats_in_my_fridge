@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { shopping } from '../lib/shopping.js'
 import { store } from '../lib/store.js'
@@ -9,7 +9,15 @@ import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge } from '../icons.j
 
 export default function ShoppingScreen({ list, items = [] }) {
   const [draft, setDraft] = useState('')
+  const [toast, setToast] = useState(null)
   const { missing } = useStaples(items)
+
+  // Auto-dismiss the "added to your fridge" confirmation after a moment.
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(null), 2600)
+    return () => clearTimeout(t)
+  }, [toast])
 
   // Unchecked first (newest at top), then checked at the bottom.
   const ordered = useMemo(() => {
@@ -54,6 +62,7 @@ export default function ShoppingScreen({ list, items = [] }) {
       })
     )
     shopping.clearChecked()
+    setToast(`Added ${bought.length} to your fridge`)
   }
 
   return (
@@ -162,6 +171,22 @@ export default function ShoppingScreen({ list, items = [] }) {
           </AnimatePresence>
         </ul>
       )}
+
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            className="toast"
+            role="status"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 14, transition: { duration: 0.18 } }}
+            transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+          >
+            <IconFridge size={16} />
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

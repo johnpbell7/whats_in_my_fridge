@@ -324,6 +324,29 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .putaway:hover { background: var(--accent-press); }
 .putaway:active { transform: scale(0.99); }
 
+/* ----- Confirmation toast (e.g. "Added 3 to your fridge") ----- */
+.toast {
+  position: fixed;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: fit-content;
+  max-width: 80%;
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 18px);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ink);
+  color: #fff;
+  padding: 11px 17px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+}
+.toast svg { color: var(--accent-soft); }
+
 /* ----- Shopping list rows ----- */
 .shop-row {
   display: grid;
