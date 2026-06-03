@@ -680,6 +680,20 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 }
 .banner svg { flex-shrink: 0; margin-top: 1px; }
 
+/* ----- Dev-only sample-data button (hidden in production builds) ----- */
+.dev-seed {
+  width: 100%;
+  border: 1px dashed var(--line-strong);
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  border-radius: var(--r-sm);
+  padding: 8px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.dev-seed:active { transform: scale(0.99); }
+
 /* ----- Staples: "running low on the usuals" (inventory) ----- */
 .staples {
   background: var(--accent-soft);

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
-import { store } from '../lib/store.js'
+import { store, seedSample, clearSample } from '../lib/store.js'
 import { LOCATIONS } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { sortByExpiry, expiryState } from '../lib/expiry.js'
@@ -15,6 +15,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
 
   const active = items.filter((i) => i.status === 'active')
   const archived = items.filter((i) => i.status !== 'active')
+  const sampleLoaded = items.some((i) => i.source === 'sample')
 
   const soonCount = useMemo(
     () => active.filter((i) => ['soon', 'expired'].includes(expiryState(i))).length,
@@ -64,6 +65,15 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
           {active.length} {active.length === 1 ? 'item' : 'items'}
         </span>
       </header>
+
+      {import.meta.env.DEV && (
+        <button
+          className="dev-seed"
+          onClick={() => (sampleLoaded ? clearSample() : seedSample())}
+        >
+          {sampleLoaded ? 'Clear sample data' : 'Load sample data (dev)'}
+        </button>
+      )}
 
       {view === 'active' && soonCount > 0 && (
         <div className="banner" role="status">

@@ -159,6 +159,57 @@ export const store = {
   }
 }
 
+// --- dev-only sample data -------------------------------------------------
+// Populate the fridge with a handful of items — including some history — so the
+// staples / "running low" suggestions have something to work with without
+// waiting days of real use. Items are tagged source:'sample' so they can be
+// cleared again, and re-seeding wipes any previous sample first. The UI only
+// exposes this in dev builds.
+export function seedSample() {
+  const ago = (n) => {
+    const d = new Date()
+    d.setDate(d.getDate() - n)
+    return d.toISOString()
+  }
+  const inDays = (n) => {
+    const d = new Date()
+    d.setDate(d.getDate() + n)
+    return d.toISOString().slice(0, 10)
+  }
+  const S = (over) => normalize({ source: 'sample', confidence: null, ...over })
+
+  const samples = [
+    // Missing staples — seen on 3+ separate days, all now gone.
+    S({ name: 'Milk', category: 'dairy', location: 'fridge', status: 'used', added_date: ago(28) }),
+    S({ name: 'Milk', category: 'dairy', location: 'fridge', status: 'used', added_date: ago(18) }),
+    S({ name: 'Milk', category: 'dairy', location: 'fridge', status: 'discarded', added_date: ago(6) }),
+    S({ name: 'Butter', category: 'dairy', location: 'fridge', status: 'used', added_date: ago(40) }),
+    S({ name: 'Butter', category: 'dairy', location: 'fridge', status: 'used', added_date: ago(25) }),
+    S({ name: 'Butter', category: 'dairy', location: 'fridge', status: 'used', added_date: ago(9) }),
+    S({ name: 'Bread', category: 'other', location: 'pantry', status: 'used', added_date: ago(21) }),
+    S({ name: 'Bread', category: 'other', location: 'pantry', status: 'used', added_date: ago(12) }),
+    S({ name: 'Bread', category: 'other', location: 'pantry', status: 'used', added_date: ago(4) }),
+
+    // A staple that's still in stock — proves it won't nag while you have it.
+    S({ name: 'Eggs', category: 'dairy', location: 'fridge', status: 'used', added_date: ago(30) }),
+    S({ name: 'Eggs', category: 'dairy', location: 'fridge', status: 'used', added_date: ago(15) }),
+    S({ name: 'Eggs', category: 'dairy', location: 'fridge', status: 'active', added_date: ago(2), expiry_date: inDays(12) }),
+
+    // A few ordinary items in stock, including one expiring soon.
+    S({ name: 'Cheddar', category: 'dairy', location: 'fridge', status: 'active', added_date: ago(3), expiry_date: inDays(9) }),
+    S({ name: 'Spinach', category: 'produce', location: 'fridge', status: 'active', added_date: ago(4), expiry_date: inDays(1) }),
+    S({ name: 'Chicken breast', category: 'meat', location: 'fridge', status: 'active', added_date: ago(1), expiry_date: inDays(2) })
+  ]
+
+  commit([...samples, ...cache.filter((i) => i.source !== 'sample')])
+}
+
+export function clearSample() {
+  commit(cache.filter((i) => i.source !== 'sample'))
+}
+
+export const hasSample = () => cache.some((i) => i.source === 'sample')
+
 // Pick up edits made in another tab/window (via the localStorage mirror).
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', (e) => {
