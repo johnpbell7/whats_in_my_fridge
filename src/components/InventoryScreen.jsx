@@ -5,6 +5,7 @@ import { LOCATIONS } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { sortByExpiry, expiryState } from '../lib/expiry.js'
 import ItemRow from './ItemRow.jsx'
+import StaplesBanner from './StaplesBanner.jsx'
 import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle } from '../icons.jsx'
 
 export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }) {
@@ -73,6 +74,8 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
           </span>
         </div>
       )}
+
+      {view === 'active' && <StaplesBanner items={items} />}
 
       <div className="segment" role="tablist" aria-label="Which items to show">
         <button role="tab" aria-pressed={view === 'active'} onClick={() => setView('active')}>

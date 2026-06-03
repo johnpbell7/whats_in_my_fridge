@@ -4,6 +4,7 @@ import { useItems } from './lib/useItems.js'
 import { useShopping } from './lib/useShopping.js'
 import { store, initStore } from './lib/store.js'
 import { initShopping } from './lib/shopping.js'
+import { initStaplePrefs } from './lib/staples.js'
 import InventoryScreen from './components/InventoryScreen.jsx'
 import ScanScreen from './components/ScanScreen.jsx'
 import ChatScreen from './components/ChatScreen.jsx'
@@ -26,6 +27,7 @@ export default function App() {
   useEffect(() => {
     initStore()
     initShopping()
+    initStaplePrefs()
   }, [])
 
   function handleSave(values, id) {
@@ -51,7 +53,7 @@ export default function App() {
         />
       )}
       {tab === 'chat' && <ChatScreen items={items} />}
-      {tab === 'shopping' && <ShoppingScreen list={list} />}
+      {tab === 'shopping' && <ShoppingScreen list={list} items={items} />}
 
       {tab === 'inventory' && (
         <button className="fab" onClick={() => setEditing('new')} aria-label="Add an item by hand">

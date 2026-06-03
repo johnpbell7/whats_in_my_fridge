@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { CATEGORIES, LOCATIONS, suggestExpiry } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
-import { IconClose, IconTrash } from '../icons.jsx'
+import { staplePrefs, stapleKey } from '../lib/staples.js'
+import { IconClose, IconTrash, IconPin } from '../icons.jsx'
 
 export default function ItemForm({ item, onSave, onDelete, onClose }) {
   const isEdit = Boolean(item)
@@ -15,6 +16,9 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
   const [expiry, setExpiry] = useState(item?.expiry_date || '')
   const [notes, setNotes] = useState(item?.notes || '')
   const [touched, setTouched] = useState(false)
+  // "Always keep this stocked" — pins it as a staple regardless of frequency,
+  // so it's flagged whenever you run out.
+  const [pinned, setPinned] = useState(() => staplePrefs.isPinned(stapleKey(item?.name || '')))
 
   // While adding a new item, keep filing it to the smart location as the name
   // and category change — until the user picks a location themselves.
@@ -31,9 +35,13 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
       setTouched(true)
       return
     }
+    const cleanName = name.trim()
+    const key = stapleKey(cleanName)
+    if (pinned) staplePrefs.pin(key, { name: cleanName, location, category })
+    else staplePrefs.unpin(key)
     onSave(
       {
-        name: name.trim(),
+        name: cleanName,
         category,
         quantity: Number(quantity) || 1,
         unit: unit.trim(),
@@ -181,6 +189,24 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
             placeholder="Optional"
           />
         </div>
+
+        <button
+          type="button"
+          className="staple-toggle"
+          aria-pressed={pinned}
+          onClick={() => setPinned((v) => !v)}
+        >
+          <span className="staple-toggle-icon">
+            <IconPin size={17} />
+          </span>
+          <span className="staple-toggle-text">
+            <strong>Keep this stocked</strong>
+            <small>{pinned ? "We'll flag it whenever you run out." : 'Flag it whenever you run out.'}</small>
+          </span>
+          <span className={`switch ${pinned ? 'on' : ''}`} aria-hidden="true">
+            <span className="switch-knob" />
+          </span>
+        </button>
 
         <div className="form-actions">
           {isEdit && (

@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { shopping } from '../lib/shopping.js'
+import { useStaples } from '../lib/useStaples.js'
 import { IconPlus, IconCheck, IconTrash, IconCart } from '../icons.jsx'
 
-export default function ShoppingScreen({ list }) {
+export default function ShoppingScreen({ list, items = [] }) {
   const [draft, setDraft] = useState('')
+  const { missing } = useStaples(items)
 
   // Unchecked first (newest at top), then checked at the bottom.
   const ordered = useMemo(() => {
@@ -12,6 +14,12 @@ export default function ShoppingScreen({ list }) {
     const done = list.filter((i) => i.checked)
     return [...open, ...done]
   }, [list])
+
+  // Staples you've run out of that aren't already on the list — one tap to add.
+  const suggestions = useMemo(
+    () => missing.filter((s) => !shopping.has(s.name)),
+    [missing, list]
+  )
 
   const left = list.filter((i) => !i.checked).length
   const checked = list.filter((i) => i.checked).length
@@ -55,7 +63,25 @@ export default function ShoppingScreen({ list }) {
         )}
       </form>
 
-      {list.length === 0 ? (
+      {suggestions.length > 0 && (
+        <div className="suggest-block">
+          <p className="suggest-label">Usually stocked — tap to add</p>
+          <div className="chips">
+            {suggestions.map((s) => (
+              <button
+                key={s.key}
+                className="suggest-chip"
+                onClick={() => shopping.addUnique(s.name)}
+                aria-label={`Add ${s.name} to the list`}
+              >
+                <IconPlus size={14} /> {s.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {list.length === 0 && suggestions.length === 0 ? (
         <div className="empty">
           <div className="empty-art">
             <IconCart size={30} />

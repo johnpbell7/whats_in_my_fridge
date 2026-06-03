@@ -123,3 +123,10 @@ export const IconSparkle = (p) => (
     <path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z" />
   </Svg>
 )
+
+export const IconPin = (p) => (
+  <Svg {...p}>
+    <path d="M12 21v-7" />
+    <path d="M8.5 3.5h7l-1 5.2 2.5 2.4a1 1 0 0 1-.7 1.7H6.7a1 1 0 0 1-.7-1.7l2.5-2.4z" />
+  </Svg>
+)
