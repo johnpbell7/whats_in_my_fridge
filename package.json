@@ -1,0 +1,30 @@
+{
+  "name": "fridge",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A phone-friendly PWA that tracks what's in your fridge, with photo recognition and chat.",
+  "scripts": {
+    "dev": "concurrently -k -n web,api -c green,cyan \"npm:dev:web\" \"npm:dev:api\"",
+    "dev:web": "vite",
+    "dev:api": "node server/index.js",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start:api": "node server/index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "framer-motion": "^11.3.21",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^8.2.2",
+    "vite": "^5.4.1",
+    "vite-plugin-pwa": "^0.20.1"
+  }
+}

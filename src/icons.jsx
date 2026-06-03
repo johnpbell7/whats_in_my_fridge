@@ -1,0 +1,117 @@
+// A small hand-rolled icon set (Phosphor-ish, stroke = currentColor) so we
+// don't pull in a dependency or use emoji.
+const base = {
+  width: 22,
+  height: 22,
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.8,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round'
+}
+
+const Svg = ({ size, children, ...rest }) => (
+  <svg {...base} width={size || base.width} height={size || base.height} {...rest} aria-hidden="true">
+    {children}
+  </svg>
+)
+
+export const IconFridge = (p) => (
+  <Svg {...p}>
+    <rect x="6" y="2.5" width="12" height="19" rx="2.5" />
+    <path d="M6 10h12" />
+    <path d="M9 6.2v1.4M9 13v3" />
+  </Svg>
+)
+
+export const IconPlus = (p) => (
+  <Svg {...p}>
+    <path d="M12 5v14M5 12h14" />
+  </Svg>
+)
+
+export const IconCamera = (p) => (
+  <Svg {...p}>
+    <path d="M3 8.5A2 2 0 0 1 5 6.5h1.6l1-1.6a1 1 0 0 1 .85-.48h7.1a1 1 0 0 1 .85.48l1 1.6H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    <circle cx="12" cy="13" r="3.4" />
+  </Svg>
+)
+
+export const IconChat = (p) => (
+  <Svg {...p}>
+    <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v9a1.5 1.5 0 0 1-1.5 1.5H9l-4 4z" />
+    <path d="M8.5 9h7M8.5 12h4" />
+  </Svg>
+)
+
+export const IconCheck = (p) => (
+  <Svg {...p}>
+    <path d="M4.5 12.5l5 5 10-11" />
+  </Svg>
+)
+
+export const IconTrash = (p) => (
+  <Svg {...p}>
+    <path d="M4 6.5h16M9 6.5V4.8a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1.7M6.5 6.5l.8 12a2 2 0 0 0 2 1.9h5.4a2 2 0 0 0 2-1.9l.8-12" />
+  </Svg>
+)
+
+export const IconClock = (p) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M12 7.5V12l3 2" />
+  </Svg>
+)
+
+export const IconEdit = (p) => (
+  <Svg {...p}>
+    <path d="M14.5 5.5l4 4M4 20l1-4L16 5a1.5 1.5 0 0 1 2 0l1 1a1.5 1.5 0 0 1 0 2L8 19z" />
+  </Svg>
+)
+
+export const IconClose = (p) => (
+  <Svg {...p}>
+    <path d="M6 6l12 12M18 6L6 18" />
+  </Svg>
+)
+
+export const IconSearch = (p) => (
+  <Svg {...p}>
+    <circle cx="11" cy="11" r="6.5" />
+    <path d="M16 16l4 4" />
+  </Svg>
+)
+
+export const IconSend = (p) => (
+  <Svg {...p}>
+    <path d="M5 12l15-7-6 15-3-6-6-2z" />
+  </Svg>
+)
+
+export const IconLeaf = (p) => (
+  <Svg {...p}>
+    <path d="M20 4S8 4 6 12c-1 4 1.5 6.5 5.5 5.5C19.5 15.5 20 4 20 4z" />
+    <path d="M11 13c2-3 5-5 8-6.5" />
+  </Svg>
+)
+
+export const IconWarning = (p) => (
+  <Svg {...p}>
+    <path d="M12 4l9 15.5H3z" />
+    <path d="M12 10v4M12 17h.01" />
+  </Svg>
+)
+
+export const IconReceipt = (p) => (
+  <Svg {...p}>
+    <path d="M6 3.5h12v17l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3z" />
+    <path d="M9 8h6M9 11.5h6M9 15h4" />
+  </Svg>
+)
+
+export const IconSparkle = (p) => (
+  <Svg {...p}>
+    <path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z" />
+  </Svg>
+)
