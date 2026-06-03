@@ -738,15 +738,6 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 }
 .staple-add:hover { background: var(--accent-press); }
 .staple-add:active { transform: scale(0.96); }
-.staple-added {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--accent-press);
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 4px;
-}
 
 /* ----- Staple suggestion chips (shopping) ----- */
 .suggest-block { margin-bottom: 18px; }
