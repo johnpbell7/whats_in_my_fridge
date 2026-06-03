@@ -1,8 +1,11 @@
 import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { shopping } from '../lib/shopping.js'
+import { store } from '../lib/store.js'
 import { useStaples } from '../lib/useStaples.js'
-import { IconPlus, IconCheck, IconTrash, IconCart } from '../icons.jsx'
+import { guessCategory, suggestExpiry } from '../lib/categories.js'
+import { suggestLocation } from '../lib/location.js'
+import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge } from '../icons.jsx'
 
 export default function ShoppingScreen({ list, items = [] }) {
   const [draft, setDraft] = useState('')
@@ -31,21 +34,56 @@ export default function ShoppingScreen({ list, items = [] }) {
     setDraft('')
   }
 
+  // Ticked items have been bought — file each into the inventory, choosing the
+  // area and a use-by from its name, then take them off the list.
+  function putAway() {
+    const bought = list.filter((i) => i.checked)
+    if (!bought.length) return
+    store.addMany(
+      bought.map((it) => {
+        const category = guessCategory(it.name)
+        const location = suggestLocation(it.name, category)
+        return {
+          name: it.name,
+          quantity: it.quantity || 1,
+          category,
+          location,
+          expiry_date: suggestExpiry(category, location),
+          source: 'manual'
+        }
+      })
+    )
+    shopping.clearChecked()
+  }
+
   return (
     <div className="screen">
       <header className="app-header">
         <div>
           <h1 className="app-title">Shopping</h1>
           <p className="app-subtitle">
-            {left > 0 ? `${left} still to buy` : list.length ? 'All picked up' : 'Build your list'}
+            {checked > 0
+              ? `${checked} ticked off`
+              : left > 0
+                ? `${left} still to buy`
+                : list.length
+                  ? 'All picked up'
+                  : 'Build your list'}
           </p>
         </div>
         {checked > 0 && (
           <button className="btn-text" onClick={() => shopping.clearChecked()}>
-            Clear {checked} done
+            Just clear
           </button>
         )}
       </header>
+
+      {checked > 0 && (
+        <button className="putaway" onClick={putAway}>
+          <IconFridge size={18} />
+          Put {checked} {checked === 1 ? 'item' : 'items'} away
+        </button>
+      )}
 
       <form className="search" onSubmit={add} style={{ marginBottom: 16 }}>
         <IconPlus size={18} />
