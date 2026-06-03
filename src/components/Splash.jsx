@@ -50,7 +50,7 @@ export default function Splash({ onDone }) {
           <IconFridge size={40} />
         </span>
         <span className="splash-word">
-          <span className="splash-small">what's in my</span>
+          <span className="splash-small">What's in my</span>
           <span className="splash-big">
             Fridge<i>.</i>
           </span>

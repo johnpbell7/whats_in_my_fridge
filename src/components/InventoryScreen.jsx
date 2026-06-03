@@ -53,12 +53,12 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
   return (
     <div className="screen">
       <header className="app-header">
-        <div>
-          <h1 className="app-title">
+        <h1 className="brand">
+          <span className="brand-small">What's in my</span>
+          <span className="brand-big">
             Fridge<span className="leaf">.</span>
-          </h1>
-          <p className="app-subtitle">Whats in my fridge, right now.</p>
-        </div>
+          </span>
+        </h1>
         <span className="count-pill">
           {active.length} {active.length === 1 ? 'item' : 'items'}
         </span>

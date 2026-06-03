@@ -13,7 +13,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icon.svg', 'icon-maskable.svg'],
       manifest: {
-        name: 'Fridge',
+        name: "What's in my Fridge.",
         short_name: 'Fridge',
         description: "Tracks what's in your fridge — with photo recognition and chat.",
         theme_color: '#2f7d5a',
