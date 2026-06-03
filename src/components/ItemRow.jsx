@@ -20,8 +20,8 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
       layout
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.18 } }}
-      transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+      exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.11 } }}
+      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
       className={rowClass}
     >
       <button className="item-main" onClick={() => onEdit(item)}>

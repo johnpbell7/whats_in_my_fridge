@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { store } from '../lib/store.js'
 import { LOCATIONS } from '../lib/categories.js'
+import { suggestLocation } from '../lib/location.js'
 import { sortByExpiry, expiryState } from '../lib/expiry.js'
 import ItemRow from './ItemRow.jsx'
-import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning } from '../icons.jsx'
+import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle } from '../icons.jsx'
 
 export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }) {
   const [query, setQuery] = useState('')
@@ -35,6 +36,19 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
     const filtered = q ? pool.filter((i) => i.name.toLowerCase().includes(q)) : pool
     return sortByExpiry(filtered)
   }, [view, active, archived, query, place])
+
+  // How many active items are filed somewhere other than where they'd belong.
+  const misfiled = useMemo(
+    () => active.filter((i) => suggestLocation(i.name, i.category) !== i.location).length,
+    [active]
+  )
+
+  function autoFile() {
+    active.forEach((i) => {
+      const loc = suggestLocation(i.name, i.category)
+      if (loc !== i.location) store.update(i.id, { location: loc })
+    })
+  }
 
   return (
     <div className="screen">
@@ -85,6 +99,15 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
             </button>
           ))}
         </div>
+      )}
+
+      {view === 'active' && misfiled > 0 && (
+        <button className="autofile" onClick={autoFile}>
+          <IconSparkle size={16} />
+          {misfiled === 1
+            ? 'Auto-file 1 item where it belongs'
+            : `Auto-file ${misfiled} items where they belong`}
+        </button>
       )}
 
       {(view === 'active' ? active.length : archived.length) > 0 && (

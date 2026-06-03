@@ -266,6 +266,42 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   color: var(--warn);
 }
 
+/* ----- Auto-file prompt ----- */
+.autofile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+  background: var(--accent-soft);
+  color: var(--accent-press);
+  border: 1px solid #cfe5d6;
+  border-radius: var(--r-md);
+  padding: 11px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  transition: transform 120ms, background 160ms;
+}
+.autofile:hover { background: #dcebe0; }
+.autofile:active { transform: scale(0.99); }
+
+/* ----- Shopping list rows ----- */
+.shop-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 13px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-sm);
+}
+.shop-name { font-weight: 600; font-size: 15.5px; letter-spacing: -0.01em; }
+.shop-row.done { opacity: 0.6; }
+.shop-row.done .shop-name { text-decoration: line-through; text-decoration-color: var(--ink-faint); }
+
 /* ----- Buttons ----- */
 .btn {
   display: inline-flex;
@@ -324,7 +360,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
   border-top: 1px solid var(--line);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   z-index: 30;
 }
 .nav button {

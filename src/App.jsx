@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useItems } from './lib/useItems.js'
+import { useShopping } from './lib/useShopping.js'
 import { store, initStore } from './lib/store.js'
+import { initShopping } from './lib/shopping.js'
 import InventoryScreen from './components/InventoryScreen.jsx'
 import ScanScreen from './components/ScanScreen.jsx'
 import ChatScreen from './components/ChatScreen.jsx'
+import ShoppingScreen from './components/ShoppingScreen.jsx'
 import ItemForm from './components/ItemForm.jsx'
 import Nav from './components/Nav.jsx'
 import Splash from './components/Splash.jsx'
@@ -12,14 +15,16 @@ import { IconPlus } from './icons.jsx'
 
 export default function App() {
   const items = useItems()
+  const list = useShopping()
   const [tab, setTab] = useState('inventory')
   // null = closed; 'new' = blank add form; object = editing that item
   const [editing, setEditing] = useState(null)
   const [booting, setBooting] = useState(true)
 
-  // Load the saved inventory from durable storage on launch.
+  // Load saved inventory + shopping list from durable storage on launch.
   useEffect(() => {
     initStore()
+    initShopping()
   }, [])
 
   function handleSave(values, id) {
@@ -45,6 +50,7 @@ export default function App() {
         />
       )}
       {tab === 'chat' && <ChatScreen items={items} />}
+      {tab === 'shopping' && <ShoppingScreen list={list} />}
 
       {tab === 'inventory' && (
         <button className="fab" onClick={() => setEditing('new')} aria-label="Add an item by hand">
