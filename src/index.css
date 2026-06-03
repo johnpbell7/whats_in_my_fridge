@@ -686,8 +686,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   inset: 0;
   z-index: 100;
   overflow: hidden;
-  perspective: 1500px;
-  /* transparent so the real app is revealed as the doors open */
+  /* transparent so the real app is revealed as the doors part */
   background: transparent;
 }
 .splash-door {
@@ -695,21 +694,21 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   top: 0;
   height: 100dvh;
   width: 51%;
-  backface-visibility: hidden;
+  will-change: transform;
   /* brushed stainless steel: fine vertical grain over a soft sheen */
   background:
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, rgba(0, 0, 0, 0.015) 1px 3px),
     linear-gradient(100deg, #c6cace 0%, #dde0e3 36%, #cbced2 60%, #b4b8bc 100%);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), inset 0 0 120px rgba(0, 0, 0, 0.10);
 }
 .splash-door.left {
   left: 0;
-  transform-origin: left center;
-  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  /* top sheen + soft shading toward the centre seam for depth */
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), inset -22px 0 34px -20px rgba(0, 0, 0, 0.32);
+  border-right: 1px solid rgba(0, 0, 0, 0.10);
 }
 .splash-door.right {
   right: 0;
-  transform-origin: right center;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), inset 22px 0 34px -20px rgba(0, 0, 0, 0.32);
 }
 /* chrome handles, set low so they never sit over the logo */
 .splash-door.left::after,
@@ -739,15 +738,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   color: #24221e;
   pointer-events: none;
 }
-.splash-mark {
-  width: 78px;
-  height: 78px;
-  border-radius: 24px;
-  display: grid;
-  place-items: center;
-  background: var(--accent);
-  color: #fff;
-  box-shadow: 0 10px 24px rgba(47, 125, 90, 0.35);
+.splash-icon {
+  width: 88px;
+  height: 88px;
+  border-radius: 22px;
+  box-shadow: 0 12px 28px rgba(38, 104, 75, 0.34);
 }
 .splash-word { display: flex; flex-direction: column; align-items: center; line-height: 1; }
 .splash-small {

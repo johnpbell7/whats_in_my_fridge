@@ -1,19 +1,19 @@
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { IconFridge } from '../icons.jsx'
 
-// A quick fridge-door open on launch. Two doors close the screen, the logo
-// fades in, then the doors swing open to reveal the app behind. Tap to skip.
+// Clean fridge-open intro: the logo settles on the closed steel doors, then
+// the two doors glide apart to reveal the app. Tap to skip; respects
+// prefers-reduced-motion.
 export default function Splash({ onDone }) {
   const reduce =
     typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
   useEffect(() => {
-    const t = setTimeout(onDone, reduce ? 250 : 2400)
+    const t = setTimeout(onDone, reduce ? 250 : 2200)
     return () => clearTimeout(t)
   }, [onDone, reduce])
 
-  const doorTransition = { delay: 1.45, duration: 0.85, ease: [0.22, 1, 0.36, 1] }
+  const slide = { delay: 1.25, duration: 0.7, ease: [0.6, 0, 0.2, 1] }
 
   return (
     <motion.div
@@ -21,34 +21,30 @@ export default function Splash({ onDone }) {
       onClick={onDone}
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.25 }}
+      transition={{ duration: 0.2 }}
     >
       <motion.div
         className="splash-door left"
-        initial={{ rotateY: 0 }}
-        animate={reduce ? { rotateY: 0 } : { rotateY: -120 }}
-        transition={doorTransition}
+        initial={{ x: 0 }}
+        animate={reduce ? { x: 0 } : { x: '-101%' }}
+        transition={slide}
       />
       <motion.div
         className="splash-door right"
-        initial={{ rotateY: 0 }}
-        animate={reduce ? { rotateY: 0 } : { rotateY: 120 }}
-        transition={doorTransition}
+        initial={{ x: 0 }}
+        animate={reduce ? { x: 0 } : { x: '101%' }}
+        transition={slide}
       />
 
       <motion.div
         className="splash-logo"
-        initial={{ opacity: 0, y: 14, scale: 0.9 }}
-        animate={
-          reduce
-            ? { opacity: 1, y: 0, scale: 1 }
-            : { opacity: [0, 1, 1, 0], y: [14, 0, 0, -6], scale: [0.9, 1, 1, 1.02] }
+        initial={{ opacity: 0, y: 16 }}
+        animate={reduce ? { opacity: 1, y: 0 } : { opacity: [0, 1, 1, 0], y: [16, 0, 0, 0] }}
+        transition={
+          reduce ? { duration: 0.2 } : { duration: 1.25, times: [0, 0.28, 0.74, 0.94], ease: 'easeOut' }
         }
-        transition={reduce ? { duration: 0.2 } : { duration: 1.55, times: [0, 0.32, 0.78, 1], ease: 'easeOut' }}
       >
-        <span className="splash-mark">
-          <IconFridge size={40} />
-        </span>
+        <img className="splash-icon" src="/icon.svg" alt="" width="88" height="88" />
         <span className="splash-word">
           <span className="splash-small">What's in my</span>
           <span className="splash-big">
