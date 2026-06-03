@@ -28,7 +28,7 @@ export default function ScanScreen({ onDone, onAddManual }) {
         items.map((it, i) => ({
           ...it,
           _id: `${i}-${it.name}`,
-          include: it.confidence >= 0.4 // pre-untick the very unsure ones
+          include: true // tick everything by default; user unticks anything wrong
         }))
       )
       setPhase('confirm')

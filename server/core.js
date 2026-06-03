@@ -86,17 +86,19 @@ function mapClaudeError(err, kind) {
   return { status: 502, body: { error: `${kind}_failed`, message: detail ? `${generic} (${detail})` : `${generic} Please try again.` } }
 }
 
-const GROCERIES_PROMPT = `You are looking at a photo taken inside or of someone's fridge/groceries.
-List every distinct food or drink item you can clearly identify.
+const GROCERIES_PROMPT = `You are looking at a photo of someone's fridge, groceries, or food items.
+Identify EVERY distinct food or drink product visible — be thorough and scan the
+whole frame: the front, the back, the shelves, the door, the edges and corners.
 
 Rules:
-- Only include things you can actually see. Do not guess at what might be hidden behind other items or inside opaque containers.
-- Merge obvious duplicates into one entry with a quantity (e.g. three apples -> quantity 3).
+- List every distinct product you can see. Do NOT stop after the obvious few — work methodically across the whole image and include everything, even small or partly hidden items you can still confidently identify.
+- Do not invent items that are fully hidden behind others or sealed inside opaque containers. But DO include items that are only partially visible if you can recognise them.
+- Several of the SAME product = one entry with the count as quantity (e.g. three apples -> quantity 3). Different products are always separate entries.
 - category must be exactly one of: ${CATEGORIES.join(', ')}.
 - confidence is your certainty from 0 to 1 that the item is present and correctly named.
 - quantity is a number; unit is a short freeform string ("carton", "block", "bunch", "" if not obvious).
 
-Return ONLY a JSON array, no prose. Each element:
+Return ONLY a JSON array, no prose. Include one element per distinct product:
 {"name": string, "category": string, "quantity": number, "unit": string, "confidence": number}`
 
 const RECEIPT_PROMPT = `You are reading a shopping receipt. Extract every FOOD or DRINK item that was purchased.
@@ -132,7 +134,7 @@ export async function visionHandler(body = {}) {
   try {
     const message = await client.messages.create({
       model: VISION_MODEL,
-      max_tokens: 1500,
+      max_tokens: 4096, // room for a long list of items without truncating
       messages: [
         {
           role: 'user',
