@@ -11,6 +11,7 @@ import ShoppingScreen from './components/ShoppingScreen.jsx'
 import ItemForm from './components/ItemForm.jsx'
 import Nav from './components/Nav.jsx'
 import Splash from './components/Splash.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { IconPlus } from './icons.jsx'
 
 export default function App() {
@@ -74,7 +75,9 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>{booting && <Splash key="splash" onDone={() => setBooting(false)} />}</AnimatePresence>
+      <ErrorBoundary fallback={null}>
+        <AnimatePresence>{booting && <Splash key="splash" onDone={() => setBooting(false)} />}</AnimatePresence>
+      </ErrorBoundary>
     </div>
   )
 }

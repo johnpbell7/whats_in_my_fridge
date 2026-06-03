@@ -5,8 +5,12 @@ import { motion } from 'framer-motion'
 // the two doors glide apart to reveal the app. Tap to skip; respects
 // prefers-reduced-motion.
 export default function Splash({ onDone }) {
-  const reduce =
-    typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  let reduce = false
+  try {
+    reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  } catch {
+    /* matchMedia unavailable — play the animation */
+  }
 
   useEffect(() => {
     const t = setTimeout(onDone, reduce ? 250 : 2200)

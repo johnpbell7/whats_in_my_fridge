@@ -28,7 +28,12 @@ export default defineConfig({
       },
       workbox: {
         // Don't try to cache the API — those calls must always hit the network.
-        navigateFallbackDenylist: [/^\/api/]
+        navigateFallbackDenylist: [/^\/api/],
+        // Take over and drop stale caches as soon as a new version deploys, so
+        // an old cached shell can never strand the app on a blank screen.
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true
       }
     })
   ],
