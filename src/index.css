@@ -97,11 +97,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 /* Full-name brand lockup on the home screen */
 .brand { margin: 0; display: flex; flex-direction: column; gap: 4px; line-height: 1; }
 .brand-small {
-  font-family: var(--font-sans);
+  font-family: var(--font-display);
   font-style: italic;
   font-weight: 500;
-  font-size: 14px;
-  letter-spacing: 0.01em;
+  font-size: 16px;
+  letter-spacing: 0;
   color: var(--ink-soft);
 }
 .brand-big {
@@ -695,27 +695,19 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   height: 100dvh;
   width: 51%;
   will-change: transform;
-  /* smooth stainless steel: soft vertical reflection bands, no grain lines */
-  background: linear-gradient(
-    95deg,
-    #b4b8bc 0%,
-    #cdd1d4 16%,
-    #eef0f1 34%,
-    #d4d8db 50%,
-    #aeb2b6 64%,
-    #cfd3d6 82%,
-    #b7bbbf 100%
-  );
+  /* smooth satin steel: one soft diagonal sheen over a clean vertical base */
+  background:
+    linear-gradient(108deg, rgba(255, 255, 255, 0) 38%, rgba(255, 255, 255, 0.38) 50%, rgba(255, 255, 255, 0) 62%),
+    linear-gradient(180deg, #e2e5e7 0%, #d2d6d9 52%, #c6cacd 100%);
 }
 .splash-door.left {
   left: 0;
-  /* top sheen + soft shading toward the centre seam for depth */
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.45), inset -26px 0 40px -22px rgba(0, 0, 0, 0.3);
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.5);
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
 }
 .splash-door.right {
   right: 0;
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.45), inset 26px 0 40px -22px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.5);
 }
 /* long brushed-chrome bar handles near the seam, below the logo */
 .splash-door.left::after,
@@ -754,12 +746,13 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 }
 .splash-word { display: flex; flex-direction: column; align-items: center; line-height: 1; }
 .splash-small {
+  font-family: var(--font-display);
   font-style: italic;
-  font-size: 15px;
-  letter-spacing: 0.01em;
-  opacity: 0.7;
-  margin-bottom: 6px;
-  color: #4c473f;
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: 0;
+  margin-bottom: 8px;
+  color: #2b2823;
 }
 .splash-big {
   font-family: var(--font-display);
