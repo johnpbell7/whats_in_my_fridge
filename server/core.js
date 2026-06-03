@@ -28,46 +28,8 @@ const NO_KEY = {
   }
 }
 
-// Pull JSON out of a model response, tolerating ```json fences and the odd
-// line of prose. Uses outermost-bracket slicing rather than naive bracket
-// counting, so item names/units containing [ ] { } can't truncate the parse.
-function extractJson(text) {
-  if (!text || !text.trim()) throw new Error('Empty model response')
-  let s = text.trim()
-  const fenced = s.match(/```(?:json)?\s*([\s\S]*?)```/i)
-  if (fenced) s = fenced[1].trim()
-
-  // 1) The whole thing is already valid JSON (the expected case).
-  try {
-    return JSON.parse(s)
-  } catch {
-    /* fall through */
-  }
-  // 2) Slice from the first '[' to the last ']' (a bare array with stray prose).
-  const a0 = s.indexOf('[')
-  const a1 = s.lastIndexOf(']')
-  if (a0 !== -1 && a1 > a0) {
-    try {
-      return JSON.parse(s.slice(a0, a1 + 1))
-    } catch {
-      /* fall through */
-    }
-  }
-  // 3) Same for a single object.
-  const o0 = s.indexOf('{')
-  const o1 = s.lastIndexOf('}')
-  if (o0 !== -1 && o1 > o0) {
-    try {
-      return JSON.parse(s.slice(o0, o1 + 1))
-    } catch {
-      /* fall through */
-    }
-  }
-  throw new Error('Could not parse JSON from model response')
-}
-
-// The prompt asks for a bare array, but tolerate the model wrapping it in an
-// object like {"items":[...]} so we never silently drop everything.
+// The tool returns {"items":[...]}, but stay tolerant of shape so we never
+// silently drop everything.
 function asItemArray(parsed) {
   if (Array.isArray(parsed)) return parsed
   if (parsed && typeof parsed === 'object') {
@@ -165,6 +127,35 @@ export async function visionHandler(body = {}) {
     const message = await client.messages.create({
       model: VISION_MODEL,
       max_tokens: 4096, // room for a long list of items without truncating
+      // Force the model to return the list through this tool, so we read a
+      // validated object instead of parsing free text (which proved fragile).
+      tools: [
+        {
+          name: 'record_items',
+          description: 'Record every distinct food or drink item identified in the image.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              items: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string', description: 'The product name' },
+                    category: { type: 'string', enum: CATEGORIES },
+                    quantity: { type: 'number', description: 'How many of this product, default 1' },
+                    unit: { type: 'string', description: 'Short freeform unit, or empty string' },
+                    confidence: { type: 'number', description: '0 to 1 certainty' }
+                  },
+                  required: ['name', 'category', 'quantity', 'unit', 'confidence']
+                }
+              }
+            },
+            required: ['items']
+          }
+        }
+      ],
+      tool_choice: { type: 'tool', name: 'record_items' },
       messages: [
         {
           role: 'user',
@@ -175,9 +166,8 @@ export async function visionHandler(body = {}) {
         }
       ]
     })
-    const text = message.content.find((b) => b.type === 'text')?.text || ''
-    const parsed = extractJson(text)
-    const items = asItemArray(parsed)
+    const toolUse = message.content.find((b) => b.type === 'tool_use')
+    const items = asItemArray(toolUse?.input)
       .map((it) => ({
         name: String(it.name || '').trim(),
         category: CATEGORIES.includes(it.category) ? it.category : 'other',
