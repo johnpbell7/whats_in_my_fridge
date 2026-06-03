@@ -19,6 +19,30 @@ export const LOCATIONS = [
 export const categoryLabel = (key) => CATEGORIES.find((c) => c.key === key)?.label || 'Other'
 export const locationLabel = (key) => LOCATIONS.find((l) => l.key === key)?.label || 'Fridge'
 
+// Best-guess category from a name alone — used when a shopping-list item (which
+// only has a name) is moved into the inventory, so it gets a sensible area and
+// use-by without the user having to pick. Falls back to 'other'.
+const CATEGORY_KEYWORDS = [
+  ['dairy', ['milk', 'cheese', 'yogurt', 'yoghurt', 'butter', 'cream', 'egg', 'margarine', 'custard']],
+  ['meat', ['chicken', 'beef', 'pork', 'lamb', 'mince', 'bacon', 'sausage', 'ham', 'turkey', 'steak',
+    'fish', 'salmon', 'tuna', 'cod', 'prawn', 'shrimp']],
+  ['drinks', ['juice', 'soda', 'cola', 'wine', 'beer', 'coffee', 'tea', 'squash', 'lemonade',
+    'cordial', 'smoothie', 'fizzy drink', 'sparkling water', 'still water']],
+  ['produce', ['apple', 'banana', 'orange', 'lettuce', 'tomato', 'potato', 'onion', 'carrot', 'pepper',
+    'cucumber', 'spinach', 'broccoli', 'fruit', 'veg', 'salad', 'berry', 'berries', 'grape', 'lemon',
+    'lime', 'garlic', 'mushroom', 'avocado', 'courgette', 'cabbage', 'celery', 'kale', 'pear']],
+  ['condiments', ['sauce', 'ketchup', 'mustard', 'mayo', 'mayonnaise', 'jam', 'honey', 'oil', 'vinegar',
+    'dressing', 'spread', 'marmalade', 'chutney', 'pickle']]
+]
+
+export function guessCategory(name = '') {
+  const n = name.toLowerCase()
+  for (const [key, words] of CATEGORY_KEYWORDS) {
+    if (words.some((w) => n.includes(w))) return key
+  }
+  return 'other'
+}
+
 // Suggest an expiry date from category + location. The freezer stretches
 // everything; the pantry stretches non-produce.
 export function suggestExpiry(category, location, from = new Date()) {
