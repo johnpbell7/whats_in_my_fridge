@@ -695,35 +695,43 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   height: 100dvh;
   width: 51%;
   will-change: transform;
-  /* brushed stainless steel: fine vertical grain over a soft sheen */
-  background:
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0 1px, rgba(0, 0, 0, 0.015) 1px 3px),
-    linear-gradient(100deg, #c6cace 0%, #dde0e3 36%, #cbced2 60%, #b4b8bc 100%);
+  /* smooth stainless steel: soft vertical reflection bands, no grain lines */
+  background: linear-gradient(
+    95deg,
+    #b4b8bc 0%,
+    #cdd1d4 16%,
+    #eef0f1 34%,
+    #d4d8db 50%,
+    #aeb2b6 64%,
+    #cfd3d6 82%,
+    #b7bbbf 100%
+  );
 }
 .splash-door.left {
   left: 0;
   /* top sheen + soft shading toward the centre seam for depth */
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), inset -22px 0 34px -20px rgba(0, 0, 0, 0.32);
-  border-right: 1px solid rgba(0, 0, 0, 0.10);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.45), inset -26px 0 40px -22px rgba(0, 0, 0, 0.3);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
 }
 .splash-door.right {
   right: 0;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.4), inset 22px 0 34px -20px rgba(0, 0, 0, 0.32);
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.45), inset 26px 0 40px -22px rgba(0, 0, 0, 0.3);
 }
-/* chrome handles, set low so they never sit over the logo */
+/* long brushed-chrome bar handles near the seam, below the logo */
 .splash-door.left::after,
 .splash-door.right::after {
   content: '';
   position: absolute;
-  top: 56%;
-  height: 26%;
-  width: 8px;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #ffffff, #b7bcc1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+  top: 46%;
+  height: 30%;
+  width: 11px;
+  border-radius: 7px;
+  /* cross-section highlight makes the bar read as a rounded metal cylinder */
+  background: linear-gradient(90deg, #8d9398 0%, #fbfcfd 34%, #d6dadd 62%, #888e93 100%);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
-.splash-door.left::after { right: 16px; }
-.splash-door.right::after { left: 16px; }
+.splash-door.left::after { right: 18px; }
+.splash-door.right::after { left: 18px; }
 
 .splash-logo {
   position: absolute;

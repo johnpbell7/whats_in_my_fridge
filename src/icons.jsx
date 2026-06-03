@@ -19,9 +19,9 @@ const Svg = ({ size, children, ...rest }) => (
 
 export const IconFridge = (p) => (
   <Svg {...p}>
-    <rect x="6" y="2.5" width="12" height="19" rx="2.5" />
-    <path d="M6 10h12" />
-    <path d="M9 6.2v1.4M9 13v3" />
+    <rect x="6" y="2.5" width="12" height="19" rx="2.6" />
+    <path d="M6 9h12" />
+    <path d="M15 5.4v2.2M15 11.6v3.4" />
   </Svg>
 )
 
