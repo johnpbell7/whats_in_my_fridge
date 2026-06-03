@@ -48,6 +48,44 @@ function extractJson(text) {
   throw new Error('Unbalanced JSON in model response')
 }
 
+// Turn an Anthropic SDK error into a clear, specific message. The two common
+// real-world causes (no credit, bad key) are otherwise invisible to the user.
+function mapClaudeError(err, kind) {
+  const status = err?.status
+  const detail = err?.error?.error?.message || err?.message || ''
+  console.error(`${kind} error [status ${status}]:`, detail)
+
+  if (status === 401) {
+    return {
+      status: 401,
+      body: {
+        error: 'bad_key',
+        message:
+          'Anthropic rejected the API key (invalid or revoked). Put a fresh key in Vercel → Settings → Environment Variables → ANTHROPIC_API_KEY, then redeploy.'
+      }
+    }
+  }
+  if (status === 400 && /credit balance|billing|too low/i.test(detail)) {
+    return {
+      status: 402,
+      body: {
+        error: 'no_credit',
+        message:
+          'Your Anthropic account has no credit. Add some at console.anthropic.com → Billing (a few £ lasts a long time), then try again.'
+      }
+    }
+  }
+  if (status === 404 && /model/i.test(detail)) {
+    return { status: 502, body: { error: 'bad_model', message: `That Claude model isn’t available: ${detail}` } }
+  }
+  if (status === 429) {
+    return { status: 429, body: { error: 'rate_limited', message: 'Too many requests right now — wait a few seconds and try again.' } }
+  }
+  // Fall back to the real detail so nothing stays hidden.
+  const generic = kind === 'vision' ? 'Could not read that photo.' : 'Could not reach Claude.'
+  return { status: 502, body: { error: `${kind}_failed`, message: detail ? `${generic} (${detail})` : `${generic} Please try again.` } }
+}
+
 const GROCERIES_PROMPT = `You are looking at a photo taken inside or of someone's fridge/groceries.
 List every distinct food or drink item you can clearly identify.
 
@@ -118,12 +156,7 @@ export async function visionHandler(body = {}) {
       .filter((it) => it.name)
     return { status: 200, body: { items } }
   } catch (err) {
-    console.error('vision error:', err?.message || err)
-    const hint =
-      mode === 'receipt'
-        ? 'Could not read that receipt. Try a flatter, well-lit shot with the whole list in frame.'
-        : 'Could not read that photo. Try a clearer, well-lit shot.'
-    return { status: 502, body: { error: 'vision_failed', message: hint } }
+    return mapClaudeError(err, 'vision')
   }
 }
 
@@ -158,7 +191,6 @@ Quantities and units are freeform. If the inventory is empty, say so plainly.`
     const answer = message.content.find((b) => b.type === 'text')?.text || ''
     return { status: 200, body: { answer } }
   } catch (err) {
-    console.error('chat error:', err?.message || err)
-    return { status: 502, body: { error: 'chat_failed', message: 'Could not reach Claude. Please try again.' } }
+    return mapClaudeError(err, 'chat')
   }
 }
