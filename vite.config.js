@@ -17,7 +17,9 @@ export default defineConfig({
         short_name: 'Fridge',
         description: "Tracks what's in your fridge — with photo recognition and chat.",
         theme_color: '#2f7d5a',
-        background_color: '#faf7f2',
+        // Match the steel doors so Android's launch screen flows straight into
+        // the intro instead of flashing the icon on a different background.
+        background_color: '#d3d7da',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
