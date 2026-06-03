@@ -714,7 +714,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .splash-door.right::after {
   content: '';
   position: absolute;
-  top: 46%;
+  top: 60%;
   height: 30%;
   width: 11px;
   border-radius: 7px;
