@@ -108,6 +108,19 @@ export const shopping = {
     return record
   },
 
+  // True if something by this name is already on the list (case-insensitive).
+  has(name) {
+    const clean = String(name).trim().toLowerCase()
+    return cache.some((it) => it.name.trim().toLowerCase() === clean)
+  },
+
+  // Add only if it isn't already there — used by the staple suggestions so
+  // tapping the same one twice can't pile up duplicates.
+  addUnique(name, quantity = 1) {
+    if (this.has(name)) return null
+    return this.add(name, quantity)
+  },
+
   toggle(id) {
     commit(cache.map((it) => (it.id === id ? { ...it, checked: !it.checked } : it)))
   },

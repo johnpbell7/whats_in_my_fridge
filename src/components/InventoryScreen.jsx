@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
-import { store } from '../lib/store.js'
+import { store, seedSample, clearSample } from '../lib/store.js'
 import { LOCATIONS } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { sortByExpiry, expiryState } from '../lib/expiry.js'
 import ItemRow from './ItemRow.jsx'
+import StaplesBanner from './StaplesBanner.jsx'
 import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle } from '../icons.jsx'
 
 export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }) {
@@ -14,6 +15,12 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
 
   const active = items.filter((i) => i.status === 'active')
   const archived = items.filter((i) => i.status !== 'active')
+  const sampleLoaded = items.some((i) => i.source === 'sample')
+  // Sample-data button shows in dev, or on the live app when opened with ?demo
+  // (e.g. your-url/?demo) so the staples feature can be seen without days of use.
+  const showSeed =
+    import.meta.env.DEV ||
+    (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('demo'))
 
   const soonCount = useMemo(
     () => active.filter((i) => ['soon', 'expired'].includes(expiryState(i))).length,
@@ -64,6 +71,15 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
         </span>
       </header>
 
+      {showSeed && (
+        <button
+          className="dev-seed"
+          onClick={() => (sampleLoaded ? clearSample() : seedSample())}
+        >
+          {sampleLoaded ? 'Clear sample data' : 'Load sample data'}
+        </button>
+      )}
+
       {view === 'active' && soonCount > 0 && (
         <div className="banner" role="status">
           <IconWarning size={18} />
@@ -73,6 +89,8 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
           </span>
         </div>
       )}
+
+      {view === 'active' && <StaplesBanner items={items} />}
 
       <div className="segment" role="tablist" aria-label="Which items to show">
         <button role="tab" aria-pressed={view === 'active'} onClick={() => setView('active')}>
