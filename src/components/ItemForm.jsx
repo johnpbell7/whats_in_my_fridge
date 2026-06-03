@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { CATEGORIES, LOCATIONS, suggestExpiry } from '../lib/categories.js'
+import { suggestLocation } from '../lib/location.js'
 import { IconClose, IconTrash } from '../icons.jsx'
 
 export default function ItemForm({ item, onSave, onDelete, onClose }) {
@@ -9,10 +10,17 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
   const [category, setCategory] = useState(item?.category || 'produce')
   const [quantity, setQuantity] = useState(item?.quantity ?? 1)
   const [unit, setUnit] = useState(item?.unit || '')
-  const [location, setLocation] = useState(item?.location || 'fridge')
+  const [location, setLocation] = useState(item?.location || suggestLocation('', item?.category || 'produce'))
+  const [locTouched, setLocTouched] = useState(false)
   const [expiry, setExpiry] = useState(item?.expiry_date || '')
   const [notes, setNotes] = useState(item?.notes || '')
   const [touched, setTouched] = useState(false)
+
+  // While adding a new item, keep filing it to the smart location as the name
+  // and category change — until the user picks a location themselves.
+  useEffect(() => {
+    if (!isEdit && !locTouched) setLocation(suggestLocation(name, category))
+  }, [name, category, isEdit, locTouched])
 
   const suggestion = suggestExpiry(category, location)
   const nameError = touched && !name.trim()
@@ -129,7 +137,10 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
                 type="button"
                 className="chip"
                 aria-pressed={location === l.key}
-                onClick={() => setLocation(l.key)}
+                onClick={() => {
+                  setLocation(l.key)
+                  setLocTouched(true)
+                }}
               >
                 {l.label}
               </button>

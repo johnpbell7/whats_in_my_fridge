@@ -4,6 +4,7 @@ import { detectFromImage } from '../lib/api.js'
 import { downscaleImage } from '../lib/image.js'
 import { store } from '../lib/store.js'
 import { CATEGORIES, LOCATIONS, suggestExpiry } from '../lib/categories.js'
+import { suggestLocation } from '../lib/location.js'
 import { IconCamera, IconReceipt, IconPlus, IconCheck, IconClose, IconSparkle, IconWarning } from '../icons.jsx'
 
 // phases: idle -> reading -> confirm  (error can interrupt reading)
@@ -13,7 +14,7 @@ export default function ScanScreen({ onDone, onAddManual }) {
   const [preview, setPreview] = useState(null)
   const [detected, setDetected] = useState([])
   const [error, setError] = useState(null)
-  const [location, setLocation] = useState('fridge')
+  const [location, setLocation] = useState('auto') // 'auto' files each item smartly
   const fileRef = useRef(null)
 
   async function handleFile(file) {
@@ -42,16 +43,19 @@ export default function ScanScreen({ onDone, onAddManual }) {
     const chosen = detected.filter((d) => d.include && d.name.trim())
     if (chosen.length) {
       store.addMany(
-        chosen.map((d) => ({
-          name: d.name.trim(),
-          category: d.category,
-          quantity: d.quantity || 1,
-          unit: d.unit || '',
-          location,
-          expiry_date: suggestExpiry(d.category, location),
-          source: 'photo',
-          confidence: d.confidence
-        }))
+        chosen.map((d) => {
+          const loc = location === 'auto' ? suggestLocation(d.name, d.category) : location
+          return {
+            name: d.name.trim(),
+            category: d.category,
+            quantity: d.quantity || 1,
+            unit: d.unit || '',
+            location: loc,
+            expiry_date: suggestExpiry(d.category, loc),
+            source: 'photo',
+            confidence: d.confidence
+          }
+        })
       )
     }
     reset()
@@ -200,14 +204,20 @@ function ConfirmList({ detected, setDetected, location, setLocation, chosenCount
   return (
     <>
       <div className="field" style={{ marginTop: 4 }}>
-        <label>Putting these in</label>
+        <label>Where to file these</label>
         <div className="chips">
+          <button type="button" className="chip" aria-pressed={location === 'auto'} onClick={() => setLocation('auto')}>
+            Auto
+          </button>
           {LOCATIONS.map((l) => (
             <button key={l.key} type="button" className="chip" aria-pressed={location === l.key} onClick={() => setLocation(l.key)}>
               {l.label}
             </button>
           ))}
         </div>
+        {location === 'auto' && (
+          <p className="expiry-suggest">Each item is filed where it usually lives — fridge, freezer or pantry.</p>
+        )}
       </div>
 
       <div style={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 'var(--r-md)', padding: '4px 14px', boxShadow: 'var(--shadow-sm)' }}>

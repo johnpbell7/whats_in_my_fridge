@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { store } from '../lib/store.js'
+import { LOCATIONS } from '../lib/categories.js'
 import { sortByExpiry, expiryState } from '../lib/expiry.js'
 import ItemRow from './ItemRow.jsx'
 import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning } from '../icons.jsx'
@@ -8,6 +9,7 @@ import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning } from '../ic
 export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }) {
   const [query, setQuery] = useState('')
   const [view, setView] = useState('active') // 'active' | 'archive'
+  const [place, setPlace] = useState('all') // 'all' | 'fridge' | 'freezer' | 'pantry'
 
   const active = items.filter((i) => i.status === 'active')
   const archived = items.filter((i) => i.status !== 'active')
@@ -17,12 +19,22 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
     [active]
   )
 
+  // Counts per location for the filter chips.
+  const placeCounts = useMemo(() => {
+    const c = { all: active.length, fridge: 0, freezer: 0, pantry: 0 }
+    active.forEach((i) => {
+      if (c[i.location] !== undefined) c[i.location] += 1
+    })
+    return c
+  }, [active])
+
   const visible = useMemo(() => {
-    const pool = view === 'active' ? active : archived
+    let pool = view === 'active' ? active : archived
+    if (view === 'active' && place !== 'all') pool = pool.filter((i) => i.location === place)
     const q = query.trim().toLowerCase()
     const filtered = q ? pool.filter((i) => i.name.toLowerCase().includes(q)) : pool
     return sortByExpiry(filtered)
-  }, [view, active, archived, query])
+  }, [view, active, archived, query, place])
 
   return (
     <div className="screen">
@@ -50,12 +62,30 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
 
       <div className="segment" role="tablist" aria-label="Which items to show">
         <button role="tab" aria-pressed={view === 'active'} onClick={() => setView('active')}>
-          In the fridge
+          In stock
         </button>
         <button role="tab" aria-pressed={view === 'archive'} onClick={() => setView('archive')}>
           Used &amp; gone
         </button>
       </div>
+
+      {view === 'active' && active.length > 0 && (
+        <div className="chips loc-filter" role="tablist" aria-label="Filter by location">
+          <button className="chip" aria-pressed={place === 'all'} onClick={() => setPlace('all')}>
+            All <span className="chip-count">{placeCounts.all}</span>
+          </button>
+          {LOCATIONS.map((l) => (
+            <button
+              key={l.key}
+              className="chip"
+              aria-pressed={place === l.key}
+              onClick={() => setPlace(l.key)}
+            >
+              {l.label} <span className="chip-count">{placeCounts[l.key]}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {(view === 'active' ? active.length : archived.length) > 0 && (
         <div className="search">
@@ -71,7 +101,13 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
       )}
 
       {visible.length === 0 ? (
-        <EmptyInventory view={view} hasQuery={Boolean(query.trim())} onAddManual={onAddManual} onGoScan={onGoScan} />
+        <EmptyInventory
+          view={view}
+          place={place}
+          hasQuery={Boolean(query.trim())}
+          onAddManual={onAddManual}
+          onGoScan={onGoScan}
+        />
       ) : (
         <ul className="item-list">
           <AnimatePresence initial={false}>
@@ -92,7 +128,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
   )
 }
 
-function EmptyInventory({ view, hasQuery, onAddManual, onGoScan }) {
+function EmptyInventory({ view, place, hasQuery, onAddManual, onGoScan }) {
   if (hasQuery) {
     return (
       <div className="empty">
@@ -101,6 +137,18 @@ function EmptyInventory({ view, hasQuery, onAddManual, onGoScan }) {
         </div>
         <h3>No matches</h3>
         <p>Nothing here by that name. Try a shorter search.</p>
+      </div>
+    )
+  }
+  if (view === 'active' && place !== 'all') {
+    const label = LOCATIONS.find((l) => l.key === place)?.label.toLowerCase() || place
+    return (
+      <div className="empty">
+        <div className="empty-art">
+          <IconFridge size={30} />
+        </div>
+        <h3>Nothing in the {label}</h3>
+        <p>Items you file in the {label} will show here. Tap “All” to see everything.</p>
       </div>
     )
   }
