@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { store, seedSample, clearSample } from '../lib/store.js'
+import { shopping } from '../lib/shopping.js'
 import { LOCATIONS, guessCategory } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { sortByExpiry, expiryState } from '../lib/expiry.js'
@@ -165,12 +166,14 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
         </div>
       )}
 
-      {view === 'active' && toSortCount > 0 && (
+      {/* When there are freshly-added items, the "New" section header is the
+          tap-to-file control (see CategorySections). The standalone button only
+          covers the other case: items already filed but sitting in the wrong
+          category/place. */}
+      {view === 'active' && unfiledCount === 0 && toSortCount > 0 && (
         <button className="autofile" onClick={autoFile}>
           <IconSparkle size={17} />
-          {unfiledCount > 0
-            ? `Tap to file ${unfiledCount} new ${unfiledCount === 1 ? 'item' : 'items'} into folders`
-            : `Tap to file ${toSortCount} ${toSortCount === 1 ? 'item' : 'items'} where they belong`}
+          {`Tap to file ${toSortCount} ${toSortCount === 1 ? 'item' : 'items'} where they belong`}
         </button>
       )}
 
@@ -207,7 +210,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
           onGoScan={onGoScan}
         />
       ) : view === 'active' ? (
-        <CategorySections items={visible} onEdit={onEdit} />
+        <CategorySections items={visible} onEdit={onEdit} onFileNew={autoFile} />
       ) : (
         <ul className="item-list">
           <AnimatePresence initial={false}>
@@ -217,8 +220,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
                 item={item}
                 onEdit={onEdit}
                 onUse={(it) => store.setStatus(it.id, 'used')}
-                onToss={(it) => store.remove(it.id)}
-                onRestore={(it) => store.setStatus(it.id, 'active')}
+                onReadd={(it) => shopping.addUnique(it.name, it.quantity || 1)}
               />
             ))}
           </AnimatePresence>
@@ -259,7 +261,7 @@ function EmptyInventory({ view, place, hasQuery, onAddManual, onGoScan }) {
           <IconFridge size={30} />
         </div>
         <h3>Nothing used yet</h3>
-        <p>Items you mark as used or thrown out land here, so you can put one back if you change your mind.</p>
+        <p>Items you mark as used or thrown out land here, so you can add them back to your shopping list with one tap.</p>
       </div>
     )
   }

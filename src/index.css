@@ -201,6 +201,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 }
 .cat-chevron { flex-shrink: 0; opacity: 0.6; transition: transform 160ms; }
 .cat-chevron.open { transform: rotate(90deg); }
+
+/* "New" header acting as the tap-to-file control: stacks a small hint under the
+   title so it reads "New / Tap to file into folders". */
+.cat-file .cat-label { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; line-height: 1.15; }
+.cat-file-hint { font-size: 11px; font-weight: 600; letter-spacing: 0; opacity: 0.85; }
 /* higher specificity than .item-list so the gap below the bar actually applies */
 .item-list.cat-items { margin-top: 16px; }
 
@@ -247,6 +252,9 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   padding: 0;
   color: inherit;
 }
+/* Name + "New" badge on one line: the name truncates, the badge never gets
+   clipped (it sits outside the ellipsis and won't shrink). */
+.item-name-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .item-name {
   font-weight: 600;
   font-size: 16px;
@@ -254,10 +262,12 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+  flex: 0 1 auto;
 }
 .item-name .qty { color: var(--ink-soft); font-weight: 500; }
 .tag-new {
-  margin-left: 8px; vertical-align: middle;
+  flex-shrink: 0;
   background: var(--accent); color: var(--on-accent);
   font-size: 10.5px; font-weight: 700; letter-spacing: 0.02em;
   padding: 2px 7px; border-radius: 999px; text-transform: uppercase;
@@ -337,6 +347,9 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .icon-btn:active { transform: scale(0.94); }
 .icon-btn.use:hover { background: var(--accent-soft); color: var(--accent); border-color: #bcdcc8; }
 .icon-btn.toss:hover { background: var(--danger-soft); color: var(--danger); border-color: #e6b8b2; }
+/* Re-add-to-shopping button on the archive: plus that flips to a green tick. */
+.icon-btn.readd:hover { background: var(--accent-soft); color: var(--accent); border-color: #bcdcc8; }
+.icon-btn.readd.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 
 /* a low-confidence flag for photo-added items */
 .confidence-flag {

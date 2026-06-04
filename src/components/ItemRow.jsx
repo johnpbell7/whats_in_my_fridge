@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { categoryLabel, locationLabel } from '../lib/categories.js'
-import { expiryState, expiryLabel, effectiveExpiry, daysOld, daysUntil } from '../lib/expiry.js'
-import { IconCheck, IconCircle, IconClock, IconWarning } from '../icons.jsx'
+import { expiryState, expiryLabel, effectiveExpiry, isEstimated, daysOld, daysUntil } from '../lib/expiry.js'
+import { IconCheck, IconCircle, IconClock, IconWarning, IconPlus } from '../icons.jsx'
 
-export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
+export default function ItemRow({ item, onEdit, onUse, onToss, onReadd }) {
   const state = expiryState(item)
   const eff = effectiveExpiry(item)
+  const estimated = isEstimated(item)
   const archived = item.status !== 'active'
   const lowConfidence = item.source !== 'manual' && typeof item.confidence === 'number' && item.confidence < 0.6
   // Small "New" badge for the first 24 hours after an item is added.
@@ -20,17 +21,27 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
     setChecking(true)
     setTimeout(() => onUse(item), 300)
   }
+  // On the "Used & gone" screen, the action re-adds the item to the shopping
+  // list. Tapping flips the plus to a tick for a beat as confirmation; the
+  // archived row stays put.
+  const [readded, setReadded] = useState(false)
+  function readd() {
+    onReadd?.(item)
+    setReadded(true)
+    setTimeout(() => setReadded(false), 1400)
+  }
 
-  // Every item just STATES ITS AGE ("Added today", "3 days old") — never
-  // "use by", only how long you've had it. The colour still flags how far
+  // By default an item just STATES ITS AGE ("Added today", "3 days old") —
+  // never "use by", only how long you've had it. The colour still flags how far
   // through its fresh window it is: amber within ~3 days of the end, red in the
   // last day or past it (so a 7-day item is calm to day 3, amber on days 4–5,
   // red from day 6, while longer-life things like sauces/frozen stay calm much
-  // longer). Only items we don't know the age of fall back to a use-by date.
+  // longer). ONLY when the user has entered an accurate use-by date do we show
+  // the factual "Use by / Expired" instead.
   const remaining = daysUntil(eff)
   let displayState = 'none'
   let expiryText = ''
-  if (item.added_date) {
+  if (estimated) {
     const age = daysOld(item)
     displayState = remaining === null ? 'none' : remaining <= 1 ? 'expired' : remaining <= 3 ? 'soon' : 'ok'
     expiryText = age <= 0 ? 'Added today' : age === 1 ? '1 day old' : `${age} days old`
@@ -56,11 +67,13 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
       className={rowClass}
     >
       <button className="item-main" onClick={() => onEdit(item)}>
-        <span className="item-name">
-          {item.name}
-          {item.quantity > 1 || (item.unit && item.unit !== '1') ? (
-            <span className="qty">  ·  {formatQty(item)}</span>
-          ) : null}
+        <span className="item-name-row">
+          <span className="item-name">
+            {item.name}
+            {item.quantity > 1 || (item.unit && item.unit !== '1') ? (
+              <span className="qty">  ·  {formatQty(item)}</span>
+            ) : null}
+          </span>
           {isNew && <span className="tag-new">New</span>}
         </span>
         <span className="item-meta">
@@ -89,8 +102,13 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
 
       <div className="item-actions">
         {archived ? (
-          <button className="icon-btn use" onClick={() => onRestore(item)} aria-label={`Put ${item.name} back`}>
-            <IconClock size={19} />
+          <button
+            className={`icon-btn readd ${readded ? 'on' : ''}`}
+            onClick={readd}
+            aria-label={`Add ${item.name} to your shopping list`}
+            title="Add back to your shopping list"
+          >
+            {readded ? <IconCheck size={19} /> : <IconPlus size={19} />}
           </button>
         ) : (
           <button

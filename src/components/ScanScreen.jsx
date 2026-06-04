@@ -4,7 +4,7 @@ import { detectFromImage } from '../lib/api.js'
 import { upgrade } from '../lib/upgrade.js'
 import { downscaleImage } from '../lib/image.js'
 import { store } from '../lib/store.js'
-import { CATEGORIES, LOCATIONS, suggestExpiry } from '../lib/categories.js'
+import { CATEGORIES, LOCATIONS } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { IconCamera, IconReceipt, IconPlus, IconCheck, IconClose, IconSparkle, IconWarning, IconClock } from '../icons.jsx'
 
@@ -72,7 +72,9 @@ export default function ScanScreen({ onDone, onAddManual }) {
             unit: d.unit || '',
             location: loc,
             added_date: added,
-            expiry_date: suggestExpiry(d.category, loc, purchasedAt),
+            // No use-by stored — freshness is counted from the added date and
+            // the category's window, so the card shows the item's age, not a
+            // "use by". (A user can still set an exact date later by hand.)
             source: 'photo',
             confidence: d.confidence,
             filed: false

@@ -25,7 +25,7 @@ const CAT_ICON = {
 // Groups the (already filtered + sorted) inventory into collapsible sections by
 // category — each a colour-tinted titled block with a line icon. All open by
 // default; tap a block to close/open it.
-export default function CategorySections({ items, onEdit }) {
+export default function CategorySections({ items, onEdit, onFileNew }) {
   const [collapsed, setCollapsed] = useState({})
 
   const groups = useMemo(() => {
@@ -46,20 +46,35 @@ export default function CategorySections({ items, onEdit }) {
   return (
     <div className="cat-groups">
       {groups.map((g) => {
-        const open = !collapsed[g.key]
         const Icon = CAT_ICON[g.key] || IconBox
+        // The "New" header doubles as the tap-to-file control: tapping it files
+        // the fresh items into their category folders. (It doesn't collapse.)
+        const isNewFiler = g.key === 'new' && onFileNew
+        const open = isNewFiler ? true : !collapsed[g.key]
         return (
           <section className="cat-group" key={g.key}>
-            <button
-              className={`cat-header cat-${g.key}`}
-              aria-expanded={open}
-              onClick={() => toggle(g.key)}
-            >
-              <span className="cat-icon"><Icon size={16} /></span>
-              <span className="cat-label">{g.label}</span>
-              <span className="cat-count">{g.items.length}</span>
-              <IconChevron size={15} className={`cat-chevron ${open ? 'open' : ''}`} />
-            </button>
+            {isNewFiler ? (
+              <button className="cat-header cat-new cat-file" onClick={onFileNew}>
+                <span className="cat-icon"><Icon size={16} /></span>
+                <span className="cat-label">
+                  New
+                  <small className="cat-file-hint">Tap to file into folders</small>
+                </span>
+                <span className="cat-count">{g.items.length}</span>
+                <IconChevron size={15} className="cat-chevron" />
+              </button>
+            ) : (
+              <button
+                className={`cat-header cat-${g.key}`}
+                aria-expanded={open}
+                onClick={() => toggle(g.key)}
+              >
+                <span className="cat-icon"><Icon size={16} /></span>
+                <span className="cat-label">{g.label}</span>
+                <span className="cat-count">{g.items.length}</span>
+                <IconChevron size={15} className={`cat-chevron ${open ? 'open' : ''}`} />
+              </button>
+            )}
             {open && (
               <ul className="item-list cat-items">
                 <AnimatePresence initial={false}>
@@ -69,8 +84,6 @@ export default function CategorySections({ items, onEdit }) {
                       item={item}
                       onEdit={onEdit}
                       onUse={(it) => store.setStatus(it.id, 'used')}
-                      onToss={(it) => store.remove(it.id)}
-                      onRestore={(it) => store.setStatus(it.id, 'active')}
                     />
                   ))}
                 </AnimatePresence>
