@@ -877,6 +877,33 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .usage-fill.full { background: var(--warn); }
 .account-note { font-size: 12px; color: var(--ink-faint); margin: 2px 0 0; }
 
+/* ----- Upgrade CTA + sheet ----- */
+.upgrade-cta { gap: 8px; margin-bottom: 10px; }
+.upgrade-badge {
+  width: 48px; height: 48px; border-radius: 14px;
+  background: var(--accent-soft); color: var(--accent-press);
+  display: flex; align-items: center; justify-content: center; margin: 2px 0 12px;
+}
+.upgrade-tagline { margin: 0 0 16px; color: var(--ink-soft); font-size: 14px; line-height: 1.45; }
+.upgrade-benefits { list-style: none; margin: 0 0 18px; padding: 0; }
+.upgrade-benefits li {
+  display: flex; align-items: flex-start; gap: 10px; font-size: 14px; line-height: 1.4;
+  margin-bottom: 11px; color: var(--ink);
+}
+.upgrade-tick {
+  flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; margin-top: 1px;
+  background: var(--accent); color: var(--on-accent);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.upgrade-price { display: flex; align-items: baseline; justify-content: center; gap: 4px; margin: 4px 0 18px; }
+.upgrade-amount { font-family: var(--font-display); font-size: 34px; font-weight: 700; color: var(--ink); }
+.upgrade-per { font-size: 15px; color: var(--ink-soft); }
+.upgrade-soon {
+  background: var(--accent-soft); color: var(--accent-press); border-radius: var(--r-md);
+  padding: 14px; font-size: 14px; line-height: 1.45; text-align: center; margin: 0;
+}
+.upgrade-later { width: 100%; margin-top: 8px; }
+
 /* ----- Banner ----- */
 .banner {
   display: flex;

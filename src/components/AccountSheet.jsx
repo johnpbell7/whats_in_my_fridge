@@ -1,20 +1,25 @@
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../lib/supabase.js'
 import { getMe } from '../lib/api.js'
-import { IconClose, IconUser } from '../icons.jsx'
+import UpgradeSheet from './UpgradeSheet.jsx'
+import { IconClose, IconUser, IconSparkle } from '../icons.jsx'
 
 // Bottom-sheet account panel: who you are, your plan, this month's usage
 // against your limits, and sign out.
 export default function AccountSheet({ onClose }) {
   const [me, setMe] = useState(null)
   const [err, setErr] = useState(false)
+  const [upgrade, setUpgrade] = useState(false)
 
   useEffect(() => {
     getMe().then(setMe).catch(() => setErr(true))
   }, [])
 
+  const isPlus = me?.tier === 'plus'
+
   return (
+    <>
     <div className="scrim" onClick={onClose}>
       <motion.div
         className="sheet"
@@ -50,11 +55,22 @@ export default function AccountSheet({ onClose }) {
           </div>
         )}
 
+        {me && !isPlus && (
+          <button className="btn btn-primary btn-block upgrade-cta" onClick={() => setUpgrade(true)}>
+            <IconSparkle size={18} /> Upgrade to Plus — £3.99/month
+          </button>
+        )}
+
         <button className="btn btn-ghost btn-block" onClick={() => supabase.auth.signOut()}>
           Sign out
         </button>
       </motion.div>
     </div>
+
+    <AnimatePresence>
+      {upgrade && <UpgradeSheet onClose={() => setUpgrade(false)} />}
+    </AnimatePresence>
+    </>
   )
 }
 
