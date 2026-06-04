@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { categoryLabel, locationLabel } from '../lib/categories.js'
 import { expiryState, expiryLabel, effectiveExpiry, isEstimated } from '../lib/expiry.js'
-import { IconCheck, IconTrash, IconClock, IconWarning } from '../icons.jsx'
+import { IconCheck, IconClock, IconWarning } from '../icons.jsx'
 
 export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
   const state = expiryState(item)
@@ -73,24 +73,14 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
             <IconClock size={19} />
           </button>
         ) : (
-          <>
-            <button
-              className="icon-btn use"
-              onClick={() => onUse(item)}
-              aria-label={`Mark ${item.name} as used`}
-              title="Used it — move to history"
-            >
-              <IconCheck size={20} />
-            </button>
-            <button
-              className="icon-btn toss"
-              onClick={() => onToss(item)}
-              aria-label={`Delete ${item.name}`}
-              title="Delete — added by mistake"
-            >
-              <IconTrash size={18} />
-            </button>
-          </>
+          <button
+            className="item-done"
+            onClick={() => onUse(item)}
+            aria-label={`Mark ${item.name} as used or gone`}
+            title="Used it — eaten or thrown away"
+          >
+            <IconCheck size={17} /> Used
+          </button>
         )}
       </div>
     </motion.li>
