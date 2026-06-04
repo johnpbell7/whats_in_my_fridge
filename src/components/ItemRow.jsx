@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { categoryLabel, locationLabel } from '../lib/categories.js'
-import { expiryState, expiryLabel, effectiveExpiry, isEstimated } from '../lib/expiry.js'
+import { expiryState, expiryLabel, effectiveExpiry, isEstimated, daysOld, daysUntil } from '../lib/expiry.js'
 import { IconCheck, IconCircle, IconClock, IconWarning } from '../icons.jsx'
 
 export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
@@ -22,15 +22,24 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
     setTimeout(() => onUse(item), 300)
   }
 
-  // "Expired" is only ever said when you entered an exact date (it's factual).
-  // For an estimated countdown we soften it: amber, and worded as a nudge.
-  const past = state === 'expired'
-  const displayState = estimated && past ? 'soon' : state
-  const expiryText = past
-    ? estimated
-      ? 'Use or bin soon'
-      : `Expired ${expiryLabel(eff)}`
-    : `${estimated ? 'Best by ' : 'Use by '}${expiryLabel(eff)}`
+  // Estimated items show their AGE ("Added today", "3 days old") and flag by
+  // how far through their fresh window they are: amber within ~3 days of the
+  // end, red once past it (so a 7-day item flags on day 4, red on day 7, while
+  // longer-life things like sauces/frozen stay calm much longer). Items with an
+  // exact date keep the factual "Use by / Expired".
+  const remaining = daysUntil(eff)
+  let displayState = 'none'
+  let expiryText = ''
+  if (eff) {
+    if (estimated) {
+      const age = daysOld(item)
+      displayState = remaining <= 0 ? 'expired' : remaining <= 3 ? 'soon' : 'ok'
+      expiryText = age <= 0 ? 'Added today' : age === 1 ? '1 day old' : `${age} days old`
+    } else {
+      displayState = state
+      expiryText = state === 'expired' ? `Expired ${expiryLabel(eff)}` : `Use by ${expiryLabel(eff)}`
+    }
+  }
 
   const rowClass = [
     'item',

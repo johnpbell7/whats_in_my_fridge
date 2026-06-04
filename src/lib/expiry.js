@@ -24,6 +24,12 @@ export function isEstimated(item) {
   return Boolean(item) && !item.expiry_date && Boolean(item.added_date)
 }
 
+// Whole days since an item was added (0 = added today).
+export function daysOld(item, today = new Date()) {
+  if (!item?.added_date) return 0
+  return Math.max(0, Math.round((startOfDay(today) - startOfDay(new Date(item.added_date))) / DAY))
+}
+
 // Whole days from today until the given YYYY-MM-DD (negative = already past).
 export function daysUntil(dateStr, today = new Date()) {
   if (!dateStr) return null
