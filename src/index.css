@@ -209,9 +209,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .cat-header.cat-dairy { background: #eef2fa; color: #46618c; }
 .cat-header.cat-produce { background: #eaf3e8; color: #4a7a43; }
 .cat-header.cat-meat { background: #f7ebe9; color: #9c5249; }
+.cat-header.cat-bakery { background: #f4ecdd; color: #8a6a32; }
 .cat-header.cat-leftovers { background: #f3eee0; color: #897445; }
 .cat-header.cat-condiments { background: #f1ecf3; color: #7a5d86; }
 .cat-header.cat-drinks { background: #e7f1f3; color: #3f7480; }
+.cat-header.cat-snacks { background: #f9eaf1; color: #97527b; }
 .cat-header.cat-other { background: var(--surface-2); color: var(--ink-soft); }
 
 /* ----- Item rows ----- */
@@ -284,9 +286,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .tag.cat-dairy { background: #eef2fa; color: #46618c; }
 .tag.cat-produce { background: #eaf3e8; color: #4a7a43; }
 .tag.cat-meat { background: #f7ebe9; color: #9c5249; }
+.tag.cat-bakery { background: #f4ecdd; color: #8a6a32; }
 .tag.cat-leftovers { background: #f3eee0; color: #897445; }
 .tag.cat-condiments { background: #f1ecf3; color: #7a5d86; }
 .tag.cat-drinks { background: #e7f1f3; color: #3f7480; }
+.tag.cat-snacks { background: #f9eaf1; color: #97527b; }
 .tag.cat-other { background: var(--surface-2); color: var(--ink-soft); }
 
 .expiry-chip {

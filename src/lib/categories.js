@@ -6,9 +6,11 @@ export const CATEGORIES = [
   { key: 'dairy', label: 'Dairy', days: 7 },
   { key: 'produce', label: 'Produce', days: 7 },
   { key: 'meat', label: 'Meat & fish', days: 7 },
+  { key: 'bakery', label: 'Bakery', days: 5 },
   { key: 'leftovers', label: 'Leftovers', days: 5 },
   { key: 'condiments', label: 'Condiments', days: 90 },
   { key: 'drinks', label: 'Drinks', days: 14 },
+  { key: 'snacks', label: 'Snacks', days: 60 },
   { key: 'other', label: 'Other', days: 21 }
 ]
 
@@ -24,10 +26,18 @@ export const locationLabel = (key) => LOCATIONS.find((l) => l.key === key)?.labe
 // Best-guess category from a name alone — used when a shopping-list item (which
 // only has a name) is moved into the inventory, so it gets a sensible area and
 // use-by without the user having to pick. Falls back to 'other'.
+// Order matters: the first group with a matching keyword wins. Bakery and
+// snacks are checked before drinks/produce/condiments so obvious matches win
+// over coincidental substrings (e.g. "chocolate" contains "cola").
 const CATEGORY_KEYWORDS = [
   ['dairy', ['milk', 'cheese', 'yogurt', 'yoghurt', 'butter', 'cream', 'egg', 'margarine', 'custard']],
   ['meat', ['chicken', 'beef', 'pork', 'lamb', 'mince', 'bacon', 'sausage', 'ham', 'turkey', 'steak',
     'fish', 'salmon', 'tuna', 'cod', 'prawn', 'shrimp']],
+  ['bakery', ['bread', 'loaf', 'roll', 'bagel', 'baguette', 'croissant', 'pastry', 'muffin', 'bun',
+    'pitta', 'pita', 'naan', 'crumpet', 'scone', 'brioche', 'sourdough', 'ciabatta', 'wrap', 'tortilla',
+    'doughnut', 'donut']],
+  ['snacks', ['crisp', 'chocolate', 'biscuit', 'cookie', 'sweets', 'candy', 'popcorn', 'pretzel',
+    'cracker', 'wafer', 'haribo', 'snack', 'chocolate bar', 'crackers', 'nachos', 'tortilla chip']],
   ['drinks', ['juice', 'soda', 'cola', 'wine', 'beer', 'coffee', 'tea', 'squash', 'lemonade',
     'cordial', 'smoothie', 'fizzy drink', 'sparkling water', 'still water']],
   ['produce', ['apple', 'banana', 'orange', 'lettuce', 'tomato', 'potato', 'onion', 'carrot', 'pepper',

@@ -8,7 +8,7 @@ import { guard, accountSummary, authEnabled, recordUsage } from './auth.js'
 const VISION_MODEL = process.env.VISION_MODEL || 'claude-sonnet-4-6'
 const CHAT_MODEL = process.env.CHAT_MODEL || 'claude-haiku-4-5-20251001'
 
-export const CATEGORIES = ['dairy', 'produce', 'meat', 'leftovers', 'condiments', 'drinks', 'other']
+export const CATEGORIES = ['dairy', 'produce', 'meat', 'bakery', 'leftovers', 'condiments', 'drinks', 'snacks', 'other']
 
 // Lazy + memoized so the API key is read at call time (after dotenv loads
 // locally, or from Vercel's injected env in production).
@@ -102,7 +102,7 @@ Rules:
 - Do not invent items that are fully hidden behind others or sealed inside opaque containers. But DO include items that are only partially visible if you can recognise them.
 - Several of the SAME product = one entry with the count as quantity (e.g. three apples -> quantity 3). Different products are always separate entries.
 - Food and drink ONLY. Do NOT include non-food or household items (cleaning products, toiletries, air fresheners, candles, kitchen roll, foil, pet food, medicine).
-- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks. Only use 'other' when nothing else genuinely fits.
+- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks; bread and baked goods -> bakery; crisps, chocolate, biscuits, sweets -> snacks. Only use 'other' when nothing else genuinely fits.
 - confidence is your certainty from 0 to 1 that the item is present and correctly named.
 - quantity is a number; unit is a short freeform string ("carton", "block", "bunch", "" if not obvious).
 - frozen is true ONLY if it is a frozen product that belongs in the freezer (ice cream, frozen vegetables/fruit/fish/meat, oven chips, frozen ready meals, anything whose packaging says "frozen"); otherwise false.
@@ -117,7 +117,7 @@ Rules:
 - IGNORE non-grocery lines entirely: store name and address, dates, totals, subtotals, VAT/tax, change, card/payment lines, discounts, loyalty/clubcard points, and carrier bags.
 - Skip clearly non-food household items (cleaning products, toiletries) unless they are food or drink.
 - quantity comes from the line if shown (e.g. "2 @ £1.50" -> quantity 2), otherwise 1.
-- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks. Only use 'other' when nothing else genuinely fits.
+- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks; bread and baked goods -> bakery; crisps, chocolate, biscuits, sweets -> snacks. Only use 'other' when nothing else genuinely fits.
 - A receipt is printed text, so confidence should usually be high (0.8-1.0) unless the line is genuinely ambiguous.
 - frozen is true if the line is clearly a frozen product (e.g. "FROZEN", "FRZ", ice cream, frozen veg/fish/chips); otherwise false.
 - Also read the date the receipt was ISSUED (the transaction/purchase date, usually near the top or bottom, NOT any 'best before' dates) and return it as receipt_date in YYYY-MM-DD format. If no transaction date is clearly legible, return an empty string.
