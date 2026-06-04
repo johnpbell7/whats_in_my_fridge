@@ -244,6 +244,11 @@ export const staplePrefs = {
     const pinned = { ...cache.pinned }
     delete pinned[key]
     commit({ pinned, ignored: { ...cache.ignored, [key]: true } })
+  },
+
+  // Wipe pins/dismissals (on account change).
+  clear() {
+    commit({ pinned: {}, ignored: {} })
   }
 }
 

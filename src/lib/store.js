@@ -156,6 +156,12 @@ export const store = {
 
   setStatus(id, status) {
     this.update(id, { status })
+  },
+
+  // Wipe all items (used when the signed-in account changes, so one account
+  // never sees another's fridge on a shared device).
+  clear() {
+    commit([])
   }
 }
 

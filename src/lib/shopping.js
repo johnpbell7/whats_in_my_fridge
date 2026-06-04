@@ -131,6 +131,11 @@ export const shopping = {
 
   clearChecked() {
     commit(cache.filter((it) => !it.checked))
+  },
+
+  // Wipe the whole list (on account change).
+  clear() {
+    commit([])
   }
 }
 
