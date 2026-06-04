@@ -5,7 +5,7 @@ import { CATEGORIES } from '../lib/categories.js'
 import ItemRow from './ItemRow.jsx'
 import {
   IconChevron, IconLeaf, IconMilk, IconFish, IconBowl, IconBottle, IconCup, IconBox, IconSparkle,
-  IconBread, IconSnack
+  IconBread, IconSnack, IconSpray
 } from '../icons.jsx'
 
 const CAT_ICON = {
@@ -18,6 +18,7 @@ const CAT_ICON = {
   condiments: IconBottle,
   drinks: IconCup,
   snacks: IconSnack,
+  household: IconSpray,
   other: IconBox
 }
 

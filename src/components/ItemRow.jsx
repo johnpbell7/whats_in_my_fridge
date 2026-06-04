@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { categoryLabel, locationLabel } from '../lib/categories.js'
-import { expiryState, expiryLabel, effectiveExpiry, isEstimated, daysOld, daysUntil } from '../lib/expiry.js'
+import { expiryState, expiryLabel, effectiveExpiry, daysOld, daysUntil } from '../lib/expiry.js'
 import { IconCheck, IconCircle, IconClock, IconWarning } from '../icons.jsx'
 
 export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
   const state = expiryState(item)
   const eff = effectiveExpiry(item)
-  const estimated = isEstimated(item)
   const archived = item.status !== 'active'
   const lowConfidence = item.source !== 'manual' && typeof item.confidence === 'number' && item.confidence < 0.6
   // Small "New" badge for the first 24 hours after an item is added.
@@ -22,25 +21,22 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
     setTimeout(() => onUse(item), 300)
   }
 
-  // Estimated items just STATE THEIR AGE ("Purchased today", "3 days old") —
-  // never implying the item is off, only how long you've had it. The colour
-  // flags how far through the fresh window it is: amber within ~3 days of the
-  // end, red in the last day or past it (so a 7-day item is calm to day 3,
-  // amber on days 4–5, red from day 6, while longer-life things like
-  // sauces/frozen stay calm much longer). Items with an exact date keep the
-  // factual "Use by / Expired".
+  // Every item just STATES ITS AGE ("Added today", "3 days old") — never
+  // "use by", only how long you've had it. The colour still flags how far
+  // through its fresh window it is: amber within ~3 days of the end, red in the
+  // last day or past it (so a 7-day item is calm to day 3, amber on days 4–5,
+  // red from day 6, while longer-life things like sauces/frozen stay calm much
+  // longer). Only items we don't know the age of fall back to a use-by date.
   const remaining = daysUntil(eff)
   let displayState = 'none'
   let expiryText = ''
-  if (eff) {
-    if (estimated) {
-      const age = daysOld(item)
-      displayState = remaining <= 1 ? 'expired' : remaining <= 3 ? 'soon' : 'ok'
-      expiryText = age <= 0 ? 'Purchased today' : age === 1 ? '1 day old' : `${age} days old`
-    } else {
-      displayState = state
-      expiryText = state === 'expired' ? `Expired ${expiryLabel(eff)}` : `Use by ${expiryLabel(eff)}`
-    }
+  if (item.added_date) {
+    const age = daysOld(item)
+    displayState = remaining === null ? 'none' : remaining <= 1 ? 'expired' : remaining <= 3 ? 'soon' : 'ok'
+    expiryText = age <= 0 ? 'Added today' : age === 1 ? '1 day old' : `${age} days old`
+  } else if (eff) {
+    displayState = state
+    expiryText = state === 'expired' ? `Expired ${expiryLabel(eff)}` : `Use by ${expiryLabel(eff)}`
   }
 
   const rowClass = [
@@ -71,7 +67,7 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
           <span className={`tag cat-${item.category}`}>{categoryLabel(item.category)}</span>
           <span className="dot" />
           <span>{locationLabel(item.location)}</span>
-          {eff && (
+          {expiryText && (
             <>
               <span className="dot" />
               <span className={`expiry-chip ${displayState}`}>

@@ -11,6 +11,7 @@ export const CATEGORIES = [
   { key: 'condiments', label: 'Condiments', days: 90 },
   { key: 'drinks', label: 'Drinks', days: 14 },
   { key: 'snacks', label: 'Snacks', days: 60 },
+  { key: 'household', label: 'Household', days: 365 },
   { key: 'other', label: 'Other', days: 21 }
 ]
 
@@ -26,10 +27,25 @@ export const locationLabel = (key) => LOCATIONS.find((l) => l.key === key)?.labe
 // Best-guess category from a name alone — used when a shopping-list item (which
 // only has a name) is moved into the inventory, so it gets a sensible area and
 // use-by without the user having to pick. Falls back to 'other'.
-// Order matters: the first group with a matching keyword wins. Bakery and
-// snacks are checked before drinks/produce/condiments so obvious matches win
-// over coincidental substrings (e.g. "chocolate" contains "cola").
+// Order matters: the first group with a matching keyword wins. Household is
+// checked FIRST because its words are distinctive and several are substrings of
+// food names ("shampoo" contains "ham", "toilet roll" contains "roll", "foil"
+// contains "oil") — almost no food name contains a household word, so this is
+// safe. After that, bakery and snacks are checked before drinks/produce/
+// condiments so obvious matches win over coincidental substrings (e.g.
+// "chocolate" contains "cola").
 const CATEGORY_KEYWORDS = [
+  // Non-food household items.
+  ['household', ['bleach', 'detergent', 'washing up', 'washing-up', 'washing powder', 'fabric softener',
+    'softener', 'disinfectant', 'surface spray', 'cleaner', 'cleaning', 'dishwasher tablet', 'dishwasher',
+    'scourer', 'bin bag', 'bin liner', 'kitchen roll', 'toilet roll', 'loo roll', 'toilet',
+    'wipes', 'wipe', 'tissue', 'foil', 'cling film', 'clingfilm', 'air freshener', 'candle', 'battery',
+    'batteries', 'shampoo', 'conditioner', 'shower gel', 'soap', 'hand wash', 'body wash', 'toothpaste',
+    'toothbrush', 'mouthwash', 'floss', 'deodorant', 'antiperspirant', 'razor', 'shaving', 'moisturiser',
+    'moisturizer', 'lotion', 'sunscreen', 'sun cream', 'cotton wool', 'cotton pad', 'sanitary', 'tampon',
+    'nappy', 'nappies', 'toilet paper', 'paracetamol', 'ibuprofen', 'aspirin', 'painkiller', 'plaster',
+    'bandage', 'vitamin', 'supplement', 'medicine', 'tablets', 'capsule', 'antiseptic', 'cough', 'lozenge',
+    'cold and flu', 'first aid', 'first-aid', 'antihistamine', 'allergy']],
   ['dairy', ['milk', 'cheese', 'yogurt', 'yoghurt', 'butter', 'cream', 'egg', 'margarine', 'custard']],
   ['meat', ['chicken', 'beef', 'pork', 'lamb', 'mince', 'bacon', 'sausage', 'ham', 'turkey', 'steak',
     'fish', 'salmon', 'tuna', 'cod', 'prawn', 'shrimp']],
