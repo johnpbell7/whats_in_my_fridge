@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase.js'
 import { getMe } from '../lib/api.js'
-import UpgradeSheet from './UpgradeSheet.jsx'
+import { upgrade } from '../lib/upgrade.js'
 import { IconClose, IconUser, IconSparkle } from '../icons.jsx'
 
 // Bottom-sheet account panel: who you are, your plan, this month's usage
@@ -10,16 +10,12 @@ import { IconClose, IconUser, IconSparkle } from '../icons.jsx'
 export default function AccountSheet({ onClose }) {
   const [me, setMe] = useState(null)
   const [err, setErr] = useState(false)
-  const [upgrade, setUpgrade] = useState(false)
 
   useEffect(() => {
     getMe().then(setMe).catch(() => setErr(true))
   }, [])
 
-  const isPlus = me?.tier === 'plus'
-
   return (
-    <>
     <div className="scrim" onClick={onClose}>
       <motion.div
         className="sheet"
@@ -45,6 +41,12 @@ export default function AccountSheet({ onClose }) {
           </div>
         </div>
 
+        {me?.trial && (
+          <p className="account-trial">
+            ✨ Your Plus trial — {me.trialDaysLeft} {me.trialDaysLeft === 1 ? 'day' : 'days'} left. Subscribe to keep it.
+          </p>
+        )}
+
         {err && <p className="auth-error">Couldn’t load your usage just now.</p>}
 
         {me?.usage && (
@@ -55,9 +57,9 @@ export default function AccountSheet({ onClose }) {
           </div>
         )}
 
-        {me && !isPlus && (
-          <button className="btn btn-primary btn-block upgrade-cta" onClick={() => setUpgrade(true)}>
-            <IconSparkle size={18} /> Upgrade to Plus — £3.99/month
+        {me && !me.paid && (
+          <button className="btn btn-primary btn-block upgrade-cta" onClick={() => upgrade.show('account')}>
+            <IconSparkle size={18} /> {me.trial ? 'Keep Plus — £3.99/month' : 'Upgrade to Plus — £3.99/month'}
           </button>
         )}
 
@@ -66,11 +68,6 @@ export default function AccountSheet({ onClose }) {
         </button>
       </motion.div>
     </div>
-
-    <AnimatePresence>
-      {upgrade && <UpgradeSheet onClose={() => setUpgrade(false)} />}
-    </AnimatePresence>
-    </>
   )
 }
 

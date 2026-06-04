@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { detectFromImage } from '../lib/api.js'
+import { upgrade } from '../lib/upgrade.js'
 import { downscaleImage } from '../lib/image.js'
 import { store } from '../lib/store.js'
 import { CATEGORIES, LOCATIONS, suggestExpiry } from '../lib/categories.js'
@@ -36,8 +37,14 @@ export default function ScanScreen({ onDone, onAddManual }) {
       )
       setPhase('confirm')
     } catch (err) {
-      setError(err.message)
-      setPhase('error')
+      // At a cap or rate-limit, open the upgrade prompt instead of an error.
+      if (err.code === 'quota_exceeded' || err.code === 'rate_limited') {
+        upgrade.show(err.code === 'rate_limited' ? 'rate' : 'scans')
+        setPhase('idle')
+      } else {
+        setError(err.message)
+        setPhase('error')
+      }
     }
   }
 

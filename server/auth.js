@@ -95,8 +95,28 @@ export function overQuotaResponse(kind, decision) {
   }
 }
 
-// Verify the bearer token and load the user's tier. Returns
-// { user, tier } on success, or { error: {status, body} } to forward.
+// Every new account gets a free taste of Plus for this many days, then drops to
+// Free — the trial is what makes losing it (back to manual entry) feel real.
+export const TRIAL_DAYS = 7
+
+// Work out a user's effective plan: paid Plus, a Plus trial (first 7 days), or
+// Free. Trial is derived from when their profile was created, so no extra state
+// to manage. Returns { tier, paid, trial, trialDaysLeft }.
+export function effectivePlan(profile) {
+  const tier = profile?.tier || 'free'
+  if (tier === 'plus') return { tier: 'plus', paid: true, trial: false, trialDaysLeft: 0 }
+  const created = profile?.created_at ? Date.parse(profile.created_at) : NaN
+  if (!Number.isNaN(created)) {
+    const msLeft = created + TRIAL_DAYS * 86400000 - Date.now()
+    if (msLeft > 0) {
+      return { tier: 'plus', paid: false, trial: true, trialDaysLeft: Math.ceil(msLeft / 86400000) }
+    }
+  }
+  return { tier: 'free', paid: false, trial: false, trialDaysLeft: 0 }
+}
+
+// Verify the bearer token and load the user's plan. Returns
+// { user, tier, plan } on success, or { error: {status, body} } to forward.
 export async function authenticate(token) {
   if (!authEnabled()) return { user: null, tier: 'free', skipped: true }
   if (!token) return { error: UNAUTHENTICATED }
@@ -106,8 +126,9 @@ export async function authenticate(token) {
   if (error || !data?.user) return { error: UNAUTHENTICATED }
   const user = data.user
 
-  const { data: profile } = await db.from('profiles').select('tier').eq('id', user.id).single()
-  return { user, tier: profile?.tier || 'free' }
+  const { data: profile } = await db.from('profiles').select('tier, created_at').eq('id', user.id).single()
+  const plan = effectivePlan(profile)
+  return { user, tier: plan.tier, plan }
 }
 
 // How many of `kind` this user has used since a given timestamp.
@@ -168,6 +189,7 @@ export async function accountSummary(token) {
     return { status: 200, body: { authEnabled: false } }
   }
   const cfg = tierConfig(auth.tier)
+  const plan = auth.plan || { tier: auth.tier, paid: auth.tier === 'plus', trial: false, trialDaysLeft: 0 }
   const [scans, chats] = await Promise.all([
     usageThisPeriod(auth.user.id, 'vision'),
     usageThisPeriod(auth.user.id, 'chat')
@@ -178,7 +200,10 @@ export async function accountSummary(token) {
       authEnabled: true,
       email: auth.user.email,
       tier: auth.tier,
-      tierLabel: cfg.label,
+      paid: plan.paid,
+      trial: plan.trial,
+      trialDaysLeft: plan.trialDaysLeft,
+      tierLabel: plan.paid ? 'Plus' : plan.trial ? 'Plus trial' : 'Free',
       usage: {
         scans: { used: scans, limit: cfg.scansPerMonth },
         chats: { used: chats, limit: cfg.chatsPerMonth }

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { askChat } from '../lib/api.js'
+import { upgrade } from '../lib/upgrade.js'
 import { expiryState } from '../lib/expiry.js'
-import { IconSend, IconSparkle } from '../icons.jsx'
+import { IconSend, IconSparkle, IconCamera, IconPlus } from '../icons.jsx'
 
 const SUGGESTIONS = ["What's expiring soon?", 'Do I have eggs?', 'What can I make for dinner?']
 
-export default function ChatScreen({ items }) {
+export default function ChatScreen({ items, onGoScan, onAddManual }) {
   const [messages, setMessages] = useState([])
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
@@ -38,7 +39,12 @@ export default function ChatScreen({ items }) {
       const answer = await askChat(question, inventory)
       setMessages((m) => [...m, { role: 'ai', text: answer }])
     } catch (err) {
-      setMessages((m) => [...m, { role: 'error', text: err.message }])
+      // At a cap or rate-limit, open the upgrade prompt instead of a raw error.
+      if (err.code === 'quota_exceeded' || err.code === 'rate_limited') {
+        upgrade.show(err.code === 'rate_limited' ? 'rate' : 'chat')
+      } else {
+        setMessages((m) => [...m, { role: 'error', text: err.message }])
+      }
     } finally {
       setBusy(false)
     }
@@ -49,6 +55,36 @@ export default function ChatScreen({ items }) {
       e.preventDefault()
       send()
     }
+  }
+
+  // Chat only makes sense once there's something to talk about — guide empty
+  // fridges to add items first rather than asking about nothing.
+  if (active.length === 0) {
+    return (
+      <div className="screen chat-screen">
+        <header className="app-header" style={{ marginBottom: 8 }}>
+          <div>
+            <h1 className="app-title">Ask</h1>
+            <p className="app-subtitle">Add to your fridge to get started.</p>
+          </div>
+        </header>
+        <div className="empty" style={{ paddingTop: 40 }}>
+          <div className="empty-art">
+            <IconSparkle size={30} />
+          </div>
+          <h3>Nothing to ask about yet</h3>
+          <p>Add a few things to your fridge and I can tell you what’s expiring or what you could cook.</p>
+          <div className="empty-actions">
+            <button className="btn btn-primary" onClick={onGoScan}>
+              <IconCamera size={19} /> Scan a photo
+            </button>
+            <button className="btn btn-ghost" onClick={onAddManual}>
+              <IconPlus size={19} /> Add by hand
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
