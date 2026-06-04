@@ -1,9 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSavedMeals } from '../lib/useSavedMeals.js'
 import { savedMeals } from '../lib/meals.js'
-import { shopping } from '../lib/shopping.js'
-import BuyChip from './BuyChip.jsx'
-import { IconSparkle, IconTrash, IconChat, IconCart, IconCheck } from '../icons.jsx'
+import MealBuy from './MealBuy.jsx'
+import { IconSparkle, IconTrash, IconChat, IconCheck } from '../icons.jsx'
 
 const fmtDate = (iso) => {
   try {
@@ -63,22 +62,7 @@ export default function SavedMeals({ onGoChat }) {
             </div>
             {m.description && <p className="meal-desc">{m.description}</p>}
             {m.uses?.length > 0 && <p className="meal-uses">Uses: {m.uses.join(', ')}</p>}
-            {m.buy?.length > 0 && (
-              <div className="meal-buy">
-                <span className="meal-buy-label">To buy:</span>
-                {m.buy.map((b) => (
-                  <BuyChip key={b} name={b} />
-                ))}
-                {m.buy.length > 1 && (
-                  <button
-                    className="meal-buy-all"
-                    onClick={() => m.buy.forEach((b) => shopping.addUnique(b))}
-                  >
-                    <IconCart size={13} /> Add all
-                  </button>
-                )}
-              </div>
-            )}
+            <MealBuy items={m.buy} />
             <div className="meal-foot">
               <button className="meal-cooked" onClick={() => savedMeals.markCooked(m.id)}>
                 <IconCheck size={13} /> Cooked

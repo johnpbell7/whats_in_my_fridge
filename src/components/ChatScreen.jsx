@@ -5,7 +5,7 @@ import { chat } from '../lib/chat.js'
 import { savedMeals } from '../lib/meals.js'
 import { upgrade } from '../lib/upgrade.js'
 import { expiryState } from '../lib/expiry.js'
-import BuyChip from './BuyChip.jsx'
+import MealBuy from './MealBuy.jsx'
 import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck, IconClose, IconBookmark } from '../icons.jsx'
 
 const DINNER_PROMPT = 'What can I make for dinner?'
@@ -280,14 +280,7 @@ function MealCard({ meal }) {
       </div>
       {meal.description && <p className="meal-desc">{meal.description}</p>}
       {meal.uses?.length > 0 && <p className="meal-uses">Uses: {meal.uses.join(', ')}</p>}
-      {meal.buy?.length > 0 && (
-        <div className="meal-buy">
-          <span className="meal-buy-label">To buy:</span>
-          {meal.buy.map((b) => (
-            <BuyChip key={b} name={b} />
-          ))}
-        </div>
-      )}
+      <MealBuy items={meal.buy} />
     </div>
   )
 }
