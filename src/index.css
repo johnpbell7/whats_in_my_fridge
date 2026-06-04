@@ -843,6 +843,17 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 }
 /* Saved meals tab uses the same cards, stacked. */
 .saved-meals { margin-top: 2px; }
+.meal-foot { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.meal-cooked {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600; padding: 6px 12px;
+  border-radius: 999px; border: 1px solid var(--line-strong);
+  background: var(--surface); color: var(--ink-soft);
+  transition: background 140ms, color 140ms, border-color 140ms, transform 120ms;
+}
+.meal-cooked:hover { background: var(--accent-soft); color: var(--accent); border-color: #bcdcc8; }
+.meal-cooked:active { transform: scale(0.96); }
+.meal-cooked-count { font-size: 12px; color: var(--ink-faint); }
 .meal-desc { margin: 0 0 6px; font-size: 13.5px; color: var(--ink); line-height: 1.4; }
 .meal-uses { margin: 0; font-size: 12px; color: var(--ink-faint); line-height: 1.35; }
 .meal-buy { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 9px; }

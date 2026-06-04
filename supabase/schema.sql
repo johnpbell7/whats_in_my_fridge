@@ -99,9 +99,26 @@ create table if not exists public.staple_prefs (
   updated_at timestamptz not null default now()
 );
 
+-- Meals the user saved from the AI suggestions (with what they use + buy, and
+-- how many times they've cooked them).
+create table if not exists public.saved_meals (
+  id           uuid primary key,
+  user_id      uuid not null references auth.users (id) on delete cascade,
+  name         text not null,
+  description  text default '',
+  uses         jsonb not null default '[]'::jsonb,
+  buy          jsonb not null default '[]'::jsonb,
+  cooked_count int not null default 0,
+  last_cooked  timestamptz,
+  saved_date   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+create index if not exists saved_meals_user_idx on public.saved_meals (user_id);
+
 alter table public.items enable row level security;
 alter table public.shopping_items enable row level security;
 alter table public.staple_prefs enable row level security;
+alter table public.saved_meals enable row level security;
 
 drop policy if exists "own items" on public.items;
 create policy "own items" on public.items
@@ -113,4 +130,8 @@ create policy "own shopping" on public.shopping_items
 
 drop policy if exists "own staple prefs" on public.staple_prefs;
 create policy "own staple prefs" on public.staple_prefs
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+drop policy if exists "own saved meals" on public.saved_meals;
+create policy "own saved meals" on public.saved_meals
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

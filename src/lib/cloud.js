@@ -21,6 +21,7 @@ const ITEM_COLS = [
   'added_date', 'expiry_date', 'status', 'source', 'confidence', 'notes', 'updated_at'
 ]
 const SHOP_COLS = ['id', 'name', 'quantity', 'checked', 'added_date']
+const MEAL_COLS = ['id', 'name', 'description', 'uses', 'buy', 'cooked_count', 'last_cooked', 'saved_date', 'updated_at']
 
 let userId = null
 
@@ -88,6 +89,17 @@ const staplesRemote = {
   }
 }
 
+const mealsRemote = {
+  upsert(records) {
+    if (!userId) return
+    supabase.from('saved_meals').upsert(records.map((r) => pick(r, MEAL_COLS, { user_id: userId }))).then(logErr('meals.upsert'))
+  },
+  remove(id) {
+    if (!userId) return
+    supabase.from('saved_meals').delete().eq('id', id).then(logErr('meals.remove'))
+  }
+}
+
 // Pull this user's rows, merge with local, write back the differences, then
 // switch on write-through. Returns true if the pull succeeded.
 async function pullAndWire(lastUser) {
@@ -101,6 +113,7 @@ async function pullAndWire(lastUser) {
     savedMeals.clear()
   }
 
+  let ok = false
   try {
     const [items, shop, prefs] = await Promise.all([
       supabase.from('items').select('*').eq('user_id', userId),
@@ -133,11 +146,27 @@ async function pullAndWire(lastUser) {
     staplePrefs.replaceData(mergedPrefs)
     await supabase.from('staple_prefs').upsert({ user_id: userId, data: mergedPrefs, updated_at: new Date().toISOString() })
 
-    return true
+    ok = true
   } catch (err) {
     console.error('cloud pull failed (staying local):', err?.message || err)
-    return false
+    ok = false
   }
+
+  // Saved meals sync on their own, so if the saved_meals table hasn't been
+  // created yet it won't break the rest of sync — meals just stay local until
+  // the migration is run.
+  try {
+    const res = await supabase.from('saved_meals').select('*').eq('user_id', userId)
+    if (res.error) throw new Error(res.error.message)
+    const { merged, toPush } = mergeItems(savedMeals.getAll(), (res.data || []).map((r) => pick(r, MEAL_COLS)))
+    savedMeals.replaceAll(merged)
+    if (toPush.length) await supabase.from('saved_meals').upsert(toPush.map((r) => pick(r, MEAL_COLS, { user_id: userId })))
+    savedMeals.setRemote(mealsRemote)
+  } catch (err) {
+    console.error('cloud saved_meals sync skipped (staying local):', err?.message || err)
+  }
+
+  return ok
 }
 
 // Call on login / account change.
@@ -176,6 +205,7 @@ export function stopSync() {
   store.setRemote(null)
   shopping.setRemote(null)
   staplePrefs.setRemote(null)
+  savedMeals.setRemote(null)
   store.clear()
   shopping.clear()
   staplePrefs.clear()

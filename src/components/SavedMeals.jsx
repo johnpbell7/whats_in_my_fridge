@@ -3,7 +3,15 @@ import { useSavedMeals } from '../lib/useSavedMeals.js'
 import { savedMeals } from '../lib/meals.js'
 import { shopping } from '../lib/shopping.js'
 import BuyChip from './BuyChip.jsx'
-import { IconSparkle, IconTrash, IconChat, IconCart } from '../icons.jsx'
+import { IconSparkle, IconTrash, IconChat, IconCart, IconCheck } from '../icons.jsx'
+
+const fmtDate = (iso) => {
+  try {
+    return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+  } catch {
+    return ''
+  }
+}
 
 // The "Meals" tab: dinners/lunches you saved from the AI. Empty until you save
 // one, where it nudges you to let the AI work out what to make.
@@ -71,6 +79,16 @@ export default function SavedMeals({ onGoChat }) {
                 )}
               </div>
             )}
+            <div className="meal-foot">
+              <button className="meal-cooked" onClick={() => savedMeals.markCooked(m.id)}>
+                <IconCheck size={13} /> Cooked
+              </button>
+              {m.cooked_count > 0 && (
+                <span className="meal-cooked-count">
+                  Made {m.cooked_count}×{m.last_cooked ? ` · last ${fmtDate(m.last_cooked)}` : ''}
+                </span>
+              )}
+            </div>
           </motion.div>
         ))}
       </AnimatePresence>
