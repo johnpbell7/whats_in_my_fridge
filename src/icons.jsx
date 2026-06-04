@@ -150,6 +150,20 @@ export const IconCircle = (p) => (
   </Svg>
 )
 
+export const IconBread = (p) => (
+  <Svg {...p}>
+    <path d="M4.5 12.5c0-2.8 3.3-4.5 7.5-4.5s7.5 1.7 7.5 4.5v.4a2 2 0 0 1-2 2H6.5a2 2 0 0 1-2-2z" />
+    <path d="M9 11.2l.7-1.5M12 11.2l.7-1.5M15 11.2l.7-1.5" />
+  </Svg>
+)
+
+export const IconSnack = (p) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M9.5 9.5h.01M14.6 10h.01M15 14.6h.01M9.6 14.8h.01M12 12.2h.01" />
+  </Svg>
+)
+
 // --- category glyphs (simple line icons) ---
 export const IconMilk = (p) => (
   <Svg {...p}>

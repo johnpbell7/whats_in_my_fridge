@@ -209,9 +209,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .cat-header.cat-dairy { background: #eef2fa; color: #46618c; }
 .cat-header.cat-produce { background: #eaf3e8; color: #4a7a43; }
 .cat-header.cat-meat { background: #f7ebe9; color: #9c5249; }
+.cat-header.cat-bakery { background: #f4ecdd; color: #8a6a32; }
 .cat-header.cat-leftovers { background: #f3eee0; color: #897445; }
 .cat-header.cat-condiments { background: #f1ecf3; color: #7a5d86; }
 .cat-header.cat-drinks { background: #e7f1f3; color: #3f7480; }
+.cat-header.cat-snacks { background: #f9eaf1; color: #97527b; }
 .cat-header.cat-other { background: var(--surface-2); color: var(--ink-soft); }
 
 /* ----- Item rows ----- */
@@ -284,9 +286,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .tag.cat-dairy { background: #eef2fa; color: #46618c; }
 .tag.cat-produce { background: #eaf3e8; color: #4a7a43; }
 .tag.cat-meat { background: #f7ebe9; color: #9c5249; }
+.tag.cat-bakery { background: #f4ecdd; color: #8a6a32; }
 .tag.cat-leftovers { background: #f3eee0; color: #897445; }
 .tag.cat-condiments { background: #f1ecf3; color: #7a5d86; }
 .tag.cat-drinks { background: #e7f1f3; color: #3f7480; }
+.tag.cat-snacks { background: #f9eaf1; color: #97527b; }
 .tag.cat-other { background: var(--surface-2); color: var(--ink-soft); }
 
 .expiry-chip {
@@ -426,7 +430,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 /* ----- Shopping list rows ----- */
 .shop-row {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 13px;
   background: var(--surface);
@@ -438,6 +442,24 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .shop-name { font-weight: 600; font-size: 15.5px; letter-spacing: -0.01em; }
 .shop-row.done { opacity: 0.6; }
 .shop-row.done .shop-name { text-decoration: line-through; text-decoration-color: var(--ink-faint); }
+
+/* "Keep stocked" pin toggle on each row — faint when off, accent-filled when
+   on. Explainer hint sits once above the list. */
+.shop-row { gap: 10px; }
+.shop-staple {
+  width: 34px; height: 34px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 9px; background: none; color: var(--ink-faint);
+  transition: color 140ms, background 140ms;
+}
+.shop-staple:active { transform: scale(0.92); }
+.shop-staple[aria-pressed='true'] { color: var(--accent); background: var(--accent-soft); }
+.shop-hint {
+  display: flex; align-items: center; gap: 6px;
+  margin: 0 0 12px; padding: 0 2px;
+  font-size: 12px; color: var(--ink-soft);
+}
+.shop-hint svg { color: var(--ink-faint); flex-shrink: 0; }
 
 /* ----- Buttons ----- */
 .btn {
@@ -514,6 +536,19 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 }
 .nav button[aria-current='true'] { color: var(--accent); }
 .nav button:active { transform: scale(0.95); }
+
+/* Tab attention pulse — a quick scale + accent flash so a new shopping-list
+   item draws the eye to the Shopping tab. */
+.nav-icon { display: inline-flex; }
+.nav-icon.pulse { animation: nav-pulse 0.42s ease-in-out 3; color: var(--accent); transform-origin: center; }
+@keyframes nav-pulse {
+  0%, 100% { transform: scale(1); }
+  35% { transform: scale(1.32); }
+  70% { transform: scale(0.96); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-icon.pulse { animation: none; }
+}
 
 /* ----- Sheet / overlay ----- */
 .scrim {

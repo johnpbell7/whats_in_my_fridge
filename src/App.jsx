@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useItems } from './lib/useItems.js'
 import { useShopping } from './lib/useShopping.js'
+import { shopping } from './lib/shopping.js'
 import { useAuth } from './lib/useAuth.js'
 import { store, initStore } from './lib/store.js'
 import { initShopping } from './lib/shopping.js'
@@ -27,6 +28,20 @@ export default function App() {
   const list = useShopping()
   const { enabled: authEnabled, loading: authLoading, session } = useAuth()
   const [tab, setTab] = useState('inventory')
+  // Pulse the Shopping tab when an item is added from elsewhere, so the user
+  // knows where it went. We bump our own counter only for adds that happen
+  // while another tab is showing (no point pulsing the tab you're looking at).
+  const addCount = useSyncExternalStore(shopping.subscribeAdds, shopping.getAddCount, shopping.getAddCount)
+  const tabRef = useRef(tab)
+  tabRef.current = tab
+  const prevAddCount = useRef(addCount)
+  const [shoppingPulse, setShoppingPulse] = useState(0)
+  useEffect(() => {
+    if (addCount !== prevAddCount.current) {
+      prevAddCount.current = addCount
+      if (tabRef.current !== 'shopping') setShoppingPulse((n) => n + 1)
+    }
+  }, [addCount])
   // null = closed; 'new' = blank add form; object = editing that item
   const [editing, setEditing] = useState(null)
   const [account, setAccount] = useState(false)
@@ -124,7 +139,7 @@ export default function App() {
         </button>
       )}
 
-      <Nav tab={tab} onChange={setTab} />
+      <Nav tab={tab} onChange={setTab} pulseTab="shopping" pulseAt={shoppingPulse} />
 
       <AnimatePresence>
         {editing && (
