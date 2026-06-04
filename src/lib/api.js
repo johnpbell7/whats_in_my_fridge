@@ -51,7 +51,8 @@ export function getHealth() {
 }
 
 // The signed-in user's tier + this month's usage (or { authEnabled: false }).
+// no-store so the count is always live, never a cached value.
 export async function getMe() {
-  const res = await fetch('/api/me', { headers: { ...(await authHeader()) } })
+  const res = await fetch('/api/me', { headers: { ...(await authHeader()) }, cache: 'no-store' })
   return res.json()
 }

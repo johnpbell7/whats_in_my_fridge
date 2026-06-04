@@ -102,7 +102,10 @@ export async function usageThisPeriod(userId, kind) {
 // Record one successful AI call.
 export async function recordUsage(userId, kind) {
   try {
-    await admin().from('ai_usage').insert({ user_id: userId, kind })
+    const { error } = await admin().from('ai_usage').insert({ user_id: userId, kind })
+    // A non-throwing error here almost always means the SERVICE_ROLE key isn't
+    // really the service_role key (so RLS blocks the write). Surface it loudly.
+    if (error) console.error('Could not record usage (check SUPABASE_SERVICE_ROLE_KEY):', error.message)
   } catch (err) {
     console.error('Could not record usage:', err?.message || err)
     // Non-fatal: never fail a successful AI call just because logging hiccupped.
