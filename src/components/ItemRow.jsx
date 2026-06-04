@@ -22,19 +22,21 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
     setTimeout(() => onUse(item), 300)
   }
 
-  // Estimated items show their AGE ("Added today", "3 days old") and flag by
-  // how far through their fresh window they are: amber within ~3 days of the
-  // end, red once past it (so a 7-day item flags on day 4, red on day 7, while
-  // longer-life things like sauces/frozen stay calm much longer). Items with an
-  // exact date keep the factual "Use by / Expired".
+  // Estimated items just STATE THEIR AGE ("Purchased today", "3 days old") —
+  // never implying the item is off, only how long you've had it. The colour
+  // flags how far through the fresh window it is: amber within ~3 days of the
+  // end, red in the last day or past it (so a 7-day item is calm to day 3,
+  // amber on days 4–5, red from day 6, while longer-life things like
+  // sauces/frozen stay calm much longer). Items with an exact date keep the
+  // factual "Use by / Expired".
   const remaining = daysUntil(eff)
   let displayState = 'none'
   let expiryText = ''
   if (eff) {
     if (estimated) {
       const age = daysOld(item)
-      displayState = remaining <= 0 ? 'expired' : remaining <= 3 ? 'soon' : 'ok'
-      expiryText = age <= 0 ? 'Added today' : age === 1 ? '1 day old' : `${age} days old`
+      displayState = remaining <= 1 ? 'expired' : remaining <= 3 ? 'soon' : 'ok'
+      expiryText = age <= 0 ? 'Purchased today' : age === 1 ? '1 day old' : `${age} days old`
     } else {
       displayState = state
       expiryText = state === 'expired' ? `Expired ${expiryLabel(eff)}` : `Use by ${expiryLabel(eff)}`
