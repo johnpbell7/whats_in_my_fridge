@@ -1,0 +1,42 @@
+/* Shared styling for the static legal / error pages, matched to the app. */
+:root {
+  --bg: #faf7f2;
+  --surface: #fffdf9;
+  --ink: #1f1b16;
+  --ink-soft: #6b6358;
+  --line: #e7e0d3;
+  --accent: #2f7d5a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 720px; margin: 0 auto; padding: 40px 22px 80px; }
+.brand {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700; font-size: 20px; letter-spacing: -0.01em;
+  text-decoration: none; color: var(--ink); display: inline-block; margin-bottom: 28px;
+}
+.brand .dot { color: var(--accent); }
+h1 { font-family: Georgia, serif; font-size: 30px; line-height: 1.15; margin: 0 0 6px; }
+h2 { font-family: Georgia, serif; font-size: 20px; margin: 30px 0 8px; }
+.updated { color: var(--ink-soft); font-size: 14px; margin: 0 0 28px; }
+p, li { font-size: 15.5px; color: #2b2620; }
+a { color: var(--accent); }
+ul { padding-left: 20px; }
+.note {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px; font-size: 14px; color: var(--ink-soft);
+}
+.back { display: inline-block; margin-top: 34px; color: var(--accent); font-weight: 600; text-decoration: none; }
+.center { text-align: center; min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.big { font-family: Georgia, serif; font-size: 64px; margin: 0; color: var(--accent); }
+.btn {
+  display: inline-block; margin-top: 18px; background: var(--accent); color: #fff;
+  text-decoration: none; font-weight: 600; padding: 12px 20px; border-radius: 12px;
+}

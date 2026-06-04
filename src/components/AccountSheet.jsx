@@ -10,6 +10,7 @@ import { IconClose, IconUser, IconSparkle } from '../icons.jsx'
 export default function AccountSheet({ onClose }) {
   const [me, setMe] = useState(null)
   const [err, setErr] = useState(false)
+  const loading = !me && !err
 
   useEffect(() => {
     getMe().then(setMe).catch(() => setErr(true))
@@ -36,8 +37,10 @@ export default function AccountSheet({ onClose }) {
         <div className="account-id">
           <span className="account-avatar"><IconUser size={22} /></span>
           <div>
-            <div className="account-email">{me?.email || '…'}</div>
-            <div className="account-tier">{me?.tierLabel || me?.tier || 'Free'} plan</div>
+            <div className={`account-email ${loading ? 'is-loading' : ''}`}>
+              {me?.email || (loading ? '' : 'Signed in')}
+            </div>
+            <div className="account-tier">{me ? me.tierLabel : 'Your plan'}</div>
           </div>
         </div>
 
@@ -47,43 +50,52 @@ export default function AccountSheet({ onClose }) {
           </p>
         )}
 
-        {err && <p className="auth-error">Couldn’t load your usage just now.</p>}
+        {/* Usage section is always rendered (skeleton while loading) so the
+            sheet holds its size instead of growing as data arrives. */}
+        <div className="account-usage">
+          <UsageBar label="Photo scans" used={me?.usage?.scans.used} limit={me?.usage?.scans.limit} loading={loading} />
+          <UsageBar label="Chat questions" used={me?.usage?.chats.used} limit={me?.usage?.chats.limit} loading={loading} />
+          <p className="account-note">
+            {err ? 'Couldn’t load your usage just now.' : 'Resets at the start of each month.'}
+          </p>
+        </div>
 
-        {me?.usage && (
-          <div className="account-usage">
-            <UsageBar label="Photo scans" used={me.usage.scans.used} limit={me.usage.scans.limit} />
-            <UsageBar label="Chat questions" used={me.usage.chats.used} limit={me.usage.chats.limit} />
-            <p className="account-note">Resets at the start of each month.</p>
-          </div>
-        )}
-
-        {me && !me.paid && (
-          <button className="btn btn-primary btn-block upgrade-cta" onClick={() => upgrade.show('account')}>
-            <IconSparkle size={18} /> {me.trial ? 'Keep Plus — £3.99/month' : 'Upgrade to Plus — £3.99/month'}
-          </button>
+        {loading ? (
+          <div className="btn btn-block upgrade-cta skeleton-btn" aria-hidden="true" />
+        ) : (
+          me &&
+          !me.paid && (
+            <button className="btn btn-primary btn-block upgrade-cta" onClick={() => upgrade.show('account')}>
+              <IconSparkle size={18} /> {me.trial ? 'Keep Plus — £3.99/month' : 'Upgrade to Plus — £3.99/month'}
+            </button>
+          )
         )}
 
         <button className="btn btn-ghost btn-block" onClick={() => supabase.auth.signOut()}>
           Sign out
         </button>
+
+        <p className="account-legal">
+          <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a>
+          <span aria-hidden="true"> · </span>
+          <a href="/terms.html" target="_blank" rel="noopener noreferrer">Terms</a>
+        </p>
       </motion.div>
     </div>
   )
 }
 
-function UsageBar({ label, used, limit }) {
-  const pct = Math.min(100, Math.round((used / Math.max(1, limit)) * 100))
-  const full = used >= limit
+function UsageBar({ label, used, limit, loading }) {
+  const pct = loading ? 38 : Math.min(100, Math.round((used / Math.max(1, limit)) * 100))
+  const full = !loading && used >= limit
   return (
     <div className="usage-row">
       <div className="usage-top">
         <span>{label}</span>
-        <span className={`usage-count ${full ? 'full' : ''}`}>
-          {used} / {limit}
-        </span>
+        <span className={`usage-count ${full ? 'full' : ''}`}>{loading ? '· · ·' : `${used} / ${limit}`}</span>
       </div>
       <div className="usage-track">
-        <div className={`usage-fill ${full ? 'full' : ''}`} style={{ width: `${pct}%` }} />
+        <div className={`usage-fill ${full ? 'full' : ''} ${loading ? 'is-loading' : ''}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   )
