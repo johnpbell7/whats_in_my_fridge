@@ -220,7 +220,10 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
                 item={item}
                 onEdit={onEdit}
                 onUse={(it) => store.setStatus(it.id, 'used')}
-                onReadd={(it) => shopping.addUnique(it.name, it.quantity || 1)}
+                onReadd={(it) => {
+                  shopping.addUnique(it.name, it.quantity || 1)
+                  store.remove(it.id)
+                }}
               />
             ))}
           </AnimatePresence>
