@@ -24,7 +24,7 @@ turn on automatically. Leave them blank and nothing changes.
 
 ## Step 2 — Create the tables
 
-**SQL Editor → New query**, paste the contents of [`supabase/schema.sql`](./supabase/schema.sql), and **Run**. This creates the `profiles` and `ai_usage` tables, the new-user trigger, and security policies.
+**SQL Editor → New query**, paste the contents of [`supabase/schema.sql`](./supabase/schema.sql), and **Run**. This creates the `profiles` and `ai_usage` tables, the new-user trigger, security policies, **and the cloud-sync tables** (`items`, `shopping_items`, `staple_prefs`) that tie each user's fridge to their account. The script is safe to re-run (everything is `if not exists`), so if you set this up before cloud sync existed, just run it again to add the new tables.
 
 ## Step 3 — (Recommended for testing) ease the sign-up flow
 

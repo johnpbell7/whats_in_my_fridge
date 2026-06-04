@@ -122,9 +122,15 @@ function normalize(input) {
     source: 'manual',
     confidence: null,
     notes: '',
+    updated_at: new Date().toISOString(),
     ...input
   }
 }
+
+// Optional cloud adapter (set by the sync layer when signed in). Mutations
+// write through to it; pulls/clears do not (they're local-only).
+let remote = null
+const stamp = () => new Date().toISOString()
 
 export const store = {
   getAll: () => cache,
@@ -137,31 +143,46 @@ export const store = {
   add(input) {
     const record = normalize(input)
     commit([record, ...cache])
+    remote?.upsert([record])
     return record
   },
 
   addMany(inputs) {
     const records = inputs.map(normalize)
     commit([...records, ...cache])
+    remote?.upsert(records)
     return records
   },
 
   update(id, patch) {
-    commit(cache.map((it) => (it.id === id ? { ...it, ...patch } : it)))
+    const next = cache.map((it) => (it.id === id ? { ...it, ...patch, updated_at: stamp() } : it))
+    commit(next)
+    const rec = next.find((it) => it.id === id)
+    if (rec) remote?.upsert([rec])
   },
 
   remove(id) {
     commit(cache.filter((it) => it.id !== id))
+    remote?.remove(id)
   },
 
   setStatus(id, status) {
     this.update(id, { status })
   },
 
-  // Wipe all items (used when the signed-in account changes, so one account
-  // never sees another's fridge on a shared device).
+  // Wipe all items locally (account change). Does NOT touch the cloud.
   clear() {
     commit([])
+  },
+
+  // Replace the local cache from a pull. Local-only — no write-back.
+  replaceAll(records) {
+    commit(records.map(normalize))
+  },
+
+  // Attach (or clear with null) the cloud write-through adapter.
+  setRemote(r) {
+    remote = r
   }
 }
 

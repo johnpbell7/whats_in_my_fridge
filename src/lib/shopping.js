@@ -92,6 +92,8 @@ function commit(next) {
 const uid = () =>
   globalThis.crypto?.randomUUID?.() || `s-${Date.now()}-${Math.random().toString(36).slice(2)}`
 
+let remote = null
+
 export const shopping = {
   getAll: () => cache,
 
@@ -105,6 +107,7 @@ export const shopping = {
     if (!clean) return null
     const record = { id: uid(), name: clean, quantity, checked: false, added_date: new Date().toISOString() }
     commit([record, ...cache])
+    remote?.upsert([record])
     return record
   },
 
@@ -122,20 +125,35 @@ export const shopping = {
   },
 
   toggle(id) {
-    commit(cache.map((it) => (it.id === id ? { ...it, checked: !it.checked } : it)))
+    const next = cache.map((it) => (it.id === id ? { ...it, checked: !it.checked } : it))
+    commit(next)
+    const rec = next.find((it) => it.id === id)
+    if (rec) remote?.upsert([rec])
   },
 
   remove(id) {
     commit(cache.filter((it) => it.id !== id))
+    remote?.remove(id)
   },
 
   clearChecked() {
+    const removed = cache.filter((it) => it.checked).map((it) => it.id)
     commit(cache.filter((it) => !it.checked))
+    if (removed.length) remote?.removeMany(removed)
   },
 
-  // Wipe the whole list (on account change).
+  // Wipe the whole list locally (account change). Cloud untouched.
   clear() {
     commit([])
+  },
+
+  // Replace the local list from a pull. Local-only.
+  replaceAll(records) {
+    commit(Array.isArray(records) ? records : [])
+  },
+
+  setRemote(r) {
+    remote = r
   }
 }
 
