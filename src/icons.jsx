@@ -164,6 +164,15 @@ export const IconSnack = (p) => (
   </Svg>
 )
 
+export const IconSpray = (p) => (
+  <Svg {...p}>
+    <path d="M8.5 9.5h5v10.5a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1z" />
+    <path d="M8.5 9.5V6.5h3" />
+    <path d="M11.5 6.5l4-2.2v4.4z" />
+    <path d="M17 4.6h2.2M17 7h2.2M19 5.8h1.6" />
+  </Svg>
+)
+
 // --- category glyphs (simple line icons) ---
 export const IconMilk = (p) => (
   <Svg {...p}>

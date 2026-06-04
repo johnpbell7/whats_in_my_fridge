@@ -53,6 +53,9 @@ export function suggestLocation(name = '', category = 'other') {
   const n = name.toLowerCase()
 
   if (FREEZER.some((k) => n.includes(k))) return 'freezer'
+  // Household items live in the cupboard — decided up front so a stray fresh
+  // word in the name (e.g. "cream" in "sun cream") can't pull them to the fridge.
+  if (category === 'household') return 'pantry'
   // Strong cupboard signals beat everything else (tinned/jarred/sauces, and
   // produce/drinks that live in the cupboard).
   if (STRONG_PANTRY.some((k) => n.includes(k))) return 'pantry'

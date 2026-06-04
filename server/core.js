@@ -8,7 +8,7 @@ import { guard, accountSummary, authEnabled, recordUsage } from './auth.js'
 const VISION_MODEL = process.env.VISION_MODEL || 'claude-sonnet-4-6'
 const CHAT_MODEL = process.env.CHAT_MODEL || 'claude-haiku-4-5-20251001'
 
-export const CATEGORIES = ['dairy', 'produce', 'meat', 'bakery', 'leftovers', 'condiments', 'drinks', 'snacks', 'other']
+export const CATEGORIES = ['dairy', 'produce', 'meat', 'bakery', 'leftovers', 'condiments', 'drinks', 'snacks', 'household', 'other']
 
 // Lazy + memoized so the API key is read at call time (after dotenv loads
 // locally, or from Vercel's injected env in production).
@@ -93,16 +93,16 @@ function mapClaudeError(err, kind) {
   return { status: 502, body: { error: `${kind}_failed`, message: detail ? `${generic} (${detail})` : `${generic} Please try again.` } }
 }
 
-const GROCERIES_PROMPT = `You are looking at a photo of someone's fridge, groceries, or food items.
-Identify EVERY distinct food or drink product visible — be thorough and scan the
+const GROCERIES_PROMPT = `You are looking at a photo of someone's fridge, cupboard, groceries, or shopping.
+Identify EVERY distinct product visible — be thorough and scan the
 whole frame: the front, the back, the shelves, the door, the edges and corners.
 
 Rules:
 - List every distinct product you can see. Do NOT stop after the obvious few — work methodically across the whole image and include everything, even small or partly hidden items you can still confidently identify.
 - Do not invent items that are fully hidden behind others or sealed inside opaque containers. But DO include items that are only partially visible if you can recognise them.
 - Several of the SAME product = one entry with the count as quantity (e.g. three apples -> quantity 3). Different products are always separate entries.
-- Food and drink ONLY. Do NOT include non-food or household items (cleaning products, toiletries, air fresheners, candles, kitchen roll, foil, pet food, medicine).
-- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks; bread and baked goods -> bakery; crisps, chocolate, biscuits, sweets -> snacks. Only use 'other' when nothing else genuinely fits.
+- Include food, drink AND household items. Household covers cleaning products, toiletries and personal care (shampoo, soap, toothpaste, deodorant), and medicine/first-aid. Skip pure decor (flowers, ornaments) and pet food.
+- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks; bread and baked goods -> bakery; crisps, chocolate, biscuits, sweets -> snacks; cleaning products, toiletries, personal care and medicine -> household. Only use 'other' when nothing else genuinely fits.
 - confidence is your certainty from 0 to 1 that the item is present and correctly named.
 - quantity is a number; unit is a short freeform string ("carton", "block", "bunch", "" if not obvious).
 - frozen is true ONLY if it is a frozen product that belongs in the freezer (ice cream, frozen vegetables/fruit/fish/meat, oven chips, frozen ready meals, anything whose packaging says "frozen"); otherwise false.
@@ -110,14 +110,14 @@ Rules:
 Return ONLY a JSON array, no prose. Include one element per distinct product:
 {"name": string, "category": string, "quantity": number, "unit": string, "confidence": number, "frozen": boolean}`
 
-const RECEIPT_PROMPT = `You are reading a shopping receipt. Extract every FOOD or DRINK item that was purchased.
+const RECEIPT_PROMPT = `You are reading a shopping receipt. Extract every purchased item — food, drink AND household.
 
 Rules:
 - Expand cryptic till abbreviations into normal names when you are confident (e.g. "GBL MLK 2PT" -> "Whole milk"). If unsure, keep it close to the printed text.
 - IGNORE non-grocery lines entirely: store name and address, dates, totals, subtotals, VAT/tax, change, card/payment lines, discounts, loyalty/clubcard points, and carrier bags.
-- Skip clearly non-food household items (cleaning products, toiletries) unless they are food or drink.
+- Include household items (cleaning products, toiletries, personal care, medicines) with category 'household'. Skip pet food.
 - quantity comes from the line if shown (e.g. "2 @ £1.50" -> quantity 2), otherwise 1.
-- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks; bread and baked goods -> bakery; crisps, chocolate, biscuits, sweets -> snacks. Only use 'other' when nothing else genuinely fits.
+- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks; bread and baked goods -> bakery; crisps, chocolate, biscuits, sweets -> snacks; cleaning products, toiletries, personal care and medicine -> household. Only use 'other' when nothing else genuinely fits.
 - A receipt is printed text, so confidence should usually be high (0.8-1.0) unless the line is genuinely ambiguous.
 - frozen is true if the line is clearly a frozen product (e.g. "FROZEN", "FRZ", ice cream, frozen veg/fish/chips); otherwise false.
 - Also read the date the receipt was ISSUED (the transaction/purchase date, usually near the top or bottom, NOT any 'best before' dates) and return it as receipt_date in YYYY-MM-DD format. If no transaction date is clearly legible, return an empty string.
