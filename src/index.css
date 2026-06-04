@@ -203,9 +203,19 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .cat-chevron.open { transform: rotate(90deg); }
 
 /* "New" header acting as the tap-to-file control: stacks a small hint under the
-   title so it reads "New / Tap to file into folders". */
+   title so it reads "New / Tap to file into folders". A subtle breathing ring
+   hints that it's tappable. */
+.cat-file { animation: file-pulse 2.4s ease-out infinite; }
 .cat-file .cat-label { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; line-height: 1.15; }
 .cat-file-hint { font-size: 11px; font-weight: 600; letter-spacing: 0; opacity: 0.85; }
+@keyframes file-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(47, 125, 90, 0.32); }
+  70% { box-shadow: 0 0 0 9px rgba(47, 125, 90, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(47, 125, 90, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cat-file { animation: none; }
+}
 /* higher specificity than .item-list so the gap below the bar actually applies */
 .item-list.cat-items { margin-top: 16px; }
 
