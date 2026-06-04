@@ -15,6 +15,7 @@ import AuthScreen from './components/AuthScreen.jsx'
 import AccountSheet from './components/AccountSheet.jsx'
 import Onboarding from './components/Onboarding.jsx'
 import Toast from './components/Toast.jsx'
+import UpgradeGate from './components/UpgradeGate.jsx'
 import Nav from './components/Nav.jsx'
 import Splash from './components/Splash.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
@@ -98,7 +99,13 @@ export default function App() {
           onAddManual={() => setEditing('new')}
         />
       )}
-      {tab === 'chat' && <ChatScreen items={items} />}
+      {tab === 'chat' && (
+        <ChatScreen
+          items={items}
+          onGoScan={() => setTab('scan')}
+          onAddManual={() => setEditing('new')}
+        />
+      )}
       {tab === 'shopping' && <ShoppingScreen list={list} items={items} />}
 
       {tab === 'inventory' && (
@@ -128,6 +135,7 @@ export default function App() {
       </AnimatePresence>
 
       <Toast />
+      <UpgradeGate />
 
       <ErrorBoundary fallback={null}>
         <AnimatePresence>{booting && <Splash key="splash" onDone={() => setBooting(false)} />}</AnimatePresence>

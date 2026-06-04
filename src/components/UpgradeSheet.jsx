@@ -9,10 +9,18 @@ const BENEFITS = [
   'Everything else stays, with no limits to think about'
 ]
 
+const REASON_HEAD = {
+  scans: "You've used this month's free scans",
+  chat: "You've used this month's free chat",
+  rate: "Whoa, speedy — that's today's limit",
+  account: ''
+}
+
 // Plus upgrade offer. The Subscribe button is a placeholder until card
-// payments (RevenueCat) are wired up.
-export default function UpgradeSheet({ onClose }) {
+// payments (RevenueCat) are wired up. `reason` adds a contextual headline.
+export default function UpgradeSheet({ onClose, reason = '' }) {
   const [pending, setPending] = useState(false)
+  const contextHead = REASON_HEAD[reason]
 
   return (
     <div className="scrim" onClick={onClose}>
@@ -35,6 +43,7 @@ export default function UpgradeSheet({ onClose }) {
         <div className="upgrade-badge">
           <IconSparkle size={22} />
         </div>
+        {contextHead && <p className="upgrade-context">{contextHead}</p>}
         <p className="upgrade-tagline">Unlock the full app and keep scanning, chatting and tracking with room to spare.</p>
 
         <ul className="upgrade-benefits">
