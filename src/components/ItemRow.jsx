@@ -22,13 +22,13 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onReadd }) {
     setTimeout(() => onUse(item), 300)
   }
   // On the "Used & gone" screen, the action re-adds the item to the shopping
-  // list. Tapping flips the plus to a tick for a beat as confirmation; the
-  // archived row stays put.
+  // list and clears it from the archive. Tapping flips the plus to a green tick
+  // for a beat, then the row removes itself.
   const [readded, setReadded] = useState(false)
   function readd() {
-    onReadd?.(item)
+    if (readded) return
     setReadded(true)
-    setTimeout(() => setReadded(false), 1400)
+    setTimeout(() => onReadd?.(item), 300)
   }
 
   // By default an item just STATES ITS AGE ("Added today", "3 days old") —
