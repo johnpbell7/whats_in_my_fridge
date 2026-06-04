@@ -1,14 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#43946f"/>
-      <stop offset="1" stop-color="#26684b"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" fill="url(#bg)"/>
-  <!-- fridge kept within the central safe zone for maskable cropping -->
-  <rect x="201" y="146" width="110" height="220" rx="24" fill="#fbfdfb"/>
-  <rect x="201" y="220" width="110" height="6" fill="#e4ebe6"/>
-  <rect x="287" y="172" width="9" height="30" rx="4.5" fill="#3a8e68"/>
-  <rect x="287" y="240" width="9" height="44" rx="4.5" fill="#3a8e68"/>
+  <rect width="512" height="512" fill="#2f7d5a"/>
+  <!-- fridge + leaf kept within the central safe zone for maskable cropping -->
+  <rect x="201" y="146" width="110" height="220" rx="24" fill="#ffffff"/>
+  <rect x="201" y="210" width="110" height="6" fill="#dfe7e1"/>
+  <rect x="288" y="164" width="9" height="32" rx="4.5" fill="#cfe0d6"/>
+  <path d="M256 250 C283 268 283 294 256 312 C229 294 229 268 256 250 Z" fill="#2f7d5a"/>
+  <path d="M256 258 L256 306" stroke="#8fc7a8" stroke-width="4" stroke-linecap="round" fill="none"/>
 </svg>

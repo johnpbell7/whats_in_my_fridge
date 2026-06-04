@@ -1318,65 +1318,14 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   position: fixed;
   inset: 0;
   z-index: 100;
-  overflow: hidden;
-  /* transparent so the real app is revealed as the doors part */
-  background: transparent;
-}
-.splash-door {
-  position: absolute;
-  top: 0;
-  height: 100dvh;
-  width: 51%;
-  will-change: transform;
-  /* smooth satin steel: one soft diagonal sheen over a clean vertical base */
-  background:
-    linear-gradient(108deg, rgba(255, 255, 255, 0) 38%, rgba(255, 255, 255, 0.38) 50%, rgba(255, 255, 255, 0) 62%),
-    linear-gradient(180deg, #e2e5e7 0%, #d2d6d9 52%, #c6cacd 100%);
-}
-.splash-door.left {
-  left: 0;
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.5);
-  border-right: 1px solid rgba(0, 0, 0, 0.05);
-}
-.splash-door.right {
-  right: 0;
-  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.5);
-}
-/* long brushed-chrome bar handles near the seam, below the logo */
-.splash-door.left::after,
-.splash-door.right::after {
-  content: '';
-  position: absolute;
-  top: 60%;
-  height: 30%;
-  width: 11px;
-  border-radius: 7px;
-  /* cross-section highlight makes the bar read as a rounded metal cylinder */
-  background: linear-gradient(90deg, #8d9398 0%, #fbfcfd 34%, #d6dadd 62%, #888e93 100%);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.7);
-}
-.splash-door.left::after { right: 18px; }
-.splash-door.right::after { left: 18px; }
-
-.splash-logo {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
+  background: var(--bg);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  padding-top: 24dvh; /* upper third, clear of the handles */
-  gap: 16px;
-  color: #24221e;
-  pointer-events: none;
+  justify-content: center;
+  gap: 22px;
 }
-.splash-icon {
-  width: 88px;
-  height: 88px;
-  border-radius: 22px;
-  box-shadow: 0 12px 28px rgba(38, 104, 75, 0.34);
-}
+.splash-mark { width: 116px; height: 116px; will-change: transform, opacity; }
 .splash-word { display: flex; flex-direction: column; align-items: center; line-height: 1; }
 .splash-small {
   font-family: var(--font-display);
@@ -1392,6 +1341,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   font-weight: 600;
   font-size: 46px;
   letter-spacing: -0.02em;
+  color: #24221e;
 }
 .splash-big i { color: var(--accent); font-style: normal; }
 
