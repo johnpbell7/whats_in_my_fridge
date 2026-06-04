@@ -17,12 +17,16 @@ const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 const SONNET = process.env.VISION_MODEL || 'claude-sonnet-4-6'
 const HAIKU = process.env.CHAT_MODEL || 'claude-haiku-4-5-20251001'
 
-// Per-tier limits and which vision model they get. Chat always uses the cheap
-// model. Tune these to your unit economics — see SETUP_ACCOUNTS.md.
+// Per-tier monthly limits and which vision model they get. Chat always uses the
+// cheap model. Tune these to your unit economics — see SETUP_ACCOUNTS.md.
 export const TIERS = {
   free: { label: 'Free', visionModel: HAIKU, scansPerMonth: 5, chatsPerMonth: 15 },
-  plus: { label: 'Plus', visionModel: SONNET, scansPerMonth: 300, chatsPerMonth: 1000 }
+  plus: { label: 'Plus', visionModel: SONNET, scansPerMonth: 60, chatsPerMonth: 300 }
 }
+
+// Daily rate-limit applied to every signed-in user (anti-abuse: stops a script
+// burning the whole month's allowance in one burst). Normal use never hits it.
+export const DAILY = { vision: 20, chat: 40 }
 
 export const tierConfig = (tier) => TIERS[tier] || TIERS.free
 
@@ -52,12 +56,30 @@ export function periodStart(now = new Date()) {
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString()
 }
 
+// Start of today (UTC) — the window the daily rate-limit resets on.
+export function dayStart(now = new Date()) {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())).toISOString()
+}
+
 // Pure quota decision, separated out so it can be unit-tested without a DB.
 // kind is 'vision' | 'chat'. Returns { allowed, limit, used }.
 export function quotaDecision(tier, kind, used) {
   const cfg = tierConfig(tier)
   const limit = kind === 'vision' ? cfg.scansPerMonth : cfg.chatsPerMonth
   return { allowed: used < limit, limit, used }
+}
+
+// 429 response when the per-day rate-limit is hit.
+export function dailyLimitResponse(kind, limit) {
+  const what = kind === 'vision' ? 'photo scans' : 'chat questions'
+  return {
+    status: 429,
+    body: {
+      error: 'rate_limited',
+      message: `That's ${limit} ${what} today — give it a rest and try again tomorrow.`,
+      limit
+    }
+  }
 }
 
 export function overQuotaResponse(kind, decision) {
@@ -88,15 +110,20 @@ export async function authenticate(token) {
   return { user, tier: profile?.tier || 'free' }
 }
 
-// How many of `kind` this user has used since the period start.
-export async function usageThisPeriod(userId, kind) {
+// How many of `kind` this user has used since a given timestamp.
+export async function usageSince(userId, kind, sinceISO) {
   const { count } = await admin()
     .from('ai_usage')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', userId)
     .eq('kind', kind)
-    .gte('created_at', periodStart())
+    .gte('created_at', sinceISO)
   return count || 0
+}
+
+// How many of `kind` this user has used this calendar month.
+export async function usageThisPeriod(userId, kind) {
+  return usageSince(userId, kind, periodStart())
 }
 
 // Record one successful AI call.
@@ -122,9 +149,14 @@ export async function guard(token, kind) {
     // Open mode: original behaviour, Sonnet vision, no metering.
     return { user: null, tier: 'open', visionModel: SONNET, meter: false }
   }
-  const used = await usageThisPeriod(auth.user.id, kind)
+  // Monthly fair-use cap.
+  const used = await usageSince(auth.user.id, kind, periodStart())
   const decision = quotaDecision(auth.tier, kind, used)
   if (!decision.allowed) return { error: overQuotaResponse(kind, decision) }
+  // Daily rate-limit (anti-abuse) — applies to every tier.
+  const usedToday = await usageSince(auth.user.id, kind, dayStart())
+  const dailyLimit = DAILY[kind] ?? Infinity
+  if (usedToday >= dailyLimit) return { error: dailyLimitResponse(kind, dailyLimit) }
   return { user: auth.user, tier: auth.tier, visionModel: tierConfig(auth.tier).visionModel, meter: true }
 }
 

@@ -64,7 +64,11 @@ Defined in [`server/auth.js`](./server/auth.js) (`TIERS`). Defaults:
 | Plan | Vision model | Scans/month | Chats/month |
 | ---- | ------------ | ----------- | ----------- |
 | Free | Haiku (cheaper) | 5 | 15 |
-| Plus | Sonnet (sharper) | 300 | 1000 |
+| Plus | Sonnet (sharper) | 60 | 300 |
+
+On top of the monthly caps, every signed-in user has a **daily rate-limit**
+(`DAILY` in `server/auth.js`, default **20 scans / 40 chats a day**) so a script
+can't burn a whole month's allowance in one burst. Normal use never hits it.
 
 Tune these to your costs (see the pricing discussion). To upgrade a test account
 to Plus, run in the SQL editor:
