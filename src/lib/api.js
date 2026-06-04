@@ -40,10 +40,14 @@ export function askChat(question, inventory) {
   return post('/api/chat', { question, inventory, today }).then((d) => d.answer)
 }
 
-// Send a photo for recognition. Returns proposed items (to be confirmed).
+// Send a photo for recognition. Returns { items, receiptDate } to confirm.
 // mode: 'groceries' (a fridge/bag photo) or 'receipt' (a till receipt).
+// receiptDate is the date read off a receipt (YYYY-MM-DD) or null.
 export function detectFromImage(imageBase64, mediaType, mode = 'groceries') {
-  return post('/api/vision', { imageBase64, mediaType, mode }).then((d) => d.items || [])
+  return post('/api/vision', { imageBase64, mediaType, mode }).then((d) => ({
+    items: d.items || [],
+    receiptDate: d.receiptDate || null
+  }))
 }
 
 export function getHealth() {

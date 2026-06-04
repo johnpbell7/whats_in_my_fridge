@@ -10,11 +10,21 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
   const archived = item.status !== 'active'
   const lowConfidence = item.source !== 'manual' && typeof item.confidence === 'number' && item.confidence < 0.6
 
+  // "Expired" is only ever said when you entered an exact date (it's factual).
+  // For an estimated countdown we soften it: amber, and worded as a nudge.
+  const past = state === 'expired'
+  const displayState = estimated && past ? 'soon' : state
+  const expiryText = past
+    ? estimated
+      ? 'Use or bin soon'
+      : `Expired ${expiryLabel(eff)}`
+    : `${estimated ? 'Best by ' : 'Use by '}${expiryLabel(eff)}`
+
   const rowClass = [
     'item',
     archived ? 'done' : '',
-    !archived && state === 'soon' ? 'soon' : '',
-    !archived && state === 'expired' ? 'expired' : ''
+    !archived && displayState === 'soon' ? 'soon' : '',
+    !archived && displayState === 'expired' ? 'expired' : ''
   ].filter(Boolean).join(' ')
 
   return (
@@ -40,13 +50,9 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
           {eff && (
             <>
               <span className="dot" />
-              <span className={`expiry-chip ${state}`}>
+              <span className={`expiry-chip ${displayState}`}>
                 <IconClock size={13} />
-                {state === 'expired'
-                  ? estimated
-                    ? 'Getting old'
-                    : `Expired ${expiryLabel(eff)}`
-                  : `${estimated ? 'Best by ' : 'Use by '}${expiryLabel(eff)}`}
+                {expiryText}
               </span>
             </>
           )}
