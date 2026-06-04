@@ -118,7 +118,8 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onReadd }) {
             aria-label={`Mark ${item.name} as used`}
             title="Tap when you've used or finished this"
           >
-            {checking ? <IconCheck size={17} /> : <IconCircle size={17} />} Used
+            {checking ? <IconCheck size={17} /> : <IconCircle size={17} />}
+            <span>Used</span>
           </button>
         )}
       </div>

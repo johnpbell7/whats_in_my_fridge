@@ -317,19 +317,20 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .expiry-chip.expired { color: var(--danger); }
 .expiry-chip.ok { color: var(--ink-soft); }
 
-.item-actions { display: flex; align-items: center; gap: 8px; align-self: center; }
-/* single "used" control — neutral/unticked by default, turns green on tap */
+.item-actions { display: flex; align-items: center; gap: 8px; align-self: center; margin-right: -4px; }
+/* single "used" control — circle stacked above the label in a grey-lined box;
+   neutral/unticked by default, turns green on tap */
 .item-done {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 9px 15px; border-radius: 999px; border: 0;
-  background: none; color: var(--ink-soft);
-  font-weight: 600; font-size: 13.5px; white-space: nowrap;
-  transition: background 220ms, color 220ms, transform 120ms;
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  padding: 7px 11px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink-soft);
+  font-weight: 600; font-size: 12px; line-height: 1; white-space: nowrap;
+  transition: background 220ms, color 220ms, border-color 220ms, transform 120ms;
 }
 .item-done svg { color: var(--ink-faint); transition: color 220ms; }
 .item-done:hover { background: var(--surface-2); }
 .item-done:active { transform: scale(0.96); }
-.item-done.on { background: var(--accent); color: var(--on-accent); }
+.item-done.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 .item-done.on svg { color: var(--on-accent); animation: tick-pop 240ms ease; }
 @keyframes tick-pop { 0% { transform: scale(0.5); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
 .icon-btn {
