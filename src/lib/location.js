@@ -7,7 +7,10 @@
 
 const FREEZER = [
   'frozen', 'ice cream', 'ice-cream', 'ice lolly', 'lolly', 'ice cube', 'fish finger',
-  'fishfinger', 'oven chips', 'frozen peas', 'frozen veg', 'freezer'
+  'fishfinger', 'oven chips', 'frozen peas', 'frozen veg', 'freezer', 'ice pop', 'icepop',
+  'gelato', 'sorbet', 'waffle', 'frozen pizza', 'frozen berries', 'frozen fruit', 'frozen fish',
+  'frozen chicken', 'chicken nugget', 'nugget', 'potato waffle', 'hash brown', 'yorkshire pudding',
+  'frozen yorkshire', 'frozen meal', 'ready meal frozen', 'choc ice', 'magnum', 'cornetto', 'viennetta'
 ]
 
 // Strong pantry signals — these win even over fresh-sounding words, so

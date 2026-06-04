@@ -105,9 +105,10 @@ Rules:
 - category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks. Only use 'other' when nothing else genuinely fits.
 - confidence is your certainty from 0 to 1 that the item is present and correctly named.
 - quantity is a number; unit is a short freeform string ("carton", "block", "bunch", "" if not obvious).
+- frozen is true ONLY if it is a frozen product that belongs in the freezer (ice cream, frozen vegetables/fruit/fish/meat, oven chips, frozen ready meals, anything whose packaging says "frozen"); otherwise false.
 
 Return ONLY a JSON array, no prose. Include one element per distinct product:
-{"name": string, "category": string, "quantity": number, "unit": string, "confidence": number}`
+{"name": string, "category": string, "quantity": number, "unit": string, "confidence": number, "frozen": boolean}`
 
 const RECEIPT_PROMPT = `You are reading a shopping receipt. Extract every FOOD or DRINK item that was purchased.
 
@@ -118,6 +119,7 @@ Rules:
 - quantity comes from the line if shown (e.g. "2 @ £1.50" -> quantity 2), otherwise 1.
 - category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks. Only use 'other' when nothing else genuinely fits.
 - A receipt is printed text, so confidence should usually be high (0.8-1.0) unless the line is genuinely ambiguous.
+- frozen is true if the line is clearly a frozen product (e.g. "FROZEN", "FRZ", ice cream, frozen veg/fish/chips); otherwise false.
 - Also read the date the receipt was ISSUED (the transaction/purchase date, usually near the top or bottom, NOT any 'best before' dates) and return it as receipt_date in YYYY-MM-DD format. If no transaction date is clearly legible, return an empty string.
 
 Return the items plus receipt_date via the tool.`
@@ -177,9 +179,10 @@ export async function visionHandler(body = {}, token) {
                     category: { type: 'string', enum: CATEGORIES },
                     quantity: { type: 'number', description: 'How many of this product, default 1' },
                     unit: { type: 'string', description: 'Short freeform unit, or empty string' },
-                    confidence: { type: 'number', description: '0 to 1 certainty' }
+                    confidence: { type: 'number', description: '0 to 1 certainty' },
+                    frozen: { type: 'boolean', description: 'true if this is a frozen product (belongs in the freezer)' }
                   },
-                  required: ['name', 'category', 'quantity', 'unit', 'confidence']
+                  required: ['name', 'category', 'quantity', 'unit', 'confidence', 'frozen']
                 }
               },
               receipt_date: {
@@ -210,7 +213,8 @@ export async function visionHandler(body = {}, token) {
         category: CATEGORIES.includes(it.category) ? it.category : 'other',
         quantity: Number.isFinite(it.quantity) ? it.quantity : 1,
         unit: String(it.unit || '').trim(),
-        confidence: typeof it.confidence === 'number' ? Math.max(0, Math.min(1, it.confidence)) : 0.5
+        confidence: typeof it.confidence === 'number' ? Math.max(0, Math.min(1, it.confidence)) : 0.5,
+        frozen: Boolean(it.frozen)
       }))
       .filter((it) => it.name)
     // Only trust a date from receipt scans.
