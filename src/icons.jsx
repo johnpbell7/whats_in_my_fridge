@@ -143,3 +143,51 @@ export const IconChevron = (p) => (
     <path d="M9 6l6 6-6 6" />
   </Svg>
 )
+
+// --- category glyphs (simple line icons) ---
+export const IconMilk = (p) => (
+  <Svg {...p}>
+    <path d="M7 22V9l2-5h6l2 5v13z" />
+    <path d="M7 9h10" />
+    <path d="M10.5 4.2h3" />
+  </Svg>
+)
+
+export const IconFish = (p) => (
+  <Svg {...p}>
+    <path d="M4 12c3-5 10-5 13 0-3 5-10 5-13 0z" />
+    <path d="M17 12l3-2.5v5z" />
+    <path d="M8 11h.01" />
+  </Svg>
+)
+
+export const IconBowl = (p) => (
+  <Svg {...p}>
+    <path d="M4 11h16" />
+    <path d="M5.5 11a6.5 6.5 0 0 0 13 0" />
+    <path d="M10 4.5c-.4.8.4 1.2 0 2.4M14 4.5c.4.8-.4 1.2 0 2.4" />
+  </Svg>
+)
+
+export const IconBottle = (p) => (
+  <Svg {...p}>
+    <path d="M10.5 3h3v3" />
+    <path d="M9.5 6h5v14a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1z" />
+    <path d="M9.5 13h5" />
+  </Svg>
+)
+
+export const IconCup = (p) => (
+  <Svg {...p}>
+    <path d="M7 4h10l-1.2 15a1 1 0 0 1-1 .9H9.2a1 1 0 0 1-1-.9z" />
+    <path d="M8 9h8" />
+  </Svg>
+)
+
+export const IconBox = (p) => (
+  <Svg {...p}>
+    <path d="M12 3l8 4v8l-8 4-8-4V7z" />
+    <path d="M4 7l8 4 8-4" />
+    <path d="M12 11v9" />
+  </Svg>
+)
