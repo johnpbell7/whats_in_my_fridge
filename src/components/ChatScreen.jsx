@@ -8,7 +8,9 @@ import { expiryState } from '../lib/expiry.js'
 import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck, IconClose } from '../icons.jsx'
 
 const DINNER_PROMPT = 'What can I make for dinner?'
-const SUGGESTIONS = ["What's expiring soon?", 'Do I have eggs?', DINNER_PROMPT]
+// All three openers generate meal ideas (the most useful, generative use) — the
+// old "what's expiring / do I have X" lookups were already visible in the app.
+const SUGGESTIONS = [DINNER_PROMPT, 'Quick lunch ideas?', 'Plan a few dinners']
 const REFINE = ['More adventurous', 'Vegetarian', 'Quick & easy', 'Use up what’s expiring']
 
 // Were the most recent suggestions a set of dinner ideas? If so, follow-ups
@@ -198,7 +200,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
         {messages.length === 0 && (
           <div className="suggest-row">
             {SUGGESTIONS.map((s) => (
-              <button key={s} onClick={() => (s === DINNER_PROMPT ? askDinner() : send(s))}>
+              <button key={s} onClick={() => askDinner(s === DINNER_PROMPT ? undefined : s)}>
                 {s}
               </button>
             ))}
