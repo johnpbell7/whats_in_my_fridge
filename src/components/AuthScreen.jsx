@@ -111,6 +111,12 @@ export default function AuthScreen() {
         >
           {mode === 'signup' ? 'Already have an account? Sign in' : 'New here? Create an account'}
         </button>
+
+        <p className="auth-legal">
+          By continuing you agree to our{' '}
+          <a href="/terms.html" target="_blank" rel="noopener noreferrer">Terms</a> and{' '}
+          <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.
+        </p>
       </motion.form>
     </div>
   )

@@ -353,7 +353,6 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   font-size: 14.5px;
   font-weight: 600;
   margin-bottom: 14px;
-  box-shadow: 0 6px 16px rgba(47, 125, 90, 0.24);
   transition: transform 120ms, background 160ms;
 }
 .putaway:hover { background: var(--accent-press); }
@@ -413,7 +412,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 }
 .btn:active { transform: scale(0.985); }
 .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
-.btn-primary { background: var(--accent); color: var(--on-accent); box-shadow: 0 6px 16px rgba(47, 125, 90, 0.28); }
+.btn-primary { background: var(--accent); color: var(--on-accent); }
 .btn-primary:hover { background: var(--accent-press); }
 .btn-ghost { background: var(--surface); color: var(--ink); border-color: var(--line-strong); }
 .btn-ghost:hover { background: var(--surface-2); }
@@ -437,7 +436,6 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   border: 0;
   display: grid;
   place-items: center;
-  box-shadow: 0 10px 26px rgba(47, 125, 90, 0.38);
   transition: transform 140ms;
   z-index: 40;
 }
@@ -871,6 +869,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 }
 .auth .btn-primary { margin-top: 18px; }
 .auth-switch { width: 100%; margin-top: 8px; }
+.auth-legal { text-align: center; margin: 16px 0 0; font-size: 12.5px; color: var(--ink-faint); line-height: 1.5; }
+.auth-legal a { color: var(--ink-soft); font-weight: 600; }
 
 .header-right { display: flex; align-items: center; gap: 8px; }
 .account-btn {
@@ -910,6 +910,20 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .usage-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 200ms; }
 .usage-fill.full { background: var(--warn); }
 .account-note { font-size: 12px; color: var(--ink-faint); margin: 2px 0 0; }
+
+/* loading skeletons so the account sheet holds its size while data loads */
+@keyframes skeleton-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.85; } }
+.account-email.is-loading {
+  width: 150px; height: 14px; border-radius: 5px; background: var(--surface-2);
+  animation: skeleton-pulse 1.2s ease-in-out infinite;
+}
+.usage-fill.is-loading { background: var(--line-strong); animation: skeleton-pulse 1.2s ease-in-out infinite; }
+.skeleton-btn {
+  height: 48px; background: var(--surface-2); pointer-events: none;
+  animation: skeleton-pulse 1.2s ease-in-out infinite;
+}
+.account-legal { text-align: center; margin: 14px 0 0; font-size: 12.5px; color: var(--ink-faint); }
+.account-legal a { color: var(--ink-soft); font-weight: 600; }
 
 /* ----- Upgrade CTA + sheet ----- */
 .upgrade-cta { gap: 8px; margin-bottom: 10px; }
