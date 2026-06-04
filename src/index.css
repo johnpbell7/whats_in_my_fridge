@@ -321,25 +321,35 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   color: var(--warn);
 }
 
-/* ----- Auto-file prompt ----- */
+/* ----- Auto-file prompt (a real, attention-grabbing button) ----- */
 .autofile {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
   justify-content: center;
-  background: var(--accent-soft);
-  color: var(--accent-press);
-  border: 1px solid #cfe5d6;
+  background: var(--accent);
+  color: var(--on-accent);
+  border: 0;
   border-radius: var(--r-md);
-  padding: 11px 14px;
-  font-size: 13.5px;
+  padding: 13px 16px;
+  font-size: 14.5px;
   font-weight: 600;
   margin-bottom: 14px;
   transition: transform 120ms, background 160ms;
+  /* a subtle ring that pulses outward while the prompt is showing */
+  animation: autofile-pulse 2s ease-in-out infinite;
 }
-.autofile:hover { background: #dcebe0; }
+.autofile:hover { background: var(--accent-press); }
 .autofile:active { transform: scale(0.99); }
+@keyframes autofile-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(47, 125, 90, 0.4); }
+  70% { box-shadow: 0 0 0 9px rgba(47, 125, 90, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(47, 125, 90, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .autofile { animation: none; }
+}
 
 /* ----- "Put away" — file ticked shopping items into the fridge ----- */
 .putaway {

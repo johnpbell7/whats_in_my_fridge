@@ -146,10 +146,10 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
 
       {view === 'active' && misfiled > 0 && (
         <button className="autofile" onClick={autoFile}>
-          <IconSparkle size={16} />
+          <IconSparkle size={17} />
           {misfiled === 1
-            ? 'Auto-file 1 item where it belongs'
-            : `Auto-file ${misfiled} items where they belong`}
+            ? 'Tap to file 1 item where it belongs'
+            : `Tap to file ${misfiled} items where they belong`}
         </button>
       )}
 
