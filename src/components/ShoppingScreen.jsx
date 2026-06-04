@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { shopping } from '../lib/shopping.js'
 import { store } from '../lib/store.js'
 import { useStaples } from '../lib/useStaples.js'
+import { stapleKey } from '../lib/staples.js'
 import { guessCategory, suggestExpiry } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge } from '../icons.jsx'
@@ -10,7 +11,15 @@ import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge } from '../icons.j
 export default function ShoppingScreen({ list, items = [] }) {
   const [draft, setDraft] = useState('')
   const [toast, setToast] = useState(null)
-  const { missing } = useStaples(items)
+  const { staples, missing } = useStaples(items)
+
+  // Look up where a known staple usually lives, so restocking it lands it back
+  // in the right place (fridge/freezer/pantry) rather than a name-based guess.
+  const stapleByKey = useMemo(() => {
+    const m = new Map()
+    for (const s of staples) m.set(s.key, s)
+    return m
+  }, [staples])
 
   // Auto-dismiss the "added to your fridge" confirmation after a moment.
   useEffect(() => {
@@ -49,8 +58,10 @@ export default function ShoppingScreen({ list, items = [] }) {
     if (!bought.length) return
     store.addMany(
       bought.map((it) => {
-        const category = guessCategory(it.name)
-        const location = suggestLocation(it.name, category)
+        // If this is a staple we know, put it back where it usually lives.
+        const known = stapleByKey.get(stapleKey(it.name))
+        const category = known?.category || guessCategory(it.name)
+        const location = known?.location || suggestLocation(it.name, category)
         return {
           name: it.name,
           quantity: it.quantity || 1,
