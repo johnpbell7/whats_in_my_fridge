@@ -40,6 +40,20 @@ export function askChat(question, inventory) {
   return post('/api/chat', { question, inventory, today }).then((d) => d.answer)
 }
 
+// Ask for dinner ideas from the current inventory. Returns a list of meals,
+// each with the inventory items it uses and a few extra things to buy. This is
+// a single chat-model request (same quota/credit as askChat) — the structured
+// result just lets the app render meal cards with add-to-shopping buttons.
+export function suggestMeals(inventory) {
+  const today = new Date().toLocaleDateString(undefined, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+  return post('/api/meals', { inventory, today }).then((d) => d.meals || [])
+}
+
 // Send a photo for recognition. Returns { items, receiptDate } to confirm.
 // mode: 'groceries' (a fridge/bag photo) or 'receipt' (a till receipt).
 // receiptDate is the date read off a receipt (YYYY-MM-DD) or null.
