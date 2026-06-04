@@ -181,7 +181,9 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .cat-groups { display: flex; flex-direction: column; gap: 14px; }
 .cat-header {
   display: flex; align-items: center; gap: 10px; width: 100%;
-  padding: 13px 15px; border: 0; border-radius: var(--r-md);
+  padding: 13px 15px; border-radius: var(--r-md);
+  /* very subtle category-tinted stroke so the bar lifts off the background */
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
   font-weight: 600; font-size: 16px; letter-spacing: -0.01em;
   box-shadow: var(--shadow-sm);
   transition: filter 140ms;
@@ -197,7 +199,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 }
 .cat-chevron { flex-shrink: 0; opacity: 0.6; transition: transform 160ms; }
 .cat-chevron.open { transform: rotate(90deg); }
-.cat-items { margin-top: 16px; }
+/* higher specificity than .item-list so the gap below the bar actually applies */
+.item-list.cat-items { margin-top: 16px; }
 
 /* soft category-colour bars (no stroke) — light tint + matching text/icon */
 .cat-header.cat-dairy { background: #eef2fa; color: #46618c; }
