@@ -4,7 +4,7 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
-import { healthHandler, visionHandler, chatHandler } from './core.js'
+import { healthHandler, meHandler, visionHandler, chatHandler } from './core.js'
 
 const PORT = process.env.API_PORT || 8787
 
@@ -13,10 +13,13 @@ app.use(cors())
 app.use(express.json({ limit: '12mb' })) // base64 photos can be a couple of MB
 
 const send = (res, { status, body }) => res.status(status).json(body)
+// Pull the user's access token out of the Authorization header (if signed in).
+const bearer = (req) => (req.headers.authorization || '').replace(/^Bearer\s+/i, '') || null
 
 app.get('/api/health', (_req, res) => send(res, healthHandler()))
-app.post('/api/vision', async (req, res) => send(res, await visionHandler(req.body)))
-app.post('/api/chat', async (req, res) => send(res, await chatHandler(req.body)))
+app.get('/api/me', async (req, res) => send(res, await meHandler(bearer(req))))
+app.post('/api/vision', async (req, res) => send(res, await visionHandler(req.body, bearer(req))))
+app.post('/api/chat', async (req, res) => send(res, await chatHandler(req.body, bearer(req))))
 
 app.listen(PORT, () => {
   console.log(`Fridge API listening on http://localhost:${PORT}`)

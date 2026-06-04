@@ -3,6 +3,7 @@
 // { status, body } so the two thin wrappers can just forward it.
 
 import Anthropic from '@anthropic-ai/sdk'
+import { guard, accountSummary, authEnabled, recordUsage } from './auth.js'
 
 const VISION_MODEL = process.env.VISION_MODEL || 'claude-sonnet-4-6'
 const CHAT_MODEL = process.env.CHAT_MODEL || 'claude-haiku-4-5-20251001'
@@ -109,13 +110,29 @@ Return ONLY a JSON array, no prose. Each element:
 export function healthHandler() {
   return {
     status: 200,
-    body: { ok: true, hasKey: Boolean(getClient()), visionModel: VISION_MODEL, chatModel: CHAT_MODEL }
+    body: {
+      ok: true,
+      hasKey: Boolean(getClient()),
+      authRequired: authEnabled(),
+      visionModel: VISION_MODEL,
+      chatModel: CHAT_MODEL
+    }
   }
 }
 
-export async function visionHandler(body = {}) {
+// GET /api/me — the signed-in user's tier + this month's usage (or
+// { authEnabled: false } in open mode).
+export function meHandler(token) {
+  return accountSummary(token)
+}
+
+export async function visionHandler(body = {}, token) {
   const client = getClient()
   if (!client) return NO_KEY
+
+  // Require a signed-in user (when accounts are on) and enforce their quota.
+  const gate = await guard(token, 'vision')
+  if (gate.error) return gate.error
 
   const { imageBase64, mediaType = 'image/jpeg', mode = 'groceries' } = body
   if (!imageBase64) {
@@ -125,7 +142,7 @@ export async function visionHandler(body = {}) {
   const prompt = mode === 'receipt' ? RECEIPT_PROMPT : GROCERIES_PROMPT
   try {
     const message = await client.messages.create({
-      model: VISION_MODEL,
+      model: gate.visionModel || VISION_MODEL,
       max_tokens: 4096, // room for a long list of items without truncating
       // Force the model to return the list through this tool, so we read a
       // validated object instead of parsing free text (which proved fragile).
@@ -176,15 +193,19 @@ export async function visionHandler(body = {}) {
         confidence: typeof it.confidence === 'number' ? Math.max(0, Math.min(1, it.confidence)) : 0.5
       }))
       .filter((it) => it.name)
+    if (gate.meter) await recordUsage(gate.user.id, 'vision')
     return { status: 200, body: { items } }
   } catch (err) {
     return mapClaudeError(err, 'vision')
   }
 }
 
-export async function chatHandler(body = {}) {
+export async function chatHandler(body = {}, token) {
   const client = getClient()
   if (!client) return NO_KEY
+
+  const gate = await guard(token, 'chat')
+  if (gate.error) return gate.error
 
   const { question, inventory = [], today } = body
   if (!question || !String(question).trim()) {
@@ -211,6 +232,7 @@ Quantities and units are freeform. If the inventory is empty, say so plainly.`
       messages: [{ role: 'user', content: String(question) }]
     })
     const answer = message.content.find((b) => b.type === 'text')?.text || ''
+    if (gate.meter) await recordUsage(gate.user.id, 'chat')
     return { status: 200, body: { answer } }
   } catch (err) {
     return mapClaudeError(err, 'chat')
