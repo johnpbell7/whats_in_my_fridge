@@ -144,6 +144,12 @@ export const IconChevron = (p) => (
   </Svg>
 )
 
+export const IconCircle = (p) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+  </Svg>
+)
+
 // --- category glyphs (simple line icons) ---
 export const IconMilk = (p) => (
   <Svg {...p}>

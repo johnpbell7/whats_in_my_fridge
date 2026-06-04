@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { store, seedSample, clearSample } from '../lib/store.js'
 import { LOCATIONS, guessCategory } from '../lib/categories.js'
@@ -12,8 +12,19 @@ import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle,
 
 export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onAccount }) {
   const [query, setQuery] = useState('')
-  const [view, setView] = useState('active') // 'active' | 'archive'
+  const [view, setView] = useState('active') // 'active' | 'archive' | 'staples'
   const [place, setPlace] = useState('all') // 'all' | 'fridge' | 'freezer' | 'pantry'
+  const [confirmClear, setConfirmClear] = useState(false)
+
+  // Reset the "tap again to clear" confirm whenever you leave the archive.
+  useEffect(() => {
+    if (view !== 'archive') setConfirmClear(false)
+  }, [view])
+
+  function clearArchive() {
+    archived.forEach((i) => store.remove(i.id))
+    setConfirmClear(false)
+  }
 
   const active = items.filter((i) => i.status === 'active')
   const archived = items.filter((i) => i.status !== 'active')
@@ -164,6 +175,15 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
             inputMode="search"
           />
         </div>
+      )}
+
+      {view === 'archive' && archived.length > 0 && (
+        <button
+          className={`clear-archive ${confirmClear ? 'confirm' : ''}`}
+          onClick={() => (confirmClear ? clearArchive() : setConfirmClear(true))}
+        >
+          {confirmClear ? 'Tap again to clear all' : `Clear all (${archived.length})`}
+        </button>
       )}
 
       {view === 'staples' ? (
