@@ -1,18 +1,33 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { askChat, suggestMeals } from '../lib/api.js'
 import { shopping } from '../lib/shopping.js'
+import { chat } from '../lib/chat.js'
 import { upgrade } from '../lib/upgrade.js'
 import { expiryState } from '../lib/expiry.js'
-import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck } from '../icons.jsx'
+import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck, IconClose } from '../icons.jsx'
 
 const DINNER_PROMPT = 'What can I make for dinner?'
 const SUGGESTIONS = ["What's expiring soon?", 'Do I have eggs?', DINNER_PROMPT]
+const REFINE = ['More adventurous', 'Vegetarian', 'Quick & easy', 'Use up what’s expiring']
+
+// Were the most recent suggestions a set of dinner ideas? If so, follow-ups
+// should refine them rather than start a plain chat.
+const lastWasMeals = (msgs) => {
+  const last = [...msgs].reverse().find((m) => m.role === 'ai' || m.role === 'meals')
+  return last?.role === 'meals'
+}
 
 export default function ChatScreen({ items, onGoScan, onAddManual }) {
-  const [messages, setMessages] = useState([])
+  // Conversation persists across tab switches / reloads (cleared on account change).
+  const messages = useSyncExternalStore(chat.subscribe, chat.getAll, chat.getAll)
+  const setMessages = (updater) =>
+    chat.setAll(typeof updater === 'function' ? updater(chat.getAll()) : updater)
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
+  // In "dinner" mode the input refines the meal ideas. Initialised from history
+  // so a refresh mid-planning keeps refining.
+  const [dinnerMode, setDinnerMode] = useState(() => lastWasMeals(chat.getAll()))
   const logRef = useRef(null)
 
   const active = items.filter((i) => i.status === 'active')
@@ -46,6 +61,11 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
     const question = (text ?? draft).trim()
     if (!question || busy) return
     setDraft('')
+    // While planning dinner, a typed message refines the ideas.
+    if (dinnerMode) {
+      askDinner(question)
+      return
+    }
     setMessages((m) => [...m, { role: 'me', text: question }])
     setBusy(true)
     try {
@@ -58,15 +78,18 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
     }
   }
 
-  // Dinner ideas: one chat-model request that returns structured meals so we
-  // can show cards with "to buy" items you can tap straight onto the shopping
-  // list. Same credit cost as any chat message.
-  async function askDinner() {
+  // Dinner ideas: one chat-model request that returns structured meals so we can
+  // show cards with "to buy" items you can tap straight onto the shopping list.
+  // Same credit cost as any chat message. An optional `refine` (typed follow-up
+  // or a refine chip) tailors the next set of ideas.
+  async function askDinner(refine) {
     if (busy) return
-    setMessages((m) => [...m, { role: 'me', text: DINNER_PROMPT }])
+    const refineText = typeof refine === 'string' && refine.trim() ? refine.trim() : null
+    setMessages((m) => [...m, { role: 'me', text: refineText || DINNER_PROMPT }])
+    setDinnerMode(true)
     setBusy(true)
     try {
-      const meals = await suggestMeals(buildInventory())
+      const meals = await suggestMeals(buildInventory(), refineText || undefined)
       setMessages((m) => [...m, { role: 'meals', meals }])
     } catch (err) {
       handleError(err)
@@ -121,6 +144,17 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
             {active.length} {active.length === 1 ? 'item' : 'items'} in the fridge right now.
           </p>
         </div>
+        {messages.length > 0 && (
+          <button
+            className="btn-text"
+            onClick={() => {
+              chat.clear()
+              setDinnerMode(false)
+            }}
+          >
+            Clear chat
+          </button>
+        )}
       </header>
 
       <div className="chat">
@@ -171,13 +205,26 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
           </div>
         )}
 
+        {dinnerMode && messages.length > 0 && !busy && (
+          <div className="suggest-row refine-row">
+            {REFINE.map((r) => (
+              <button key={r} onClick={() => askDinner(r)}>
+                {r}
+              </button>
+            ))}
+            <button className="refine-exit" onClick={() => setDinnerMode(false)}>
+              <IconClose size={13} /> Ask something else
+            </button>
+          </div>
+        )}
+
         <div className="chat-input">
           <textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={onKeyDown}
             rows={1}
-            placeholder="Ask about your fridge…"
+            placeholder={dinnerMode ? 'Refine the ideas… (e.g. vegetarian, quick)' : 'Ask about your fridge…'}
             aria-label="Your question"
           />
           <button className="send-btn" onClick={() => send()} disabled={!draft.trim() || busy} aria-label="Send">
