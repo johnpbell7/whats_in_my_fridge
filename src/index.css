@@ -18,9 +18,11 @@
   --danger: #b1433a;
   --danger-soft: #f6e3e0;
 
-  --shadow-sm: 0 1px 2px rgba(70, 52, 28, 0.06);
-  --shadow-md: 0 6px 20px rgba(70, 52, 28, 0.09);
-  --shadow-lg: 0 18px 40px rgba(70, 52, 28, 0.16);
+  /* Flat design — no depth shadows. Cards/sheets are separated by borders.
+     (Focus rings and the splash art use their own values and are unaffected.) */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
 
   --r-lg: 20px;
   --r-md: 14px;
