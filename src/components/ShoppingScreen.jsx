@@ -4,7 +4,7 @@ import { shopping } from '../lib/shopping.js'
 import { store } from '../lib/store.js'
 import { useStaples, useStaplePrefs } from '../lib/useStaples.js'
 import { stapleKey, staplePrefs } from '../lib/staples.js'
-import { guessCategory, suggestExpiry } from '../lib/categories.js'
+import { guessCategory } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge, IconPin } from '../icons.jsx'
 
@@ -83,7 +83,8 @@ export default function ShoppingScreen({ list, items = [] }) {
           quantity: it.quantity || 1,
           category,
           location,
-          expiry_date: suggestExpiry(category, location),
+          // No use-by stored — freshness counts from today + the category's
+          // window, so the card shows the item's age rather than a "use by".
           source: 'manual',
           filed: false
         }

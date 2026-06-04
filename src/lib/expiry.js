@@ -19,9 +19,14 @@ export function effectiveExpiry(item) {
   return suggestExpiry(item.category, item.location, new Date(item.added_date))
 }
 
-// True when the date shown is an automatic estimate rather than one you set.
+// True when the freshness is an automatic estimate rather than an accurate
+// use-by the user actually entered. No stored date (we count from the added
+// date) is an estimate; so is a stored date that exactly equals what we'd
+// auto-suggest — older auto-filed items kept one, and it isn't a real use-by.
 export function isEstimated(item) {
-  return Boolean(item) && !item.expiry_date && Boolean(item.added_date)
+  if (!item || !item.added_date) return false
+  if (!item.expiry_date) return true
+  return item.expiry_date === suggestExpiry(item.category, item.location, new Date(item.added_date))
 }
 
 // Whole days since an item was added (0 = added today).
