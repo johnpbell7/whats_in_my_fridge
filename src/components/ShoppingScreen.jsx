@@ -2,16 +2,17 @@ import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { shopping } from '../lib/shopping.js'
 import { store } from '../lib/store.js'
-import { useStaples } from '../lib/useStaples.js'
-import { stapleKey } from '../lib/staples.js'
+import { useStaples, useStaplePrefs } from '../lib/useStaples.js'
+import { stapleKey, staplePrefs } from '../lib/staples.js'
 import { guessCategory, suggestExpiry } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
-import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge } from '../icons.jsx'
+import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge, IconPin } from '../icons.jsx'
 
 export default function ShoppingScreen({ list, items = [] }) {
   const [draft, setDraft] = useState('')
   const [toast, setToast] = useState(null)
   const { staples, missing } = useStaples(items)
+  const prefs = useStaplePrefs()
 
   // Look up where a known staple usually lives, so restocking it lands it back
   // in the right place (fridge/freezer/pantry) rather than a name-based guess.
@@ -49,6 +50,21 @@ export default function ShoppingScreen({ list, items = [] }) {
     if (!draft.trim()) return
     shopping.add(draft)
     setDraft('')
+  }
+
+  // Mark/unmark a list item as a staple ("keep this stocked"), so we'll flag it
+  // whenever you next run out. Pinning records where it usually lives so it can
+  // be suggested back into the right place.
+  function toggleStaple(item) {
+    const key = stapleKey(item.name)
+    if (prefs.pinned[key]) {
+      staplePrefs.unpin(key)
+    } else {
+      const known = stapleByKey.get(key)
+      const category = known?.category || guessCategory(item.name)
+      const location = known?.location || suggestLocation(item.name, category)
+      staplePrefs.pin(key, { name: item.name, location, category })
+    }
   }
 
   // Ticked items have been bought — file each into the inventory, choosing the
@@ -149,39 +165,58 @@ export default function ShoppingScreen({ list, items = [] }) {
           <p>Jot things down as you run low, then tick them off at the shops.</p>
         </div>
       ) : (
-        <ul className="item-list">
-          <AnimatePresence initial={false}>
-            {ordered.map((item) => (
-              <motion.li
-                key={item.id}
-                layout
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, x: -12, transition: { duration: 0.13 } }}
-                transition={{ type: 'spring', stiffness: 360, damping: 32 }}
-                className={`shop-row ${item.checked ? 'done' : ''}`}
-              >
-                <button
-                  className="check"
-                  role="checkbox"
-                  aria-checked={item.checked}
-                  aria-label={`${item.checked ? 'Uncheck' : 'Check off'} ${item.name}`}
-                  onClick={() => shopping.toggle(item.id)}
-                >
-                  {item.checked && <IconCheck size={17} />}
-                </button>
-                <span className="shop-name">{item.name}</span>
-                <button
-                  className="icon-btn toss"
-                  onClick={() => shopping.remove(item.id)}
-                  aria-label={`Remove ${item.name}`}
-                >
-                  <IconTrash size={18} />
-                </button>
-              </motion.li>
-            ))}
-          </AnimatePresence>
-        </ul>
+        <>
+          {list.length > 0 && (
+            <p className="shop-hint">
+              <IconPin size={13} /> Tap the pin to keep something stocked — we’ll flag it when you run out.
+            </p>
+          )}
+          <ul className="item-list">
+            <AnimatePresence initial={false}>
+              {ordered.map((item) => {
+                const isStaple = Boolean(prefs.pinned[stapleKey(item.name)])
+                return (
+                  <motion.li
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -12, transition: { duration: 0.13 } }}
+                    transition={{ type: 'spring', stiffness: 360, damping: 32 }}
+                    className={`shop-row ${item.checked ? 'done' : ''}`}
+                  >
+                    <button
+                      className="check"
+                      role="checkbox"
+                      aria-checked={item.checked}
+                      aria-label={`${item.checked ? 'Uncheck' : 'Check off'} ${item.name}`}
+                      onClick={() => shopping.toggle(item.id)}
+                    >
+                      {item.checked && <IconCheck size={17} />}
+                    </button>
+                    <span className="shop-name">{item.name}</span>
+                    <button
+                      className="shop-staple"
+                      aria-pressed={isStaple}
+                      onClick={() => toggleStaple(item)}
+                      aria-label={isStaple ? `Stop keeping ${item.name} stocked` : `Keep ${item.name} stocked`}
+                      title="Keep this stocked — we’ll flag it when you run out"
+                    >
+                      <IconPin size={17} />
+                    </button>
+                    <button
+                      className="icon-btn toss"
+                      onClick={() => shopping.remove(item.id)}
+                      aria-label={`Remove ${item.name}`}
+                    >
+                      <IconTrash size={18} />
+                    </button>
+                  </motion.li>
+                )
+              })}
+            </AnimatePresence>
+          </ul>
+        </>
       )}
 
       <AnimatePresence>

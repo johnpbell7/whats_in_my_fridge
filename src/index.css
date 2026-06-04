@@ -430,7 +430,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 /* ----- Shopping list rows ----- */
 .shop-row {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 13px;
   background: var(--surface);
@@ -442,6 +442,24 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .shop-name { font-weight: 600; font-size: 15.5px; letter-spacing: -0.01em; }
 .shop-row.done { opacity: 0.6; }
 .shop-row.done .shop-name { text-decoration: line-through; text-decoration-color: var(--ink-faint); }
+
+/* "Keep stocked" pin toggle on each row — faint when off, accent-filled when
+   on. Explainer hint sits once above the list. */
+.shop-row { gap: 10px; }
+.shop-staple {
+  width: 34px; height: 34px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 9px; background: none; color: var(--ink-faint);
+  transition: color 140ms, background 140ms;
+}
+.shop-staple:active { transform: scale(0.92); }
+.shop-staple[aria-pressed='true'] { color: var(--accent); background: var(--accent-soft); }
+.shop-hint {
+  display: flex; align-items: center; gap: 6px;
+  margin: 0 0 12px; padding: 0 2px;
+  font-size: 12px; color: var(--ink-soft);
+}
+.shop-hint svg { color: var(--ink-faint); flex-shrink: 0; }
 
 /* ----- Buttons ----- */
 .btn {
