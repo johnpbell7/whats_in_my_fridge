@@ -137,3 +137,9 @@ export const IconUser = (p) => (
     <path d="M5 20c.6-3.6 3.4-5.5 7-5.5s6.4 1.9 7 5.5" />
   </Svg>
 )
+
+export const IconChevron = (p) => (
+  <Svg {...p}>
+    <path d="M9 6l6 6-6 6" />
+  </Svg>
+)
