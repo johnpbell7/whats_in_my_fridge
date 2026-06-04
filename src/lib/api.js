@@ -1,12 +1,15 @@
 // Thin client for our own serverless API. The browser only ever talks to /api;
-// the Anthropic key lives on the server (server/index.js).
+// the Anthropic key lives on the server (server/index.js). When accounts are
+// enabled, the signed-in user's token rides along so the server can meter use.
+
+import { authHeader } from './supabase.js'
 
 async function post(path, body) {
   let res
   try {
     res = await fetch(path, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(await authHeader()) },
       body: JSON.stringify(body)
     })
   } catch {
@@ -45,4 +48,10 @@ export function detectFromImage(imageBase64, mediaType, mode = 'groceries') {
 
 export function getHealth() {
   return fetch('/api/health').then((r) => r.json()).catch(() => ({ ok: false, hasKey: false }))
+}
+
+// The signed-in user's tier + this month's usage (or { authEnabled: false }).
+export async function getMe() {
+  const res = await fetch('/api/me', { headers: { ...(await authHeader()) } })
+  return res.json()
 }

@@ -7,9 +7,9 @@ import { sortByExpiry, expiryState } from '../lib/expiry.js'
 import ItemRow from './ItemRow.jsx'
 import StaplesBanner from './StaplesBanner.jsx'
 import StaplesList from './StaplesList.jsx'
-import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle } from '../icons.jsx'
+import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle, IconUser } from '../icons.jsx'
 
-export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }) {
+export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onAccount }) {
   const [query, setQuery] = useState('')
   const [view, setView] = useState('active') // 'active' | 'archive'
   const [place, setPlace] = useState('all') // 'all' | 'fridge' | 'freezer' | 'pantry'
@@ -67,9 +67,16 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan }
             Fridge<span className="leaf">.</span>
           </span>
         </h1>
-        <span className="count-pill">
-          {active.length} {active.length === 1 ? 'item' : 'items'}
-        </span>
+        <div className="header-right">
+          <span className="count-pill">
+            {active.length} {active.length === 1 ? 'item' : 'items'}
+          </span>
+          {onAccount && (
+            <button className="account-btn" onClick={onAccount} aria-label="Your account">
+              <IconUser size={18} />
+            </button>
+          )}
+        </div>
       </header>
 
       {showSeed && (

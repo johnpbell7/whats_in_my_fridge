@@ -130,3 +130,10 @@ export const IconPin = (p) => (
     <path d="M8.5 3.5h7l-1 5.2 2.5 2.4a1 1 0 0 1-.7 1.7H6.7a1 1 0 0 1-.7-1.7l2.5-2.4z" />
   </Svg>
 )
+
+export const IconUser = (p) => (
+  <Svg {...p}>
+    <circle cx="12" cy="8" r="3.6" />
+    <path d="M5 20c.6-3.6 3.4-5.5 7-5.5s6.4 1.9 7 5.5" />
+  </Svg>
+)
