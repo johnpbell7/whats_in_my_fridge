@@ -63,7 +63,7 @@ Defined in [`server/auth.js`](./server/auth.js) (`TIERS`). Defaults:
 
 | Plan | Vision model | Scans/month | Chats/month |
 | ---- | ------------ | ----------- | ----------- |
-| Free | Haiku (cheaper) | 10 | 50 |
+| Free | Haiku (cheaper) | 5 | 15 |
 | Plus | Sonnet (sharper) | 300 | 1000 |
 
 Tune these to your costs (see the pricing discussion). To upgrade a test account
