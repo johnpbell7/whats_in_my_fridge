@@ -106,3 +106,47 @@ picked up.
   env vars (same as Step 4) to use cheaper/different models.
 - **Checking the key is live:** visit `https://your-url/api/health` — it should
   show `"hasKey": true`.
+
+---
+
+## Running costs & billing (the AI bill)
+
+Every photo scan and chat question calls Anthropic with **your** API key, so you
+pay for the usage and recoup it through subscriptions. You don't have to top it
+up by hand — set it up once to manage itself.
+
+### 1. Turn on auto-reload (no manual topping up)
+**Anthropic Console → Settings → Billing → Auto-reload.** Set "when my balance
+drops below **£X**, charge my card **£Y**" (e.g. below £5 → add £20). It now
+refills itself from your card indefinitely.
+
+### 2. Put a safety ceiling on it
+In the same Billing area set a **monthly spend limit** and **email alerts**
+(e.g. alert at £20, cap at £50). If usage ever spikes, the API pauses until next
+month instead of draining your card.
+
+### 3. Glance at usage occasionally
+The Console's **usage dashboard** shows daily/monthly cost. Check weekly early
+on, then less as you trust it.
+
+### How the money circulates
+```
+Subscribers pay £3.99  ->  Apple / Google / Stripe  ->  your bank
+Your card (kept funded from that)  ->  Anthropic auto-reload  ->  AI usage
+```
+Subscription income lands in your bank; Anthropic quietly charges your card; you
+keep the card funded from the income. The only manual task is keeping that card
+valid.
+
+### Why it's safe to leave on autopilot
+Spend is **bounded by the app itself** — every user is metered (Free 10 scans /
+30 chats a month, Plus 60 / 300, plus a daily guard of 20 / 40), and nothing
+runs without a signed-in user. So the bill can only scale with real usage; it
+can't spike randomly. Rough costs: a maxed-out **free** user ≈ **~12p/month**; a
+maxed-out **Plus** user ≈ **~£2.25/month** in AI against their ~£2.54 net
+subscription. Tune the limits in `server/auth.js` (`TIERS` + `DAILY`).
+
+### As you grow
+Once you're spending more, Anthropic offers **monthly invoicing** (pay-as-you-go
+billed monthly instead of prepaid credits) — switch to that later and there's no
+balance to think about at all.
