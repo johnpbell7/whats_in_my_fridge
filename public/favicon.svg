@@ -1,13 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#43946f"/>
-      <stop offset="1" stop-color="#26684b"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="120" fill="url(#bg)"/>
-  <rect x="168" y="92" width="176" height="328" rx="36" fill="#fbfdfb"/>
-  <rect x="168" y="202" width="176" height="9" fill="#e4ebe6"/>
-  <rect x="305" y="130" width="14" height="46" rx="7" fill="#3a8e68"/>
-  <rect x="305" y="234" width="14" height="66" rx="7" fill="#3a8e68"/>
+  <rect width="512" height="512" rx="116" fill="#2f7d5a"/>
+  <!-- bold "F" monogram — stays crisp at tiny favicon sizes -->
+  <g fill="#ffffff">
+    <rect x="200" y="150" width="56" height="212" rx="6"/>
+    <rect x="200" y="150" width="150" height="56" rx="6"/>
+    <rect x="200" y="248" width="120" height="50" rx="6"/>
+  </g>
 </svg>
