@@ -63,7 +63,7 @@ Defined in [`server/auth.js`](./server/auth.js) (`TIERS`). Defaults:
 
 | Plan | Vision model | Scans/month | Chats/month |
 | ---- | ------------ | ----------- | ----------- |
-| Free | Haiku (cheaper) | 5 | 15 |
+| Free | Haiku (cheaper) | 10 | 30 |
 | Plus | Sonnet (sharper) | 60 | 300 |
 
 On top of the monthly caps, every signed-in user has a **daily rate-limit**

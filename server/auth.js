@@ -20,7 +20,7 @@ const HAIKU = process.env.CHAT_MODEL || 'claude-haiku-4-5-20251001'
 // Per-tier monthly limits and which vision model they get. Chat always uses the
 // cheap model. Tune these to your unit economics — see SETUP_ACCOUNTS.md.
 export const TIERS = {
-  free: { label: 'Free', visionModel: HAIKU, scansPerMonth: 5, chatsPerMonth: 15 },
+  free: { label: 'Free', visionModel: HAIKU, scansPerMonth: 10, chatsPerMonth: 30 },
   plus: { label: 'Plus', visionModel: SONNET, scansPerMonth: 60, chatsPerMonth: 300 }
 }
 
