@@ -14,6 +14,7 @@ import ItemForm from './components/ItemForm.jsx'
 import AuthScreen from './components/AuthScreen.jsx'
 import AccountSheet from './components/AccountSheet.jsx'
 import Onboarding from './components/Onboarding.jsx'
+import Toast from './components/Toast.jsx'
 import Nav from './components/Nav.jsx'
 import Splash from './components/Splash.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
@@ -28,20 +29,24 @@ export default function App() {
   const [editing, setEditing] = useState(null)
   const [account, setAccount] = useState(false)
   const [booting, setBooting] = useState(true)
-  // First-run intro: shown once per device until completed/skipped.
+  // Intro walkthrough: shown on every open by default; "Don't show this again"
+  // persists an opt-out under its own key.
   const [onboarded, setOnboarded] = useState(() => {
     try {
-      return localStorage.getItem('fridge.onboarded.v1') === '1'
+      return localStorage.getItem('fridge.onboarding.hide') === '1'
     } catch {
       return false
     }
   })
 
   function finishOnboarding() {
+    setOnboarded(true) // session only — shows again next time you open the app
+  }
+  function dontShowOnboarding() {
     try {
-      localStorage.setItem('fridge.onboarded.v1', '1')
+      localStorage.setItem('fridge.onboarding.hide', '1')
     } catch {
-      /* private mode — it'll just show again next time */
+      /* private mode — it'll just keep showing */
     }
     setOnboarded(true)
   }
@@ -59,10 +64,9 @@ export default function App() {
     setEditing(null)
   }
 
-  // First-run pitch — show before anything else so new visitors see what the
-  // app does (and why to sign up) the very first time.
+  // Walkthrough — shown before anything else each time you open the app.
   if (!onboarded) {
-    return <Onboarding onDone={finishOnboarding} />
+    return <Onboarding onDone={finishOnboarding} onNeverShow={dontShowOnboarding} />
   }
 
   // While the session is still resolving, hold a blank screen rather than
@@ -122,6 +126,8 @@ export default function App() {
       <AnimatePresence>
         {account && <AccountSheet onClose={() => setAccount(false)} />}
       </AnimatePresence>
+
+      <Toast />
 
       <ErrorBoundary fallback={null}>
         <AnimatePresence>{booting && <Splash key="splash" onDone={() => setBooting(false)} />}</AnimatePresence>

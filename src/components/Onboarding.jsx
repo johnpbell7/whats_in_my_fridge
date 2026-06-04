@@ -57,7 +57,7 @@ const variants = {
   exit: (dir) => ({ x: dir > 0 ? '-40%' : '40%', opacity: 0 })
 }
 
-export default function Onboarding({ onDone }) {
+export default function Onboarding({ onDone, onNeverShow }) {
   const [[page, dir], setPage] = useState([0, 0])
   const slide = SLIDES[page]
   const last = page === SLIDES.length - 1
@@ -128,6 +128,11 @@ export default function Onboarding({ onDone }) {
         <button className="btn btn-primary btn-block" onClick={() => go(1)}>
           {last ? 'Get started' : 'Next'}
         </button>
+        {onNeverShow && (
+          <button className="onboard-never" onClick={onNeverShow}>
+            Don’t show this again
+          </button>
+        )}
       </div>
     </div>
   )
