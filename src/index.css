@@ -306,12 +306,12 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .item-done {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 9px 15px; border-radius: 999px; border: 0;
-  background: var(--surface-2); color: var(--ink-soft);
+  background: none; color: var(--ink-soft);
   font-weight: 600; font-size: 13.5px; white-space: nowrap;
   transition: background 220ms, color 220ms, transform 120ms;
 }
 .item-done svg { color: var(--ink-faint); transition: color 220ms; }
-.item-done:hover { background: var(--line); }
+.item-done:hover { background: var(--surface-2); }
 .item-done:active { transform: scale(0.96); }
 .item-done.on { background: var(--accent); color: var(--on-accent); }
 .item-done.on svg { color: var(--on-accent); animation: tick-pop 240ms ease; }
@@ -1016,6 +1016,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   margin-bottom: 16px;
 }
 .banner svg { flex-shrink: 0; margin-top: 1px; }
+.banner-close {
+  flex-shrink: 0; margin-left: auto; align-self: flex-start;
+  color: #b07a52; opacity: 0.7; padding: 0 0 0 6px; display: inline-flex;
+}
+.banner-close:hover { opacity: 1; }
 
 /* ----- Dev-only sample-data button (hidden in production builds) ----- */
 .dev-seed {

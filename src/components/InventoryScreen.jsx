@@ -8,13 +8,14 @@ import ItemRow from './ItemRow.jsx'
 import StaplesBanner from './StaplesBanner.jsx'
 import StaplesList from './StaplesList.jsx'
 import CategorySections from './CategorySections.jsx'
-import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle, IconUser } from '../icons.jsx'
+import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle, IconUser, IconClose } from '../icons.jsx'
 
 export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onAccount }) {
   const [query, setQuery] = useState('')
   const [view, setView] = useState('active') // 'active' | 'archive' | 'staples'
   const [place, setPlace] = useState('all') // 'all' | 'fridge' | 'freezer' | 'pantry'
   const [confirmClear, setConfirmClear] = useState(false)
+  const [soonDismissed, setSoonDismissed] = useState(false)
 
   // Reset the "tap again to clear" confirm whenever you leave the archive.
   useEffect(() => {
@@ -119,13 +120,16 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
         </button>
       )}
 
-      {view === 'active' && soonCount > 0 && (
+      {view === 'active' && soonCount > 0 && !soonDismissed && (
         <div className="banner" role="status">
           <IconWarning size={18} />
           <span>
             {soonCount} {soonCount === 1 ? 'item needs' : 'items need'} using soon — they're at the top of
             the list.
           </span>
+          <button className="banner-close" onClick={() => setSoonDismissed(true)} aria-label="Dismiss">
+            <IconClose size={16} />
+          </button>
         </div>
       )}
 
