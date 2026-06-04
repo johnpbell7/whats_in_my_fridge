@@ -11,6 +11,16 @@ const listeners = new Set()
 let cache = []
 let ready = null
 
+// A separate, monotonic "an item was added" signal — distinct from list
+// changes so the UI can pulse the Shopping tab only on genuine additions (not
+// on toggles, removals, or a cloud pull replacing the whole list).
+const addListeners = new Set()
+let addCount = 0
+function notifyAdd() {
+  addCount += 1
+  addListeners.forEach((fn) => fn())
+}
+
 function notify() {
   listeners.forEach((fn) => fn())
 }
@@ -108,6 +118,7 @@ export const shopping = {
     const record = { id: uid(), name: clean, quantity, checked: false, added_date: new Date().toISOString() }
     commit([record, ...cache])
     remote?.upsert([record])
+    notifyAdd()
     return record
   },
 
@@ -154,7 +165,15 @@ export const shopping = {
 
   setRemote(r) {
     remote = r
-  }
+  },
+
+  // Subscribe to "item added" pulses (returns an unsubscribe). getAddCount is
+  // the snapshot for useSyncExternalStore.
+  subscribeAdds(fn) {
+    addListeners.add(fn)
+    return () => addListeners.delete(fn)
+  },
+  getAddCount: () => addCount
 }
 
 if (typeof window !== 'undefined') {

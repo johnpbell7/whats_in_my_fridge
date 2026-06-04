@@ -519,6 +519,19 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .nav button[aria-current='true'] { color: var(--accent); }
 .nav button:active { transform: scale(0.95); }
 
+/* Tab attention pulse — a quick scale + accent flash so a new shopping-list
+   item draws the eye to the Shopping tab. */
+.nav-icon { display: inline-flex; }
+.nav-icon.pulse { animation: nav-pulse 0.42s ease-in-out 3; color: var(--accent); transform-origin: center; }
+@keyframes nav-pulse {
+  0%, 100% { transform: scale(1); }
+  35% { transform: scale(1.32); }
+  70% { transform: scale(0.96); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-icon.pulse { animation: none; }
+}
+
 /* ----- Sheet / overlay ----- */
 .scrim {
   position: fixed;
