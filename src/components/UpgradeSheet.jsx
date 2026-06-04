@@ -3,8 +3,9 @@ import { motion } from 'framer-motion'
 import { IconClose, IconCheck, IconSparkle } from '../icons.jsx'
 
 const BENEFITS = [
-  'Photo & receipt scans — 300 a month (Free gives 5)',
-  'Chat questions — 1,000 a month (Free gives 15)',
+  // Keep these in sync with TIERS in server/auth.js
+  'Photo & receipt scans — 60 a month (Free gives 10)',
+  'Chat questions — 300 a month (Free gives 30)',
   'Sharper AI recognition for trickier photos',
   'Everything else stays, with no limits to think about'
 ]
