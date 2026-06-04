@@ -67,7 +67,8 @@ export default function ScanScreen({ onDone, onAddManual }) {
             added_date: added,
             expiry_date: suggestExpiry(d.category, loc, purchasedAt),
             source: 'photo',
-            confidence: d.confidence
+            confidence: d.confidence,
+            filed: false
           }
         })
       )

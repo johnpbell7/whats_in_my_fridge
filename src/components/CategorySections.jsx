@@ -4,10 +4,11 @@ import { store } from '../lib/store.js'
 import { CATEGORIES } from '../lib/categories.js'
 import ItemRow from './ItemRow.jsx'
 import {
-  IconChevron, IconLeaf, IconMilk, IconFish, IconBowl, IconBottle, IconCup, IconBox
+  IconChevron, IconLeaf, IconMilk, IconFish, IconBowl, IconBottle, IconCup, IconBox, IconSparkle
 } from '../icons.jsx'
 
 const CAT_ICON = {
+  new: IconSparkle,
   dairy: IconMilk,
   produce: IconLeaf,
   meat: IconFish,
@@ -23,15 +24,18 @@ const CAT_ICON = {
 export default function CategorySections({ items, onEdit }) {
   const [collapsed, setCollapsed] = useState({})
 
-  const groups = useMemo(
-    () =>
-      CATEGORIES.map((c) => ({
-        key: c.key,
-        label: c.label,
-        items: items.filter((i) => i.category === c.key)
-      })).filter((g) => g.items.length > 0),
-    [items]
-  )
+  const groups = useMemo(() => {
+    // Freshly added items sit in a "New" group until they're filed, and are
+    // held out of their category folders while they're there.
+    const newItems = items.filter((i) => i.filed === false)
+    const newIds = new Set(newItems.map((i) => i.id))
+    const cats = CATEGORIES.map((c) => ({
+      key: c.key,
+      label: c.label,
+      items: items.filter((i) => i.category === c.key && !newIds.has(i.id))
+    })).filter((g) => g.items.length > 0)
+    return newItems.length ? [{ key: 'new', label: 'New', items: newItems }, ...cats] : cats
+  }, [items])
 
   const toggle = (key) => setCollapsed((c) => ({ ...c, [key]: !c[key] }))
 

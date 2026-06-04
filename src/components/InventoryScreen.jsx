@@ -69,8 +69,13 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
     return cat !== i.category || suggestLocation(i.name, cat) !== i.location
   }
 
-  // How many active items are in the wrong category or filed in the wrong place.
-  const misfiled = useMemo(() => active.filter(needsFix).length, [active])
+  // Items waiting to be sorted: freshly added ("New", filed === false) plus any
+  // sitting in the wrong category/place.
+  const unfiledCount = useMemo(() => active.filter((i) => i.filed === false).length, [active])
+  const toSortCount = useMemo(
+    () => active.filter((i) => i.filed === false || needsFix(i)).length,
+    [active]
+  )
 
   function autoFile() {
     active.forEach((i) => {
@@ -79,6 +84,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
       const patch = {}
       if (cat !== i.category) patch.category = cat
       if (loc !== i.location) patch.location = loc
+      if (i.filed === false) patch.filed = true
       if (Object.keys(patch).length) store.update(i.id, patch)
     })
   }
@@ -155,12 +161,12 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
         </div>
       )}
 
-      {view === 'active' && misfiled > 0 && (
+      {view === 'active' && toSortCount > 0 && (
         <button className="autofile" onClick={autoFile}>
           <IconSparkle size={17} />
-          {misfiled === 1
-            ? 'Tap to file 1 item where it belongs'
-            : `Tap to file ${misfiled} items where they belong`}
+          {unfiledCount > 0
+            ? `Tap to file ${unfiledCount} new ${unfiledCount === 1 ? 'item' : 'items'} into folders`
+            : `Tap to file ${toSortCount} ${toSortCount === 1 ? 'item' : 'items'} where they belong`}
         </button>
       )}
 

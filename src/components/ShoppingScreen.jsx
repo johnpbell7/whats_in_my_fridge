@@ -68,7 +68,8 @@ export default function ShoppingScreen({ list, items = [] }) {
           category,
           location,
           expiry_date: suggestExpiry(category, location),
-          source: 'manual'
+          source: 'manual',
+          filed: false
         }
       })
     )
