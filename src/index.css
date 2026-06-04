@@ -183,30 +183,30 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   display: flex; align-items: center; gap: 10px; width: 100%;
   padding: 13px 15px; border: 0; border-radius: var(--r-md);
   font-weight: 600; font-size: 16px; letter-spacing: -0.01em;
-  color: #fff; box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm);
   transition: filter 140ms;
 }
-.cat-header:active { filter: brightness(0.96); }
+.cat-header:active { filter: brightness(0.98); }
 .cat-icon { display: inline-flex; flex-shrink: 0; }
 .cat-label { flex: 1; text-align: left; }
 .cat-count {
   font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums;
   min-width: 22px; height: 21px; padding: 0 7px; border-radius: 999px;
   display: inline-flex; align-items: center; justify-content: center;
-  background: rgba(255, 255, 255, 0.22); color: #fff;
+  background: rgba(255, 255, 255, 0.6);
 }
-.cat-chevron { flex-shrink: 0; opacity: 0.9; transition: transform 160ms; }
+.cat-chevron { flex-shrink: 0; opacity: 0.6; transition: transform 160ms; }
 .cat-chevron.open { transform: rotate(90deg); }
-.cat-items { margin-top: 13px; }
+.cat-items { margin-top: 16px; }
 
-/* solid category-colour bars (no stroke) — colours from the item tags */
-.cat-header.cat-dairy { background: #46618c; }
-.cat-header.cat-produce { background: #4a7a43; }
-.cat-header.cat-meat { background: #9c5249; }
-.cat-header.cat-leftovers { background: #897445; }
-.cat-header.cat-condiments { background: #7a5d86; }
-.cat-header.cat-drinks { background: #3f7480; }
-.cat-header.cat-other { background: #6b6358; }
+/* soft category-colour bars (no stroke) — light tint + matching text/icon */
+.cat-header.cat-dairy { background: #eef2fa; color: #46618c; }
+.cat-header.cat-produce { background: #eaf3e8; color: #4a7a43; }
+.cat-header.cat-meat { background: #f7ebe9; color: #9c5249; }
+.cat-header.cat-leftovers { background: #f3eee0; color: #897445; }
+.cat-header.cat-condiments { background: #f1ecf3; color: #7a5d86; }
+.cat-header.cat-drinks { background: #e7f1f3; color: #3f7480; }
+.cat-header.cat-other { background: var(--surface-2); color: var(--ink-soft); }
 
 /* ----- Item rows ----- */
 .item-list { display: flex; flex-direction: column; gap: 10px; list-style: none; margin: 0; padding: 0; }
