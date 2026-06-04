@@ -221,7 +221,7 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
               onClick={() => onDelete(item.id)}
               aria-label="Delete this item"
             >
-              <IconTrash size={18} />
+              <IconTrash size={18} /> Delete
             </button>
           )}
           <button type="submit" className="btn btn-primary btn-block">

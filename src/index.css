@@ -295,6 +295,16 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .expiry-chip.ok { color: var(--ink-soft); }
 
 .item-actions { display: flex; align-items: center; gap: 8px; align-self: center; }
+/* single, clear "I've used / finished this" action on each item */
+.item-done {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 15px; border-radius: 999px; border: 0;
+  background: var(--accent-soft); color: var(--accent-press);
+  font-weight: 600; font-size: 13.5px; white-space: nowrap;
+  transition: transform 120ms, background 160ms;
+}
+.item-done:hover { background: #dcebe0; }
+.item-done:active { transform: scale(0.96); }
 .icon-btn {
   width: 40px;
   height: 40px;
