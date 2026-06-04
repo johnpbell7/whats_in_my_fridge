@@ -29,6 +29,20 @@ const NO_KEY = {
   }
 }
 
+// Validate a receipt date the model read: must be YYYY-MM-DD, a real date, not
+// in the future, and not absurdly old (guards against misreads). Returns the
+// string or null.
+function validReceiptDate(s) {
+  if (!s || typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return null
+  const d = new Date(s + 'T00:00:00Z')
+  if (Number.isNaN(d.getTime())) return null
+  const today = new Date()
+  const ninetyAgo = new Date(today.getTime() - 90 * 86400000)
+  if (d.getTime() > today.getTime() + 86400000) return null // allow for timezone, but no real future
+  if (d.getTime() < ninetyAgo.getTime()) return null
+  return s
+}
+
 // The tool returns {"items":[...]}, but stay tolerant of shape so we never
 // silently drop everything.
 function asItemArray(parsed) {
@@ -104,9 +118,9 @@ Rules:
 - quantity comes from the line if shown (e.g. "2 @ £1.50" -> quantity 2), otherwise 1.
 - category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks. Only use 'other' when nothing else genuinely fits.
 - A receipt is printed text, so confidence should usually be high (0.8-1.0) unless the line is genuinely ambiguous.
+- Also read the date the receipt was ISSUED (the transaction/purchase date, usually near the top or bottom, NOT any 'best before' dates) and return it as receipt_date in YYYY-MM-DD format. If no transaction date is clearly legible, return an empty string.
 
-Return ONLY a JSON array, no prose. Each element:
-{"name": string, "category": string, "quantity": number, "unit": string, "confidence": number}`
+Return the items plus receipt_date via the tool.`
 
 export function healthHandler() {
   return {
@@ -167,6 +181,11 @@ export async function visionHandler(body = {}, token) {
                   },
                   required: ['name', 'category', 'quantity', 'unit', 'confidence']
                 }
+              },
+              receipt_date: {
+                type: 'string',
+                description:
+                  "For a shopping receipt: the transaction/purchase date printed on it, in YYYY-MM-DD. Empty string if not a receipt or no date is legible."
               }
             },
             required: ['items']
@@ -194,8 +213,10 @@ export async function visionHandler(body = {}, token) {
         confidence: typeof it.confidence === 'number' ? Math.max(0, Math.min(1, it.confidence)) : 0.5
       }))
       .filter((it) => it.name)
+    // Only trust a date from receipt scans.
+    const receiptDate = mode === 'receipt' ? validReceiptDate(toolUse?.input?.receipt_date) : null
     if (gate.meter) await recordUsage(gate.user.id, 'vision')
-    return { status: 200, body: { items } }
+    return { status: 200, body: { items, receiptDate } }
   } catch (err) {
     return mapClaudeError(err, 'vision')
   }

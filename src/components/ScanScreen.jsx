@@ -5,7 +5,7 @@ import { downscaleImage } from '../lib/image.js'
 import { store } from '../lib/store.js'
 import { CATEGORIES, LOCATIONS, suggestExpiry } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
-import { IconCamera, IconReceipt, IconPlus, IconCheck, IconClose, IconSparkle, IconWarning } from '../icons.jsx'
+import { IconCamera, IconReceipt, IconPlus, IconCheck, IconClose, IconSparkle, IconWarning, IconClock } from '../icons.jsx'
 
 // phases: idle -> reading -> confirm  (error can interrupt reading)
 export default function ScanScreen({ onDone, onAddManual }) {
@@ -15,6 +15,7 @@ export default function ScanScreen({ onDone, onAddManual }) {
   const [detected, setDetected] = useState([])
   const [error, setError] = useState(null)
   const [location, setLocation] = useState('auto') // 'auto' files each item smartly
+  const [receiptDate, setReceiptDate] = useState(null) // date read off a receipt
   const fileRef = useRef(null)
 
   async function handleFile(file) {
@@ -24,7 +25,8 @@ export default function ScanScreen({ onDone, onAddManual }) {
     try {
       const { dataUrl, mediaType, base64 } = await downscaleImage(file)
       setPreview(dataUrl)
-      const items = await detectFromImage(base64, mediaType, mode)
+      const { items, receiptDate: rd } = await detectFromImage(base64, mediaType, mode)
+      setReceiptDate(rd)
       setDetected(
         items.map((it, i) => ({
           ...it,
@@ -42,6 +44,10 @@ export default function ScanScreen({ onDone, onAddManual }) {
   function confirm() {
     const chosen = detected.filter((d) => d.include && d.name.trim())
     if (chosen.length) {
+      // Count freshness from the receipt's own date when we read one (you might
+      // scan a receipt a day or two later); otherwise from now.
+      const purchasedAt = receiptDate ? new Date(receiptDate + 'T12:00:00') : new Date()
+      const added = purchasedAt.toISOString()
       store.addMany(
         chosen.map((d) => {
           const loc = location === 'auto' ? suggestLocation(d.name, d.category) : location
@@ -51,7 +57,8 @@ export default function ScanScreen({ onDone, onAddManual }) {
             quantity: d.quantity || 1,
             unit: d.unit || '',
             location: loc,
-            expiry_date: suggestExpiry(d.category, loc),
+            added_date: added,
+            expiry_date: suggestExpiry(d.category, loc, purchasedAt),
             source: 'photo',
             confidence: d.confidence
           }
@@ -67,6 +74,7 @@ export default function ScanScreen({ onDone, onAddManual }) {
     setPreview(null)
     setDetected([])
     setError(null)
+    setReceiptDate(null)
   }
 
   const chosenCount = detected.filter((d) => d.include && d.name.trim()).length
@@ -161,6 +169,7 @@ export default function ScanScreen({ onDone, onAddManual }) {
           setDetected={setDetected}
           location={location}
           setLocation={setLocation}
+          receiptDate={receiptDate}
           chosenCount={chosenCount}
           onConfirm={confirm}
           onCancel={reset}
@@ -170,7 +179,10 @@ export default function ScanScreen({ onDone, onAddManual }) {
   )
 }
 
-function ConfirmList({ detected, setDetected, location, setLocation, chosenCount, onConfirm, onCancel }) {
+function ConfirmList({ detected, setDetected, location, setLocation, receiptDate, chosenCount, onConfirm, onCancel }) {
+  const receiptWhen =
+    receiptDate &&
+    new Date(receiptDate + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
   function patch(id, change) {
     setDetected((list) => list.map((d) => (d._id === id ? { ...d, ...change } : d)))
   }
@@ -203,6 +215,12 @@ function ConfirmList({ detected, setDetected, location, setLocation, chosenCount
 
   return (
     <>
+      {receiptWhen && (
+        <div className="banner" role="status" style={{ marginBottom: 14 }}>
+          <IconClock size={18} />
+          <span>Dated from your receipt — freshness counts from <strong>{receiptWhen}</strong>, not today.</span>
+        </div>
+      )}
       <div className="field" style={{ marginTop: 4 }}>
         <label>Where to file these</label>
         <div className="chips">

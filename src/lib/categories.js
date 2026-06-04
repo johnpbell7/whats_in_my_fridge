@@ -9,7 +9,7 @@ export const CATEGORIES = [
   { key: 'leftovers', label: 'Leftovers', days: 5 },
   { key: 'condiments', label: 'Condiments', days: 90 },
   { key: 'drinks', label: 'Drinks', days: 14 },
-  { key: 'other', label: 'Other', days: 7 }
+  { key: 'other', label: 'Other', days: 21 }
 ]
 
 export const LOCATIONS = [
