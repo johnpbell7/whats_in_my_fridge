@@ -10,6 +10,9 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
   const estimated = isEstimated(item)
   const archived = item.status !== 'active'
   const lowConfidence = item.source !== 'manual' && typeof item.confidence === 'number' && item.confidence < 0.6
+  // Small "New" badge for the first 24 hours after an item is added.
+  const isNew =
+    !archived && item.added_date && Date.now() - Date.parse(item.added_date) < 86400000
   // The "Used" control starts unticked (neutral); tapping it ticks green, then
   // the row removes itself a beat later for a satisfying confirm.
   const [checking, setChecking] = useState(false)
@@ -51,6 +54,7 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
           {item.quantity > 1 || (item.unit && item.unit !== '1') ? (
             <span className="qty">  ·  {formatQty(item)}</span>
           ) : null}
+          {isNew && <span className="tag-new">New</span>}
         </span>
         <span className="item-meta">
           <span className={`tag cat-${item.category}`}>{categoryLabel(item.category)}</span>
