@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { store, seedSample, clearSample } from '../lib/store.js'
-import { LOCATIONS } from '../lib/categories.js'
+import { LOCATIONS, guessCategory } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { sortByExpiry, expiryState } from '../lib/expiry.js'
 import ItemRow from './ItemRow.jsx'
 import StaplesBanner from './StaplesBanner.jsx'
 import StaplesList from './StaplesList.jsx'
+import CategorySections from './CategorySections.jsx'
 import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle, IconUser } from '../icons.jsx'
 
 export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onAccount }) {
@@ -45,16 +46,29 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
     return sortByExpiry(filtered)
   }, [view, active, archived, query, place])
 
-  // How many active items are filed somewhere other than where they'd belong.
-  const misfiled = useMemo(
-    () => active.filter((i) => suggestLocation(i.name, i.category) !== i.location).length,
-    [active]
-  )
+  // Upgrade a vague "other" category to a better guess from the name; leave
+  // categories the user/scan already chose alone.
+  const betterCategory = (i) => {
+    if (i.category !== 'other') return i.category
+    const g = guessCategory(i.name)
+    return g !== 'other' ? g : 'other'
+  }
+  const needsFix = (i) => {
+    const cat = betterCategory(i)
+    return cat !== i.category || suggestLocation(i.name, cat) !== i.location
+  }
+
+  // How many active items are in the wrong category or filed in the wrong place.
+  const misfiled = useMemo(() => active.filter(needsFix).length, [active])
 
   function autoFile() {
     active.forEach((i) => {
-      const loc = suggestLocation(i.name, i.category)
-      if (loc !== i.location) store.update(i.id, { location: loc })
+      const cat = betterCategory(i)
+      const loc = suggestLocation(i.name, cat)
+      const patch = {}
+      if (cat !== i.category) patch.category = cat
+      if (loc !== i.location) patch.location = loc
+      if (Object.keys(patch).length) store.update(i.id, patch)
     })
   }
 
@@ -162,6 +176,8 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
           onAddManual={onAddManual}
           onGoScan={onGoScan}
         />
+      ) : view === 'active' ? (
+        <CategorySections items={visible} onEdit={onEdit} />
       ) : (
         <ul className="item-list">
           <AnimatePresence initial={false}>

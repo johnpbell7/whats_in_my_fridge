@@ -177,6 +177,19 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   box-shadow: var(--shadow-sm);
 }
 
+/* ----- Category sections (collapsible) ----- */
+.cat-groups { display: flex; flex-direction: column; gap: 12px; }
+.cat-header {
+  display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 6px 2px; color: var(--ink);
+  font-family: var(--font-display); font-weight: 600; font-size: 15.5px;
+}
+.cat-chevron { color: var(--ink-faint); flex-shrink: 0; transition: transform 160ms; }
+.cat-chevron.open { transform: rotate(90deg); }
+.cat-label { flex: 1; text-align: left; letter-spacing: -0.01em; }
+.cat-count { color: var(--ink-faint); font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums; }
+.cat-items { margin-top: 4px; }
+
 /* ----- Item rows ----- */
 .item-list { display: flex; flex-direction: column; gap: 10px; list-style: none; margin: 0; padding: 0; }
 
