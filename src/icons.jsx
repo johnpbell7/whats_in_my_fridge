@@ -173,6 +173,12 @@ export const IconSpray = (p) => (
   </Svg>
 )
 
+export const IconBookmark = (p) => (
+  <Svg {...p}>
+    <path d="M6 4.5h12v16l-6-4-6 4z" />
+  </Svg>
+)
+
 // --- category glyphs (simple line icons) ---
 export const IconMilk = (p) => (
   <Svg {...p}>

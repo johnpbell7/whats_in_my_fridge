@@ -8,12 +8,13 @@ import { sortByExpiry, expiryState } from '../lib/expiry.js'
 import ItemRow from './ItemRow.jsx'
 import StaplesBanner from './StaplesBanner.jsx'
 import StaplesList from './StaplesList.jsx'
+import SavedMeals from './SavedMeals.jsx'
 import CategorySections from './CategorySections.jsx'
 import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle, IconUser, IconClose } from '../icons.jsx'
 
-export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onAccount }) {
+export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onGoChat, onAccount }) {
   const [query, setQuery] = useState('')
-  const [view, setView] = useState('active') // 'active' | 'archive' | 'staples'
+  const [view, setView] = useState('active') // 'active' | 'archive' | 'staples' | 'meals'
   const [place, setPlace] = useState('all') // 'all' | 'fridge' | 'freezer' | 'pantry'
   const [confirmClear, setConfirmClear] = useState(false)
   const [soonDismissed, setSoonDismissed] = useState(false)
@@ -146,6 +147,9 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
         <button role="tab" aria-pressed={view === 'staples'} onClick={() => setView('staples')}>
           Staples
         </button>
+        <button role="tab" aria-pressed={view === 'meals'} onClick={() => setView('meals')}>
+          Meals
+        </button>
       </div>
 
       {view === 'active' && active.length > 0 && (
@@ -201,6 +205,8 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
 
       {view === 'staples' ? (
         <StaplesList items={items} />
+      ) : view === 'meals' ? (
+        <SavedMeals onGoChat={onGoChat} />
       ) : visible.length === 0 ? (
         <EmptyInventory
           view={view}

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { askChat, suggestMeals } from '../lib/api.js'
-import { shopping } from '../lib/shopping.js'
 import { chat } from '../lib/chat.js'
+import { savedMeals } from '../lib/meals.js'
 import { upgrade } from '../lib/upgrade.js'
 import { expiryState } from '../lib/expiry.js'
-import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck, IconClose } from '../icons.jsx'
+import BuyChip from './BuyChip.jsx'
+import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck, IconClose, IconBookmark } from '../icons.jsx'
 
 const DINNER_PROMPT = 'What can I make for dinner?'
 // All three openers generate meal ideas (the most useful, generative use) — the
@@ -238,12 +239,12 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
   )
 }
 
-// Renders the structured dinner suggestions as cards.
+// Renders the structured meal suggestions as cards you can save.
 function MealList({ meals }) {
   if (!meals || meals.length === 0) {
     return (
       <p className="meals-empty">
-        Not quite enough to suggest a dinner yet — add a few more things and ask again.
+        Not quite enough to suggest a meal yet — add a few more things and ask again.
       </p>
     )
   }
@@ -251,38 +252,42 @@ function MealList({ meals }) {
     <div className="meals">
       <p className="meals-intro">Here’s what you could make:</p>
       {meals.map((meal, i) => (
-        <div className="meal-card" key={i}>
-          <h4>{meal.name}</h4>
-          {meal.description && <p className="meal-desc">{meal.description}</p>}
-          {meal.uses?.length > 0 && (
-            <p className="meal-uses">Uses: {meal.uses.join(', ')}</p>
-          )}
-          {meal.buy?.length > 0 && (
-            <div className="meal-buy">
-              <span className="meal-buy-label">To buy:</span>
-              {meal.buy.map((b) => (
-                <BuyChip key={b} name={b} />
-              ))}
-            </div>
-          )}
-        </div>
+        <MealCard key={i} meal={meal} />
       ))}
     </div>
   )
 }
 
-// A "to buy" item — tap to drop it onto the shopping list (no duplicates).
-function BuyChip({ name }) {
-  const [added, setAdded] = useState(false)
-  function add() {
-    if (added) return
-    shopping.addUnique(name)
-    setAdded(true)
-  }
+function MealCard({ meal }) {
+  const saved = useSyncExternalStore(
+    savedMeals.subscribe,
+    () => savedMeals.has(meal.name),
+    () => savedMeals.has(meal.name)
+  )
   return (
-    <button className={`buy-chip ${added ? 'added' : ''}`} onClick={add} aria-pressed={added}>
-      {added ? <IconCheck size={13} /> : <IconPlus size={13} />}
-      {added ? 'Added' : name}
-    </button>
+    <div className="meal-card">
+      <div className="meal-head">
+        <h4>{meal.name}</h4>
+        <button
+          className={`meal-save ${saved ? 'on' : ''}`}
+          onClick={() => savedMeals.add(meal)}
+          disabled={saved}
+          aria-pressed={saved}
+        >
+          {saved ? <IconCheck size={13} /> : <IconBookmark size={13} />}
+          {saved ? 'Saved' : 'Save'}
+        </button>
+      </div>
+      {meal.description && <p className="meal-desc">{meal.description}</p>}
+      {meal.uses?.length > 0 && <p className="meal-uses">Uses: {meal.uses.join(', ')}</p>}
+      {meal.buy?.length > 0 && (
+        <div className="meal-buy">
+          <span className="meal-buy-label">To buy:</span>
+          {meal.buy.map((b) => (
+            <BuyChip key={b} name={b} />
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
