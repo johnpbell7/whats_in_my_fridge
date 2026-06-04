@@ -226,6 +226,80 @@ export async function visionHandler(body = {}, token) {
   }
 }
 
+// Suggest dinners from the inventory. Uses the same cheap chat model and the
+// same 'chat' quota bucket as a normal question — one request, no extra
+// credits — but returns a structured list (meals + extra things to buy) via a
+// tool, so the app can render meal cards with tap-to-add-to-shopping buttons.
+export async function mealsHandler(body = {}, token) {
+  const client = getClient()
+  if (!client) return NO_KEY
+
+  const gate = await guard(token, 'chat')
+  if (gate.error) return gate.error
+
+  const { inventory = [], today } = body
+
+  const instructions = `You suggest simple dinners someone can cook from what's in their fridge, freezer and pantry.
+Rules:
+- Suggest 3-4 realistic, appetising weeknight dinners — quick home cooking, nothing cheffy.
+- Build meals around items that are ACTUALLY in their inventory. Never invent inventory items.
+- Prefer meals that use items expiring soon, so nothing goes to waste.
+- For each meal give: a short name, one practical sentence on how to make it, the inventory items it uses, and up to 3 everyday extra ingredients they'd realistically need to buy. Assume basics (salt, pepper, oil, common dried herbs/spices) are on hand, so keep "buy" short — often empty.
+- If the inventory is too sparse for real meals, still offer the best 1-2 simple ideas and put the missing essentials in "buy".`
+
+  try {
+    const message = await client.messages.create({
+      model: CHAT_MODEL,
+      max_tokens: 900,
+      system: [
+        { type: 'text', text: instructions, cache_control: { type: 'ephemeral' } },
+        { type: 'text', text: `Today's date: ${today || 'unknown'}\nCurrent inventory (JSON):\n${JSON.stringify(inventory)}` }
+      ],
+      tools: [
+        {
+          name: 'suggest_meals',
+          description: 'Return a short list of dinners the user can make from their inventory.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              meals: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string', description: 'Short, appetising meal name' },
+                    description: { type: 'string', description: 'One practical sentence on how to make it' },
+                    uses: { type: 'array', items: { type: 'string' }, description: 'Inventory items this meal uses' },
+                    buy: { type: 'array', items: { type: 'string' }, description: 'Up to 3 extra ingredients to buy, or empty if none needed' }
+                  },
+                  required: ['name', 'description', 'uses', 'buy']
+                }
+              }
+            },
+            required: ['meals']
+          }
+        }
+      ],
+      tool_choice: { type: 'tool', name: 'suggest_meals' },
+      messages: [{ role: 'user', content: 'What can I make for dinner from what I have?' }]
+    })
+    const toolUse = message.content.find((b) => b.type === 'tool_use')
+    const raw = Array.isArray(toolUse?.input?.meals) ? toolUse.input.meals : []
+    const meals = raw
+      .map((m) => ({
+        name: String(m.name || '').trim(),
+        description: String(m.description || '').trim(),
+        uses: Array.isArray(m.uses) ? m.uses.map((s) => String(s).trim()).filter(Boolean) : [],
+        buy: Array.isArray(m.buy) ? m.buy.map((s) => String(s).trim()).filter(Boolean).slice(0, 3) : []
+      }))
+      .filter((m) => m.name)
+    if (gate.meter) await recordUsage(gate.user.id, 'chat')
+    return { status: 200, body: { meals } }
+  } catch (err) {
+    return mapClaudeError(err, 'chat')
+  }
+}
+
 export async function chatHandler(body = {}, token) {
   const client = getClient()
   if (!client) return NO_KEY

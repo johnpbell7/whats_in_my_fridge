@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { askChat } from '../lib/api.js'
+import { askChat, suggestMeals } from '../lib/api.js'
+import { shopping } from '../lib/shopping.js'
 import { upgrade } from '../lib/upgrade.js'
 import { expiryState } from '../lib/expiry.js'
-import { IconSend, IconSparkle, IconCamera, IconPlus } from '../icons.jsx'
+import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck } from '../icons.jsx'
 
-const SUGGESTIONS = ["What's expiring soon?", 'Do I have eggs?', 'What can I make for dinner?']
+const DINNER_PROMPT = 'What can I make for dinner?'
+const SUGGESTIONS = ["What's expiring soon?", 'Do I have eggs?', DINNER_PROMPT]
 
 export default function ChatScreen({ items, onGoScan, onAddManual }) {
   const [messages, setMessages] = useState([])
@@ -20,6 +22,26 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
     if (el) el.scrollTop = el.scrollHeight
   }, [messages, busy])
 
+  const buildInventory = () =>
+    active.map((i) => ({
+      name: i.name,
+      category: i.category,
+      quantity: i.quantity,
+      unit: i.unit,
+      location: i.location,
+      expiry_date: i.expiry_date,
+      expiry: expiryState(i)
+    }))
+
+  // Shared error handling for both flows.
+  function handleError(err) {
+    if (err.code === 'quota_exceeded' || err.code === 'rate_limited') {
+      upgrade.show(err.code === 'rate_limited' ? 'rate' : 'chat')
+    } else {
+      setMessages((m) => [...m, { role: 'error', text: err.message }])
+    }
+  }
+
   async function send(text) {
     const question = (text ?? draft).trim()
     if (!question || busy) return
@@ -27,24 +49,27 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
     setMessages((m) => [...m, { role: 'me', text: question }])
     setBusy(true)
     try {
-      const inventory = active.map((i) => ({
-        name: i.name,
-        category: i.category,
-        quantity: i.quantity,
-        unit: i.unit,
-        location: i.location,
-        expiry_date: i.expiry_date,
-        expiry: expiryState(i)
-      }))
-      const answer = await askChat(question, inventory)
+      const answer = await askChat(question, buildInventory())
       setMessages((m) => [...m, { role: 'ai', text: answer }])
     } catch (err) {
-      // At a cap or rate-limit, open the upgrade prompt instead of a raw error.
-      if (err.code === 'quota_exceeded' || err.code === 'rate_limited') {
-        upgrade.show(err.code === 'rate_limited' ? 'rate' : 'chat')
-      } else {
-        setMessages((m) => [...m, { role: 'error', text: err.message }])
-      }
+      handleError(err)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // Dinner ideas: one chat-model request that returns structured meals so we
+  // can show cards with "to buy" items you can tap straight onto the shopping
+  // list. Same credit cost as any chat message.
+  async function askDinner() {
+    if (busy) return
+    setMessages((m) => [...m, { role: 'me', text: DINNER_PROMPT }])
+    setBusy(true)
+    try {
+      const meals = await suggestMeals(buildInventory())
+      setMessages((m) => [...m, { role: 'meals', meals }])
+    } catch (err) {
+      handleError(err)
     } finally {
       setBusy(false)
     }
@@ -118,9 +143,9 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-                className={`bubble ${m.role}`}
+                className={m.role === 'meals' ? 'meals-msg' : `bubble ${m.role}`}
               >
-                {m.text}
+                {m.role === 'meals' ? <MealList meals={m.meals} /> : m.text}
               </motion.div>
             ))}
           </AnimatePresence>
@@ -139,7 +164,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
         {messages.length === 0 && (
           <div className="suggest-row">
             {SUGGESTIONS.map((s) => (
-              <button key={s} onClick={() => send(s)}>
+              <button key={s} onClick={() => (s === DINNER_PROMPT ? askDinner() : send(s))}>
                 {s}
               </button>
             ))}
@@ -161,5 +186,54 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
         </div>
       </div>
     </div>
+  )
+}
+
+// Renders the structured dinner suggestions as cards.
+function MealList({ meals }) {
+  if (!meals || meals.length === 0) {
+    return (
+      <p className="meals-empty">
+        Not quite enough to suggest a dinner yet — add a few more things and ask again.
+      </p>
+    )
+  }
+  return (
+    <div className="meals">
+      <p className="meals-intro">Here’s what you could make:</p>
+      {meals.map((meal, i) => (
+        <div className="meal-card" key={i}>
+          <h4>{meal.name}</h4>
+          {meal.description && <p className="meal-desc">{meal.description}</p>}
+          {meal.uses?.length > 0 && (
+            <p className="meal-uses">Uses: {meal.uses.join(', ')}</p>
+          )}
+          {meal.buy?.length > 0 && (
+            <div className="meal-buy">
+              <span className="meal-buy-label">To buy:</span>
+              {meal.buy.map((b) => (
+                <BuyChip key={b} name={b} />
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// A "to buy" item — tap to drop it onto the shopping list (no duplicates).
+function BuyChip({ name }) {
+  const [added, setAdded] = useState(false)
+  function add() {
+    if (added) return
+    shopping.addUnique(name)
+    setAdded(true)
+  }
+  return (
+    <button className={`buy-chip ${added ? 'added' : ''}`} onClick={add} aria-pressed={added}>
+      {added ? <IconCheck size={13} /> : <IconPlus size={13} />}
+      {added ? 'Added' : name}
+    </button>
   )
 }
