@@ -115,6 +115,7 @@ export default function App() {
           onEdit={(item) => setEditing(item)}
           onAddManual={() => setEditing('new')}
           onGoScan={() => setTab('scan')}
+          onGoChat={() => setTab('chat')}
           onAccount={authEnabled ? () => setAccount(true) : null}
         />
       )}

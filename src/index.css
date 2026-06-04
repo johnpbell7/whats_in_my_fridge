@@ -156,7 +156,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 
 /* ----- Segment toggle ----- */
 .segment {
-  display: inline-flex;
+  display: flex;
+  width: 100%;
   background: var(--surface-2);
   border-radius: var(--r-sm);
   padding: 3px;
@@ -164,13 +165,16 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   margin-bottom: 16px;
 }
 .segment button {
+  flex: 1;
+  min-width: 0;
   border: 0;
   background: transparent;
   color: var(--ink-soft);
   font-weight: 600;
-  font-size: 13px;
-  padding: 7px 14px;
+  font-size: 12.5px;
+  padding: 7px 6px;
   border-radius: 8px;
+  white-space: nowrap;
   transition: background 160ms, color 160ms;
 }
 .segment button[aria-pressed='true'] {
@@ -820,6 +824,25 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   border-radius: var(--r-md); padding: 12px 14px;
 }
 .meal-card h4 { margin: 0 0 3px; font-size: 15px; font-family: var(--font-display); letter-spacing: -0.01em; }
+.meal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.meal-head h4 { flex: 1; min-width: 0; }
+.meal-save {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 600; padding: 5px 10px;
+  border-radius: 999px; border: 1px solid var(--line-strong);
+  background: var(--surface); color: var(--ink-soft);
+  transition: background 140ms, color 140ms, border-color 140ms, transform 120ms;
+}
+.meal-save:active { transform: scale(0.95); }
+.meal-save.on { background: var(--accent-soft); color: var(--accent-press); border-color: #cfe5d6; }
+.meal-buy-all {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 600; color: var(--accent-press);
+  background: none; border: 0; padding: 5px 4px;
+}
+/* Saved meals tab uses the same cards, stacked. */
+.saved-meals { margin-top: 2px; }
 .meal-desc { margin: 0 0 6px; font-size: 13.5px; color: var(--ink); line-height: 1.4; }
 .meal-uses { margin: 0; font-size: 12px; color: var(--ink-faint); line-height: 1.35; }
 .meal-buy { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 9px; }

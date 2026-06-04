@@ -14,6 +14,7 @@ import { store, initStore } from './store.js'
 import { shopping, initShopping } from './shopping.js'
 import { staplePrefs, initStaplePrefs } from './staples.js'
 import { chat } from './chat.js'
+import { savedMeals } from './meals.js'
 
 const ITEM_COLS = [
   'id', 'name', 'category', 'quantity', 'unit', 'location',
@@ -97,6 +98,7 @@ async function pullAndWire(lastUser) {
     shopping.clear()
     staplePrefs.clear()
     chat.clear()
+    savedMeals.clear()
   }
 
   try {
@@ -178,5 +180,6 @@ export function stopSync() {
   shopping.clear()
   staplePrefs.clear()
   chat.clear()
+  savedMeals.clear()
   userId = null
 }
