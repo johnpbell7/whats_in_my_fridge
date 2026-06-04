@@ -54,7 +54,7 @@ body {
   overscroll-behavior-y: none;
 }
 
-button { font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+button { font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; border: 0; }
 .label-opt { color: var(--ink-faint); font-weight: 500; }
 input, textarea, select { font-family: inherit; font-size: 16px; }
 
