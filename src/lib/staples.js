@@ -210,6 +210,8 @@ function commit(next) {
   }
 }
 
+let remote = null
+
 export const staplePrefs = {
   getAll: () => cache,
 
@@ -229,6 +231,7 @@ export const staplePrefs = {
       pinned: { ...cache.pinned, [key]: { name: meta.name || key, location: meta.location, category: meta.category } },
       ignored
     })
+    remote?.save(cache)
   },
 
   unpin(key) {
@@ -236,6 +239,7 @@ export const staplePrefs = {
     const pinned = { ...cache.pinned }
     delete pinned[key]
     commit({ pinned, ignored: cache.ignored })
+    remote?.save(cache)
   },
 
   // Dismiss an auto-detected staple ("not a staple"). Also drops any pin.
@@ -244,11 +248,21 @@ export const staplePrefs = {
     const pinned = { ...cache.pinned }
     delete pinned[key]
     commit({ pinned, ignored: { ...cache.ignored, [key]: true } })
+    remote?.save(cache)
   },
 
-  // Wipe pins/dismissals (on account change).
+  // Wipe pins/dismissals locally (account change). Cloud untouched.
   clear() {
     commit({ pinned: {}, ignored: {} })
+  },
+
+  // Replace prefs from a pull. Local-only.
+  replaceData(data) {
+    commit(clean(data) || { pinned: {}, ignored: {} })
+  },
+
+  setRemote(r) {
+    remote = r
   }
 }
 

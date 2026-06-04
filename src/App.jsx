@@ -4,8 +4,9 @@ import { useItems } from './lib/useItems.js'
 import { useShopping } from './lib/useShopping.js'
 import { useAuth } from './lib/useAuth.js'
 import { store, initStore } from './lib/store.js'
-import { shopping, initShopping } from './lib/shopping.js'
-import { staplePrefs, initStaplePrefs } from './lib/staples.js'
+import { initShopping } from './lib/shopping.js'
+import { initStaplePrefs } from './lib/staples.js'
+import { startSync, stopSync } from './lib/cloud.js'
 import InventoryScreen from './components/InventoryScreen.jsx'
 import ScanScreen from './components/ScanScreen.jsx'
 import ChatScreen from './components/ChatScreen.jsx'
@@ -59,48 +60,13 @@ export default function App() {
     initStaplePrefs()
   }, [])
 
-  // Keep on-device data tied to the signed-in account: if the account changes
-  // (a different user, or sign-out), wipe the local fridge so one account never
-  // sees another's on a shared device. We wait for the stores to finish loading
-  // first so the load can't undo the wipe. (Proper per-account persistence
-  // across devices comes with cloud sync.)
+  // Cloud sync: when signed in, pull this account's data from Supabase and
+  // write changes through; on sign-out, clear the local copy. This is what
+  // ties data to the account (and keeps it off another account on the device).
   useEffect(() => {
     if (!authEnabled || authLoading) return
-    let cancelled = false
-    ;(async () => {
-      await Promise.all([initStore(), initShopping(), initStaplePrefs()])
-      if (cancelled) return
-      const uid = session?.user?.id || ''
-      let last = null
-      try {
-        last = localStorage.getItem('fridge.lastUser')
-      } catch {
-        /* private mode */
-      }
-      if (last === null) {
-        // First time we've tracked an account on this device — adopt whatever's
-        // already here for this session rather than wiping it.
-        try {
-          localStorage.setItem('fridge.lastUser', uid)
-        } catch {
-          /* ignore */
-        }
-        return
-      }
-      if (uid !== last) {
-        store.clear()
-        shopping.clear()
-        staplePrefs.clear()
-        try {
-          localStorage.setItem('fridge.lastUser', uid)
-        } catch {
-          /* ignore */
-        }
-      }
-    })()
-    return () => {
-      cancelled = true
-    }
+    if (session?.user) startSync(session.user)
+    else stopSync()
   }, [authEnabled, authLoading, session?.user?.id])
 
   function handleSave(values, id) {
