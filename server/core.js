@@ -237,20 +237,21 @@ export async function mealsHandler(body = {}, token) {
   const gate = await guard(token, 'chat')
   if (gate.error) return gate.error
 
-  const { inventory = [], today } = body
+  const { inventory = [], today, request } = body
+  const ask = (typeof request === 'string' && request.trim()) || 'What can I make for dinner from what I have?'
 
-  const instructions = `You suggest simple dinners someone can cook from what's in their fridge, freezer and pantry.
+  const instructions = `You suggest dinners someone can cook, built around what's in their fridge, freezer and pantry.
 Rules:
-- Suggest 3-4 realistic, appetising weeknight dinners — quick home cooking, nothing cheffy.
-- Build meals around items that are ACTUALLY in their inventory. Never invent inventory items.
+- Suggest 3-4 appetising dinners. Build each around items that are ACTUALLY in their inventory — never invent inventory items.
 - Prefer meals that use items expiring soon, so nothing goes to waste.
-- For each meal give: a short name, one practical sentence on how to make it, the inventory items it uses, and up to 3 everyday extra ingredients they'd realistically need to buy. Assume basics (salt, pepper, oil, common dried herbs/spices) are on hand, so keep "buy" short — often empty.
-- If the inventory is too sparse for real meals, still offer the best 1-2 simple ideas and put the missing essentials in "buy".`
+- Be a little adventurous and inspiring: for each meal suggest a handful (2-4) of extra ingredients worth buying that would genuinely elevate the dish — a fresh herb, a sauce, a cheese, something that lifts it — not just bare essentials. Assume basics (salt, pepper, oil, common dried herbs/spices) are already on hand.
+- If the user gives a follow-up or preference (e.g. a cuisine, "vegetarian", "quick", "something with chicken", "more adventurous"), tailor the whole set of suggestions to it while still using their inventory.
+- Keep each method to one practical sentence — real weeknight cooking, easy to follow.`
 
   try {
     const message = await client.messages.create({
       model: CHAT_MODEL,
-      max_tokens: 900,
+      max_tokens: 1000,
       system: [
         { type: 'text', text: instructions, cache_control: { type: 'ephemeral' } },
         { type: 'text', text: `Today's date: ${today || 'unknown'}\nCurrent inventory (JSON):\n${JSON.stringify(inventory)}` }
@@ -270,7 +271,7 @@ Rules:
                     name: { type: 'string', description: 'Short, appetising meal name' },
                     description: { type: 'string', description: 'One practical sentence on how to make it' },
                     uses: { type: 'array', items: { type: 'string' }, description: 'Inventory items this meal uses' },
-                    buy: { type: 'array', items: { type: 'string' }, description: 'Up to 3 extra ingredients to buy, or empty if none needed' }
+                    buy: { type: 'array', items: { type: 'string' }, description: 'Up to 5 extra ingredients worth buying to make it better' }
                   },
                   required: ['name', 'description', 'uses', 'buy']
                 }
@@ -281,7 +282,7 @@ Rules:
         }
       ],
       tool_choice: { type: 'tool', name: 'suggest_meals' },
-      messages: [{ role: 'user', content: 'What can I make for dinner from what I have?' }]
+      messages: [{ role: 'user', content: ask }]
     })
     const toolUse = message.content.find((b) => b.type === 'tool_use')
     const raw = Array.isArray(toolUse?.input?.meals) ? toolUse.input.meals : []
@@ -290,7 +291,7 @@ Rules:
         name: String(m.name || '').trim(),
         description: String(m.description || '').trim(),
         uses: Array.isArray(m.uses) ? m.uses.map((s) => String(s).trim()).filter(Boolean) : [],
-        buy: Array.isArray(m.buy) ? m.buy.map((s) => String(s).trim()).filter(Boolean).slice(0, 3) : []
+        buy: Array.isArray(m.buy) ? m.buy.map((s) => String(s).trim()).filter(Boolean).slice(0, 5) : []
       }))
       .filter((m) => m.name)
     if (gate.meter) await recordUsage(gate.user.id, 'chat')

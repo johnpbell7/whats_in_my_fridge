@@ -845,6 +845,12 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   border-radius: 999px;
 }
 .suggest-row button:active { transform: scale(0.96); }
+/* refine chips shown while planning dinner */
+.refine-row .refine-exit {
+  border-color: transparent; background: none; color: var(--ink-faint);
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.refine-row .refine-exit:hover { color: var(--ink-soft); }
 
 .chat-input {
   display: flex;

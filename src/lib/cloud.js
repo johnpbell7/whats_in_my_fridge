@@ -13,6 +13,7 @@ import { supabase } from './supabase.js'
 import { store, initStore } from './store.js'
 import { shopping, initShopping } from './shopping.js'
 import { staplePrefs, initStaplePrefs } from './staples.js'
+import { chat } from './chat.js'
 
 const ITEM_COLS = [
   'id', 'name', 'category', 'quantity', 'unit', 'location',
@@ -95,6 +96,7 @@ async function pullAndWire(lastUser) {
     store.clear()
     shopping.clear()
     staplePrefs.clear()
+    chat.clear()
   }
 
   try {
@@ -175,5 +177,6 @@ export function stopSync() {
   store.clear()
   shopping.clear()
   staplePrefs.clear()
+  chat.clear()
   userId = null
 }
