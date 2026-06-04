@@ -295,16 +295,20 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .expiry-chip.ok { color: var(--ink-soft); }
 
 .item-actions { display: flex; align-items: center; gap: 8px; align-self: center; }
-/* single, clear "I've used / finished this" action on each item */
+/* single "used" control — neutral/unticked by default, turns green on tap */
 .item-done {
-  display: inline-flex; align-items: center; gap: 6px;
+  display: inline-flex; align-items: center; gap: 7px;
   padding: 9px 15px; border-radius: 999px; border: 0;
-  background: var(--accent-soft); color: var(--accent-press);
+  background: var(--surface-2); color: var(--ink-soft);
   font-weight: 600; font-size: 13.5px; white-space: nowrap;
-  transition: transform 120ms, background 160ms;
+  transition: background 220ms, color 220ms, transform 120ms;
 }
-.item-done:hover { background: #dcebe0; }
+.item-done svg { color: var(--ink-faint); transition: color 220ms; }
+.item-done:hover { background: var(--line); }
 .item-done:active { transform: scale(0.96); }
+.item-done.on { background: var(--accent); color: var(--on-accent); }
+.item-done.on svg { color: var(--on-accent); animation: tick-pop 240ms ease; }
+@keyframes tick-pop { 0% { transform: scale(0.5); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
 .icon-btn {
   width: 40px;
   height: 40px;
@@ -350,6 +354,15 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   /* a subtle ring that pulses outward while the prompt is showing */
   animation: autofile-pulse 2s ease-in-out infinite;
 }
+/* small, unobtrusive "clear all" for the Used & gone archive */
+.clear-archive {
+  display: block; margin: -4px 0 12px auto;
+  background: none; color: var(--ink-soft);
+  font-size: 13px; font-weight: 600; padding: 4px 2px;
+}
+.clear-archive:hover { color: var(--danger); }
+.clear-archive.confirm { color: var(--danger); }
+
 .autofile:hover { background: var(--accent-press); }
 .autofile:active { transform: scale(0.99); }
 @keyframes autofile-pulse {

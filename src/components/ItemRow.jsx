@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { categoryLabel, locationLabel } from '../lib/categories.js'
 import { expiryState, expiryLabel, effectiveExpiry, isEstimated } from '../lib/expiry.js'
-import { IconCheck, IconClock, IconWarning } from '../icons.jsx'
+import { IconCheck, IconCircle, IconClock, IconWarning } from '../icons.jsx'
 
 export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
   const state = expiryState(item)
@@ -9,6 +10,14 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
   const estimated = isEstimated(item)
   const archived = item.status !== 'active'
   const lowConfidence = item.source !== 'manual' && typeof item.confidence === 'number' && item.confidence < 0.6
+  // The "Used" control starts unticked (neutral); tapping it ticks green, then
+  // the row removes itself a beat later for a satisfying confirm.
+  const [checking, setChecking] = useState(false)
+  function markUsed() {
+    if (checking) return
+    setChecking(true)
+    setTimeout(() => onUse(item), 300)
+  }
 
   // "Expired" is only ever said when you entered an exact date (it's factual).
   // For an estimated countdown we soften it: amber, and worded as a nudge.
@@ -74,12 +83,13 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
           </button>
         ) : (
           <button
-            className="item-done"
-            onClick={() => onUse(item)}
-            aria-label={`Mark ${item.name} as used or gone`}
-            title="Used it — eaten or thrown away"
+            className={`item-done ${checking ? 'on' : ''}`}
+            onClick={markUsed}
+            aria-pressed={checking}
+            aria-label={`Mark ${item.name} as used`}
+            title="Tap when you've used or finished this"
           >
-            <IconCheck size={17} /> Used
+            {checking ? <IconCheck size={17} /> : <IconCircle size={17} />} Used
           </button>
         )}
       </div>
