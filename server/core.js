@@ -240,9 +240,9 @@ export async function mealsHandler(body = {}, token) {
   const { inventory = [], today, request } = body
   const ask = (typeof request === 'string' && request.trim()) || 'What can I make for dinner from what I have?'
 
-  const instructions = `You suggest dinners someone can cook, built around what's in their fridge, freezer and pantry.
+  const instructions = `You suggest meals someone can cook, built around what's in their fridge, freezer and pantry. Default to dinner ideas unless the user asks for something else (e.g. a quick lunch, or a few days of dinners to plan).
 Rules:
-- Suggest 3-4 appetising dinners. Build each around items that are ACTUALLY in their inventory — never invent inventory items.
+- Suggest 3-4 appetising meals. Build each around items that are ACTUALLY in their inventory — never invent inventory items.
 - Prefer meals that use items expiring soon, so nothing goes to waste.
 - Be a little adventurous and inspiring: for each meal suggest a handful (2-4) of extra ingredients worth buying that would genuinely elevate the dish — a fresh herb, a sauce, a cheese, something that lifts it — not just bare essentials. Assume basics (salt, pepper, oil, common dried herbs/spices) are already on hand.
 - If the user gives a follow-up or preference (e.g. a cuisine, "vegetarian", "quick", "something with chicken", "more adventurous"), tailor the whole set of suggestions to it while still using their inventory.
