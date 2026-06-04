@@ -87,7 +87,8 @@ Rules:
 - List every distinct product you can see. Do NOT stop after the obvious few — work methodically across the whole image and include everything, even small or partly hidden items you can still confidently identify.
 - Do not invent items that are fully hidden behind others or sealed inside opaque containers. But DO include items that are only partially visible if you can recognise them.
 - Several of the SAME product = one entry with the count as quantity (e.g. three apples -> quantity 3). Different products are always separate entries.
-- category must be exactly one of: ${CATEGORIES.join(', ')}.
+- Food and drink ONLY. Do NOT include non-food or household items (cleaning products, toiletries, air fresheners, candles, kitchen roll, foil, pet food, medicine).
+- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks. Only use 'other' when nothing else genuinely fits.
 - confidence is your certainty from 0 to 1 that the item is present and correctly named.
 - quantity is a number; unit is a short freeform string ("carton", "block", "bunch", "" if not obvious).
 
@@ -101,7 +102,7 @@ Rules:
 - IGNORE non-grocery lines entirely: store name and address, dates, totals, subtotals, VAT/tax, change, card/payment lines, discounts, loyalty/clubcard points, and carrier bags.
 - Skip clearly non-food household items (cleaning products, toiletries) unless they are food or drink.
 - quantity comes from the line if shown (e.g. "2 @ £1.50" -> quantity 2), otherwise 1.
-- category must be exactly one of: ${CATEGORIES.join(', ')}.
+- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks. Only use 'other' when nothing else genuinely fits.
 - A receipt is printed text, so confidence should usually be high (0.8-1.0) unless the line is genuinely ambiguous.
 
 Return ONLY a JSON array, no prose. Each element:

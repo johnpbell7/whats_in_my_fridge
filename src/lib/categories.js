@@ -32,7 +32,9 @@ const CATEGORY_KEYWORDS = [
     'cordial', 'smoothie', 'fizzy drink', 'sparkling water', 'still water']],
   ['produce', ['apple', 'banana', 'orange', 'lettuce', 'tomato', 'potato', 'onion', 'carrot', 'pepper',
     'cucumber', 'spinach', 'broccoli', 'fruit', 'veg', 'salad', 'berry', 'berries', 'grape', 'lemon',
-    'lime', 'garlic', 'mushroom', 'avocado', 'courgette', 'cabbage', 'celery', 'kale', 'pear']],
+    'lime', 'garlic', 'mushroom', 'avocado', 'courgette', 'cabbage', 'celery', 'kale', 'pear',
+    'coriander', 'cilantro', 'basil', 'parsley', 'mint', 'dill', 'chive', 'herb', 'rocket', 'leek',
+    'cauliflower', 'aubergine', 'melon', 'strawberr', 'raspberr', 'blueberr', 'spring onion']],
   ['condiments', ['sauce', 'ketchup', 'mustard', 'mayo', 'mayonnaise', 'jam', 'honey', 'oil', 'vinegar',
     'dressing', 'spread', 'marmalade', 'chutney', 'pickle']]
 ]
