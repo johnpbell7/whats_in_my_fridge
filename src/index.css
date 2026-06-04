@@ -708,6 +708,92 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .send-btn:active { transform: scale(0.92); }
 .send-btn[disabled] { opacity: 0.45; }
 
+/* ----- Onboarding (first-run intro) ----- */
+.onboard {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg, var(--surface));
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+  padding: calc(env(safe-area-inset-top) + 14px) 22px calc(env(safe-area-inset-bottom) + 22px);
+  max-width: var(--app-max);
+  margin: 0 auto;
+}
+.onboard-top { display: flex; align-items: center; justify-content: space-between; }
+.onboard-brand { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--ink); }
+.onboard-brand .leaf { color: var(--accent); }
+.onboard-skip { background: none; border: 0; color: var(--ink-soft); font-weight: 600; font-size: 14px; padding: 6px 4px; }
+
+.onboard-stage { flex: 1; position: relative; overflow: hidden; display: flex; }
+.onboard-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px 6px;
+  cursor: grab;
+}
+.onboard-slide:active { cursor: grabbing; }
+.onboard-visual { width: 100%; max-width: 320px; margin-bottom: 26px; pointer-events: none; }
+.onboard-badge {
+  width: 46px; height: 46px; border-radius: 14px;
+  background: var(--accent-soft); color: var(--accent-press);
+  display: flex; align-items: center; justify-content: center; margin-bottom: 14px;
+}
+.onboard-title {
+  font-family: var(--font-display); font-weight: 600; font-size: 25px; line-height: 1.15;
+  letter-spacing: -0.01em; margin: 0 0 10px; max-width: 16ch;
+}
+.onboard-body { margin: 0; color: var(--ink-soft); font-size: 15px; line-height: 1.5; max-width: 32ch; }
+
+.onboard-foot { display: flex; flex-direction: column; gap: 18px; align-items: center; }
+.onboard-dots { display: flex; gap: 8px; }
+.onboard-dot {
+  width: 7px; height: 7px; border-radius: 999px; border: 0; padding: 0;
+  background: var(--line-strong); transition: width 200ms, background 200ms;
+}
+.onboard-dot.on { width: 22px; background: var(--accent); }
+
+/* feature mock-ups */
+.ob-card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
+  box-shadow: var(--shadow-md); padding: 12px 14px; display: flex; flex-direction: column; gap: 9px;
+  text-align: left;
+}
+.ob-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ob-line-name { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 14.5px; color: var(--ink); }
+.ob-line-meta { font-size: 12.5px; color: var(--ink-soft); }
+.ob-chip {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 700;
+  padding: 4px 8px; border-radius: 999px;
+}
+.ob-chip.soon { background: var(--warn-soft); color: var(--warn); }
+.ob-chip.expired { background: var(--danger-soft); color: var(--danger); }
+.ob-add { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+.ob-pill {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;
+  padding: 8px 12px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--ink-soft);
+  background: var(--surface);
+}
+.ob-pill-accent { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.ob-pill-sm { padding: 6px 10px; font-size: 12px; }
+.ob-staple { background: var(--accent-soft); border-color: #cfe5d6; }
+.ob-staple-head { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 13px; color: var(--accent-press); }
+.ob-check {
+  width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--on-accent);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.ob-putaway {
+  display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+  background: var(--accent); color: var(--on-accent); border-radius: 999px; padding: 7px 13px;
+  font-size: 13px; font-weight: 600; margin-top: 2px;
+}
+
 /* ----- Accounts: auth screen, header button, account sheet ----- */
 .auth {
   min-height: 100dvh;
