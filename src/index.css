@@ -181,32 +181,32 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .cat-groups { display: flex; flex-direction: column; gap: 14px; }
 .cat-header {
   display: flex; align-items: center; gap: 10px; width: 100%;
-  padding: 10px 14px; border-radius: var(--r-md);
-  font-family: var(--font-display); font-weight: 600; font-size: 15px;
+  padding: 13px 15px; border: 0; border-radius: var(--r-md);
+  font-weight: 600; font-size: 16px; letter-spacing: -0.01em;
+  color: #fff; box-shadow: var(--shadow-sm);
   transition: filter 140ms;
 }
-.cat-header:active { filter: brightness(0.97); }
+.cat-header:active { filter: brightness(0.96); }
 .cat-icon { display: inline-flex; flex-shrink: 0; }
-.cat-label { flex: 1; text-align: left; letter-spacing: -0.01em; }
+.cat-label { flex: 1; text-align: left; }
 .cat-count {
-  font-weight: 700; font-size: 13px; opacity: 0.7;
-  font-variant-numeric: tabular-nums;
-  min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+  font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums;
+  min-width: 22px; height: 21px; padding: 0 7px; border-radius: 999px;
   display: inline-flex; align-items: center; justify-content: center;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.22); color: #fff;
 }
-.cat-chevron { flex-shrink: 0; opacity: 0.65; transition: transform 160ms; }
+.cat-chevron { flex-shrink: 0; opacity: 0.9; transition: transform 160ms; }
 .cat-chevron.open { transform: rotate(90deg); }
-.cat-items { margin-top: 8px; }
+.cat-items { margin-top: 13px; }
 
-/* per-category colours — matched to the item tags */
-.cat-header.cat-dairy { background: #eef2fa; color: #46618c; }
-.cat-header.cat-produce { background: #eaf3e8; color: #4a7a43; }
-.cat-header.cat-meat { background: #f7ebe9; color: #9c5249; }
-.cat-header.cat-leftovers { background: #f3eee0; color: #897445; }
-.cat-header.cat-condiments { background: #f1ecf3; color: #7a5d86; }
-.cat-header.cat-drinks { background: #e7f1f3; color: #3f7480; }
-.cat-header.cat-other { background: var(--surface-2); color: var(--ink-soft); }
+/* solid category-colour bars (no stroke) — colours from the item tags */
+.cat-header.cat-dairy { background: #46618c; }
+.cat-header.cat-produce { background: #4a7a43; }
+.cat-header.cat-meat { background: #9c5249; }
+.cat-header.cat-leftovers { background: #897445; }
+.cat-header.cat-condiments { background: #7a5d86; }
+.cat-header.cat-drinks { background: #3f7480; }
+.cat-header.cat-other { background: #6b6358; }
 
 /* ----- Item rows ----- */
 .item-list { display: flex; flex-direction: column; gap: 10px; list-style: none; margin: 0; padding: 0; }
@@ -294,12 +294,12 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   width: 40px;
   height: 40px;
   border-radius: 11px;
-  border: 1px solid var(--line);
-  background: var(--surface);
+  border: 0;
+  background: var(--surface-2);
   color: var(--ink-soft);
   display: grid;
   place-items: center;
-  transition: transform 120ms, background 160ms, color 160ms, border-color 160ms;
+  transition: transform 120ms, background 160ms, color 160ms;
 }
 .icon-btn:hover { background: var(--surface-2); color: var(--ink); }
 .icon-btn:active { transform: scale(0.94); }
