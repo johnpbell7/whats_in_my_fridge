@@ -13,6 +13,7 @@ import ShoppingScreen from './components/ShoppingScreen.jsx'
 import ItemForm from './components/ItemForm.jsx'
 import AuthScreen from './components/AuthScreen.jsx'
 import AccountSheet from './components/AccountSheet.jsx'
+import Onboarding from './components/Onboarding.jsx'
 import Nav from './components/Nav.jsx'
 import Splash from './components/Splash.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
@@ -27,6 +28,23 @@ export default function App() {
   const [editing, setEditing] = useState(null)
   const [account, setAccount] = useState(false)
   const [booting, setBooting] = useState(true)
+  // First-run intro: shown once per device until completed/skipped.
+  const [onboarded, setOnboarded] = useState(() => {
+    try {
+      return localStorage.getItem('fridge.onboarded.v1') === '1'
+    } catch {
+      return false
+    }
+  })
+
+  function finishOnboarding() {
+    try {
+      localStorage.setItem('fridge.onboarded.v1', '1')
+    } catch {
+      /* private mode — it'll just show again next time */
+    }
+    setOnboarded(true)
+  }
 
   // Load saved inventory + shopping list from durable storage on launch.
   useEffect(() => {
@@ -39,6 +57,12 @@ export default function App() {
     if (id) store.update(id, values)
     else store.add(values)
     setEditing(null)
+  }
+
+  // First-run pitch — show before anything else so new visitors see what the
+  // app does (and why to sign up) the very first time.
+  if (!onboarded) {
+    return <Onboarding onDone={finishOnboarding} />
   }
 
   // While the session is still resolving, hold a blank screen rather than
