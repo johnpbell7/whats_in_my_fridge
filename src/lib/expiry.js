@@ -1,9 +1,27 @@
+import { suggestExpiry } from './categories.js'
+
 const DAY = 86400000
 
 export function startOfDay(d = new Date()) {
   const x = new Date(d)
   x.setHours(0, 0, 0, 0)
   return x
+}
+
+// The date an item is judged against. If you set an exact use-by we use it;
+// otherwise we work it out from when it was added (purchased) plus the
+// category's fresh window — so freshness tracks automatically even when nobody
+// types a date.
+export function effectiveExpiry(item) {
+  if (!item) return null
+  if (item.expiry_date) return item.expiry_date
+  if (!item.added_date) return null
+  return suggestExpiry(item.category, item.location, new Date(item.added_date))
+}
+
+// True when the date shown is an automatic estimate rather than one you set.
+export function isEstimated(item) {
+  return Boolean(item) && !item.expiry_date && Boolean(item.added_date)
 }
 
 // Whole days from today until the given YYYY-MM-DD (negative = already past).
@@ -15,7 +33,7 @@ export function daysUntil(dateStr, today = new Date()) {
 
 // 'expired' | 'soon' (<= 2 days) | 'ok' | 'none'
 export function expiryState(item, today = new Date()) {
-  const d = daysUntil(item.expiry_date, today)
+  const d = daysUntil(effectiveExpiry(item), today)
   if (d === null) return 'none'
   if (d < 0) return 'expired'
   if (d <= 2) return 'soon'
@@ -37,8 +55,8 @@ export function expiryLabel(dateStr, today = new Date()) {
 // Sort: expired first, then soonest expiry, then dated items, then undated.
 export function sortByExpiry(items, today = new Date()) {
   return [...items].sort((a, b) => {
-    const da = daysUntil(a.expiry_date, today)
-    const db = daysUntil(b.expiry_date, today)
+    const da = daysUntil(effectiveExpiry(a), today)
+    const db = daysUntil(effectiveExpiry(b), today)
     if (da === null && db === null) return a.name.localeCompare(b.name)
     if (da === null) return 1
     if (db === null) return -1

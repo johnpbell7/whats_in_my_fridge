@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion'
 import { categoryLabel, locationLabel } from '../lib/categories.js'
-import { expiryState, expiryLabel } from '../lib/expiry.js'
+import { expiryState, expiryLabel, effectiveExpiry, isEstimated } from '../lib/expiry.js'
 import { IconCheck, IconTrash, IconClock, IconWarning } from '../icons.jsx'
 
 export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
   const state = expiryState(item)
+  const eff = effectiveExpiry(item)
+  const estimated = isEstimated(item)
   const archived = item.status !== 'active'
   const lowConfidence = item.source !== 'manual' && typeof item.confidence === 'number' && item.confidence < 0.6
 
@@ -35,13 +37,16 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
           <span className={`tag cat-${item.category}`}>{categoryLabel(item.category)}</span>
           <span className="dot" />
           <span>{locationLabel(item.location)}</span>
-          {item.expiry_date && (
+          {eff && (
             <>
               <span className="dot" />
               <span className={`expiry-chip ${state}`}>
                 <IconClock size={13} />
-                {state === 'expired' ? 'Expired ' : 'Use by '}
-                {expiryLabel(item.expiry_date)}
+                {state === 'expired'
+                  ? estimated
+                    ? 'Getting old'
+                    : `Expired ${expiryLabel(eff)}`
+                  : `${estimated ? 'Best by ' : 'Use by '}${expiryLabel(eff)}`}
               </span>
             </>
           )}

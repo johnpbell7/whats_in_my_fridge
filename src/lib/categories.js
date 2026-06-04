@@ -1,10 +1,12 @@
-// Categories carry a sensible default shelf life so you rarely type dates by
-// hand (one of the plan's friction-killers).
+// Categories carry a default "fresh window" in days, counted from when the item
+// was added (i.e. purchased). Fresh perishables work on a ~7-day scale: after
+// about a week they flag as getting old. You can always override with an exact
+// date, but you never have to — adding it is enough.
 export const CATEGORIES = [
   { key: 'dairy', label: 'Dairy', days: 7 },
-  { key: 'produce', label: 'Produce', days: 5 },
-  { key: 'meat', label: 'Meat & fish', days: 3 },
-  { key: 'leftovers', label: 'Leftovers', days: 3 },
+  { key: 'produce', label: 'Produce', days: 7 },
+  { key: 'meat', label: 'Meat & fish', days: 7 },
+  { key: 'leftovers', label: 'Leftovers', days: 5 },
   { key: 'condiments', label: 'Condiments', days: 90 },
   { key: 'drinks', label: 'Drinks', days: 14 },
   { key: 'other', label: 'Other', days: 7 }

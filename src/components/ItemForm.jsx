@@ -157,7 +157,9 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
         </div>
 
         <div className="field">
-          <label htmlFor="f-expiry">Use by</label>
+          <label htmlFor="f-expiry">
+            Use by <span className="label-opt">— optional</span>
+          </label>
           <input
             id="f-expiry"
             className="input"
@@ -166,14 +168,17 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
             onChange={(e) => setExpiry(e.target.value)}
           />
           <p className="expiry-suggest">
-            {expiry === suggestion ? (
-              <>Suggested from category &amp; location.</>
+            {expiry ? (
+              <>
+                Using your exact date.{' '}
+                <button type="button" onClick={() => setExpiry('')}>
+                  Clear &amp; auto-track
+                </button>
+              </>
             ) : (
               <>
-                Not sure?{' '}
-                <button type="button" onClick={() => setExpiry(suggestion)}>
-                  Use the {prettyDate(suggestion)} estimate
-                </button>
+                No need to set one — we’ll count freshness from today, fresh until about{' '}
+                <strong>{prettyDate(suggestion)}</strong>.
               </>
             )}
           </p>
