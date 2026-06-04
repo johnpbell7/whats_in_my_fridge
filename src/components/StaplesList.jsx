@@ -3,6 +3,7 @@ import { shopping } from '../lib/shopping.js'
 import { useShopping } from '../lib/useShopping.js'
 import { staplePrefs } from '../lib/staples.js'
 import { useStaples } from '../lib/useStaples.js'
+import { toast } from '../lib/toast.js'
 import { IconPin, IconCart, IconClose, IconSparkle } from '../icons.jsx'
 
 // The "Staples" view on the inventory screen: every item the app treats as
@@ -66,7 +67,10 @@ export default function StaplesList({ items }) {
                     ) : (
                       <button
                         className="staple-add"
-                        onClick={() => shopping.addUnique(s.name)}
+                        onClick={() => {
+                          shopping.addUnique(s.name)
+                          toast.show('Added to your shopping list')
+                        }}
                         aria-label={`Add ${s.name} to the shopping list`}
                       >
                         <IconCart size={15} /> Add

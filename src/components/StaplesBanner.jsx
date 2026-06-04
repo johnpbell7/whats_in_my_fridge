@@ -4,6 +4,7 @@ import { shopping } from '../lib/shopping.js'
 import { useShopping } from '../lib/useShopping.js'
 import { staplePrefs } from '../lib/staples.js'
 import { useStaples } from '../lib/useStaples.js'
+import { toast } from '../lib/toast.js'
 import { locationLabel } from '../lib/categories.js'
 import { IconCart, IconClose, IconSparkle } from '../icons.jsx'
 
@@ -58,7 +59,10 @@ export default function StaplesBanner({ items }) {
               <div className="staple-actions">
                 <button
                   className="staple-add"
-                  onClick={() => shopping.addUnique(s.name)}
+                  onClick={() => {
+                    shopping.addUnique(s.name)
+                    toast.show('Added to your shopping list')
+                  }}
                   aria-label={`Add ${s.name} to the shopping list`}
                 >
                   <IconCart size={15} /> Add
