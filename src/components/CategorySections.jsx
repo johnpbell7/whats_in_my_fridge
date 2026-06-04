@@ -61,7 +61,7 @@ export default function CategorySections({ items, onEdit }) {
                       item={item}
                       onEdit={onEdit}
                       onUse={(it) => store.setStatus(it.id, 'used')}
-                      onToss={(it) => store.setStatus(it.id, 'discarded')}
+                      onToss={(it) => store.remove(it.id)}
                       onRestore={(it) => store.setStatus(it.id, 'active')}
                     />
                   ))}

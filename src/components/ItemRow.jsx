@@ -74,10 +74,20 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onRestore }) {
           </button>
         ) : (
           <>
-            <button className="icon-btn use" onClick={() => onUse(item)} aria-label={`Mark ${item.name} used`}>
+            <button
+              className="icon-btn use"
+              onClick={() => onUse(item)}
+              aria-label={`Mark ${item.name} as used`}
+              title="Used it — move to history"
+            >
               <IconCheck size={20} />
             </button>
-            <button className="icon-btn toss" onClick={() => onToss(item)} aria-label={`Mark ${item.name} finished or thrown out`}>
+            <button
+              className="icon-btn toss"
+              onClick={() => onToss(item)}
+              aria-label={`Delete ${item.name}`}
+              title="Delete — added by mistake"
+            >
               <IconTrash size={18} />
             </button>
           </>
