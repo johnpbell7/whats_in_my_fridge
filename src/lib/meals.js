@@ -33,6 +33,8 @@ const norm = (n) => String(n || '').trim().toLowerCase()
 const uid = () =>
   globalThis.crypto?.randomUUID?.() || `m-${Date.now()}-${Math.random().toString(36).slice(2)}`
 
+let remote = null
+
 export const savedMeals = {
   getAll: () => cache,
 
@@ -46,24 +48,60 @@ export const savedMeals = {
 
   add(meal) {
     if (!meal || !meal.name || savedMeals.has(meal.name)) return null
+    const now = new Date().toISOString()
     const rec = {
       id: uid(),
       name: String(meal.name).trim(),
       description: String(meal.description || '').trim(),
       uses: Array.isArray(meal.uses) ? meal.uses : [],
       buy: Array.isArray(meal.buy) ? meal.buy : [],
-      saved_date: new Date().toISOString()
+      cooked_count: 0,
+      last_cooked: null,
+      saved_date: now,
+      updated_at: now
     }
     cache = [rec, ...cache]
     persist()
     notify()
+    remote?.upsert([rec])
     return rec
+  },
+
+  // Record that the user cooked this meal — bumps the count and the date.
+  markCooked(id) {
+    let updated = null
+    cache = cache.map((m) => {
+      if (m.id !== id) return m
+      updated = {
+        ...m,
+        cooked_count: (m.cooked_count || 0) + 1,
+        last_cooked: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+      return updated
+    })
+    if (!updated) return
+    persist()
+    notify()
+    remote?.upsert([updated])
   },
 
   remove(id) {
     cache = cache.filter((m) => m.id !== id)
     persist()
     notify()
+    remote?.remove(id)
+  },
+
+  // Replace the local list from a cloud pull. Local-only.
+  replaceAll(records) {
+    cache = Array.isArray(records) ? records : []
+    persist()
+    notify()
+  },
+
+  setRemote(r) {
+    remote = r
   },
 
   clear() {
