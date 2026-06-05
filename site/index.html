@@ -3,9 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>What's in my Fridge — Know what you've got. Waste less. Eat better.</title>
-  <meta name="description" content="Snap your fridge or a receipt and AI logs everything. Track what's fresh, get dinner ideas from what you have, and build a smart shopping list. Free to start." />
+  <title>What's in my Fridge — Track Your Fridge, Waste Less Food &amp; Get Dinner Ideas</title>
+  <meta name="description" content="Track your fridge with AI: snap a photo or receipt to log food, get use-by reminders that cut waste, dinner ideas from what you already have, and a smart shopping list. Free to start." />
   <meta name="theme-color" content="#2f7d5a" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="author" content="What's in my Fridge" />
+  <meta name="keywords" content="fridge inventory app, food waste app, what's in my fridge, dinner ideas from ingredients, use by date tracker, smart shopping list, meal planner, pantry tracker" />
+  <meta property="og:site_name" content="What's in my Fridge" />
+  <meta property="og:locale" content="en_GB" />
+  <meta property="og:image:alt" content="What's in my Fridge — track your fridge, waste less, eat better" />
   <meta property="og:title" content="What's in my Fridge" />
   <meta property="og:description" content="Snap your fridge or a receipt and AI logs everything — track freshness, get dinner ideas, waste less." />
   <meta property="og:type" content="website" />
@@ -333,6 +339,38 @@
       .ft-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "What's in my Fridge",
+        "url": "https://whatsinmyfridge.co.uk/",
+        "applicationCategory": "LifestyleApplication",
+        "operatingSystem": "Web, iOS, Android",
+        "image": "https://whatsinmyfridge.co.uk/og.png",
+        "description": "Track your fridge with AI: snap a photo or receipt to log food, get use-by reminders that cut waste, dinner ideas from what you already have, and a smart shopping list.",
+        "offers": [
+          { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "GBP" },
+          { "@type": "Offer", "name": "Plus", "price": "3.99", "priceCurrency": "GBP" }
+        ],
+        "publisher": { "@type": "Organization", "name": "What's in my Fridge", "url": "https://whatsinmyfridge.co.uk/" }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          { "@type": "Question", "name": "Do I have to type everything in?", "acceptedAnswer": { "@type": "Answer", "text": "No — take a photo of your fridge or a shopping receipt and the app recognises and logs the items for you. You can always add or tweak anything by hand too." } },
+          { "@type": "Question", "name": "Is it free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The free plan lets you track your whole kitchen, keep a shopping list, and use a monthly allowance of scans and AI questions. Every new account also gets a 7-day free trial of Plus, which is £3.99/month." } },
+          { "@type": "Question", "name": "How does the dinner suggestion work?", "acceptedAnswer": { "@type": "Answer", "text": "Tap ‘what can I make for dinner?’ and the app suggests real meals built around what's actually in your inventory — favouring things that need using up — and lists a few extras you could add to your shopping list in one tap." } },
+          { "@type": "Question", "name": "What happens to my photos?", "acceptedAnswer": { "@type": "Answer", "text": "A photo is sent to be read by AI, then it's discarded — we don't keep the image, only the list of items it produced." } },
+          { "@type": "Question", "name": "Does it work on iPhone and Android?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It runs in any modern browser and you can add it to your home screen so it works just like an app. Your fridge syncs across every device you sign in on." } },
+          { "@type": "Question", "name": "Can I cancel anytime?", "acceptedAnswer": { "@type": "Answer", "text": "Absolutely — manage or cancel your subscription in a couple of taps from your account, and you'll keep Plus until the end of the period you've paid for." } }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <!-- ============ NAV ============ -->
