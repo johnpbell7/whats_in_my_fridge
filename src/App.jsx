@@ -160,24 +160,23 @@ export default function App() {
     setEditing(null)
   }
 
-  // Walkthrough — shown before anything else each time you open the app.
+  // Pick the screen to show into `content`, then render the install guide
+  // alongside it below — so the guide can overlay ANY screen (including the
+  // sign-in screen), which is what makes ?install=1 previewable everywhere.
+  let content
   if (!onboarded) {
-    return <Onboarding onDone={finishOnboarding} onNeverShow={dontShowOnboarding} />
-  }
-
-  // While the session is still resolving, hold a blank screen rather than
-  // flashing the app to someone who may not be signed in.
-  if (authEnabled && authLoading) {
-    return <div className="app" />
-  }
-
-  // Account gate: when accounts are switched on and nobody is signed in, the
-  // login screen stands in for the whole app. (Open mode skips this entirely.)
-  if (authEnabled && !session) {
-    return <AuthScreen />
-  }
-
-  return (
+    // Walkthrough — shown before anything else each time you open the app.
+    content = <Onboarding onDone={finishOnboarding} onNeverShow={dontShowOnboarding} />
+  } else if (authEnabled && authLoading) {
+    // While the session is still resolving, hold a blank screen rather than
+    // flashing the app to someone who may not be signed in.
+    content = <div className="app" />
+  } else if (authEnabled && !session) {
+    // Account gate: when accounts are switched on and nobody is signed in, the
+    // login screen stands in for the whole app. (Open mode skips this entirely.)
+    content = <AuthScreen />
+  } else {
+    content = (
     <div className="app">
       {tab === 'inventory' && (
         <InventoryScreen
@@ -235,10 +234,6 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {installGuide && <InstallGuide onClose={dismissInstall} />}
-      </AnimatePresence>
-
       <Toast />
       <UpgradeGate />
 
@@ -246,5 +241,15 @@ export default function App() {
         <AnimatePresence>{booting && <Splash key="splash" onDone={() => setBooting(false)} />}</AnimatePresence>
       </ErrorBoundary>
     </div>
+    )
+  }
+
+  return (
+    <>
+      {content}
+      <AnimatePresence>
+        {installGuide && <InstallGuide onClose={dismissInstall} />}
+      </AnimatePresence>
+    </>
   )
 }
