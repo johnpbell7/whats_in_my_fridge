@@ -106,6 +106,52 @@ export async function confirmCheckoutHandler(body = {}, token) {
   }
 }
 
+// POST /api/stripe-webhook — Stripe calls this on subscription lifecycle
+// events so the user's tier reflects reality (e.g. auto-downgrade on cancel or
+// failed payment). Requires the raw request body for signature verification.
+async function handleEvent(stripe, event) {
+  const obj = event.data.object
+  if (event.type === 'checkout.session.completed') {
+    if (obj.client_reference_id) {
+      await admin()
+        .from('profiles')
+        .update({ tier: 'plus', stripe_customer_id: obj.customer, stripe_subscription_id: obj.subscription })
+        .eq('id', obj.client_reference_id)
+    }
+  } else if (event.type === 'customer.subscription.updated') {
+    const active = ['active', 'trialing'].includes(obj.status)
+    await admin()
+      .from('profiles')
+      .update({ tier: active ? 'plus' : 'free', stripe_subscription_id: obj.id })
+      .eq('stripe_customer_id', obj.customer)
+  } else if (event.type === 'customer.subscription.deleted') {
+    await admin()
+      .from('profiles')
+      .update({ tier: 'free', stripe_subscription_id: null })
+      .eq('stripe_customer_id', obj.customer)
+  }
+}
+
+export async function webhookHandler(rawBody, signature) {
+  const stripe = getStripe()
+  const secret = process.env.STRIPE_WEBHOOK_SECRET
+  if (!stripe || !secret) return { status: 503, body: { error: 'not_configured', message: 'Webhook not set up.' } }
+  let event
+  try {
+    event = stripe.webhooks.constructEvent(rawBody, signature, secret)
+  } catch (err) {
+    console.error('stripe webhook signature failed:', err?.message || err)
+    return { status: 400, body: { error: 'bad_signature' } }
+  }
+  try {
+    await handleEvent(stripe, event)
+  } catch (err) {
+    // Log but still 200 so Stripe doesn't retry-storm on our own bug.
+    console.error('stripe webhook handling failed:', err?.message || err)
+  }
+  return { status: 200, body: { received: true } }
+}
+
 // POST /api/billing-portal — Stripe-hosted page to manage or cancel.
 export async function billingPortalHandler(token) {
   const stripe = getStripe()
