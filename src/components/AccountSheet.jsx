@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase.js'
+import { useSheet } from '../lib/useSheet.js'
 import { getMe, deleteAccount } from '../lib/api.js'
 import { upgrade } from '../lib/upgrade.js'
 import { store } from '../lib/store.js'
@@ -18,6 +19,7 @@ export default function AccountSheet({ onClose }) {
   const [deleting, setDeleting] = useState(false)
   const [deleteErr, setDeleteErr] = useState(null)
   const loading = !me && !err
+  const sheetRef = useSheet(onClose)
 
   useEffect(() => {
     getMe().then(setMe).catch(() => setErr(true))
@@ -68,6 +70,11 @@ export default function AccountSheet({ onClose }) {
     <div className="scrim" onClick={onClose}>
       <motion.div
         className="sheet"
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="account-sheet-title"
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
@@ -76,7 +83,7 @@ export default function AccountSheet({ onClose }) {
       >
         <div className="sheet-grip" />
         <div className="sheet-header">
-          <h2>Account</h2>
+          <h2 id="account-sheet-title">Account</h2>
           <button type="button" className="icon-btn" onClick={onClose} aria-label="Close">
             <IconClose size={20} />
           </button>

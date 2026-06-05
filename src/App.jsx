@@ -56,10 +56,9 @@ export default function App() {
     }
   })
 
+  // Persist completion so the walkthrough shows once (first open) and not on
+  // every launch — re-showing a 5-slide intro each time is real friction.
   function finishOnboarding() {
-    setOnboarded(true) // session only — shows again next time you open the app
-  }
-  function dontShowOnboarding() {
     try {
       localStorage.setItem('fridge.onboarding.hide', '1')
     } catch {
@@ -67,6 +66,7 @@ export default function App() {
     }
     setOnboarded(true)
   }
+  const dontShowOnboarding = finishOnboarding
 
   // Load saved inventory + shopping list from durable storage on launch.
   useEffect(() => {

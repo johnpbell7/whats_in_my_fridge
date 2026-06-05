@@ -4,7 +4,7 @@
   --surface-2: #f3eee4;
   --ink: #1f1b16;
   --ink-soft: #6b6358;
-  --ink-faint: #9a9183;
+  --ink-faint: #7c7264; /* darkened to meet WCAG AA (4.5:1) on light surfaces */
   --line: #e7e0d3;
   --line-strong: #d8cfbe;
 
@@ -564,7 +564,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   font-weight: 600;
   transition: color 160ms;
 }
-.nav button[aria-current='true'] { color: var(--accent); }
+.nav button[aria-current='page'] { color: var(--accent); }
+.nav button[aria-current='page'] .nav-icon { transform: translateY(-1px); }
 .nav button:active { transform: scale(0.95); }
 
 /* Tab attention pulse — a quick scale + accent flash so a new shopping-list
