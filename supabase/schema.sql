@@ -82,6 +82,10 @@ create table if not exists public.items (
   updated_at  timestamptz not null default now()
 );
 create index if not exists items_user_idx on public.items (user_id);
+-- added later: whether the item is filed into its folder, and a soft-delete
+-- tombstone so deletions sync across devices instead of being resurrected.
+alter table public.items add column if not exists filed boolean not null default true;
+alter table public.items add column if not exists deleted_at timestamptz;
 
 create table if not exists public.shopping_items (
   id         uuid primary key,
