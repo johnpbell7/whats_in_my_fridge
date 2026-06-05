@@ -78,6 +78,11 @@
     .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
     .hero-trust { display: flex; align-items: center; gap: 10px; margin-top: 26px; color: var(--ink-faint); font-size: 14px; font-weight: 500; }
     .stars { color: #d9a93a; letter-spacing: 2px; }
+    .qr-cta { display: inline-flex; align-items: center; gap: 15px; margin-top: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 13px 18px 13px 13px; }
+    .qr { width: 82px; height: 82px; background: #fff; border: 1px solid var(--line); border-radius: 11px; padding: 7px; flex: none; }
+    .qr svg { width: 100%; height: 100%; display: block; }
+    .qr-txt strong { display: block; font-weight: 700; font-size: 14.5px; }
+    .qr-txt span { font-size: 12.5px; color: var(--ink-soft); }
     @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; gap: 36px; } .hero { padding: 40px 0 20px; } .hero p.lede { max-width: none; } }
 
     /* phone mockup */
@@ -245,6 +250,7 @@
       .hero-ctas { flex-direction: column; width: 100%; gap: 11px; }
       .hero-ctas .btn { width: 100%; justify-content: center; }
       .hero-trust { justify-content: center; margin-top: 20px; }
+      .qr-cta { display: none; }
       .phone { width: 256px; }
 
       /* stats */
@@ -329,6 +335,10 @@
           <a class="btn btn-ghost btn-lg" href="#how">See how it works</a>
         </div>
         <div class="hero-trust"><span class="stars">★★★★★</span> Free to start · No card needed</div>
+        <div class="qr-cta">
+          <div class="qr"><svg viewBox="0 0 29 29" shape-rendering="crispEdges" aria-hidden="true"><path stroke="#1f1b16" d="M0 0.5h7m2 0h4m1 0h1m4 0h1m2 0h7M0 1.5h1m5 0h1m1 0h1m1 0h2m1 0h1m5 0h1m2 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m2 0h2m1 0h1m2 0h1m2 0h2m2 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m2 0h1m3 0h1m2 0h1m1 0h2m2 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m1 0h2m1 0h3m2 0h4m2 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m2 0h1m4 0h4m1 0h2m1 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M11 7.5h1m3 0h1m1 0h3M0 8.5h1m1 0h1m1 0h1m1 0h1m2 0h2m5 0h2m1 0h1m4 0h1m2 0h1M0 9.5h2m1 0h1m3 0h5m1 0h1m1 0h3m2 0h1m1 0h1m2 0h1m2 0h1M4 10.5h6m1 0h1m2 0h3m4 0h2m3 0h3M0 11.5h3m1 0h1m2 0h3m3 0h2m1 0h2m1 0h2m1 0h1m1 0h1m2 0h1M1 12.5h1m3 0h2m1 0h2m2 0h1m1 0h4m1 0h4m2 0h1m1 0h2M4 13.5h2m1 0h1m1 0h2m1 0h1m1 0h2m1 0h1m2 0h4m1 0h1m2 0h1M6 14.5h1m3 0h2m1 0h1m3 0h1m2 0h1m3 0h2m1 0h2M0 15.5h2m1 0h1m4 0h1m1 0h3m4 0h2m1 0h2m1 0h1m1 0h1m1 0h1M1 16.5h1m3 0h2m1 0h1m6 0h3m1 0h5m1 0h1m1 0h2M1 17.5h1m1 0h1m1 0h1m3 0h1m1 0h3m2 0h2m2 0h3m2 0h2m1 0h1M0 18.5h1m1 0h2m2 0h2m1 0h3m2 0h1m7 0h1m1 0h1m2 0h2M1 19.5h1m2 0h2m1 0h1m3 0h1m1 0h7m3 0h1m1 0h1m1 0h1M0 20.5h1m4 0h3m1 0h1m1 0h1m2 0h1m2 0h8M8 21.5h1m3 0h1m1 0h1m1 0h1m2 0h2m3 0h1m1 0h3M0 22.5h7m2 0h5m2 0h2m1 0h2m1 0h1m1 0h2m1 0h2M0 23.5h1m5 0h1m2 0h1m1 0h1m4 0h2m2 0h1m3 0h2M0 24.5h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h3m2 0h5m3 0h1M0 25.5h1m1 0h3m1 0h1m3 0h1m1 0h2m3 0h1m2 0h1m3 0h1m1 0h3M0 26.5h1m1 0h3m1 0h1m1 0h2m3 0h2m2 0h2m1 0h2m1 0h3m2 0h1M0 27.5h1m5 0h1m2 0h1m1 0h1m1 0h1m2 0h3m1 0h1m6 0h1M0 28.5h7m1 0h3m4 0h3m1 0h2m1 0h1m1 0h1m2 0h2"/></svg></div>
+          <div class="qr-txt"><strong>Get it on your phone</strong><span>Scan with your camera<br>to open the app</span></div>
+        </div>
       </div>
       <div class="phone-wrap">
         <div class="phone"><div class="screen">
