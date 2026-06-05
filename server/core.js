@@ -3,7 +3,14 @@
 // { status, body } so the two thin wrappers can just forward it.
 
 import Anthropic from '@anthropic-ai/sdk'
-import { guard, accountSummary, authEnabled, recordUsage } from './auth.js'
+import { guard, accountSummary, authEnabled, refundUsage } from './auth.js'
+
+// Input bounds for the AI endpoints (abuse / runaway-cost guards). Downscaled
+// photos are far under the image cap; normal questions/inventories are tiny.
+const MAX_IMAGE_B64 = 8_000_000 // ~6MB raw
+const ALLOWED_MEDIA = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const MAX_QUESTION = 2000
+const MAX_INVENTORY = 500
 
 const VISION_MODEL = process.env.VISION_MODEL || 'claude-sonnet-4-6'
 const CHAT_MODEL = process.env.CHAT_MODEL || 'claude-haiku-4-5-20251001'
@@ -89,8 +96,9 @@ function mapClaudeError(err, kind) {
     return { status: 429, body: { error: 'rate_limited', message: 'Too many requests right now — wait a few seconds and try again.' } }
   }
   // Fall back to the real detail so nothing stays hidden.
+  // Don't leak upstream internals to the client — `detail` is already logged above.
   const generic = kind === 'vision' ? 'Could not read that photo.' : 'Could not reach Claude.'
-  return { status: 502, body: { error: `${kind}_failed`, message: detail ? `${generic} (${detail})` : `${generic} Please try again.` } }
+  return { status: 502, body: { error: `${kind}_failed`, message: `${generic} Please try again.` } }
 }
 
 const GROCERIES_PROMPT = `You are looking at a photo of someone's fridge, cupboard, groceries, or shopping.
@@ -150,10 +158,22 @@ export async function visionHandler(body = {}, token) {
   // Require a signed-in user (when accounts are on) and enforce their quota.
   const gate = await guard(token, 'vision')
   if (gate.error) return gate.error
+  // Reject helper refunds the reserved usage slot so a bad/failed request
+  // doesn't burn a credit.
+  const reject = async (status, error, message) => {
+    if (gate.meter) await refundUsage(gate.usageId)
+    return { status, body: { error, message } }
+  }
 
   const { imageBase64, mediaType = 'image/jpeg', mode = 'groceries' } = body
-  if (!imageBase64) {
-    return { status: 400, body: { error: 'bad_request', message: 'imageBase64 is required.' } }
+  if (typeof imageBase64 !== 'string' || !imageBase64) {
+    return reject(400, 'bad_request', 'imageBase64 is required.')
+  }
+  if (imageBase64.length > MAX_IMAGE_B64) {
+    return reject(413, 'image_too_large', 'That image is too large — try a smaller photo.')
+  }
+  if (!ALLOWED_MEDIA.includes(mediaType)) {
+    return reject(400, 'bad_request', 'Unsupported image type.')
   }
 
   const prompt = mode === 'receipt' ? RECEIPT_PROMPT : GROCERIES_PROMPT
@@ -225,9 +245,9 @@ export async function visionHandler(body = {}, token) {
       .filter((it) => it.name)
     // Only trust a date from receipt scans.
     const receiptDate = mode === 'receipt' ? validReceiptDate(toolUse?.input?.receipt_date) : null
-    if (gate.meter) await recordUsage(gate.user.id, 'vision')
     return { status: 200, body: { items, receiptDate } }
   } catch (err) {
+    if (gate.meter) await refundUsage(gate.usageId)
     return mapClaudeError(err, 'vision')
   }
 }
@@ -242,8 +262,16 @@ export async function mealsHandler(body = {}, token) {
 
   const gate = await guard(token, 'chat')
   if (gate.error) return gate.error
+  const reject = async (status, error, message) => {
+    if (gate.meter) await refundUsage(gate.usageId)
+    return { status, body: { error, message } }
+  }
 
   const { inventory = [], today, request } = body
+  if (request && String(request).length > MAX_QUESTION) {
+    return reject(400, 'bad_request', 'That request is too long.')
+  }
+  const inv = Array.isArray(inventory) ? inventory.slice(0, MAX_INVENTORY) : []
   const ask = (typeof request === 'string' && request.trim()) || 'What can I make for dinner from what I have?'
 
   const instructions = `You suggest meals someone can cook, built around what's in their fridge, freezer and pantry. Default to dinner ideas unless the user asks for something else (e.g. a quick lunch, or a few days of dinners to plan).
@@ -260,7 +288,7 @@ Rules:
       max_tokens: 1000,
       system: [
         { type: 'text', text: instructions, cache_control: { type: 'ephemeral' } },
-        { type: 'text', text: `Today's date: ${today || 'unknown'}\nCurrent inventory (JSON):\n${JSON.stringify(inventory)}` }
+        { type: 'text', text: `Today's date: ${today || 'unknown'}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}` }
       ],
       tools: [
         {
@@ -300,9 +328,9 @@ Rules:
         buy: Array.isArray(m.buy) ? m.buy.map((s) => String(s).trim()).filter(Boolean).slice(0, 5) : []
       }))
       .filter((m) => m.name)
-    if (gate.meter) await recordUsage(gate.user.id, 'chat')
     return { status: 200, body: { meals } }
   } catch (err) {
+    if (gate.meter) await refundUsage(gate.usageId)
     return mapClaudeError(err, 'chat')
   }
 }
@@ -313,11 +341,19 @@ export async function chatHandler(body = {}, token) {
 
   const gate = await guard(token, 'chat')
   if (gate.error) return gate.error
+  const reject = async (status, error, message) => {
+    if (gate.meter) await refundUsage(gate.usageId)
+    return { status, body: { error, message } }
+  }
 
   const { question, inventory = [], today } = body
   if (!question || !String(question).trim()) {
-    return { status: 400, body: { error: 'bad_request', message: 'A question is required.' } }
+    return reject(400, 'bad_request', 'A question is required.')
   }
+  if (String(question).length > MAX_QUESTION) {
+    return reject(400, 'bad_request', 'That question is too long.')
+  }
+  const inv = Array.isArray(inventory) ? inventory.slice(0, MAX_INVENTORY) : []
 
   const instructions = `You answer questions about what is in the user's fridge, freezer and pantry.
 Be concise and practical — they are often checking on their phone while out shopping.
@@ -333,15 +369,15 @@ Quantities and units are freeform. If the inventory is empty, say so plainly.`
         { type: 'text', text: instructions, cache_control: { type: 'ephemeral' } },
         {
           type: 'text',
-          text: `Today's date: ${today || 'unknown'}\nCurrent inventory (JSON):\n${JSON.stringify(inventory)}`
+          text: `Today's date: ${today || 'unknown'}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}`
         }
       ],
       messages: [{ role: 'user', content: String(question) }]
     })
     const answer = message.content.find((b) => b.type === 'text')?.text || ''
-    if (gate.meter) await recordUsage(gate.user.id, 'chat')
     return { status: 200, body: { answer } }
   } catch (err) {
+    if (gate.meter) await refundUsage(gate.usageId)
     return mapClaudeError(err, 'chat')
   }
 }

@@ -160,6 +160,33 @@ export async function recordUsage(userId, kind) {
   }
 }
 
+// Reserve a usage slot by inserting the row up front (returns its id), so the
+// quota check below counts it. This makes concurrent requests race-safe: each
+// sees the other's reservation instead of all reading a stale count. If the
+// call is then rejected or fails, we refund (delete) the row.
+export async function reserveUsage(userId, kind) {
+  try {
+    const { data, error } = await admin().from('ai_usage').insert({ user_id: userId, kind }).select('id').single()
+    if (error) {
+      console.error('Could not reserve usage (check SUPABASE_SERVICE_ROLE_KEY):', error.message)
+      return null
+    }
+    return data?.id ?? null
+  } catch (err) {
+    console.error('Could not reserve usage:', err?.message || err)
+    return null
+  }
+}
+
+export async function refundUsage(id) {
+  if (!id) return
+  try {
+    await admin().from('ai_usage').delete().eq('id', id)
+  } catch (err) {
+    console.error('Could not refund usage:', err?.message || err)
+  }
+}
+
 // Full gate used by the handlers: authenticate + quota check. On success
 // returns { user, tier, visionModel }. On failure returns { error }.
 // In open mode (no Supabase) it returns the legacy defaults and skips metering.
@@ -170,15 +197,25 @@ export async function guard(token, kind) {
     // Open mode: original behaviour, Sonnet vision, no metering.
     return { user: null, tier: 'open', visionModel: SONNET, meter: false }
   }
-  // Monthly fair-use cap.
-  const used = await usageSince(auth.user.id, kind, periodStart())
-  const decision = quotaDecision(auth.tier, kind, used)
-  if (!decision.allowed) return { error: overQuotaResponse(kind, decision) }
-  // Daily rate-limit (anti-abuse) — applies to every tier.
-  const usedToday = await usageSince(auth.user.id, kind, dayStart())
+  const monthlyLimit = quotaDecision(auth.tier, kind, 0).limit
   const dailyLimit = DAILY[kind] ?? Infinity
-  if (usedToday >= dailyLimit) return { error: dailyLimitResponse(kind, dailyLimit) }
-  return { user: auth.user, tier: auth.tier, visionModel: tierConfig(auth.tier).visionModel, meter: true }
+
+  // Reserve first, then count with our own reservation included — race-safe.
+  const usageId = await reserveUsage(auth.user.id, kind)
+  const [usedMonth, usedDay] = await Promise.all([
+    usageSince(auth.user.id, kind, periodStart()),
+    usageSince(auth.user.id, kind, dayStart())
+  ])
+  if (usedMonth > monthlyLimit) {
+    await refundUsage(usageId)
+    return { error: overQuotaResponse(kind, { limit: monthlyLimit, used: monthlyLimit }) }
+  }
+  if (usedDay > dailyLimit) {
+    await refundUsage(usageId)
+    return { error: dailyLimitResponse(kind, dailyLimit) }
+  }
+  // The slot is already recorded; the handler refunds usageId if the call fails.
+  return { user: auth.user, tier: auth.tier, visionModel: tierConfig(auth.tier).visionModel, meter: true, usageId }
 }
 
 // Account summary for the client (tier + this month's usage vs limits).
