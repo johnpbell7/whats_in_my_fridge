@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>What's in my Fridge — Know what you've got. Waste less. Eat better.</title>
+  <meta name="description" content="Snap your fridge or a receipt and AI logs everything. Track what's fresh, get dinner ideas from what you have, and build a smart shopping list. Free to start." />
+  <meta name="theme-color" content="#2f7d5a" />
+  <!-- Social preview -->
+  <meta property="og:title" content="What's in my Fridge" />
+  <meta property="og:description" content="Snap your fridge or a receipt and AI logs everything — track freshness, get dinner ideas, waste less." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #faf7f2; --surface: #fffdf9; --surface-2: #f3eee5;
+      --ink: #1f1b16; --ink-soft: #5d5648; --ink-faint: #8a8170;
+      --line: #ebe5d8; --line-strong: #ddd5c4;
+      --accent: #2f7d5a; --accent-press: #276848; --accent-soft: #e6efe8; --on-accent: #fdfdfb;
+      --amber: #b9842f; --amber-soft: #f6eddc;
+      --r-sm: 12px; --r-md: 18px; --r-lg: 26px;
+      --display: 'Fraunces', Georgia, serif;
+      --sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --max: 1120px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans); color: var(--ink); background: var(--bg);
+      line-height: 1.55; -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(120% 70% at 50% -10%, #fffdf8 0%, var(--bg) 55%);
+    }
+    a { color: inherit; text-decoration: none; }
+    img, svg { display: block; }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 22px; }
+    .display { font-family: var(--display); letter-spacing: -0.02em; line-height: 1.05; font-weight: 600; }
+    .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+    .leaf-dot { color: var(--accent); }
+
+    /* buttons */
+    .btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15.5px;
+      padding: 13px 22px; border-radius: 999px; border: 1.5px solid transparent; cursor: pointer; transition: transform .12s, background .16s, border-color .16s; white-space: nowrap; }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--accent); color: var(--on-accent); }
+    .btn-primary:hover { background: var(--accent-press); }
+    .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+    .btn-ghost:hover { background: var(--surface); }
+    .btn-lg { padding: 16px 28px; font-size: 16.5px; }
+
+    /* nav */
+    header.nav { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(14px) saturate(1.3);
+      background: rgba(250,247,242,.78); border-bottom: 1px solid var(--line); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 66px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 600; font-size: 20px; letter-spacing: -0.02em; }
+    .brand .mark { width: 34px; height: 34px; border-radius: 9px; flex: none; }
+    .nav-links { display: flex; align-items: center; gap: 30px; }
+    .nav-links a { font-weight: 600; font-size: 15px; color: var(--ink-soft); }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-cta { display: flex; align-items: center; gap: 12px; }
+    .nav-toggle { display: none; background: none; border: 0; padding: 8px; cursor: pointer; }
+    @media (max-width: 860px) {
+      .nav-links { position: fixed; inset: 66px 0 auto 0; flex-direction: column; gap: 4px; background: var(--surface);
+        border-bottom: 1px solid var(--line); padding: 14px 22px 22px; transform: translateY(-120%); transition: transform .25s; }
+      .nav-links.open { transform: translateY(0); }
+      .nav-links a { width: 100%; padding: 12px 0; font-size: 17px; border-bottom: 1px solid var(--line); }
+      .nav-toggle { display: block; }
+      .nav-cta .btn-ghost { display: none; }
+    }
+
+    /* hero */
+    .hero { padding: 64px 0 40px; }
+    .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
+    .hero h1 { font-size: clamp(38px, 5.4vw, 60px); }
+    .hero p.lede { font-size: clamp(17px, 2.2vw, 20px); color: var(--ink-soft); margin: 22px 0 30px; max-width: 30ch; }
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+    .hero-trust { display: flex; align-items: center; gap: 10px; margin-top: 26px; color: var(--ink-faint); font-size: 14px; font-weight: 500; }
+    .stars { color: #d9a93a; letter-spacing: 2px; }
+    @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; gap: 36px; } .hero { padding: 40px 0 20px; } .hero p.lede { max-width: none; } }
+
+    /* phone mockup */
+    .phone-wrap { display: flex; justify-content: center; }
+    .phone { width: 288px; background: #14110d; border-radius: 42px; padding: 11px; box-shadow: 0 30px 60px -24px rgba(38,104,75,.45); position: relative; }
+    .phone::before { content: ''; position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 110px; height: 22px; background: #14110d; border-radius: 0 0 14px 14px; z-index: 3; }
+    .screen { background: var(--bg); border-radius: 32px; overflow: hidden; height: 580px; }
+    .screen-top { padding: 30px 18px 12px; }
+    .screen-top .sm { font-family: var(--display); font-style: italic; font-size: 13px; color: var(--ink-soft); }
+    .screen-top .lg { font-family: var(--display); font-weight: 600; font-size: 26px; letter-spacing: -0.02em; }
+    .scr-bar { background: var(--accent); color: var(--on-accent); margin: 8px 16px 14px; border-radius: 14px; padding: 11px 14px; display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 13px; }
+    .cat-head { margin: 0 16px 10px; background: #eaf3e8; color: #4a7a43; border-radius: 14px; padding: 11px 14px; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
+    .cat-head .n { margin-left: auto; background: rgba(255,255,255,.6); border-radius: 999px; padding: 1px 9px; font-size: 12px; }
+    .card { margin: 0 16px 9px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 11px 13px; }
+    .card .nm { font-weight: 600; font-size: 14px; }
+    .card .meta { display: flex; align-items: center; gap: 7px; margin-top: 4px; font-size: 11px; color: var(--ink-faint); }
+    .chip { font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 6px; }
+    .chip.dairy { background: #eef2fa; color: #46618c; } .chip.prod { background: #eaf3e8; color: #4a7a43; } .chip.bake { background: #f4ecdd; color: #8a6a32; }
+    .age { color: var(--ink-faint); } .age.amber { color: var(--amber); font-weight: 600; }
+    .tag-new { background: var(--accent); color: var(--on-accent); font-size: 9px; font-weight: 700; letter-spacing: .03em; padding: 2px 6px; border-radius: 999px; text-transform: uppercase; margin-left: 6px; }
+
+    /* section scaffolding */
+    section { padding: 72px 0; }
+    .sec-head { text-align: center; max-width: 640px; margin: 0 auto 46px; }
+    .sec-head h2 { font-size: clamp(28px, 4vw, 42px); margin: 12px 0 14px; }
+    .sec-head p { color: var(--ink-soft); font-size: 17px; }
+
+    /* stats strip */
+    .stats { background: var(--accent); color: var(--on-accent); }
+    .stats .wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+    .stat { text-align: center; }
+    .stat .big { font-family: var(--display); font-weight: 600; font-size: clamp(28px, 4vw, 40px); }
+    .stat .lab { font-size: 13.5px; opacity: .85; margin-top: 4px; }
+    @media (max-width: 700px) { .stats .wrap { grid-template-columns: repeat(2, 1fr); gap: 26px 16px; } }
+
+    /* features */
+    .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .feat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 26px; }
+    .feat .ic { width: 46px; height: 46px; border-radius: 13px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; margin-bottom: 16px; }
+    .feat h3 { font-family: var(--display); font-weight: 600; font-size: 19px; letter-spacing: -0.01em; margin-bottom: 7px; }
+    .feat p { color: var(--ink-soft); font-size: 14.5px; }
+    @media (max-width: 860px) { .feat-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 560px) { .feat-grid { grid-template-columns: 1fr; } }
+
+    /* how it works */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; counter-reset: step; }
+    .step { position: relative; padding-top: 8px; }
+    .step .num { font-family: var(--display); font-weight: 700; font-size: 15px; color: var(--accent); width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent-soft); display: grid; place-items: center; margin-bottom: 16px; }
+    .step h3 { font-family: var(--display); font-weight: 600; font-size: 20px; margin-bottom: 8px; }
+    .step p { color: var(--ink-soft); font-size: 15px; }
+    @media (max-width: 760px) { .steps { grid-template-columns: 1fr; gap: 26px; } }
+
+    /* benefits split */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+    .benefit-list { list-style: none; display: flex; flex-direction: column; gap: 18px; margin-top: 22px; }
+    .benefit-list li { display: flex; gap: 13px; }
+    .benefit-list .tick { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+    .benefit-list strong { display: block; font-weight: 600; }
+    .benefit-list span { color: var(--ink-soft); font-size: 14.5px; }
+    .split-art { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 30px; }
+    @media (max-width: 800px) { .split { grid-template-columns: 1fr; gap: 30px; } }
+
+    /* testimonials */
+    .reviews { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .review { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 24px; }
+    .review .stars { font-size: 15px; margin-bottom: 12px; }
+    .review p { font-size: 15px; color: var(--ink); }
+    .review .who { display: flex; align-items: center; gap: 11px; margin-top: 18px; }
+    .review .av { width: 38px; height: 38px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 700; font-family: var(--display); }
+    .review .who b { font-size: 14px; } .review .who small { color: var(--ink-faint); font-size: 12.5px; display: block; }
+    @media (max-width: 860px) { .reviews { grid-template-columns: 1fr; } }
+
+    /* pricing */
+    .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; max-width: 760px; margin: 0 auto; }
+    .price { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 32px; position: relative; }
+    .price.pop { border: 2px solid var(--accent); }
+    .price .badge { position: absolute; top: -13px; left: 32px; background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 700; letter-spacing: .04em; padding: 5px 12px; border-radius: 999px; text-transform: uppercase; }
+    .price h3 { font-family: var(--display); font-weight: 600; font-size: 22px; }
+    .price .amt { font-family: var(--display); font-weight: 600; font-size: 44px; margin: 10px 0 2px; letter-spacing: -0.02em; }
+    .price .amt small { font-family: var(--sans); font-size: 16px; font-weight: 500; color: var(--ink-faint); }
+    .price ul { list-style: none; margin: 22px 0 26px; display: flex; flex-direction: column; gap: 12px; }
+    .price li { display: flex; gap: 10px; font-size: 14.5px; color: var(--ink-soft); }
+    .price li svg { flex: none; color: var(--accent); margin-top: 2px; }
+    @media (max-width: 700px) { .price-grid { grid-template-columns: 1fr; } }
+
+    /* faq */
+    .faq { max-width: 760px; margin: 0 auto; }
+    .qa { border-bottom: 1px solid var(--line); }
+    .qa button { width: 100%; text-align: left; background: none; border: 0; padding: 22px 4px; font-family: var(--sans); font-weight: 600; font-size: 17px; color: var(--ink); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .qa .ans { max-height: 0; overflow: hidden; transition: max-height .3s ease; color: var(--ink-soft); font-size: 15.5px; }
+    .qa .ans p { padding: 0 4px 22px; }
+    .qa.open .ans { max-height: 260px; }
+    .qa .pm { flex: none; transition: transform .3s; color: var(--accent); }
+    .qa.open .pm { transform: rotate(45deg); }
+
+    /* final cta */
+    .final { background: var(--accent); color: var(--on-accent); border-radius: var(--r-lg); padding: 56px 32px; text-align: center; }
+    .final h2 { font-size: clamp(28px, 4vw, 40px); margin-bottom: 14px; }
+    .final p { opacity: .9; font-size: 17px; max-width: 46ch; margin: 0 auto 28px; }
+    .final .btn-primary { background: #fff; color: var(--accent-press); }
+    .final .btn-primary:hover { background: #f1f1ee; }
+
+    /* footer */
+    footer.ft { padding: 56px 0 40px; border-top: 1px solid var(--line); margin-top: 72px; }
+    .ft-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 30px; }
+    .ft p.tag { color: var(--ink-soft); font-size: 14px; margin-top: 12px; max-width: 32ch; }
+    .ft h4 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-faint); margin-bottom: 14px; }
+    .ft a { display: block; color: var(--ink-soft); font-size: 14.5px; padding: 5px 0; }
+    .ft a:hover { color: var(--ink); }
+    .ft-base { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--ink-faint); font-size: 13.5px; }
+    @media (max-width: 700px) { .ft-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <!-- ============ NAV ============ -->
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="/">
+        <svg class="mark" viewBox="0 0 512 512" aria-hidden="true">
+          <rect width="512" height="512" rx="116" fill="#2f7d5a"/>
+          <rect x="168" y="96" width="176" height="320" rx="40" fill="#fff"/>
+          <rect x="168" y="198" width="176" height="8" fill="#dfe7e1"/>
+          <rect x="304" y="120" width="13" height="50" rx="6.5" fill="#cfe0d6"/>
+          <path d="M256 250 C304 280 304 322 256 352 C208 322 208 280 256 250 Z" fill="#2f7d5a"/>
+          <path d="M256 262 L256 344 M256 296 L282 282 M256 312 L232 298" stroke="#8fc7a8" stroke-width="6" stroke-linecap="round" fill="none"/>
+        </svg>
+        What's in my Fridge<span class="leaf-dot">.</span>
+      </a>
+      <nav class="nav-links" id="navlinks">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="btn btn-ghost" href="https://app.whatsinmyfridge.co.uk">Sign in</a>
+        <a class="btn btn-primary" href="https://app.whatsinmyfridge.co.uk">Open the app</a>
+        <button class="nav-toggle" id="navtoggle" aria-label="Menu">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Your fridge, finally organised</span>
+        <h1 class="display">Know what you've&nbsp;got.<br>Waste less. Eat&nbsp;better.</h1>
+        <p class="lede">Snap your fridge or a shopping receipt and AI logs everything — so you always know what's fresh, what to cook, and what to buy.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary btn-lg" href="https://app.whatsinmyfridge.co.uk">Start free</a>
+          <a class="btn btn-ghost btn-lg" href="#how">See how it works</a>
+        </div>
+        <div class="hero-trust"><span class="stars">★★★★★</span> Free to start · No card needed</div>
+      </div>
+      <div class="phone-wrap">
+        <div class="phone"><div class="screen">
+          <div class="screen-top"><div class="sm">What's in my</div><div class="lg">Fridge<span class="leaf-dot">.</span></div></div>
+          <div class="scr-bar">✨ Tap to file 3 new items into folders</div>
+          <div class="cat-head">🥗 Produce <span class="n">4</span></div>
+          <div class="card"><div class="nm">Spinach <span class="tag-new">New</span></div><div class="meta"><span class="chip prod">Produce</span> · Fridge · <span class="age amber">⏱ 4 days old</span></div></div>
+          <div class="card"><div class="nm">Cherry tomatoes</div><div class="meta"><span class="chip prod">Produce</span> · Fridge · <span class="age">⏱ 1 day old</span></div></div>
+          <div class="cat-head" style="background:#eef2fa;color:#46618c">🥛 Dairy <span class="n">2</span></div>
+          <div class="card"><div class="nm">Whole milk</div><div class="meta"><span class="chip dairy">Dairy</span> · Fridge · <span class="age">⏱ 2 days old</span></div></div>
+          <div class="card"><div class="nm">Cheddar · 1 block</div><div class="meta"><span class="chip dairy">Dairy</span> · Fridge · <span class="age">⏱ Added today</span></div></div>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STATS ============ -->
+  <section class="stats" style="padding:40px 0;">
+    <div class="wrap">
+      <div class="stat"><div class="big">£60</div><div class="lab">avg food a UK home bins each month*</div></div>
+      <div class="stat"><div class="big">10 sec</div><div class="lab">to log a whole shop from a receipt</div></div>
+      <div class="stat"><div class="big">AI</div><div class="lab">dinner ideas from what you have</div></div>
+      <div class="stat"><div class="big">£0</div><div class="lab">to get started — free forever plan</div></div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Everything in one place</span>
+        <h2 class="display">Less guessing. Less waste. More good dinners.</h2>
+        <p>One simple app that tracks your food, tells you what to cook, and keeps your shopping list sorted.</p>
+      </div>
+      <div class="feat-grid">
+        <div class="feat"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A2 2 0 0 1 5 6.5h1.6l1-1.6a1 1 0 0 1 .85-.48h7.1a1 1 0 0 1 .85.48l1 1.6H19a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.4"/></svg></div><h3>Snap & log instantly</h3><p>Photograph your fridge or a receipt — AI recognises every item and files it in seconds. No typing lists.</p></div>
+        <div class="feat"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></div><h3>Never miss a use-by</h3><p>See at a glance how fresh everything is — gentle nudges before food turns, so nothing gets forgotten at the back.</p></div>
+        <div class="feat"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z"/></svg></div><h3>Dinner ideas, sorted</h3><p>Ask "what can I make?" and get real meals from what you've actually got — plus a couple of extras to grab.</p></div>
+        <div class="feat"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.2 11.2a1.5 1.5 0 0 0 1.5 1.2h8.1a1.5 1.5 0 0 0 1.47-1.18L20.5 7.5H6"/><circle cx="9.5" cy="20" r="1.3"/><circle cx="17.5" cy="20" r="1.3"/></svg></div><h3>Smart shopping list</h3><p>Add anything from a meal in one tap. Mark the things you always buy as staples and get reminded when you run low.</p></div>
+        <div class="feat"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4S8 4 6 12c-1 4 1.5 6.5 5.5 5.5C19.5 15.5 20 4 20 4z"/><path d="M11 13c2-3 5-5 8-6.5"/></svg></div><h3>Save money &amp; waste</h3><p>Buy only what you need, use what you have, and stop throwing food (and money) in the bin every week.</p></div>
+        <div class="feat"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2.5" width="12" height="19" rx="2.6"/><path d="M6 9h12"/></svg></div><h3>Syncs everywhere</h3><p>Your fridge follows you across phone and web. Check what's in while you're at the shops, on any device.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section id="how" style="background:var(--surface-2);">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">How it works</span><h2 class="display">From shopping bag to dinner in three steps</h2></div>
+      <div class="steps">
+        <div class="step"><div class="num">1</div><h3>Snap</h3><p>Take a photo of your fridge or your shopping receipt. That's it — no scanning barcodes, no typing.</p></div>
+        <div class="step"><div class="num">2</div><h3>Track</h3><p>Everything's logged and sorted by category, with freshness tracked automatically so you always know what to use first.</p></div>
+        <div class="step"><div class="num">3</div><h3>Cook &amp; shop</h3><p>Get dinner ideas from what you have, save the ones you love, and add anything you're missing to your shopping list.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BENEFITS ============ -->
+  <section>
+    <div class="wrap split">
+      <div>
+        <span class="eyebrow">Why you'll love it</span>
+        <h2 class="display" style="font-size:clamp(28px,4vw,40px);margin-top:12px;">Built for real, busy kitchens</h2>
+        <ul class="benefit-list">
+          <li><span class="tick">✓</span><div><strong>Stop the "what's for dinner?" panic</strong><span>One tap turns what's in your fridge into proper meal ideas.</span></div></li>
+          <li><span class="tick">✓</span><div><strong>Shop with a plan, not from memory</strong><span>Always know what you already have before you buy more.</span></div></li>
+          <li><span class="tick">✓</span><div><strong>Throw away far less</strong><span>Use food while it's fresh and watch your weekly waste drop.</span></div></li>
+          <li><span class="tick">✓</span><div><strong>Genuinely effortless</strong><span>A photo does the work. It's the easiest fridge you'll ever keep.</span></div></li>
+        </ul>
+      </div>
+      <div class="split-art">
+        <div class="cat-head" style="margin:0 0 12px;background:#f9eaf1;color:#97527b;">🍝 Tonight you could make…</div>
+        <div class="card" style="margin:0 0 10px;"><div class="nm">Creamy tomato &amp; spinach pasta</div><div class="meta" style="font-size:12px;">Uses: tomatoes, spinach, cheddar, pasta</div><div style="margin-top:9px;display:flex;gap:6px;flex-wrap:wrap;"><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">+ Garlic</span><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">+ Basil</span><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">+ Parmesan</span></div></div>
+        <div class="card" style="margin:0;"><div class="nm">Cheesy spinach omelette</div><div class="meta" style="font-size:12px;">Uses: eggs, spinach, cheddar, milk</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TESTIMONIALS (REPLACE WITH REAL REVIEWS BEFORE LAUNCH) ============ -->
+  <section style="background:var(--surface-2);">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">Loved by home cooks</span><h2 class="display">People are wasting less already</h2></div>
+      <div class="reviews">
+        <div class="review"><div class="stars">★★★★★</div><p>"I used to find mushy veg at the back of the fridge every week. Now I actually use what I buy — and dinner ideas are a lifesaver."</p><div class="who"><div class="av">S</div><div><b>Sarah M.</b><small>Manchester</small></div></div></div>
+        <div class="review"><div class="stars">★★★★★</div><p>"Scanning the receipt after a big shop is so satisfying. The whole trolley is logged before I've even unpacked."</p><div class="who"><div class="av">J</div><div><b>James T.</b><small>Bristol</small></div></div></div>
+        <div class="review"><div class="stars">★★★★★</div><p>"The 'what can I make for dinner' button has basically replaced my evening 'ugh, what do we have' meltdown."</p><div class="who"><div class="av">P</div><div><b>Priya K.</b><small>London</small></div></div></div>
+      </div>
+      <p style="text-align:center;color:var(--ink-faint);font-size:12.5px;margin-top:24px;">Reviews shown are illustrative placeholders — replace with real customer reviews before launch.</p>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section id="pricing">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">Pricing</span><h2 class="display">Start free. Upgrade if you love it.</h2><p>Every new account gets a 7-day free trial of Plus.</p></div>
+      <div class="price-grid">
+        <div class="price">
+          <h3>Free</h3>
+          <div class="amt">£0<small> / forever</small></div>
+          <ul>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Track your whole fridge, freezer &amp; pantry</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Shopping list &amp; staples</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> 10 photo/receipt scans a month</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> 30 AI chat questions a month</li>
+          </ul>
+          <a class="btn btn-ghost btn-block" style="width:100%;justify-content:center;" href="https://app.whatsinmyfridge.co.uk">Get started</a>
+        </div>
+        <div class="price pop">
+          <span class="badge">Most popular</span>
+          <h3>Plus</h3>
+          <div class="amt">£3.99<small> / month</small></div>
+          <ul>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Everything in Free, plus…</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> 60 photo/receipt scans a month</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> 200 AI chat questions a month</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Sharper AI recognition for trickier photos</li>
+          </ul>
+          <a class="btn btn-primary btn-block" style="width:100%;justify-content:center;" href="https://app.whatsinmyfridge.co.uk">Start 7-day free trial</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section id="faq" style="background:var(--surface-2);">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">FAQ</span><h2 class="display">Good questions</h2></div>
+      <div class="faq">
+        <div class="qa"><button>Do I have to type everything in? <span class="pm">+</span></button><div class="ans"><p>No — that's the whole point. Take a photo of your fridge or a shopping receipt and the app recognises and logs the items for you. You can always add or tweak anything by hand too.</p></div></div>
+        <div class="qa"><button>Is it free? <span class="pm">+</span></button><div class="ans"><p>Yes. The free plan lets you track your whole kitchen, keep a shopping list, and use a monthly allowance of scans and AI questions. Every new account also gets a 7-day free trial of Plus. Plus is £3.99/month if you want more.</p></div></div>
+        <div class="qa"><button>How does the dinner suggestion work? <span class="pm">+</span></button><div class="ans"><p>Tap "what can I make for dinner?" and the app suggests real meals built around what's actually in your inventory — favouring things that need using up. Each idea lists what it uses and a few extras you could add to your shopping list in one tap.</p></div></div>
+        <div class="qa"><button>What happens to my photos? <span class="pm">+</span></button><div class="ans"><p>A photo is sent to be read by AI, then it's discarded — we don't keep the image, only the list of items it produced. See our <a href="https://app.whatsinmyfridge.co.uk/privacy.html" style="color:var(--accent);font-weight:600;">Privacy Policy</a> for the full detail.</p></div></div>
+        <div class="qa"><button>Does it work on iPhone and Android? <span class="pm">+</span></button><div class="ans"><p>Yes. It runs in any modern browser and you can add it to your home screen so it works just like an app. Your fridge syncs across every device you sign in on.</p></div></div>
+        <div class="qa"><button>Can I cancel anytime? <span class="pm">+</span></button><div class="ans"><p>Absolutely — manage or cancel your subscription in a couple of taps from your account, and you'll keep Plus until the end of the period you've paid for.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section>
+    <div class="wrap">
+      <div class="final">
+        <h2 class="display">Your fridge, finally under control.</h2>
+        <p>Start tracking what you've got in under a minute. Free to begin, no card needed.</p>
+        <a class="btn btn-primary btn-lg" href="https://app.whatsinmyfridge.co.uk">Open the app — it's free</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="ft">
+    <div class="wrap">
+      <div class="ft-grid">
+        <div>
+          <a class="brand" href="/">
+            <svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="116" fill="#2f7d5a"/><rect x="168" y="96" width="176" height="320" rx="40" fill="#fff"/><rect x="168" y="198" width="176" height="8" fill="#dfe7e1"/><rect x="304" y="120" width="13" height="50" rx="6.5" fill="#cfe0d6"/><path d="M256 250 C304 280 304 322 256 352 C208 322 208 280 256 250 Z" fill="#2f7d5a"/></svg>
+            What's in my Fridge<span class="leaf-dot">.</span>
+          </a>
+          <p class="tag">Know what you've got, waste less, and always have a good answer to "what's for dinner?"</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#how">How it works</a>
+          <a href="#pricing">Pricing</a>
+          <a href="https://app.whatsinmyfridge.co.uk">Open the app</a>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <a href="https://app.whatsinmyfridge.co.uk/privacy.html">Privacy</a>
+          <a href="https://app.whatsinmyfridge.co.uk/terms.html">Terms</a>
+          <a href="mailto:johnpbell7@gmail.com">Contact</a>
+        </div>
+      </div>
+      <div class="ft-base">
+        <span>© <span id="yr"></span> What's in my Fridge. All rights reserved.</span>
+        <span>*Source: WRAP UK household food-waste estimates.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // mobile nav
+    document.getElementById('navtoggle').addEventListener('click', () =>
+      document.getElementById('navlinks').classList.toggle('open'));
+    document.querySelectorAll('#navlinks a').forEach(a =>
+      a.addEventListener('click', () => document.getElementById('navlinks').classList.remove('open')));
+    // faq accordion
+    document.querySelectorAll('.qa button').forEach(b =>
+      b.addEventListener('click', () => b.parentElement.classList.toggle('open')));
+    // year
+    document.getElementById('yr').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
