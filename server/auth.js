@@ -37,7 +37,7 @@ export function authEnabled() {
 // One admin client (service role) — bypasses row-level security for the
 // server's own reads/writes. Created lazily so importing this file is cheap.
 let _admin
-function admin() {
+export function admin() {
   if (_admin === undefined) {
     _admin = authEnabled()
       ? createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false } })

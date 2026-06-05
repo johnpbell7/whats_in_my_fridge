@@ -69,6 +69,21 @@ export function deleteAccount() {
   return post('/api/delete-account', {})
 }
 
+// Start a Stripe subscription checkout — returns { url } to redirect to.
+export function startCheckout() {
+  return post('/api/checkout', {})
+}
+
+// After returning from checkout, confirm the session and grant Plus.
+export function confirmCheckout(sessionId) {
+  return post('/api/checkout-confirm', { session_id: sessionId })
+}
+
+// Open the Stripe billing portal (manage / cancel) — returns { url }.
+export function openBillingPortal() {
+  return post('/api/billing-portal', {})
+}
+
 export function getHealth() {
   return fetch('/api/health').then((r) => r.json()).catch(() => ({ ok: false, hasKey: false }))
 }

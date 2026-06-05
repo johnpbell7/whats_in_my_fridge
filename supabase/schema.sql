@@ -11,6 +11,9 @@ create table if not exists public.profiles (
   tier       text not null default 'free',
   created_at timestamptz not null default now()
 );
+-- Stripe linkage (added later) so we can manage a user's subscription.
+alter table public.profiles add column if not exists stripe_customer_id text;
+alter table public.profiles add column if not exists stripe_subscription_id text;
 
 -- A row per successful AI call, so the server can meter usage per month.
 create table if not exists public.ai_usage (

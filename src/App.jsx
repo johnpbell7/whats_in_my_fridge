@@ -8,6 +8,8 @@ import { store, initStore } from './lib/store.js'
 import { initShopping } from './lib/shopping.js'
 import { initStaplePrefs } from './lib/staples.js'
 import { startSync, stopSync } from './lib/cloud.js'
+import { confirmCheckout } from './lib/api.js'
+import { toast } from './lib/toast.js'
 import InventoryScreen from './components/InventoryScreen.jsx'
 import ScanScreen from './components/ScanScreen.jsx'
 import ChatScreen from './components/ChatScreen.jsx'
@@ -73,6 +75,23 @@ export default function App() {
     initStore()
     initShopping()
     initStaplePrefs()
+  }, [])
+
+  // Returning from Stripe checkout: confirm the session (grants Plus), flash a
+  // thank-you, and strip the query params from the URL.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const checkout = params.get('checkout')
+    if (!checkout) return
+    const clean = () => window.history.replaceState({}, document.title, window.location.pathname)
+    if (checkout === 'success' && params.get('session_id')) {
+      confirmCheckout(params.get('session_id'))
+        .then(() => toast.show('Welcome to Plus — thank you! 💚', 3000))
+        .catch(() => toast.show('Payment received — it may take a moment to show.', 3000))
+        .finally(clean)
+    } else {
+      clean()
+    }
   }, [])
 
   // Cloud sync: when signed in, pull this account's data from Supabase and
