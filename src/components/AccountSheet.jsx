@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase.js'
-import { getMe } from '../lib/api.js'
+import { getMe, deleteAccount } from '../lib/api.js'
 import { upgrade } from '../lib/upgrade.js'
+import { store } from '../lib/store.js'
+import { shopping } from '../lib/shopping.js'
+import { staplePrefs } from '../lib/staples.js'
+import { savedMeals } from '../lib/meals.js'
 import { IconClose, IconUser, IconSparkle } from '../icons.jsx'
 
 // Bottom-sheet account panel: who you are, your plan, this month's usage
@@ -10,11 +14,55 @@ import { IconClose, IconUser, IconSparkle } from '../icons.jsx'
 export default function AccountSheet({ onClose }) {
   const [me, setMe] = useState(null)
   const [err, setErr] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteErr, setDeleteErr] = useState(null)
   const loading = !me && !err
 
   useEffect(() => {
     getMe().then(setMe).catch(() => setErr(true))
   }, [])
+
+  // Download everything we hold for this user as a JSON file (GDPR data export).
+  // The local stores mirror the synced cloud data, so this is the full picture.
+  function exportData() {
+    const data = {
+      exported_at: new Date().toISOString(),
+      account: me ? { email: me.email, tier: me.tier } : null,
+      inventory: store.getAll(),
+      shopping: shopping.getAll(),
+      staple_prefs: staplePrefs.getAll(),
+      saved_meals: savedMeals.getAll()
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `whats-in-my-fridge-${new Date().toISOString().slice(0, 10)}.json`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  }
+
+  async function removeAccount() {
+    if (!confirmDelete) {
+      setConfirmDelete(true)
+      return
+    }
+    setDeleting(true)
+    setDeleteErr(null)
+    try {
+      await deleteAccount()
+      // Account is gone server-side; sign out clears the session, which makes
+      // the app drop to the login screen and wipes the local copy.
+      await supabase.auth.signOut()
+    } catch (e) {
+      setDeleting(false)
+      setConfirmDelete(false)
+      setDeleteErr(e.message || 'Could not delete your account. Please try again.')
+    }
+  }
 
   return (
     <div className="scrim" onClick={onClose}>
@@ -74,6 +122,21 @@ export default function AccountSheet({ onClose }) {
         <button className="btn btn-ghost btn-block" onClick={() => supabase.auth.signOut()}>
           Sign out
         </button>
+
+        <div className="account-data">
+          <button className="btn-text" onClick={exportData}>
+            Export my data
+          </button>
+          <span aria-hidden="true" className="account-data-sep"> · </span>
+          <button
+            className={`btn-text ${confirmDelete ? 'danger' : ''}`}
+            onClick={removeAccount}
+            disabled={deleting}
+          >
+            {deleting ? 'Deleting…' : confirmDelete ? 'Tap again to permanently delete' : 'Delete account'}
+          </button>
+        </div>
+        {deleteErr && <p className="account-note account-data-err">{deleteErr}</p>}
 
         <p className="account-legal">
           <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a>

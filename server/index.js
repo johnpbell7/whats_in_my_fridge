@@ -5,6 +5,7 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import { healthHandler, meHandler, visionHandler, chatHandler, mealsHandler } from './core.js'
+import { deleteAccountHandler } from './auth.js'
 
 const PORT = process.env.API_PORT || 8787
 
@@ -21,6 +22,7 @@ app.get('/api/me', async (req, res) => send(res, await meHandler(bearer(req))))
 app.post('/api/vision', async (req, res) => send(res, await visionHandler(req.body, bearer(req))))
 app.post('/api/chat', async (req, res) => send(res, await chatHandler(req.body, bearer(req))))
 app.post('/api/meals', async (req, res) => send(res, await mealsHandler(req.body, bearer(req))))
+app.post('/api/delete-account', async (req, res) => send(res, await deleteAccountHandler(bearer(req))))
 
 app.listen(PORT, () => {
   console.log(`Fridge API listening on http://localhost:${PORT}`)
