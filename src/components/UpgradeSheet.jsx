@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useSheet } from '../lib/useSheet.js'
+import { startCheckout } from '../lib/api.js'
 import { IconClose, IconCheck, IconSparkle } from '../icons.jsx'
 
 const BENEFITS = [
@@ -22,8 +23,30 @@ const REASON_HEAD = {
 // payments (RevenueCat) are wired up. `reason` adds a contextual headline.
 export default function UpgradeSheet({ onClose, reason = '' }) {
   const [pending, setPending] = useState(false)
+  const [busy, setBusy] = useState(false)
   const contextHead = REASON_HEAD[reason]
   const sheetRef = useSheet(onClose)
+
+  async function subscribe() {
+    if (busy) return
+    setBusy(true)
+    try {
+      const { url } = await startCheckout()
+      if (url) {
+        window.location.href = url // hand off to Stripe's hosted checkout
+        return
+      }
+      setPending(true)
+    } catch (err) {
+      // Payments not set up yet → keep the friendly "launching soon" note.
+      if (err.code === 'not_configured') setPending(true)
+      else {
+        setPending(true)
+      }
+    } finally {
+      setBusy(false)
+    }
+  }
 
   return (
     <div className="scrim" onClick={onClose}>
@@ -73,8 +96,8 @@ export default function UpgradeSheet({ onClose, reason = '' }) {
             Card payments are launching very soon — your account will be the first to be able to upgrade. Thanks for the support! 💚
           </p>
         ) : (
-          <button className="btn btn-primary btn-block" onClick={() => setPending(true)}>
-            Subscribe — £3.99/month
+          <button className="btn btn-primary btn-block" onClick={subscribe} disabled={busy}>
+            {busy ? 'Starting checkout…' : 'Subscribe — £3.99/month'}
           </button>
         )}
         <button className="btn-text upgrade-later" onClick={onClose}>

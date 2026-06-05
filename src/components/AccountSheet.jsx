@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase.js'
 import { useSheet } from '../lib/useSheet.js'
-import { getMe, deleteAccount } from '../lib/api.js'
+import { getMe, deleteAccount, openBillingPortal } from '../lib/api.js'
 import { upgrade } from '../lib/upgrade.js'
 import { store } from '../lib/store.js'
 import { shopping } from '../lib/shopping.js'
@@ -18,8 +18,22 @@ export default function AccountSheet({ onClose }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteErr, setDeleteErr] = useState(null)
+  const [portalBusy, setPortalBusy] = useState(false)
   const loading = !me && !err
   const sheetRef = useSheet(onClose)
+
+  async function manageSubscription() {
+    if (portalBusy) return
+    setPortalBusy(true)
+    try {
+      const { url } = await openBillingPortal()
+      if (url) window.location.href = url
+    } catch {
+      /* leave the button as-is; nothing destructive happened */
+    } finally {
+      setPortalBusy(false)
+    }
+  }
 
   useEffect(() => {
     getMe().then(setMe).catch(() => setErr(true))
@@ -117,11 +131,15 @@ export default function AccountSheet({ onClose }) {
 
         {loading ? (
           <div className="btn btn-block upgrade-cta skeleton-btn" aria-hidden="true" />
+        ) : me && !me.paid ? (
+          <button className="btn btn-primary btn-block upgrade-cta" onClick={() => upgrade.show('account')}>
+            <IconSparkle size={18} /> {me.trial ? 'Keep Plus — £3.99/month' : 'Upgrade to Plus — £3.99/month'}
+          </button>
         ) : (
           me &&
-          !me.paid && (
-            <button className="btn btn-primary btn-block upgrade-cta" onClick={() => upgrade.show('account')}>
-              <IconSparkle size={18} /> {me.trial ? 'Keep Plus — £3.99/month' : 'Upgrade to Plus — £3.99/month'}
+          me.paid && (
+            <button className="btn btn-ghost btn-block upgrade-cta" onClick={manageSubscription} disabled={portalBusy}>
+              {portalBusy ? 'Opening…' : 'Manage subscription'}
             </button>
           )
         )}
