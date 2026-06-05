@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>What's in my Fridge — Know what you've got. Waste less. Eat better.</title>
+  <meta name="description" content="Snap your fridge or a receipt and AI logs everything. Track what's fresh, get dinner ideas from what you have, and build a smart shopping list. Free to start." />
+  <meta name="theme-color" content="#2f7d5a" />
+  <!-- Social preview -->
+  <meta property="og:title" content="What's in my Fridge" />
+  <meta property="og:description" content="Snap your fridge or a receipt and AI logs everything — track freshness, get dinner ideas, waste less." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #faf7f2; --surface: #fffdf9; --surface-2: #f3eee5;
+      --ink: #1f1b16; --ink-soft: #5d5648; --ink-faint: #8a8170;
+      --line: #ebe5d8; --line-strong: #ddd5c4;
+      --accent: #2f7d5a; --accent-press: #276848; --accent-soft: #e6efe8; --on-accent: #fdfdfb;
+      --amber: #b9842f; --amber-soft: #f6eddc;
+      --r-sm: 12px; --r-md: 18px; --r-lg: 26px;
+      --display: 'Fraunces', Georgia, serif;
+      --sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --max: 1120px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans); color: var(--ink); background: var(--bg);
+      line-height: 1.55; -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(120% 70% at 50% -10%, #fffdf8 0%, var(--bg) 55%);
+    }
+    a { color: inherit; text-decoration: none; }
+    img, svg { display: block; }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 22px; }
+    .display { font-family: var(--display); letter-spacing: -0.02em; line-height: 1.05; font-weight: 600; }
+    .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+    .leaf-dot { color: var(--accent); }
+
+    /* buttons */
+    .btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15.5px;
+      padding: 13px 22px; border-radius: 999px; border: 1.5px solid transparent; cursor: pointer; transition: transform .12s, background .16s, border-color .16s; white-space: nowrap; }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--accent); color: var(--on-accent); }
+    .btn-primary:hover { background: var(--accent-press); }
+    .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+    .btn-ghost:hover { background: var(--surface); }
+    .btn-lg { padding: 16px 28px; font-size: 16.5px; }
+
+    /* nav */
+    header.nav { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(14px) saturate(1.3);
+      background: rgba(250,247,242,.78); border-bottom: 1px solid var(--line); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 66px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 600; font-size: 20px; letter-spacing: -0.02em; }
+    .brand .mark { width: 34px; height: 34px; border-radius: 9px; flex: none; }
+    .nav-links { display: flex; align-items: center; gap: 30px; }
+    .nav-links a { font-weight: 600; font-size: 15px; color: var(--ink-soft); }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-cta { display: flex; align-items: center; gap: 12px; }
+    .nav-toggle { display: none; background: none; border: 0; padding: 8px; cursor: pointer; }
+    @media (max-width: 860px) {
+      .nav-links { position: fixed; inset: 66px 0 auto 0; flex-direction: column; gap: 4px; background: var(--surface);
+        border-bottom: 1px solid var(--line); padding: 14px 22px 22px; transform: translateY(-120%); transition: transform .25s; }
+      .nav-links.open { transform: translateY(0); }
+      .nav-links a { width: 100%; padding: 12px 0; font-size: 17px; border-bottom: 1px solid var(--line); }
+      .nav-toggle { display: block; }
+      .nav-cta .btn-ghost { display: none; }
+    }
+
+    /* hero */
+    .hero { padding: 64px 0 40px; }
+    .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
+    .hero h1 { font-size: clamp(38px, 5.4vw, 60px); }
+    .hero p.lede { font-size: clamp(17px, 2.2vw, 20px); color: var(--ink-soft); margin: 22px 0 30px; max-width: 30ch; }
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+    .hero-trust { display: flex; align-items: center; gap: 10px; margin-top: 26px; color: var(--ink-faint); font-size: 14px; font-weight: 500; }
+    .stars { color: #d9a93a; letter-spacing: 2px; }
+    .qr-cta { display: inline-flex; align-items: center; gap: 15px; margin-top: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 13px 18px 13px 13px; }
+    .qr { width: 82px; height: 82px; background: #fff; border: 1px solid var(--line); border-radius: 11px; padding: 7px; flex: none; }
+    .qr svg { width: 100%; height: 100%; display: block; }
+    .qr-txt strong { display: block; font-weight: 700; font-size: 14.5px; }
+    .qr-txt span { font-size: 12.5px; color: var(--ink-soft); }
+    @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; gap: 36px; } .hero { padding: 40px 0 20px; } .hero p.lede { max-width: none; } }
+
+    /* phone mockup */
+    .phone-wrap { display: flex; justify-content: center; }
+    .phone { width: 288px; background: #14110d; border-radius: 42px; padding: 11px; box-shadow: 0 30px 60px -24px rgba(38,104,75,.45); position: relative; }
+    .phone::before { content: ''; position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 110px; height: 22px; background: #14110d; border-radius: 0 0 14px 14px; z-index: 3; }
+    .screen { background: var(--bg); border-radius: 32px; overflow: hidden; height: 580px; }
+    .screen-top { padding: 30px 18px 12px; }
+    .screen-top .sm { font-family: var(--display); font-style: italic; font-size: 13px; color: var(--ink-soft); }
+    .screen-top .lg { font-family: var(--display); font-weight: 600; font-size: 26px; letter-spacing: -0.02em; }
+    .scr-bar { background: var(--accent); color: var(--on-accent); margin: 8px 16px 14px; border-radius: 14px; padding: 11px 14px; display: flex; align-items: center; gap: 9px; font-weight: 600; font-size: 13px; }
+    .cat-head { margin: 0 16px 10px; background: #eaf3e8; color: #4a7a43; border-radius: 14px; padding: 11px 14px; display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
+    .cat-head .n { margin-left: auto; background: rgba(255,255,255,.6); border-radius: 999px; padding: 1px 9px; font-size: 12px; }
+    .card { margin: 0 16px 9px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 11px 13px; }
+    .card .nm { font-weight: 600; font-size: 14px; }
+    .card .meta { display: flex; align-items: center; gap: 7px; margin-top: 4px; font-size: 11px; color: var(--ink-faint); }
+    .chip { font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 6px; }
+    .chip.dairy { background: #eef2fa; color: #46618c; } .chip.prod { background: #eaf3e8; color: #4a7a43; } .chip.bake { background: #f4ecdd; color: #8a6a32; }
+    .age { color: var(--ink-faint); } .age.amber { color: var(--amber); font-weight: 600; }
+    .tag-new { background: var(--accent); color: var(--on-accent); font-size: 9px; font-weight: 700; letter-spacing: .03em; padding: 2px 6px; border-radius: 999px; text-transform: uppercase; margin-left: 6px; }
+
+    /* section scaffolding */
+    section { padding: 72px 0; }
+    .sec-head { text-align: center; max-width: 640px; margin: 0 auto 46px; }
+    .sec-head h2 { font-size: clamp(28px, 4vw, 42px); margin: 12px 0 14px; }
+    .sec-head p { color: var(--ink-soft); font-size: 17px; }
+
+    /* stats strip */
+    .stats { background: var(--accent); color: var(--on-accent); }
+    .stats .wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+    .stat { text-align: center; }
+    .stat .big { font-family: var(--display); font-weight: 600; font-size: clamp(28px, 4vw, 40px); }
+    .stat .lab { font-size: 13.5px; opacity: .85; margin-top: 4px; }
+    @media (max-width: 700px) { .stats .wrap { grid-template-columns: repeat(2, 1fr); gap: 26px 16px; } }
+
+    /* features — alternating rows that show the app UI */
+    .feature-rows { display: flex; flex-direction: column; gap: 96px; margin-top: 10px; }
+    .frow { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .frow.rev .frow-media { order: 2; }
+    .frow-text .eyebrow { display: block; margin-bottom: 12px; }
+    .frow-text h3 { font-family: var(--display); font-weight: 600; font-size: clamp(25px, 3.2vw, 34px); letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 14px; }
+    .frow-text > p { color: var(--ink-soft); font-size: 17px; }
+    .frow-text ul { list-style: none; margin-top: 20px; display: flex; flex-direction: column; gap: 11px; }
+    .frow-text li { display: flex; gap: 11px; color: var(--ink-soft); font-size: 15.5px; }
+    .frow-text .ck { color: var(--accent); font-weight: 800; flex: none; }
+    .frow-media { display: flex; justify-content: center; }
+    /* compact device used in feature rows */
+    .dev { width: 252px; background: #14110d; border-radius: 38px; padding: 10px; box-shadow: 0 26px 54px -22px rgba(38,104,75,.42); position: relative; }
+    .dev::before { content: ''; position: absolute; top: 16px; left: 50%; transform: translateX(-50%); width: 96px; height: 19px; background: #14110d; border-radius: 0 0 12px 12px; z-index: 3; }
+    .dev .scr { background: var(--bg); border-radius: 30px; overflow: hidden; min-height: 432px; padding-bottom: 16px; }
+    .dev .scr-h { padding: 28px 16px 12px; }
+    .dev .scr-h .s { font-family: var(--display); font-style: italic; font-size: 12px; color: var(--ink-soft); }
+    .dev .scr-h .b { font-family: var(--display); font-weight: 600; font-size: 23px; letter-spacing: -0.02em; }
+    .dev .hint { padding: 0 18px; color: var(--ink-faint); font-size: 11.5px; margin: -2px 0 10px; }
+    /* mini chat bubbles for the dinner mockup */
+    .bub { margin: 0 16px 9px; padding: 9px 13px; border-radius: 15px; font-size: 12.5px; max-width: 78%; }
+    .bub.me { background: var(--accent); color: var(--on-accent); margin-left: auto; border-bottom-right-radius: 5px; }
+    .meal { margin: 0 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 13px; }
+    .meal h5 { font-family: var(--display); font-weight: 600; font-size: 14.5px; margin-bottom: 3px; }
+    .meal .u { font-size: 11px; color: var(--ink-faint); }
+    .meal .buy { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 9px; }
+    .nudge { margin: 0 16px 9px; background: var(--accent-soft); color: var(--accent-press); border-radius: 12px; padding: 9px 12px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+    .check-row { margin: 0 16px 8px; display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 13.5px; font-weight: 600; }
+    .check-row .bx { width: 20px; height: 20px; border-radius: 6px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-size: 12px; flex: none; }
+    .check-row.todo .bx { background: var(--surface); border: 1.5px solid var(--line-strong); }
+    @media (max-width: 820px) {
+      .frow { grid-template-columns: 1fr; gap: 34px; }
+      .frow.rev .frow-media { order: 0; }
+      .feature-rows { gap: 70px; }
+    }
+
+    /* how it works */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .step { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px; }
+    .step-art { background: var(--bg); border-radius: 16px; padding: 16px; min-height: 138px; margin-bottom: 22px; display: flex; flex-direction: column; gap: 9px; justify-content: center; }
+    .step .num { font-family: var(--display); font-weight: 700; font-size: 15px; color: var(--accent); width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--accent-soft); display: grid; place-items: center; margin-bottom: 14px; }
+    .step h3 { font-family: var(--display); font-weight: 600; font-size: 21px; margin-bottom: 8px; }
+    .step p { color: var(--ink-soft); font-size: 15px; }
+    .spill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 7px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); }
+    .spill.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+    .mini { background: var(--surface); border: 1px solid var(--line); border-radius: 11px; padding: 9px 11px; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .mini .mc { display: flex; align-items: center; gap: 6px; margin-left: auto; font-weight: 600; font-size: 11px; }
+    @media (max-width: 760px) { .steps { grid-template-columns: 1fr; gap: 18px; } }
+
+    /* benefits split */
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+    .benefit-list { list-style: none; display: flex; flex-direction: column; gap: 18px; margin-top: 22px; }
+    .benefit-list li { display: flex; gap: 13px; }
+    .benefit-list .tick { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+    .benefit-list strong { display: block; font-weight: 600; }
+    .benefit-list span { color: var(--ink-soft); font-size: 14.5px; }
+    .split-art { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 30px; }
+    @media (max-width: 800px) { .split { grid-template-columns: 1fr; gap: 30px; } }
+
+    /* testimonials */
+    .reviews { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .review { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 24px; }
+    .review .stars { font-size: 15px; margin-bottom: 12px; }
+    .review p { font-size: 15px; color: var(--ink); }
+    .review .who { display: flex; align-items: center; gap: 11px; margin-top: 18px; }
+    .review .av { width: 38px; height: 38px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 700; font-family: var(--display); }
+    .review .who b { font-size: 14px; } .review .who small { color: var(--ink-faint); font-size: 12.5px; display: block; }
+    @media (max-width: 860px) { .reviews { grid-template-columns: 1fr; } }
+
+    /* pricing */
+    .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; max-width: 760px; margin: 0 auto; }
+    .price { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 32px; position: relative; }
+    .price.pop { border: 2px solid var(--accent); }
+    .price .badge { position: absolute; top: -13px; left: 32px; background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 700; letter-spacing: .04em; padding: 5px 12px; border-radius: 999px; text-transform: uppercase; }
+    .price h3 { font-family: var(--display); font-weight: 600; font-size: 22px; }
+    .price .amt { font-family: var(--display); font-weight: 600; font-size: 44px; margin: 10px 0 2px; letter-spacing: -0.02em; }
+    .price .amt small { font-family: var(--sans); font-size: 16px; font-weight: 500; color: var(--ink-faint); }
+    .price ul { list-style: none; margin: 22px 0 26px; display: flex; flex-direction: column; gap: 12px; }
+    .price li { display: flex; gap: 10px; font-size: 14.5px; color: var(--ink-soft); }
+    .price li svg { flex: none; color: var(--accent); margin-top: 2px; }
+    @media (max-width: 700px) { .price-grid { grid-template-columns: 1fr; } }
+
+    /* faq */
+    .faq { max-width: 760px; margin: 0 auto; }
+    .qa { border-bottom: 1px solid var(--line); }
+    .qa button { width: 100%; text-align: left; background: none; border: 0; padding: 22px 4px; font-family: var(--sans); font-weight: 600; font-size: 17px; color: var(--ink); cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .qa .ans { max-height: 0; overflow: hidden; transition: max-height .3s ease; color: var(--ink-soft); font-size: 15.5px; }
+    .qa .ans p { padding: 0 4px 22px; }
+    .qa.open .ans { max-height: 260px; }
+    .qa .pm { flex: none; transition: transform .3s; color: var(--accent); }
+    .qa.open .pm { transform: rotate(45deg); }
+
+    /* final cta */
+    .final { background: var(--accent); color: var(--on-accent); border-radius: var(--r-lg); padding: 56px 32px; text-align: center; }
+    .final h2 { font-size: clamp(28px, 4vw, 40px); margin-bottom: 14px; }
+    .final p { opacity: .9; font-size: 17px; max-width: 46ch; margin: 0 auto 28px; }
+    .final .btn-primary { background: #fff; color: var(--accent-press); }
+    .final .btn-primary:hover { background: #f1f1ee; }
+
+    /* footer */
+    footer.ft { padding: 56px 0 40px; border-top: 1px solid var(--line); margin-top: 72px; }
+    .ft-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 30px; }
+    .ft p.tag { color: var(--ink-soft); font-size: 14px; margin-top: 12px; max-width: 32ch; }
+    .ft h4 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-faint); margin-bottom: 14px; }
+    .ft a { display: block; color: var(--ink-soft); font-size: 14.5px; padding: 5px 0; }
+    .ft a:hover { color: var(--ink); }
+    .ft-base { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--ink-faint); font-size: 13.5px; }
+    @media (max-width: 700px) { .ft-grid { grid-template-columns: 1fr 1fr; } }
+
+    /* ---------- mobile polish ---------- */
+    @media (max-width: 600px) {
+      .wrap { padding: 0 18px; }
+      section { padding: 50px 0; }
+      .sec-head { margin-bottom: 32px; }
+      .sec-head h2 { font-size: 27px; }
+      .sec-head p { font-size: 15.5px; }
+      .eyebrow { font-size: 12px; }
+
+      /* nav */
+      .brand { font-size: 16px; gap: 8px; }
+      .brand .mark { width: 30px; height: 30px; }
+      .nav-cta { gap: 8px; }
+      .nav-cta .btn-primary { padding: 10px 15px; font-size: 14px; }
+
+      /* hero */
+      .hero { padding: 24px 0 8px; }
+      .hero h1 { font-size: 33px; }
+      .hero h1 br { display: none; }
+      .hero p.lede { font-size: 16px; margin: 16px 0 22px; }
+      .hero-ctas { flex-direction: column; width: 100%; gap: 11px; }
+      .hero-ctas .btn { width: 100%; justify-content: center; }
+      .hero-trust { justify-content: center; margin-top: 20px; }
+      .qr-cta { display: none; }
+      .phone { width: 256px; }
+
+      /* stats */
+      .stats { padding: 30px 0 !important; }
+      .stats .wrap { gap: 24px 16px; }
+      .stat .lab { font-size: 12.5px; }
+
+      /* features */
+      .feature-rows { gap: 52px; }
+      .frow { gap: 26px; }
+      .frow-text h3 { font-size: 24px; }
+      .frow-text > p { font-size: 15.5px; }
+      .frow-text { text-align: center; }
+      .frow-text ul { text-align: left; max-width: 320px; margin-left: auto; margin-right: auto; }
+      .frow-text .eyebrow { text-align: center; }
+      .dev { width: 240px; }
+
+      /* steps */
+      .step { padding: 20px; }
+
+      /* pricing */
+      .price { padding: 26px; }
+      .price .amt { font-size: 40px; }
+
+      /* faq */
+      .qa button { font-size: 16px; padding: 18px 2px; }
+
+      /* final + footer */
+      .final { padding: 42px 22px; }
+      .final p { font-size: 16px; }
+      .ft-grid { grid-template-columns: 1fr; gap: 26px; }
+      .ft-base { flex-direction: column; gap: 8px; }
+      footer.ft { margin-top: 52px; }
+    }
+
+    @media (max-width: 380px) {
+      .hero h1 { font-size: 30px; }
+      .phone, .dev { width: 224px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- ============ NAV ============ -->
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="/">
+        <svg class="mark" viewBox="0 0 512 512" aria-hidden="true">
+          <rect width="512" height="512" rx="116" fill="#2f7d5a"/>
+          <rect x="168" y="96" width="176" height="320" rx="40" fill="#fff"/>
+          <rect x="168" y="198" width="176" height="8" fill="#dfe7e1"/>
+          <rect x="304" y="120" width="13" height="50" rx="6.5" fill="#cfe0d6"/>
+          <path d="M256 250 C304 280 304 322 256 352 C208 322 208 280 256 250 Z" fill="#2f7d5a"/>
+          <path d="M256 262 L256 344 M256 296 L282 282 M256 312 L232 298" stroke="#8fc7a8" stroke-width="6" stroke-linecap="round" fill="none"/>
+        </svg>
+        What's in my Fridge<span class="leaf-dot">.</span>
+      </a>
+      <nav class="nav-links" id="navlinks">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="btn btn-ghost" href="https://app.whatsinmyfridge.co.uk">Sign in</a>
+        <a class="btn btn-primary" href="https://app.whatsinmyfridge.co.uk">Open the app</a>
+        <button class="nav-toggle" id="navtoggle" aria-label="Menu">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Your fridge, finally organised</span>
+        <h1 class="display">Know what you've&nbsp;got.<br>Waste less. Eat&nbsp;better.</h1>
+        <p class="lede">Snap your fridge or a shopping receipt and AI logs everything — so you always know what's fresh, what to cook, and what to buy.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary btn-lg" href="https://app.whatsinmyfridge.co.uk">Start free</a>
+          <a class="btn btn-ghost btn-lg" href="#how">See how it works</a>
+        </div>
+        <div class="hero-trust"><span class="stars">★★★★★</span> Free to start · No card needed</div>
+        <div class="qr-cta">
+          <div class="qr"><svg viewBox="0 0 29 29" shape-rendering="crispEdges" aria-hidden="true"><path stroke="#1f1b16" d="M0 0.5h7m2 0h4m1 0h1m4 0h1m2 0h7M0 1.5h1m5 0h1m1 0h1m1 0h2m1 0h1m5 0h1m2 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m2 0h2m1 0h1m2 0h1m2 0h2m2 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m2 0h1m3 0h1m2 0h1m1 0h2m2 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m1 0h2m1 0h3m2 0h4m2 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m2 0h1m4 0h4m1 0h2m1 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M11 7.5h1m3 0h1m1 0h3M0 8.5h1m1 0h1m1 0h1m1 0h1m2 0h2m5 0h2m1 0h1m4 0h1m2 0h1M0 9.5h2m1 0h1m3 0h5m1 0h1m1 0h3m2 0h1m1 0h1m2 0h1m2 0h1M4 10.5h6m1 0h1m2 0h3m4 0h2m3 0h3M0 11.5h3m1 0h1m2 0h3m3 0h2m1 0h2m1 0h2m1 0h1m1 0h1m2 0h1M1 12.5h1m3 0h2m1 0h2m2 0h1m1 0h4m1 0h4m2 0h1m1 0h2M4 13.5h2m1 0h1m1 0h2m1 0h1m1 0h2m1 0h1m2 0h4m1 0h1m2 0h1M6 14.5h1m3 0h2m1 0h1m3 0h1m2 0h1m3 0h2m1 0h2M0 15.5h2m1 0h1m4 0h1m1 0h3m4 0h2m1 0h2m1 0h1m1 0h1m1 0h1M1 16.5h1m3 0h2m1 0h1m6 0h3m1 0h5m1 0h1m1 0h2M1 17.5h1m1 0h1m1 0h1m3 0h1m1 0h3m2 0h2m2 0h3m2 0h2m1 0h1M0 18.5h1m1 0h2m2 0h2m1 0h3m2 0h1m7 0h1m1 0h1m2 0h2M1 19.5h1m2 0h2m1 0h1m3 0h1m1 0h7m3 0h1m1 0h1m1 0h1M0 20.5h1m4 0h3m1 0h1m1 0h1m2 0h1m2 0h8M8 21.5h1m3 0h1m1 0h1m1 0h1m2 0h2m3 0h1m1 0h3M0 22.5h7m2 0h5m2 0h2m1 0h2m1 0h1m1 0h2m1 0h2M0 23.5h1m5 0h1m2 0h1m1 0h1m4 0h2m2 0h1m3 0h2M0 24.5h1m1 0h3m1 0h1m1 0h2m2 0h1m2 0h3m2 0h5m3 0h1M0 25.5h1m1 0h3m1 0h1m3 0h1m1 0h2m3 0h1m2 0h1m3 0h1m1 0h3M0 26.5h1m1 0h3m1 0h1m1 0h2m3 0h2m2 0h2m1 0h2m1 0h3m2 0h1M0 27.5h1m5 0h1m2 0h1m1 0h1m1 0h1m2 0h3m1 0h1m6 0h1M0 28.5h7m1 0h3m4 0h3m1 0h2m1 0h1m1 0h1m2 0h2"/></svg></div>
+          <div class="qr-txt"><strong>Get it on your phone</strong><span>Scan with your camera<br>to open the app</span></div>
+        </div>
+      </div>
+      <div class="phone-wrap">
+        <div class="phone"><div class="screen">
+          <div class="screen-top"><div class="sm">What's in my</div><div class="lg">Fridge<span class="leaf-dot">.</span></div></div>
+          <div class="scr-bar">✨ Tap to file 3 new items into folders</div>
+          <div class="cat-head">🥗 Produce <span class="n">4</span></div>
+          <div class="card"><div class="nm">Spinach <span class="tag-new">New</span></div><div class="meta"><span class="chip prod">Produce</span> · Fridge · <span class="age amber">⏱ 4 days old</span></div></div>
+          <div class="card"><div class="nm">Cherry tomatoes</div><div class="meta"><span class="chip prod">Produce</span> · Fridge · <span class="age">⏱ 1 day old</span></div></div>
+          <div class="cat-head" style="background:#eef2fa;color:#46618c">🥛 Dairy <span class="n">2</span></div>
+          <div class="card"><div class="nm">Whole milk</div><div class="meta"><span class="chip dairy">Dairy</span> · Fridge · <span class="age">⏱ 2 days old</span></div></div>
+          <div class="card"><div class="nm">Cheddar · 1 block</div><div class="meta"><span class="chip dairy">Dairy</span> · Fridge · <span class="age">⏱ Added today</span></div></div>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STATS ============ -->
+  <section class="stats" style="padding:40px 0;">
+    <div class="wrap">
+      <div class="stat"><div class="big">£60</div><div class="lab">avg food a UK home bins each month*</div></div>
+      <div class="stat"><div class="big">10 sec</div><div class="lab">to log a whole shop from a receipt</div></div>
+      <div class="stat"><div class="big">AI</div><div class="lab">dinner ideas from what you have</div></div>
+      <div class="stat"><div class="big">£0</div><div class="lab">to get started — free forever plan</div></div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Everything in one place</span>
+        <h2 class="display">Less guessing. Less waste. More good dinners.</h2>
+        <p>One simple app that tracks your food, tells you what to cook, and keeps your shopping list sorted.</p>
+      </div>
+      <div class="feature-rows">
+
+        <!-- 1 · Snap -->
+        <div class="frow">
+          <div class="frow-media">
+            <div class="dev"><div class="scr">
+              <div class="scr-h"><div class="s">Scan</div><div class="b">Check what I saw</div></div>
+              <div class="hint">Tap to add — you decide what stays.</div>
+              <div class="card"><div class="nm">✅ Whole milk</div><div class="meta"><span class="chip dairy">Dairy</span> · Fridge</div></div>
+              <div class="card"><div class="nm">✅ Spinach</div><div class="meta"><span class="chip prod">Produce</span> · Fridge</div></div>
+              <div class="card"><div class="nm">✅ Sourdough loaf</div><div class="meta"><span class="chip bake">Bakery</span> · Pantry</div></div>
+              <div class="card"><div class="nm">✅ Frozen peas</div><div class="meta"><span class="chip prod">Produce</span> · Freezer</div></div>
+              <div class="scr-bar" style="margin-top:8px;justify-content:center;">Add 6 items</div>
+            </div></div>
+          </div>
+          <div class="frow-text">
+            <span class="eyebrow">Add in seconds</span>
+            <h3 class="display">A photo does the typing</h3>
+            <p>Snap your shelves or a shopping receipt and AI reads every item, sorts it by category, and even guesses where it lives. Check it over, tap add — done.</p>
+            <ul>
+              <li><span class="ck">✓</span> Whole-fridge photos or till receipts</li>
+              <li><span class="ck">✓</span> Frozen items go straight to the freezer</li>
+              <li><span class="ck">✓</span> Or add anything by hand</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 2 · Organised -->
+        <div class="frow rev">
+          <div class="frow-media">
+            <div class="dev"><div class="scr">
+              <div class="scr-h"><div class="s">What's in my</div><div class="b">Fridge<span class="leaf-dot">.</span></div></div>
+              <div class="cat-head">🥗 Produce <span class="n">4</span></div>
+              <div class="card"><div class="nm">Spinach <span class="tag-new">New</span></div><div class="meta"><span class="chip prod">Produce</span> · Fridge</div></div>
+              <div class="card"><div class="nm">Cherry tomatoes</div><div class="meta"><span class="chip prod">Produce</span> · Fridge</div></div>
+              <div class="cat-head" style="background:#eef2fa;color:#46618c;">🥛 Dairy <span class="n">2</span></div>
+              <div class="card"><div class="nm">Cheddar · 1 block</div><div class="meta"><span class="chip dairy">Dairy</span> · Fridge</div></div>
+              <div class="cat-head" style="background:#f4ecdd;color:#8a6a32;">🍞 Bakery <span class="n">1</span></div>
+            </div></div>
+          </div>
+          <div class="frow-text">
+            <span class="eyebrow">Always up to date</span>
+            <h3 class="display">Everything, sorted by where it lives</h3>
+            <p>Your whole fridge, freezer and pantry in neat, colour-coded folders. New items land in their own section until you file them — so nothing gets lost at the back ever again.</p>
+            <ul>
+              <li><span class="ck">✓</span> Fridge, freezer &amp; pantry in one view</li>
+              <li><span class="ck">✓</span> Auto-sorted into clear categories</li>
+              <li><span class="ck">✓</span> Search anything in a tap</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 3 · Freshness -->
+        <div class="frow">
+          <div class="frow-media">
+            <div class="dev"><div class="scr">
+              <div class="scr-h"><div class="s">In stock</div><div class="b">Use soon</div></div>
+              <div class="nudge">⚠️ 2 items need using soon</div>
+              <div class="card" style="border-color:#e6b8b2;background:linear-gradient(180deg,#fbeae7,var(--surface) 70%);"><div class="nm">Chicken breast</div><div class="meta"><span class="chip" style="background:#f7ebe9;color:#9c5249;">Meat &amp; fish</span> · <span class="age" style="color:#b4453a;font-weight:600;">⏱ Use today</span></div></div>
+              <div class="card" style="border-color:#ecc7ab;background:linear-gradient(180deg,#f7eede,var(--surface) 70%);"><div class="nm">Spinach</div><div class="meta"><span class="chip prod">Produce</span> · <span class="age amber">⏱ 4 days old</span></div></div>
+              <div class="card"><div class="nm">Cheddar</div><div class="meta"><span class="chip dairy">Dairy</span> · <span class="age">⏱ 2 days old</span></div></div>
+            </div></div>
+          </div>
+          <div class="frow-text">
+            <span class="eyebrow">Waste less</span>
+            <h3 class="display">Use it before you lose it</h3>
+            <p>Every item shows how long you've had it, and whatever's getting old floats to the top with a gentle amber-then-red nudge. Good food stops ending up in the bin.</p>
+            <ul>
+              <li><span class="ck">✓</span> Freshness tracked automatically</li>
+              <li><span class="ck">✓</span> "Use soon" items surface first</li>
+              <li><span class="ck">✓</span> Set an exact use-by if you want</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 4 · Dinner -->
+        <div class="frow rev">
+          <div class="frow-media">
+            <div class="dev"><div class="scr">
+              <div class="scr-h"><div class="s">Ask</div><div class="b">Dinner ideas</div></div>
+              <div class="bub me">What can I make for dinner?</div>
+              <div class="meal">
+                <h5>Creamy tomato &amp; spinach pasta</h5>
+                <div class="u">Uses: tomatoes, spinach, cheddar, pasta</div>
+                <div class="buy"><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">+ Garlic</span><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">+ Basil</span><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">🛒 Add all</span></div>
+              </div>
+              <div class="meal" style="margin-top:9px;"><h5>Cheesy spinach omelette</h5><div class="u">Uses: eggs, spinach, cheddar, milk</div></div>
+            </div></div>
+          </div>
+          <div class="frow-text">
+            <span class="eyebrow">What's for dinner?</span>
+            <h3 class="display">Real meals from what you've got</h3>
+            <p>Tap once and get proper dinner ideas built around what's actually in your fridge — favouring things that need using up. Save the ones you love and add any extras to your list in a tap.</p>
+            <ul>
+              <li><span class="ck">✓</span> Suggestions from your real inventory</li>
+              <li><span class="ck">✓</span> Add missing ingredients to shopping</li>
+              <li><span class="ck">✓</span> Save your favourites for later</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 5 · Shopping + staples -->
+        <div class="frow">
+          <div class="frow-media">
+            <div class="dev"><div class="scr">
+              <div class="scr-h"><div class="s">3 still to buy</div><div class="b">Shopping</div></div>
+              <div class="nudge">✨ Running low: Butter &nbsp;·&nbsp; 📌 Tap to add</div>
+              <div class="check-row"><span class="bx">✓</span> Milk</div>
+              <div class="check-row"><span class="bx">✓</span> Bread</div>
+              <div class="check-row todo"><span class="bx"></span> Cheddar</div>
+              <div class="scr-bar" style="justify-content:center;">🧊 Put 2 items away</div>
+            </div></div>
+          </div>
+          <div class="frow-text">
+            <span class="eyebrow">Never run out</span>
+            <h3 class="display">A shopping list that thinks ahead</h3>
+            <p>It learns the staples you always keep and flags them the moment you run low. Tick things off at the shop, then put them straight back into your fridge in one tap.</p>
+            <ul>
+              <li><span class="ck">✓</span> Auto-flags the essentials you're low on</li>
+              <li><span class="ck">✓</span> One tap to file shopping into your fridge</li>
+              <li><span class="ck">✓</span> Syncs across every device you use</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section id="how" style="background:var(--surface-2);">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">How it works</span><h2 class="display">From shopping bag to dinner in three steps</h2></div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-art">
+            <span class="spill on">📸 Scan a photo</span>
+            <span class="spill">🧾 Or a receipt</span>
+            <span class="spill">✏️ Or by hand</span>
+          </div>
+          <div class="num">1</div><h3>Snap</h3>
+          <p>Take a photo of your fridge or your shopping receipt. That's it — no scanning barcodes, no typing.</p>
+        </div>
+        <div class="step">
+          <div class="step-art">
+            <div class="mini">🥗 Spinach <span class="mc" style="color:#4a7a43;">Produce</span></div>
+            <div class="mini">🥛 Whole milk <span class="mc" style="color:#46618c;">Dairy</span></div>
+            <div class="mini">⏱ Chicken <span class="mc" style="color:#b4453a;">Use today</span></div>
+          </div>
+          <div class="num">2</div><h3>Track</h3>
+          <p>Everything's logged and sorted by category, with freshness tracked automatically so you always know what to use first.</p>
+        </div>
+        <div class="step">
+          <div class="step-art">
+            <div class="mini" style="display:block;"><div>🍝 Tomato &amp; spinach pasta</div><div style="font-weight:500;color:var(--ink-faint);font-size:10.5px;margin-top:3px;">Uses what you have + 2 to buy</div></div>
+            <div class="mini">🛒 Add all to shopping <span class="mc" style="color:var(--accent);">✓</span></div>
+          </div>
+          <div class="num">3</div><h3>Cook &amp; shop</h3>
+          <p>Get dinner ideas from what you have, save the ones you love, and add anything you're missing to your shopping list.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BENEFITS ============ -->
+  <section>
+    <div class="wrap split">
+      <div>
+        <span class="eyebrow">Why you'll love it</span>
+        <h2 class="display" style="font-size:clamp(28px,4vw,40px);margin-top:12px;">Built for real, busy kitchens</h2>
+        <ul class="benefit-list">
+          <li><span class="tick">✓</span><div><strong>Stop the "what's for dinner?" panic</strong><span>One tap turns what's in your fridge into proper meal ideas.</span></div></li>
+          <li><span class="tick">✓</span><div><strong>Shop with a plan, not from memory</strong><span>Always know what you already have before you buy more.</span></div></li>
+          <li><span class="tick">✓</span><div><strong>Throw away far less</strong><span>Use food while it's fresh and watch your weekly waste drop.</span></div></li>
+          <li><span class="tick">✓</span><div><strong>Genuinely effortless</strong><span>A photo does the work. It's the easiest fridge you'll ever keep.</span></div></li>
+        </ul>
+      </div>
+      <div class="split-art">
+        <div class="cat-head" style="margin:0 0 12px;background:#f9eaf1;color:#97527b;">🍝 Tonight you could make…</div>
+        <div class="card" style="margin:0 0 10px;"><div class="nm">Creamy tomato &amp; spinach pasta</div><div class="meta" style="font-size:12px;">Uses: tomatoes, spinach, cheddar, pasta</div><div style="margin-top:9px;display:flex;gap:6px;flex-wrap:wrap;"><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">+ Garlic</span><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">+ Basil</span><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">+ Parmesan</span></div></div>
+        <div class="card" style="margin:0;"><div class="nm">Cheesy spinach omelette</div><div class="meta" style="font-size:12px;">Uses: eggs, spinach, cheddar, milk</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TESTIMONIALS (REPLACE WITH REAL REVIEWS BEFORE LAUNCH) ============ -->
+  <section style="background:var(--surface-2);">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">Loved by home cooks</span><h2 class="display">People are wasting less already</h2></div>
+      <div class="reviews">
+        <div class="review"><div class="stars">★★★★★</div><p>"I used to find mushy veg at the back of the fridge every week. Now I actually use what I buy — and dinner ideas are a lifesaver."</p><div class="who"><div class="av">S</div><div><b>Sarah M.</b><small>Manchester</small></div></div></div>
+        <div class="review"><div class="stars">★★★★★</div><p>"Scanning the receipt after a big shop is so satisfying. The whole trolley is logged before I've even unpacked."</p><div class="who"><div class="av">J</div><div><b>James T.</b><small>Bristol</small></div></div></div>
+        <div class="review"><div class="stars">★★★★★</div><p>"The 'what can I make for dinner' button has basically replaced my evening 'ugh, what do we have' meltdown."</p><div class="who"><div class="av">P</div><div><b>Priya K.</b><small>London</small></div></div></div>
+      </div>
+      <p style="text-align:center;color:var(--ink-faint);font-size:12.5px;margin-top:24px;">Reviews shown are illustrative placeholders — replace with real customer reviews before launch.</p>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section id="pricing">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">Pricing</span><h2 class="display">Start free. Upgrade if you love it.</h2><p>Every new account gets a 7-day free trial of Plus.</p></div>
+      <div class="price-grid">
+        <div class="price">
+          <h3>Free</h3>
+          <div class="amt">£0<small> / forever</small></div>
+          <ul>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Track your whole fridge, freezer &amp; pantry</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Shopping list &amp; staples</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> 10 photo/receipt scans a month</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> 30 AI chat questions a month</li>
+          </ul>
+          <a class="btn btn-ghost btn-block" style="width:100%;justify-content:center;" href="https://app.whatsinmyfridge.co.uk">Get started</a>
+        </div>
+        <div class="price pop">
+          <span class="badge">Most popular</span>
+          <h3>Plus</h3>
+          <div class="amt">£3.99<small> / month</small></div>
+          <ul>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Everything in Free, plus…</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> 60 photo/receipt scans a month</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> 200 AI chat questions a month</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Sharper AI recognition for trickier photos</li>
+          </ul>
+          <a class="btn btn-primary btn-block" style="width:100%;justify-content:center;" href="https://app.whatsinmyfridge.co.uk">Start 7-day free trial</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section id="faq" style="background:var(--surface-2);">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">FAQ</span><h2 class="display">Good questions</h2></div>
+      <div class="faq">
+        <div class="qa"><button>Do I have to type everything in? <span class="pm">+</span></button><div class="ans"><p>No — that's the whole point. Take a photo of your fridge or a shopping receipt and the app recognises and logs the items for you. You can always add or tweak anything by hand too.</p></div></div>
+        <div class="qa"><button>Is it free? <span class="pm">+</span></button><div class="ans"><p>Yes. The free plan lets you track your whole kitchen, keep a shopping list, and use a monthly allowance of scans and AI questions. Every new account also gets a 7-day free trial of Plus. Plus is £3.99/month if you want more.</p></div></div>
+        <div class="qa"><button>How does the dinner suggestion work? <span class="pm">+</span></button><div class="ans"><p>Tap "what can I make for dinner?" and the app suggests real meals built around what's actually in your inventory — favouring things that need using up. Each idea lists what it uses and a few extras you could add to your shopping list in one tap.</p></div></div>
+        <div class="qa"><button>What happens to my photos? <span class="pm">+</span></button><div class="ans"><p>A photo is sent to be read by AI, then it's discarded — we don't keep the image, only the list of items it produced. See our <a href="https://app.whatsinmyfridge.co.uk/privacy.html" style="color:var(--accent);font-weight:600;">Privacy Policy</a> for the full detail.</p></div></div>
+        <div class="qa"><button>Does it work on iPhone and Android? <span class="pm">+</span></button><div class="ans"><p>Yes. It runs in any modern browser and you can add it to your home screen so it works just like an app. Your fridge syncs across every device you sign in on.</p></div></div>
+        <div class="qa"><button>Can I cancel anytime? <span class="pm">+</span></button><div class="ans"><p>Absolutely — manage or cancel your subscription in a couple of taps from your account, and you'll keep Plus until the end of the period you've paid for.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section>
+    <div class="wrap">
+      <div class="final">
+        <h2 class="display">Your fridge, finally under control.</h2>
+        <p>Start tracking what you've got in under a minute. Free to begin, no card needed.</p>
+        <a class="btn btn-primary btn-lg" href="https://app.whatsinmyfridge.co.uk">Open the app — it's free</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="ft">
+    <div class="wrap">
+      <div class="ft-grid">
+        <div>
+          <a class="brand" href="/">
+            <svg class="mark" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="116" fill="#2f7d5a"/><rect x="168" y="96" width="176" height="320" rx="40" fill="#fff"/><rect x="168" y="198" width="176" height="8" fill="#dfe7e1"/><rect x="304" y="120" width="13" height="50" rx="6.5" fill="#cfe0d6"/><path d="M256 250 C304 280 304 322 256 352 C208 322 208 280 256 250 Z" fill="#2f7d5a"/></svg>
+            What's in my Fridge<span class="leaf-dot">.</span>
+          </a>
+          <p class="tag">Know what you've got, waste less, and always have a good answer to "what's for dinner?"</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#how">How it works</a>
+          <a href="#pricing">Pricing</a>
+          <a href="https://app.whatsinmyfridge.co.uk">Open the app</a>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <a href="https://app.whatsinmyfridge.co.uk/privacy.html">Privacy</a>
+          <a href="https://app.whatsinmyfridge.co.uk/terms.html">Terms</a>
+          <a href="mailto:johnpbell7@gmail.com">Contact</a>
+        </div>
+      </div>
+      <div class="ft-base">
+        <span>© <span id="yr"></span> What's in my Fridge. All rights reserved.</span>
+        <span>*Source: WRAP UK household food-waste estimates.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // mobile nav
+    document.getElementById('navtoggle').addEventListener('click', () =>
+      document.getElementById('navlinks').classList.toggle('open'));
+    document.querySelectorAll('#navlinks a').forEach(a =>
+      a.addEventListener('click', () => document.getElementById('navlinks').classList.remove('open')));
+    // faq accordion
+    document.querySelectorAll('.qa button').forEach(b =>
+      b.addEventListener('click', () => b.parentElement.classList.toggle('open')));
+    // year
+    document.getElementById('yr').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
