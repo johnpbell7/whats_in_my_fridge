@@ -24,7 +24,7 @@
       --max:1180px;
     }
     *{box-sizing:border-box;margin:0;padding:0}
-    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:clip}
     body{font-family:var(--sans);color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
     /* faint film grain — adds a tactile, non-flat feel */
     body::after{content:"";position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.04;
@@ -90,7 +90,7 @@
     /* phone */
     .phone-wrap{display:flex;justify-content:center;position:relative}
     .phone-wrap::before{content:"";position:absolute;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(47,125,90,.16),transparent 70%);z-index:-1}
-    .phone{width:296px;background:#17130d;border-radius:46px;padding:11px;box-shadow:0 40px 80px -30px rgba(35,97,63,.55);position:relative;will-change:transform}
+    .phone{width:284px;flex:none;background:#17130d;border-radius:44px;padding:11px;box-shadow:0 40px 80px -30px rgba(35,97,63,.55);position:relative;will-change:transform}
     .phone::before{content:"";position:absolute;top:19px;left:50%;transform:translateX(-50%);width:108px;height:22px;background:#17130d;border-radius:0 0 14px 14px;z-index:3}
     .screen{background:var(--bg);border-radius:35px;overflow:hidden;height:600px}
     .s-top{padding:32px 18px 12px}
@@ -126,10 +126,10 @@
     .scroll-nav{display:flex;gap:10px}
     .scroll-nav button{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line-2);background:var(--surface);cursor:pointer;display:grid;place-items:center;color:var(--ink);transition:background .15s,border-color .15s}
     .scroll-nav button:hover{border-color:var(--ink)}
-    .scroller{display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;padding:40px 26px 30px;margin:0 -26px;-ms-overflow-style:none;scrollbar-width:none}
+    .scroller{display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:26px;padding:40px 26px 34px;-ms-overflow-style:none;scrollbar-width:none;cursor:grab}
+    .scroller.dragging{cursor:grabbing;scroll-snap-type:none}
     .scroller::-webkit-scrollbar{display:none}
-    .hcard{scroll-snap-align:center;flex:0 0 86%;max-width:340px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);padding:30px;display:flex;flex-direction:column;min-height:280px}
-    @media(min-width:680px){.hcard{flex-basis:340px}}
+    .hcard{scroll-snap-align:start;flex:0 0 330px;max-width:84vw;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-l);padding:30px;display:flex;flex-direction:column;min-height:280px;user-select:none}
     .hcard .ic{width:50px;height:50px;border-radius:14px;background:var(--green-soft);color:var(--green);display:grid;place-items:center;margin-bottom:auto}
     .hcard h3{font-family:var(--serif);font-weight:600;font-size:22px;letter-spacing:-.01em;margin:22px 0 9px}
     .hcard p{color:var(--ink-soft);font-size:15px}
@@ -146,7 +146,7 @@
     .show-text ul{list-style:none;margin-top:24px;display:flex;flex-direction:column;gap:13px}
     .show-text li{display:flex;gap:12px;color:var(--ink-soft);font-size:15.5px}
     .show-text li .ck{flex:none;width:24px;height:24px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center;font-size:13px}
-    .show-media{display:flex;justify-content:center}
+    .show-media{display:flex;justify-content:center;min-width:0}
     @media(max-width:860px){.show{grid-template-columns:1fr;gap:38px}.show.rev .show-media{order:0}.show+.show{margin-top:84px}}
 
     /* big quote / waste band */
@@ -225,7 +225,8 @@
       .hero-cta{flex-direction:column}.hero-cta .btn{width:100%}
       .hero-qr{display:none}
       .head h2{font-size:30px}.head p{font-size:16px}
-      .phone{width:262px}
+      .phone{width:250px}
+      .show+.show{margin-top:64px}
       .brand{font-size:18px}.brand .mk{width:31px;height:31px}
       .nav-r .btn-g{padding:11px 16px;font-size:14px}
       .quote-band .wrap{padding:64px 20px}
@@ -349,7 +350,55 @@
         </div>
       </div>
 
-      <!-- SHOWCASE 2: dinner -->
+      <!-- organised -->
+      <div class="show rev">
+        <div class="show-media" data-reveal>
+          <div class="phone"><div class="screen">
+            <div class="s-top"><div class="a">What's in my</div><div class="b">Fridge<span class="dot">.</span></div></div>
+            <div class="cat" style="background:#eaf3e8;color:#4a7a43;">Produce <span class="n">4</span></div>
+            <div class="card"><div class="nm">Spinach <span class="new">New</span></div><div class="mt"><span class="chip c-p">Produce</span> · Fridge</div></div>
+            <div class="card"><div class="nm">Cherry tomatoes</div><div class="mt"><span class="chip c-p">Produce</span> · Fridge</div></div>
+            <div class="cat" style="background:#eef2fa;color:#46618c;">Dairy <span class="n">2</span></div>
+            <div class="card"><div class="nm">Cheddar · 1 block</div><div class="mt"><span class="chip c-d">Dairy</span> · Fridge</div></div>
+            <div class="cat" style="background:#f4ecdd;color:#8a6a32;">Bakery <span class="n">1</span></div>
+          </div></div>
+        </div>
+        <div class="show-text" data-reveal>
+          <span class="kicker">Always tidy</span>
+          <h3>Everything, sorted by where it lives</h3>
+          <p>Your whole fridge, freezer and pantry in neat, colour-coded folders. New things land in their own section until you file them — so nothing gets lost at the back ever again.</p>
+          <ul>
+            <li><span class="ck">✓</span> Fridge, freezer &amp; pantry in one view</li>
+            <li><span class="ck">✓</span> Auto-sorted into clear categories</li>
+            <li><span class="ck">✓</span> Search anything in a tap</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- freshness -->
+      <div class="show">
+        <div class="show-media" data-reveal>
+          <div class="phone"><div class="screen">
+            <div class="s-top"><div class="a">In stock</div><div class="b">Use soon</div></div>
+            <div style="margin:0 16px 12px;background:#f6eddc;color:#8a6320;border-radius:12px;padding:10px 13px;font-size:12px;font-weight:600;">⚠️ 2 items need using soon</div>
+            <div class="card" style="border-color:#e6b8b2;background:linear-gradient(180deg,#fbeae7,var(--surface) 70%);"><div class="nm">Chicken breast</div><div class="mt"><span class="chip c-m">Meat &amp; fish</span> · <span class="red">Use today</span></div></div>
+            <div class="card" style="border-color:#ecc7ab;background:linear-gradient(180deg,#f7eede,var(--surface) 70%);"><div class="nm">Spinach</div><div class="mt"><span class="chip c-p">Produce</span> · <span class="amber">4 days old</span></div></div>
+            <div class="card"><div class="nm">Cheddar</div><div class="mt"><span class="chip c-d">Dairy</span> · 2 days old</div></div>
+          </div></div>
+        </div>
+        <div class="show-text" data-reveal>
+          <span class="kicker">Waste less</span>
+          <h3>Use it before you lose it</h3>
+          <p>Every item shows how long you've had it, and whatever's getting old floats to the top with a gentle amber-then-red nudge. Good food stops ending up in the bin.</p>
+          <ul>
+            <li><span class="ck">✓</span> Freshness tracked automatically</li>
+            <li><span class="ck">✓</span> "Use soon" items surface first</li>
+            <li><span class="ck">✓</span> Set an exact use-by if you want</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SHOWCASE: dinner -->
       <div class="show rev">
         <div class="show-media" data-reveal>
           <div class="phone"><div class="screen">
@@ -367,6 +416,30 @@
             <li><span class="ck">✓</span> Built from your real inventory, not a generic recipe book</li>
             <li><span class="ck">✓</span> Add the extras to shopping in one tap</li>
             <li><span class="ck">✓</span> Keep a little collection of go-to meals</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- shopping -->
+      <div class="show">
+        <div class="show-media" data-reveal>
+          <div class="phone"><div class="screen">
+            <div class="s-top"><div class="a">3 still to buy</div><div class="b">Shopping</div></div>
+            <div style="margin:0 16px 12px;background:var(--green-soft);color:var(--green);border-radius:12px;padding:10px 13px;font-size:12px;font-weight:600;">✨ Running low: Butter · tap to add</div>
+            <div class="card" style="display:flex;align-items:center;gap:10px;"><span style="width:20px;height:20px;border-radius:6px;background:var(--green-2);color:#fff;display:grid;place-items:center;font-size:12px;flex:none;">✓</span><span class="nm">Milk</span></div>
+            <div class="card" style="display:flex;align-items:center;gap:10px;"><span style="width:20px;height:20px;border-radius:6px;background:var(--green-2);color:#fff;display:grid;place-items:center;font-size:12px;flex:none;">✓</span><span class="nm">Bread</span></div>
+            <div class="card" style="display:flex;align-items:center;gap:10px;"><span style="width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line-2);flex:none;"></span><span class="nm">Cheddar</span></div>
+            <div class="s-bar" style="justify-content:center;">🧊 Put 2 items away</div>
+          </div></div>
+        </div>
+        <div class="show-text" data-reveal>
+          <span class="kicker">Never run out</span>
+          <h3>A list that thinks ahead</h3>
+          <p>It learns the staples you always keep and flags them the moment you run low. Tick things off at the shop, then put them straight back into your fridge in one tap.</p>
+          <ul>
+            <li><span class="ck">✓</span> Auto-flags the essentials you're low on</li>
+            <li><span class="ck">✓</span> One tap to file shopping into your fridge</li>
+            <li><span class="ck">✓</span> Syncs across every device you use</li>
           </ul>
         </div>
       </div>
@@ -497,6 +570,12 @@
     const step = () => Math.min(360, sc.clientWidth * 0.85);
     document.getElementById('next').addEventListener('click', () => sc.scrollBy({left: step(), behavior:'smooth'}));
     document.getElementById('prev').addEventListener('click', () => sc.scrollBy({left:-step(), behavior:'smooth'}));
+    // drag-to-scroll (mouse only — touch uses native swipe)
+    let down=false, sx=0, sl=0;
+    sc.addEventListener('pointerdown', e => { if(e.pointerType!=='mouse')return; down=true; sx=e.clientX; sl=sc.scrollLeft; sc.classList.add('dragging'); });
+    sc.addEventListener('pointermove', e => { if(!down)return; sc.scrollLeft = sl - (e.clientX - sx); });
+    const endDrag = () => { down=false; sc.classList.remove('dragging'); };
+    sc.addEventListener('pointerup', endDrag); sc.addEventListener('pointerleave', endDrag);
 
     // motion (progressive enhancement — content is fully visible without it)
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
