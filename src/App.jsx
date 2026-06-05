@@ -18,6 +18,8 @@ import ItemForm from './components/ItemForm.jsx'
 import AuthScreen from './components/AuthScreen.jsx'
 import AccountSheet from './components/AccountSheet.jsx'
 import Onboarding from './components/Onboarding.jsx'
+import InstallGuide from './components/InstallGuide.jsx'
+import { isMobile, isStandalone } from './lib/install.js'
 import Toast from './components/Toast.jsx'
 import UpgradeGate from './components/UpgradeGate.jsx'
 import Nav from './components/Nav.jsx'
@@ -47,6 +49,7 @@ export default function App() {
   // null = closed; 'new' = blank add form; object = editing that item
   const [editing, setEditing] = useState(null)
   const [account, setAccount] = useState(false)
+  const [installGuide, setInstallGuide] = useState(false)
   const [booting, setBooting] = useState(true)
   // Intro walkthrough: shown on every open by default; "Don't show this again"
   // persists an opt-out under its own key.
@@ -102,6 +105,31 @@ export default function App() {
     if (session?.user) startSync(session.user)
     else stopSync()
   }, [authEnabled, authLoading, session?.user?.id])
+
+  // Nudge mobile web visitors (most arrive by scanning the QR on the site) to
+  // add the app to their home screen — once, after they're past onboarding and
+  // into the app, and never if they're already running it installed.
+  useEffect(() => {
+    if (!onboarded) return
+    if (authEnabled && (authLoading || !session)) return
+    try {
+      if (localStorage.getItem('fridge.install.hide') === '1') return
+    } catch {
+      /* private mode — fine, it just may show again next time */
+    }
+    if (!isMobile() || isStandalone()) return
+    const t = setTimeout(() => setInstallGuide(true), 1200)
+    return () => clearTimeout(t)
+  }, [onboarded, authEnabled, authLoading, session])
+
+  function dismissInstall() {
+    try {
+      localStorage.setItem('fridge.install.hide', '1')
+    } catch {
+      /* private mode */
+    }
+    setInstallGuide(false)
+  }
 
   function handleSave(values, id) {
     if (id) store.update(id, values)
@@ -176,7 +204,16 @@ export default function App() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {account && <AccountSheet onClose={() => setAccount(false)} />}
+        {account && (
+          <AccountSheet
+            onClose={() => setAccount(false)}
+            onInstall={() => { setAccount(false); setInstallGuide(true) }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {installGuide && <InstallGuide onClose={dismissInstall} />}
       </AnimatePresence>
 
       <Toast />

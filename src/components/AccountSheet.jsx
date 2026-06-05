@@ -9,10 +9,11 @@ import { shopping } from '../lib/shopping.js'
 import { staplePrefs } from '../lib/staples.js'
 import { savedMeals } from '../lib/meals.js'
 import { IconClose, IconUser, IconSparkle } from '../icons.jsx'
+import { isStandalone, isMobile } from '../lib/install.js'
 
 // Bottom-sheet account panel: who you are, your plan, this month's usage
 // against your limits, and sign out.
-export default function AccountSheet({ onClose }) {
+export default function AccountSheet({ onClose, onInstall }) {
   const [me, setMe] = useState(null)
   const [err, setErr] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -142,6 +143,12 @@ export default function AccountSheet({ onClose }) {
               {portalBusy ? 'Opening…' : 'Manage subscription'}
             </button>
           )
+        )}
+
+        {onInstall && isMobile() && !isStandalone() && (
+          <button className="btn btn-ghost btn-block" onClick={onInstall}>
+            Add to home screen
+          </button>
         )}
 
         <button className="btn btn-ghost btn-block" onClick={() => supabase.auth.signOut()}>

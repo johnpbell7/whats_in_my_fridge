@@ -11,7 +11,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'icon.svg', 'icon-maskable.svg'],
+      includeAssets: ['favicon.svg', 'icon.svg', 'icon-maskable.svg', 'apple-touch-icon.png'],
       manifest: {
         name: "What's in my Fridge.",
         short_name: 'Fridge',
@@ -23,9 +23,14 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
+        // PNG icons (with a full-bleed maskable) so Android/Chrome treats the
+        // app as installable and the home-screen icon renders crisply; the SVGs
+        // stay as scalable fallbacks.
         icons: [
-          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
-          { src: 'icon-maskable.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'maskable' }
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }
         ]
       },
       workbox: {
