@@ -80,6 +80,29 @@ export default function App() {
     initStaplePrefs()
   }, [])
 
+  // Testing/preview shortcuts:
+  //   ?reset=1   — clear the local "seen" flags and reload, so you get the
+  //                full first-run experience (onboarding + install guide) again.
+  //   ?install=1 — jump straight to the Add-to-Home-Screen explainer (the
+  //                auto-popup is mobile-only, so this lets you preview anywhere).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.has('reset')) {
+      try {
+        localStorage.removeItem('fridge.onboarding.hide')
+        localStorage.removeItem('fridge.install.hide')
+      } catch {
+        /* private mode */
+      }
+      window.location.replace(window.location.pathname)
+      return
+    }
+    if (params.has('install')) {
+      setInstallGuide(true)
+      window.history.replaceState({}, document.title, window.location.pathname)
+    }
+  }, [])
+
   // Returning from Stripe checkout: confirm the session (grants Plus), flash a
   // thank-you, and strip the query params from the URL.
   useEffect(() => {
