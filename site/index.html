@@ -9,9 +9,18 @@
   <meta property="og:title" content="What's in my Fridge" />
   <meta property="og:description" content="Snap your fridge or a receipt and AI logs everything — track freshness, get dinner ideas, waste less." />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://whatsinmyfridge.co.uk/" />
+  <meta property="og:image" content="https://whatsinmyfridge.co.uk/og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="What's in my Fridge" />
+  <meta name="twitter:description" content="Snap your fridge or a receipt and AI logs everything — track freshness, get dinner ideas, waste less." />
+  <meta name="twitter:image" content="https://whatsinmyfridge.co.uk/og.png" />
+  <link rel="canonical" href="https://whatsinmyfridge.co.uk/" />
   <link rel="icon" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -27,10 +36,10 @@
       --max: 1120px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; overflow-x: clip; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
     body {
       font-family: var(--sans); color: var(--ink); background: var(--bg);
-      line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: clip;
+      line-height: 1.55; -webkit-font-smoothing: antialiased; overflow-x: hidden; width: 100%;
       background-image: radial-gradient(120% 70% at 50% -10%, #fffdf8 0%, var(--bg) 55%);
     }
     a { color: inherit; text-decoration: none; }
@@ -109,10 +118,46 @@
     }
 
     /* phone mockup */
-    .phone-wrap { display: flex; justify-content: center; }
-    .phone { width: 288px; flex: none; background: #14110d; border-radius: 42px; padding: 11px; box-shadow: 0 30px 60px -24px rgba(38,104,75,.45); position: relative; }
+    .phone-wrap { display: flex; justify-content: center; position: relative; }
+    .phone { width: 282px; flex: none; background: #14110d; border-radius: 42px; padding: 11px; box-shadow: 0 30px 60px -24px rgba(38,104,75,.45); position: relative; z-index: 2; }
     .phone::before { content: ''; position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 110px; height: 22px; background: #14110d; border-radius: 0 0 14px 14px; z-index: 3; }
-    .screen { background: var(--bg); border-radius: 32px; overflow: hidden; height: 580px; position: relative; }
+    .screen { background: var(--bg); border-radius: 32px; overflow: hidden; height: 506px; position: relative; }
+    /* stacked app screens that cycle in the hero */
+    .hpanel { position: absolute; inset: 0; opacity: 0; }
+    .hpanel:first-child { opacity: 1; }
+    /* feature chips that float around the hero phone (desktop) */
+    .float { position: absolute; z-index: 4; display: inline-flex; align-items: center; gap: 9px;
+      background: var(--surface); border: 1px solid var(--line); box-shadow: 0 16px 34px -18px rgba(38,104,75,.4);
+      border-radius: 14px; padding: 10px 14px; font-size: 13.5px; font-weight: 600; white-space: nowrap; }
+    .float .fi { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; font-size: 15px; }
+    .fc1 { top: 30px; left: -66px; }
+    .fc2 { top: 168px; right: -58px; }
+    .fc3 { bottom: 150px; left: -78px; }
+    .fc4 { bottom: 34px; right: -52px; }
+    @media (max-width: 1080px) { .float { display: none; } }
+    .hero-hint { padding: 0 18px; color: var(--ink-faint); font-size: 12px; margin: -2px 0 10px; }
+    /* camera / shutter moment for the scan demo */
+    .cam { position: absolute; inset: 0; z-index: 6; background: radial-gradient(120% 90% at 50% 40%, #1c2a22, #0e120f); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .cam-scene { font-size: 40px; line-height: 1.5; text-align: center; letter-spacing: 8px; filter: saturate(1.15); opacity: .92; }
+    .cam-bracket { position: absolute; inset: 30px; border-radius: 20px; }
+    .cam-bracket::before, .cam-bracket::after { content: ''; position: absolute; width: 30px; height: 30px; border: 3px solid rgba(255,255,255,.85); }
+    .cam-bracket::before { top: 0; left: 0; border-right: 0; border-bottom: 0; border-radius: 10px 0 0 0; }
+    .cam-bracket::after { bottom: 0; right: 0; border-left: 0; border-top: 0; border-radius: 0 0 10px 0; }
+    .cam-shutter { position: absolute; bottom: 26px; width: 50px; height: 50px; border-radius: 50%; border: 4px solid #fff; background: rgba(255,255,255,.16); }
+    .cam-label { position: absolute; top: 30px; color: rgba(255,255,255,.9); font-size: 12px; font-weight: 600; letter-spacing: .03em; }
+    .flash { position: absolute; inset: 0; z-index: 7; background: #fff; opacity: 0; pointer-events: none; }
+    .spill, .mini { cursor: default; }
+
+    /* floating sticky CTA on mobile */
+    .sticky-cta { position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 60; display: none;
+      align-items: center; justify-content: space-between; gap: 12px; background: var(--accent); color: var(--on-accent);
+      border-radius: 16px; padding: 11px 12px 11px 18px; box-shadow: 0 16px 34px -10px rgba(38,104,75,.6);
+      transform: translateY(150%); transition: transform .32s cubic-bezier(.2,.8,.2,1); }
+    .sticky-cta.show { transform: translateY(0); }
+    .sticky-cta .sc-txt b { font-size: 15px; display: block; font-weight: 700; }
+    .sticky-cta .sc-txt span { font-size: 12px; opacity: .85; }
+    .sticky-cta .sc-go { background: #fff; color: var(--accent-press); font-weight: 700; font-size: 14.5px; padding: 10px 18px; border-radius: 999px; white-space: nowrap; }
+    @media (max-width: 860px) { .sticky-cta { display: flex; } body { padding-bottom: 84px; } }
     .screen-top { padding: 30px 18px 12px; }
     .screen-top .sm { font-family: var(--display); font-style: italic; font-size: 13px; color: var(--ink-soft); }
     .screen-top .lg { font-family: var(--display); font-weight: 600; font-size: 26px; letter-spacing: -0.02em; }
@@ -332,15 +377,53 @@
         <div class="hero-trust"><span class="stars">★★★★★</span> Free to start · No card needed</div>
       </div>
       <div class="phone-wrap">
-        <div class="phone" id="heroPhone"><div class="screen">
-          <div class="screen-top"><div class="sm">What's in my</div><div class="lg">Fridge<span class="leaf-dot">.</span></div></div>
-          <div class="scr-bar">✨ Tap to file 3 new items into folders</div>
-          <div class="cat-head">🥗 Produce <span class="n">4</span></div>
-          <div class="card"><div class="nm">Spinach <span class="tag-new">New</span></div><div class="meta"><span class="chip prod">Produce</span> · Fridge · <span class="age amber">⏱ 4 days old</span></div></div>
-          <div class="card"><div class="nm">Cherry tomatoes</div><div class="meta"><span class="chip prod">Produce</span> · Fridge · <span class="age">⏱ 1 day old</span></div></div>
-          <div class="cat-head" style="background:#eef2fa;color:#46618c">🥛 Dairy <span class="n">2</span></div>
-          <div class="card"><div class="nm">Whole milk</div><div class="meta"><span class="chip dairy">Dairy</span> · Fridge · <span class="age">⏱ 2 days old</span></div></div>
-          <div class="card"><div class="nm">Cheddar · 1 block</div><div class="meta"><span class="chip dairy">Dairy</span> · Fridge · <span class="age">⏱ Added today</span></div></div>
+        <div class="float fc1"><span class="fi">📸</span> Snap to add</div>
+        <div class="float fc2"><span class="fi">⏱️</span> Freshness tracked</div>
+        <div class="float fc3"><span class="fi">🍝</span> Dinner ideas</div>
+        <div class="float fc4"><span class="fi">🛒</span> Smart shopping list</div>
+        <div class="phone" id="heroPhone"><div class="screen" id="heroScreen">
+
+          <!-- panel 0 · inventory -->
+          <div class="hpanel">
+            <div class="screen-top"><div class="sm">What's in my</div><div class="lg">Fridge<span class="leaf-dot">.</span></div></div>
+            <div class="scr-bar">✨ Tap to file 3 new items into folders</div>
+            <div class="cat-head">🥗 Produce <span class="n">4</span></div>
+            <div class="card"><div class="nm">Spinach <span class="tag-new">New</span></div><div class="meta"><span class="chip prod">Produce</span> · Fridge · <span class="age amber">⏱ 4 days old</span></div></div>
+            <div class="card"><div class="nm">Cherry tomatoes</div><div class="meta"><span class="chip prod">Produce</span> · Fridge · <span class="age">⏱ 1 day old</span></div></div>
+            <div class="cat-head" style="background:#eef2fa;color:#46618c">🥛 Dairy <span class="n">2</span></div>
+            <div class="card"><div class="nm">Whole milk</div><div class="meta"><span class="chip dairy">Dairy</span> · Fridge · <span class="age">⏱ 2 days old</span></div></div>
+          </div>
+
+          <!-- panel 1 · snap a photo -->
+          <div class="hpanel">
+            <div class="cam" data-cam><div class="cam-scene">🥬🧀🥛<br>🍞🥕🥚</div><div class="cam-bracket"></div><div class="cam-shutter"></div><div class="cam-label">Hold steady…</div></div>
+            <div class="flash" data-flash></div>
+            <div class="screen-top"><div class="sm">Scan</div><div class="lg">Check what I saw</div></div>
+            <div class="hero-hint">Tap to add — you decide what stays.</div>
+            <div class="card"><div class="nm">✅ Whole milk</div><div class="meta"><span class="chip dairy">Dairy</span> · Fridge</div></div>
+            <div class="card"><div class="nm">✅ Spinach</div><div class="meta"><span class="chip prod">Produce</span> · Fridge</div></div>
+            <div class="card"><div class="nm">✅ Sourdough loaf</div><div class="meta"><span class="chip bake">Bakery</span> · Pantry</div></div>
+            <div class="scr-bar" style="justify-content:center;">Add 3 items</div>
+          </div>
+
+          <!-- panel 2 · dinner -->
+          <div class="hpanel">
+            <div class="screen-top"><div class="sm">Ask</div><div class="lg">Dinner ideas</div></div>
+            <div class="bub me">What can I make for dinner?</div>
+            <div class="meal"><h5>Creamy tomato &amp; spinach pasta</h5><div class="u">Uses: tomatoes, spinach, cheddar, pasta</div><div class="buy"><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">+ Garlic</span><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">+ Basil</span><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">🛒 Add all</span></div></div>
+            <div class="meal" style="margin-top:9px;"><h5>Cheesy spinach omelette</h5><div class="u">Uses: eggs, spinach, cheddar, milk</div></div>
+          </div>
+
+          <!-- panel 3 · shopping -->
+          <div class="hpanel">
+            <div class="screen-top"><div class="sm">3 still to buy</div><div class="lg">Shopping</div></div>
+            <div class="nudge">✨ Running low: Butter &nbsp;·&nbsp; 📌 Tap to add</div>
+            <div class="check-row"><span class="bx">✓</span> Milk</div>
+            <div class="check-row"><span class="bx">✓</span> Bread</div>
+            <div class="check-row todo"><span class="bx"></span> Cheddar</div>
+            <div class="scr-bar" style="justify-content:center;">🧊 Put 2 items away</div>
+          </div>
+
         </div></div>
       </div>
     </div>
@@ -370,6 +453,8 @@
         <div class="frow" id="f-scan">
           <div class="frow-media">
             <div class="dev"><div class="scr">
+              <div class="cam" data-cam><div class="cam-scene">🥬🧀🥛<br>🍞🥕🥚</div><div class="cam-bracket"></div><div class="cam-shutter"></div><div class="cam-label">Hold steady…</div></div>
+              <div class="flash" data-flash></div>
               <div class="scanline" id="scanline"></div>
               <div class="scr-h"><div class="s">Scan</div><div class="b">Check what I saw</div></div>
               <div class="hint">Tap to add — you decide what stays.</div>
@@ -500,7 +585,7 @@
       <div class="sec-head"><span class="eyebrow">How it works</span><h2 class="display">From shopping bag to dinner in three steps</h2></div>
       <div class="steps">
         <div class="step">
-          <div class="step-art">
+          <div class="step-art" id="art-snap">
             <span class="spill on">📸 Scan a photo</span>
             <span class="spill">🧾 Or a receipt</span>
             <span class="spill">✏️ Or by hand</span>
@@ -520,7 +605,7 @@
         <div class="step">
           <div class="step-art">
             <div class="mini" style="display:block;"><div>🍝 Tomato &amp; spinach pasta</div><div style="font-weight:500;color:var(--ink-faint);font-size:10.5px;margin-top:3px;">Uses what you have + 2 to buy</div></div>
-            <div class="mini">🛒 Add all to shopping <span class="mc" style="color:var(--accent);">✓</span></div>
+            <div class="mini" id="art-addall">🛒 Add all to shopping <span class="mc" style="color:var(--accent);">✓</span></div>
           </div>
           <div class="num">3</div><h3>Cook &amp; shop</h3>
           <p>Get dinner ideas from what you have, save the ones you love, and add anything you're missing to your shopping list.</p>
@@ -653,10 +738,16 @@
     </div>
   </footer>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <!-- floating CTA, mobile only -->
+  <a class="sticky-cta" id="stickyCta" href="https://app.whatsinmyfridge.co.uk">
+    <span class="sc-txt"><b>Start free</b><span>No card needed</span></span>
+    <span class="sc-go">Open the app →</span>
+  </a>
+
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script>
-    // --- always-on (no dependency) ---
+    // --- always-on (no dependency, runs as soon as the DOM is here) ---
     document.getElementById('navtoggle').addEventListener('click', () =>
       document.getElementById('navlinks').classList.toggle('open'));
     document.querySelectorAll('#navlinks a').forEach(a =>
@@ -665,15 +756,20 @@
       b.addEventListener('click', () => b.parentElement.classList.toggle('open')));
     document.getElementById('yr').textContent = new Date().getFullYear();
 
-    // --- motion: the app screens come to life as they scroll in ---
+    // floating mobile CTA appears once you've scrolled past the hero
+    const sticky = document.getElementById('stickyCta');
+    const onScroll = () => sticky.classList.toggle('show', window.scrollY > 560);
+    window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+    // --- motion (GSAP is deferred, so wait for load) ---
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (window.gsap && !reduce) {
+    window.addEventListener('load', () => {
+      if (!window.gsap || reduce) return;
       gsap.registerPlugin(ScrollTrigger);
-      // a timeline that plays in, and rewinds when it leaves the viewport — so
-      // the screens "come to life" again each time you scroll back to them.
-      const live = (trigger) => gsap.timeline({
+      // a timeline that plays in and rewinds when it leaves the viewport
+      const live = (trigger, start = 'top 72%') => gsap.timeline({
         defaults: { ease: 'power2.out' },
-        scrollTrigger: { trigger, start: 'top 72%', toggleActions: 'play none none reverse' }
+        scrollTrigger: { trigger, start, toggleActions: 'play none none reverse' }
       });
 
       // soft reveal for text + section blocks
@@ -681,16 +777,60 @@
         .forEach(el => gsap.from(el, { opacity: 0, y: 26, duration: .6, ease: 'power2.out',
           scrollTrigger: { trigger: el, start: 'top 88%' } }));
 
-      // every phone gets a gentle, slightly different idle float so the page breathes
+      // every phone gets a gentle idle float so the page breathes
       gsap.utils.toArray('#heroPhone, .frow .dev').forEach((el, i) =>
         gsap.to(el, { y: -11, duration: 2.8 + i * 0.25, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: i * 0.3 }));
 
-      // 1 · Scan — a scan line sweeps the screen, items light up in its wake
+      // ---------- HERO: a self-playing demo that cycles app screens ----------
+      // feature chips drift in and bob around the phone
+      gsap.from('.float', { opacity: 0, scale: .8, duration: .5, stagger: .12, ease: 'back.out(1.7)', delay: .4 });
+      gsap.utils.toArray('.float').forEach((el, i) =>
+        gsap.to(el, { y: -9, duration: 2.4 + i * .3, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: .9 + i * .15 }));
+
+      const hp = gsap.utils.toArray('#heroScreen .hpanel');
+      if (hp.length) {
+        const cam = document.querySelector('#heroScreen [data-cam]');
+        const flash = document.querySelector('#heroScreen [data-flash]');
+        const shutter = document.querySelector('#heroScreen .cam-shutter');
+        const scanBits = hp[1].querySelectorAll('.card, .scr-bar');
+        gsap.set(hp, { opacity: 0 }); gsap.set(hp[0], { opacity: 1 });
+
+        const swap = (tl, from, to) => tl
+          .to(from, { opacity: 0, duration: .45, ease: 'power2.in' })
+          .fromTo(to, { opacity: 0 }, { opacity: 1, duration: .45 }, '<.12');
+
+        const m = gsap.timeline({ repeat: -1, defaults: { ease: 'power2.out' } });
+        m.to({}, { duration: 2.4 });                       // hold inventory
+        swap(m, hp[0], hp[1]);                             // → snap a photo
+        // camera: line up, shutter press, flash, then items add on
+        m.set(cam, { opacity: 1 }).set(flash, { opacity: 0 }).set(scanBits, { opacity: 0, y: 14 })
+         .to(shutter, { scale: .82, duration: .16, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '+=.55')
+         .to(flash, { opacity: .92, duration: .08 })
+         .to(flash, { opacity: 0, duration: .42 })
+         .to(cam, { opacity: 0, duration: .35 }, '<')      // reveal the results
+         .to(scanBits, { opacity: 1, y: 0, stagger: .15, duration: .42, ease: 'back.out(1.6)' }, '-=.2')
+         .to({}, { duration: 1.8 });
+        swap(m, hp[1], hp[2]);                             // → dinner ideas
+        m.to({}, { duration: 2.6 });
+        swap(m, hp[2], hp[3]);                             // → shopping
+        m.to({}, { duration: 2.6 });
+        swap(m, hp[3], hp[0]);                             // → back to inventory
+      }
+
+      // ---------- FEATURE 1 · Scan: take a photo, then items get added ----------
+      const fcam = document.querySelector('#f-scan [data-cam]');
+      const fflash = document.querySelector('#f-scan [data-flash]');
       live('#f-scan')
+        .set('#f-scan .card, #f-scan .scr-bar', { opacity: 0, y: 14 })
+        .set(fcam, { opacity: 1 }).set(fflash, { opacity: 0 })
+        .to('#f-scan .cam-shutter', { scale: .82, duration: .16, yoyo: true, repeat: 1, ease: 'power1.inOut', delay: .45 })
+        .to(fflash, { opacity: .92, duration: .08 })
+        .to(fflash, { opacity: 0, duration: .42 })
+        .to(fcam, { opacity: 0, duration: .35 }, '<')
         .fromTo('#scanline', { y: -70, opacity: 0 },
-          { keyframes: [{ opacity: 1, duration: .15 }, { y: 430, duration: 1.2, ease: 'power1.inOut' }, { opacity: 0, duration: .2 }] })
-        .from('#f-scan .card', { opacity: 0, y: 16, scale: .94, stagger: .16, duration: .45, ease: 'back.out(1.6)' }, '-=1.1')
-        .from('#f-scan .scr-bar', { opacity: 0, y: 12, scale: .92, duration: .4, ease: 'back.out(2)' }, '-=.1');
+          { keyframes: [{ opacity: 1, duration: .12 }, { y: 410, duration: 1.0, ease: 'power1.inOut' }, { opacity: 0, duration: .2 }] }, '-=.1')
+        .to('#f-scan .card', { opacity: 1, y: 0, stagger: .15, duration: .42, ease: 'back.out(1.6)' }, '-=.7')
+        .to('#f-scan .scr-bar', { opacity: 1, y: 0, duration: .4, ease: 'back.out(2)' }, '-=.05');
 
       // 2 · Organised — folders + items slide into place
       live('#f-org')
@@ -713,7 +853,22 @@
         .from('#f-shop .check-row', { opacity: 0, x: -18, stagger: .16, duration: .42 }, '-=.05')
         .from('#f-shop .check-row .bx', { scale: 0, stagger: .16, duration: .35, ease: 'back.out(3)' }, '<')
         .from('#f-shop .scr-bar', { opacity: 0, y: 12, scale: .92, duration: .4, ease: 'back.out(2)' }, '+=.1');
-    }
+
+      // ---------- HOW IT WORKS: the option icons tap themselves ----------
+      const opts = gsap.utils.toArray('#art-snap .spill');
+      if (opts.length) {
+        const t = gsap.timeline({ repeat: -1, scrollTrigger: { trigger: '#how', start: 'top 78%' } });
+        opts.forEach(o => t
+          .call(() => { opts.forEach(x => x.classList.remove('on')); o.classList.add('on'); })
+          .fromTo(o, { scale: .9 }, { scale: 1, duration: .4, ease: 'back.out(2.2)' })
+          .to({}, { duration: 1.1 }));
+      }
+      const addall = document.getElementById('art-addall');
+      if (addall) gsap.to(addall, { scale: .95, duration: .18, yoyo: true, repeat: -1, repeatDelay: 2.4, ease: 'power1.inOut',
+        scrollTrigger: { trigger: '#how', start: 'top 78%' } });
+
+      ScrollTrigger.refresh();
+    });
   </script>
 </body>
 </html>
