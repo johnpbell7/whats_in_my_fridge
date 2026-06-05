@@ -157,9 +157,15 @@ export async function visionHandler(body = {}, token) {
   }
 
   const prompt = mode === 'receipt' ? RECEIPT_PROMPT : GROCERIES_PROMPT
+  // Receipts are printed text, which the cheap chat model reads accurately — so
+  // route them to Haiku regardless of tier, and reserve the pricier vision model
+  // for fridge/grocery photos, where the harder visual recognition earns its
+  // cost. Big margin win with no real quality loss. Override with RECEIPT_MODEL.
+  const visionModel =
+    mode === 'receipt' ? process.env.RECEIPT_MODEL || CHAT_MODEL : gate.visionModel || VISION_MODEL
   try {
     const message = await client.messages.create({
-      model: gate.visionModel || VISION_MODEL,
+      model: visionModel,
       max_tokens: 4096, // room for a long list of items without truncating
       // Force the model to return the list through this tool, so we read a
       // validated object instead of parsing free text (which proved fragile).
