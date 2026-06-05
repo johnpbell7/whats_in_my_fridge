@@ -130,10 +130,10 @@
       background: var(--surface); border: 1px solid var(--line); box-shadow: 0 16px 34px -18px rgba(38,104,75,.4);
       border-radius: 14px; padding: 10px 14px; font-size: 13.5px; font-weight: 600; white-space: nowrap; }
     .float .fi { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; font-size: 15px; }
-    .fc1 { top: 30px; left: -66px; }
-    .fc2 { top: 168px; right: -58px; }
-    .fc3 { bottom: 150px; left: -78px; }
-    .fc4 { bottom: 34px; right: -52px; }
+    .fc1 { top: 78px; left: -28px; }
+    .fc2 { top: 250px; right: -34px; }
+    .fc3 { bottom: 196px; left: -36px; }
+    .fc4 { bottom: 70px; right: -26px; }
     @media (max-width: 1080px) { .float { display: none; } }
     .hero-hint { padding: 0 18px; color: var(--ink-faint); font-size: 12px; margin: -2px 0 10px; }
     /* camera / shutter moment for the scan demo */
@@ -237,7 +237,7 @@
     /* how it works */
     .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
     .step { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px; }
-    .step-art { background: var(--bg); border-radius: 16px; padding: 16px; min-height: 138px; margin-bottom: 22px; display: flex; flex-direction: column; gap: 9px; justify-content: center; }
+    .step-art { background: var(--bg); border-radius: 16px; padding: 16px; min-height: 138px; margin-top: 22px; display: flex; flex-direction: column; gap: 9px; justify-content: center; }
     .step .num { font-family: var(--display); font-weight: 700; font-size: 15px; color: var(--accent); width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--accent-soft); display: grid; place-items: center; margin-bottom: 14px; }
     .step h3 { font-family: var(--display); font-weight: 600; font-size: 21px; margin-bottom: 8px; }
     .step p { color: var(--ink-soft); font-size: 15px; }
@@ -245,7 +245,19 @@
     .spill.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
     .mini { background: var(--surface); border: 1px solid var(--line); border-radius: 11px; padding: 9px 11px; font-size: 12.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
     .mini .mc { display: flex; align-items: center; gap: 6px; margin-left: auto; font-weight: 600; font-size: 11px; }
-    @media (max-width: 760px) { .steps { grid-template-columns: 1fr; gap: 18px; } }
+    .steps-hint { display: none; }
+    @media (max-width: 760px) {
+      /* swipe through the three steps horizontally, then carry on down */
+      .steps { display: flex; grid-template-columns: none; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 0 -20px; padding: 4px 20px 16px; }
+      .steps::-webkit-scrollbar { display: none; }
+      .step { flex: 0 0 84%; min-width: 84%; scroll-snap-align: center; }
+      .step-art { min-height: 120px; }
+      /* little dots hint that there's more to swipe */
+      .steps-hint { display: flex; justify-content: center; gap: 7px; margin-top: 4px; }
+      .steps-hint i { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); }
+      .steps-hint i:first-child { background: var(--accent); }
+    }
 
     /* benefits split */
     .split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
@@ -585,32 +597,36 @@
       <div class="sec-head"><span class="eyebrow">How it works</span><h2 class="display">From shopping bag to dinner in three steps</h2></div>
       <div class="steps">
         <div class="step">
+          <div class="num">1</div>
+          <h3>Snap</h3>
+          <p>Take a photo of your fridge or your shopping receipt. That's it — no scanning barcodes, no typing.</p>
           <div class="step-art" id="art-snap">
             <span class="spill on">📸 Scan a photo</span>
             <span class="spill">🧾 Or a receipt</span>
             <span class="spill">✏️ Or by hand</span>
           </div>
-          <div class="num">1</div><h3>Snap</h3>
-          <p>Take a photo of your fridge or your shopping receipt. That's it — no scanning barcodes, no typing.</p>
         </div>
         <div class="step">
+          <div class="num">2</div>
+          <h3>Track</h3>
+          <p>Everything's logged and sorted by category, with freshness tracked automatically so you always know what to use first.</p>
           <div class="step-art">
             <div class="mini">🥗 Spinach <span class="mc" style="color:#4a7a43;">Produce</span></div>
             <div class="mini">🥛 Whole milk <span class="mc" style="color:#46618c;">Dairy</span></div>
             <div class="mini">⏱ Chicken <span class="mc" style="color:#b4453a;">Use today</span></div>
           </div>
-          <div class="num">2</div><h3>Track</h3>
-          <p>Everything's logged and sorted by category, with freshness tracked automatically so you always know what to use first.</p>
         </div>
         <div class="step">
+          <div class="num">3</div>
+          <h3>Cook &amp; shop</h3>
+          <p>Get dinner ideas from what you have, save the ones you love, and add anything you're missing to your shopping list.</p>
           <div class="step-art">
             <div class="mini" style="display:block;"><div>🍝 Tomato &amp; spinach pasta</div><div style="font-weight:500;color:var(--ink-faint);font-size:10.5px;margin-top:3px;">Uses what you have + 2 to buy</div></div>
             <div class="mini" id="art-addall">🛒 Add all to shopping <span class="mc" style="color:var(--accent);">✓</span></div>
           </div>
-          <div class="num">3</div><h3>Cook &amp; shop</h3>
-          <p>Get dinner ideas from what you have, save the ones you love, and add anything you're missing to your shopping list.</p>
         </div>
       </div>
+      <div class="steps-hint" aria-hidden="true"><i></i><i></i><i></i></div>
     </div>
   </section>
 
@@ -763,7 +779,7 @@
 
     // --- motion (GSAP is deferred, so wait for load) ---
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    window.addEventListener('load', () => {
+    document.addEventListener('DOMContentLoaded', () => {
       if (!window.gsap || reduce) return;
       gsap.registerPlugin(ScrollTrigger);
       // a timeline that plays in and rewinds when it leaves the viewport
@@ -800,7 +816,7 @@
           .fromTo(to, { opacity: 0 }, { opacity: 1, duration: .45 }, '<.12');
 
         const m = gsap.timeline({ repeat: -1, defaults: { ease: 'power2.out' } });
-        m.to({}, { duration: 2.4 });                       // hold inventory
+        m.to({}, { duration: 0.9 });                       // brief hold, then go
         swap(m, hp[0], hp[1]);                             // → snap a photo
         // camera: line up, shutter press, flash, then items add on
         m.set(cam, { opacity: 1 }).set(flash, { opacity: 0 }).set(scanBits, { opacity: 0, y: 14 })
