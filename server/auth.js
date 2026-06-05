@@ -211,3 +211,33 @@ export async function accountSummary(token) {
     }
   }
 }
+
+// Permanently delete the signed-in user and all their data. We clear their rows
+// explicitly (belt-and-braces) and then delete the auth user itself, which also
+// cascades any remaining rows via the tables' on-delete-cascade foreign keys.
+export async function deleteAccountHandler(token) {
+  if (!authEnabled()) {
+    return { status: 400, body: { error: 'no_accounts', message: 'Accounts are not enabled.' } }
+  }
+  const auth = await authenticate(token)
+  if (auth.error) return auth.error
+
+  const db = admin()
+  const uid = auth.user.id
+  try {
+    await Promise.all([
+      db.from('items').delete().eq('user_id', uid),
+      db.from('shopping_items').delete().eq('user_id', uid),
+      db.from('staple_prefs').delete().eq('user_id', uid),
+      db.from('saved_meals').delete().eq('user_id', uid),
+      db.from('ai_usage').delete().eq('user_id', uid)
+    ])
+    await db.from('profiles').delete().eq('id', uid)
+    const { error } = await db.auth.admin.deleteUser(uid)
+    if (error) throw new Error(error.message)
+    return { status: 200, body: { ok: true } }
+  } catch (err) {
+    console.error('account delete failed:', err?.message || err)
+    return { status: 500, body: { error: 'delete_failed', message: 'Could not delete the account. Please try again.' } }
+  }
+}

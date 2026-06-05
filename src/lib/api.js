@@ -64,6 +64,11 @@ export function detectFromImage(imageBase64, mediaType, mode = 'groceries') {
   }))
 }
 
+// Permanently delete the signed-in user's account and all their data.
+export function deleteAccount() {
+  return post('/api/delete-account', {})
+}
+
 export function getHealth() {
   return fetch('/api/health').then((r) => r.json()).catch(() => ({ ok: false, hasKey: false }))
 }
