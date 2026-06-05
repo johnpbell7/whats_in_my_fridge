@@ -18,7 +18,7 @@ import { savedMeals } from './meals.js'
 
 const ITEM_COLS = [
   'id', 'name', 'category', 'quantity', 'unit', 'location',
-  'added_date', 'expiry_date', 'status', 'source', 'confidence', 'notes', 'updated_at'
+  'added_date', 'expiry_date', 'status', 'source', 'confidence', 'notes', 'filed', 'deleted_at', 'updated_at'
 ]
 const SHOP_COLS = ['id', 'name', 'quantity', 'checked', 'added_date']
 const MEAL_COLS = ['id', 'name', 'description', 'uses', 'buy', 'cooked_count', 'last_cooked', 'saved_date', 'updated_at']
@@ -36,7 +36,10 @@ function pick(obj, cols, extra = {}) {
 }
 
 // Last-write-wins merge of two item lists by updated_at (then added_date).
-// Returns the merged list plus the local-side rows that need pushing up.
+// Rows carrying a `deleted_at` tombstone win like any other (so a delete on one
+// device propagates), but are filtered out of the returned `merged` list while
+// staying in the cloud — which stops a stale copy on another device from
+// "resurrecting" them. Returns the merged list plus the local-side rows to push.
 export function mergeItems(local = [], remote = []) {
   const ts = (it) => Date.parse(it?.updated_at || it?.added_date || 0) || 0
   const byId = new Map()
@@ -49,7 +52,7 @@ export function mergeItems(local = [], remote = []) {
       toPush.push(it)
     }
   }
-  return { merged: [...byId.values()], toPush }
+  return { merged: [...byId.values()].filter((it) => !it.deleted_at), toPush }
 }
 
 // --- write-through adapters (used by the stores) ---------------------------
@@ -58,9 +61,12 @@ const itemsRemote = {
     if (!userId) return
     supabase.from('items').upsert(records.map((r) => pick(r, ITEM_COLS, { user_id: userId }))).then(logErr('items.upsert'))
   },
+  // Soft delete: stamp a tombstone instead of hard-deleting, so the deletion
+  // syncs to other devices rather than being undone by their stale copy.
   remove(id) {
     if (!userId) return
-    supabase.from('items').delete().eq('id', id).then(logErr('items.remove'))
+    const now = new Date().toISOString()
+    supabase.from('items').update({ deleted_at: now, updated_at: now }).eq('id', id).then(logErr('items.remove'))
   }
 }
 
@@ -104,14 +110,13 @@ const mealsRemote = {
 // switch on write-through. Returns true if the pull succeeded.
 async function pullAndWire(lastUser) {
   const switched = lastUser && lastUser !== userId
-  if (switched) {
-    // Different account on this device — drop the previous account's local data.
-    store.clear()
-    shopping.clear()
-    staplePrefs.clear()
-    chat.clear()
-    savedMeals.clear()
-  }
+  // Chat isn't cloud-synced, so on an account switch just clear it up front
+  // (nothing to recover, and it must not leak to the new account).
+  if (switched) chat.clear()
+  // On a switch we merge the new account against an EMPTY local base so the
+  // previous account's data can't bleed in — but we DON'T wipe local until the
+  // pull succeeds, so a failed pull doesn't flash an empty app for no reason.
+  const base = (local) => (switched ? null : local)
 
   let ok = false
   try {
@@ -125,20 +130,22 @@ async function pullAndWire(lastUser) {
     }
 
     // Items: last-write-wins merge, push local-newer rows up.
-    const { merged, toPush } = mergeItems(store.getAll(), (items.data || []).map((r) => pick(r, ITEM_COLS)))
+    const localItems = base(store.getAll()) || []
+    const { merged, toPush } = mergeItems(localItems, (items.data || []).map((r) => pick(r, ITEM_COLS)))
     store.replaceAll(merged)
     if (toPush.length) await supabase.from('items').upsert(toPush.map((r) => pick(r, ITEM_COLS, { user_id: userId })))
 
     // Shopping: union by id (push local-only up).
     const remoteShop = (shop.data || []).map((r) => pick(r, SHOP_COLS))
     const remoteIds = new Set(remoteShop.map((r) => r.id))
-    const localOnly = shopping.getAll().filter((r) => !remoteIds.has(r.id))
+    const localShop = base(shopping.getAll()) || []
+    const localOnly = localShop.filter((r) => !remoteIds.has(r.id))
     shopping.replaceAll([...localOnly, ...remoteShop])
     if (localOnly.length) await supabase.from('shopping_items').upsert(localOnly.map((r) => pick(r, SHOP_COLS, { user_id: userId })))
 
     // Staple prefs: merge local + remote (union), save back.
     const remotePrefs = prefs.data?.data || { pinned: {}, ignored: {} }
-    const localPrefs = staplePrefs.getAll()
+    const localPrefs = base(staplePrefs.getAll()) || { pinned: {}, ignored: {} }
     const mergedPrefs = {
       pinned: { ...remotePrefs.pinned, ...localPrefs.pinned },
       ignored: { ...remotePrefs.ignored, ...localPrefs.ignored }
@@ -149,6 +156,13 @@ async function pullAndWire(lastUser) {
     ok = true
   } catch (err) {
     console.error('cloud pull failed (staying local):', err?.message || err)
+    // On a FAILED switch, the previous account's data must not remain visible —
+    // clear it (it's safe in the cloud and will sync next time).
+    if (switched) {
+      store.clear()
+      shopping.clear()
+      staplePrefs.clear()
+    }
     ok = false
   }
 
@@ -158,12 +172,14 @@ async function pullAndWire(lastUser) {
   try {
     const res = await supabase.from('saved_meals').select('*').eq('user_id', userId)
     if (res.error) throw new Error(res.error.message)
-    const { merged, toPush } = mergeItems(savedMeals.getAll(), (res.data || []).map((r) => pick(r, MEAL_COLS)))
+    const localMeals = base(savedMeals.getAll()) || []
+    const { merged, toPush } = mergeItems(localMeals, (res.data || []).map((r) => pick(r, MEAL_COLS)))
     savedMeals.replaceAll(merged)
     if (toPush.length) await supabase.from('saved_meals').upsert(toPush.map((r) => pick(r, MEAL_COLS, { user_id: userId })))
     savedMeals.setRemote(mealsRemote)
   } catch (err) {
     console.error('cloud saved_meals sync skipped (staying local):', err?.message || err)
+    if (switched) savedMeals.clear()
   }
 
   return ok

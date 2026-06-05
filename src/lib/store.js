@@ -122,6 +122,10 @@ function normalize(input) {
     source: 'manual',
     confidence: null,
     notes: '',
+    // Whether the item has been organised into its category folder. Defaults to
+    // true (already filed); scans/put-away set it false so they show in "New".
+    // Kept here so it survives a cloud pull (replaceAll runs through normalize).
+    filed: true,
     updated_at: new Date().toISOString(),
     ...input
   }
