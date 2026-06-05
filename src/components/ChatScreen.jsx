@@ -181,6 +181,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: 'spring', stiffness: 320, damping: 30 }}
                 className={m.role === 'meals' ? 'meals-msg' : `bubble ${m.role}`}
+                role={m.role === 'error' ? 'alert' : undefined}
               >
                 {m.role === 'meals' ? <MealList meals={m.meals} /> : m.text}
               </motion.div>
@@ -188,8 +189,9 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
           </AnimatePresence>
 
           {busy && (
-            <div className="bubble ai">
+            <div className="bubble ai" role="status" aria-label="Thinking…">
               <span className="typing">
+                <span aria-hidden="true" />
                 <span />
                 <span />
                 <span />

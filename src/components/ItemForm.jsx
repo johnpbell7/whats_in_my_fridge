@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { CATEGORIES, LOCATIONS, suggestExpiry } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { staplePrefs, stapleKey } from '../lib/staples.js'
+import { useSheet } from '../lib/useSheet.js'
 import { IconClose, IconTrash, IconPin } from '../icons.jsx'
 
 export default function ItemForm({ item, onSave, onDelete, onClose }) {
@@ -19,6 +20,7 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
   // "Always keep this stocked" — pins it as a staple regardless of frequency,
   // so it's flagged whenever you run out.
   const [pinned, setPinned] = useState(() => staplePrefs.isPinned(stapleKey(item?.name || '')))
+  const sheetRef = useSheet(onClose)
 
   // While adding a new item, keep filing it to the smart location as the name
   // and category change — until the user picks a location themselves.
@@ -57,6 +59,11 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
     <div className="scrim" onClick={onClose}>
       <motion.form
         className="sheet"
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="item-form-title"
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         onSubmit={submit}
         initial={{ y: '100%' }}
@@ -66,7 +73,7 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
       >
         <div className="sheet-grip" />
         <div className="sheet-header">
-          <h2>{isEdit ? 'Edit item' : 'Add an item'}</h2>
+          <h2 id="item-form-title">{isEdit ? 'Edit item' : 'Add an item'}</h2>
           <button type="button" className="icon-btn" onClick={onClose} aria-label="Close">
             <IconClose size={20} />
           </button>

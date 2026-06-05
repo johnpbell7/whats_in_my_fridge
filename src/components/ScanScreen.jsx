@@ -118,16 +118,15 @@ export default function ScanScreen({ onDone, onAddManual }) {
 
       {phase === 'idle' && (
         <>
-          <div className="segment" role="tablist" aria-label="What are you scanning?" style={{ display: 'flex', width: '100%' }}>
+          <div className="segment" role="group" aria-label="What are you scanning?" style={{ display: 'flex', width: '100%' }}>
             <button
-              role="tab"
               aria-pressed={mode === 'groceries'}
               onClick={() => setMode('groceries')}
               style={{ flex: 1 }}
             >
               Fridge / groceries
             </button>
-            <button role="tab" aria-pressed={mode === 'receipt'} onClick={() => setMode('receipt')} style={{ flex: 1 }}>
+            <button aria-pressed={mode === 'receipt'} onClick={() => setMode('receipt')} style={{ flex: 1 }}>
               Receipt
             </button>
           </div>
@@ -303,7 +302,7 @@ function ConfirmRow({ item, onPatch }) {
             value={item.category}
             onChange={(e) => onPatch({ category: e.target.value })}
             aria-label="Category"
-            style={{ border: 0, background: 'none', color: 'var(--ink-soft)', fontWeight: 600, fontSize: 12, padding: 0 }}
+            style={{ border: 0, background: 'none', color: 'var(--ink-soft)', fontWeight: 600, fontSize: 12, padding: '6px 4px', minHeight: 36 }}
           >
             {CATEGORIES.map((c) => (
               <option key={c.key} value={c.key}>
@@ -326,7 +325,7 @@ function ConfirmRow({ item, onPatch }) {
         onChange={(e) => onPatch({ quantity: Number(e.target.value) || 1 })}
         aria-label="Quantity"
         className="input"
-        style={{ width: 58, padding: '8px', textAlign: 'center' }}
+        style={{ width: 58, padding: '10px 8px', minHeight: 44, textAlign: 'center' }}
       />
     </motion.div>
   )

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useSheet } from '../lib/useSheet.js'
 import { IconClose, IconCheck, IconSparkle } from '../icons.jsx'
 
 const BENEFITS = [
@@ -22,11 +23,17 @@ const REASON_HEAD = {
 export default function UpgradeSheet({ onClose, reason = '' }) {
   const [pending, setPending] = useState(false)
   const contextHead = REASON_HEAD[reason]
+  const sheetRef = useSheet(onClose)
 
   return (
     <div className="scrim" onClick={onClose}>
       <motion.div
         className="sheet"
+        ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="upgrade-sheet-title"
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
@@ -35,7 +42,7 @@ export default function UpgradeSheet({ onClose, reason = '' }) {
       >
         <div className="sheet-grip" />
         <div className="sheet-header">
-          <h2>Upgrade to Plus</h2>
+          <h2 id="upgrade-sheet-title">Upgrade to Plus</h2>
           <button type="button" className="icon-btn" onClick={onClose} aria-label="Close">
             <IconClose size={20} />
           </button>

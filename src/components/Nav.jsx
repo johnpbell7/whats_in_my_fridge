@@ -29,7 +29,7 @@ export default function Nav({ tab, onChange, pulseTab, pulseAt }) {
         <button
           key={key}
           onClick={() => onChange(key)}
-          aria-current={tab === key}
+          aria-current={tab === key ? 'page' : undefined}
         >
           <span className={`nav-icon ${pulsing && key === pulseTab ? 'pulse' : ''}`}>
             <Icon size={23} />

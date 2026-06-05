@@ -137,23 +137,23 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
 
       {view === 'active' && <StaplesBanner items={items} />}
 
-      <div className="segment" role="tablist" aria-label="Which items to show">
-        <button role="tab" aria-pressed={view === 'active'} onClick={() => setView('active')}>
+      <div className="segment" role="group" aria-label="Which items to show">
+        <button aria-pressed={view ==='active'} onClick={() => setView('active')}>
           In stock
         </button>
-        <button role="tab" aria-pressed={view === 'archive'} onClick={() => setView('archive')}>
+        <button aria-pressed={view ==='archive'} onClick={() => setView('archive')}>
           Used &amp; gone
         </button>
-        <button role="tab" aria-pressed={view === 'staples'} onClick={() => setView('staples')}>
+        <button aria-pressed={view ==='staples'} onClick={() => setView('staples')}>
           Staples
         </button>
-        <button role="tab" aria-pressed={view === 'meals'} onClick={() => setView('meals')}>
+        <button aria-pressed={view ==='meals'} onClick={() => setView('meals')}>
           Meals
         </button>
       </div>
 
       {view === 'active' && active.length > 0 && (
-        <div className="chips loc-filter" role="tablist" aria-label="Filter by location">
+        <div className="chips loc-filter" role="group" aria-label="Filter by location">
           <button className="chip" aria-pressed={place === 'all'} onClick={() => setPlace('all')}>
             All <span className="chip-count">{placeCounts.all}</span>
           </button>
