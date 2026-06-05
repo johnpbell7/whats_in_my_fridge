@@ -5,7 +5,7 @@ import { IconClose, IconCheck, IconSparkle } from '../icons.jsx'
 const BENEFITS = [
   // Keep these in sync with TIERS in server/auth.js
   'Photo & receipt scans — 60 a month (Free gives 10)',
-  'Chat questions — 300 a month (Free gives 30)',
+  'Chat questions — 200 a month (Free gives 30)',
   'Sharper AI recognition for trickier photos',
   'Everything else stays, with no limits to think about'
 ]
