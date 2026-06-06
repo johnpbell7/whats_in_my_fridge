@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://whatsinmyfridge.co.uk/sitemap.xml
+Sitemap: https://www.whatsinmyfridge.co.uk/sitemap.xml
