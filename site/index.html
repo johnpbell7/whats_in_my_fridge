@@ -97,9 +97,13 @@
       .lbl-short { display: inline; }
     }
 
-    /* hero */
+    /* hero — headline + the rest stack in the left column, phone on the right.
+       On mobile this reorders to headline → phone → the rest (see media query). */
     .hero { padding: 64px 0 40px; }
-    .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; }
+    .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; column-gap: 48px; row-gap: 0; align-items: center; }
+    .hero-head { grid-column: 1; grid-row: 1; align-self: end; }
+    .hero-tail { grid-column: 1; grid-row: 2; align-self: start; }
+    .phone-wrap { grid-column: 2; grid-row: 1 / span 2; }
     .hero h1 { font-size: clamp(38px, 5.4vw, 60px); }
     .hero h1 .u { position: relative; white-space: nowrap; }
     .hero h1 .u svg { position: absolute; left: -2%; bottom: -.16em; width: 104%; height: .34em; color: var(--clay); overflow: visible; }
@@ -119,7 +123,16 @@
     .qr-card .qs { font-size: 13px; color: var(--ink-faint); display: block; margin-top: 2px; }
     .qr-card .qbrowse { font-size: 12.5px; color: var(--accent); font-weight: 600; display: inline-block; margin-top: 6px; }
     @media (max-width: 860px) {
-      .hero-grid { grid-template-columns: 1fr; gap: 36px; } .hero { padding: 40px 0 20px; } .hero p.lede { max-width: none; }
+      /* headline → phone → the rest, with the phone pulled high up the page */
+      .hero-grid { display: flex; flex-direction: column; gap: 18px; align-items: center; text-align: center; }
+      .hero-head, .hero-tail { grid-column: auto; grid-row: auto; align-self: auto; width: 100%; }
+      .hero-head { order: 1; }
+      .phone-wrap { order: 2; grid-column: auto; grid-row: auto; }
+      .hero-tail { order: 3; }
+      .hero { padding: 26px 0 16px; }
+      .hero p.lede { max-width: none; margin: 0 auto 22px; }
+      .hero-ctas { justify-content: center; }
+      .hero-trust { justify-content: center; }
       .qr-card { display: none; } /* on a phone you just tap — no QR needed */
     }
 
@@ -415,13 +428,14 @@
   <!-- ============ HERO ============ -->
   <section class="hero">
     <div class="wrap hero-grid">
-      <div>
+      <div class="hero-head">
         <span class="eyebrow">Your fridge, finally organised</span>
         <h1 class="display">Know what you've&nbsp;got.<br><span class="u">Waste<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1 6 C 20 9, 40 2, 60 5 S 95 8, 99 4" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span> less. Eat&nbsp;better.</h1>
+      </div>
+      <div class="hero-tail">
         <p class="lede">Just back from the shop? Lay it out, snap it, and AI logs everything — so you always know what's fresh, what to cook, and what to buy.</p>
         <div class="hero-ctas">
           <a class="btn btn-primary btn-lg" href="https://app.whatsinmyfridge.co.uk">Start free</a>
-          <a class="btn btn-ghost btn-lg" href="#how">See how it works</a>
         </div>
         <div class="qr-card">
           <div class="qr">
@@ -610,50 +624,38 @@
           </div>
         </div>
 
-        <!-- 5 · Staples -->
-        <div class="frow" id="f-staples">
+        <!-- 5 · Staples → Shopping (one screen, two beats) -->
+        <div class="frow" id="f-restock">
           <div class="frow-media">
             <div class="dev"><div class="scr">
-              <div class="scr-h"><div class="s">Always in stock</div><div class="b">Your staples</div></div>
-              <div class="nudge">📌 2 of your usuals need restocking</div>
-              <div class="card"><div class="nm">Milk <span class="tag-new" style="background:#b4453a;">Out</span></div><div class="meta"><span class="chip dairy">Dairy</span> · <span class="age" style="color:#b4453a;font-weight:600;">Tap to add</span></div></div>
-              <div class="card"><div class="nm">Butter <span class="tag-new" style="background:var(--amber);">Low</span></div><div class="meta"><span class="chip dairy">Dairy</span> · <span class="age amber">1 left</span></div></div>
-              <div class="card"><div class="nm">Eggs</div><div class="meta"><span class="chip prod">In stock</span> · 6 left</div></div>
-              <div class="scr-bar" style="justify-content:center;">🛒 Add 2 to shopping</div>
+              <!-- beat 1: staples flagged -->
+              <div class="hpanel">
+                <div class="scr-h"><div class="s">Always in stock</div><div class="b">Your staples</div></div>
+                <div class="nudge">📌 2 of your usuals need restocking</div>
+                <div class="card"><div class="nm">Milk <span class="tag-new" style="background:#b4453a;">Out</span></div><div class="meta"><span class="chip dairy">Dairy</span> · <span class="age" style="color:#b4453a;font-weight:600;">Tap to add</span></div></div>
+                <div class="card"><div class="nm">Butter <span class="tag-new" style="background:var(--amber);">Low</span></div><div class="meta"><span class="chip dairy">Dairy</span> · <span class="age amber">1 left</span></div></div>
+                <div class="card"><div class="nm">Eggs</div><div class="meta"><span class="chip prod">In stock</span> · 6 left</div></div>
+                <div class="scr-bar" style="justify-content:center;">🛒 Add 2 to shopping</div>
+              </div>
+              <!-- beat 2: they land on the list, ready to shop -->
+              <div class="hpanel">
+                <div class="scr-h"><div class="s">3 still to buy</div><div class="b">Shopping</div></div>
+                <div class="nudge">🍝 Plus 1 dinner extra to grab</div>
+                <div class="check-row"><span class="bx">✓</span> Milk</div>
+                <div class="check-row"><span class="bx">✓</span> Butter</div>
+                <div class="check-row todo"><span class="bx"></span> Cheddar</div>
+                <div class="scr-bar" style="justify-content:center;">🧊 Put 2 items away</div>
+              </div>
             </div></div>
           </div>
           <div class="frow-text">
             <span class="eyebrow">Never run out</span>
-            <h3 class="display">The essentials, always covered</h3>
-            <p>Tell it the staples you can't be without — milk, bread, butter — and it flags the moment one runs low or out, before you've even left for the shop. One tap sends them to your list.</p>
+            <h3 class="display">It restocks your essentials for you</h3>
+            <p>Tell it the staples you can't be without — milk, bread, butter — and it flags the moment one runs low, then drops them straight onto your shopping list with the extras from your dinner ideas. Tick off as you shop, and file the lot back into your fridge in one tap.</p>
             <ul>
-              <li><span class="ck">✓</span> Learns the things you buy again and again</li>
-              <li><span class="ck">✓</span> Flags low or missing essentials automatically</li>
-              <li><span class="ck">✓</span> Pin your own must-haves in a tap</li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- 6 · Shopping -->
-        <div class="frow rev" id="f-shop">
-          <div class="frow-media">
-            <div class="dev"><div class="scr">
-              <div class="scr-h"><div class="s">3 still to buy</div><div class="b">Shopping</div></div>
-              <div class="nudge">🍝 Added 2 dinner extras &nbsp;·&nbsp; 📌 1 staple</div>
-              <div class="check-row"><span class="bx">✓</span> Milk</div>
-              <div class="check-row"><span class="bx">✓</span> Bread</div>
-              <div class="check-row todo"><span class="bx"></span> Cheddar</div>
-              <div class="scr-bar" style="justify-content:center;">🧊 Put 2 items away</div>
-            </div></div>
-          </div>
-          <div class="frow-text">
-            <span class="eyebrow">At the shop</span>
-            <h3 class="display">Tick it off, put it away</h3>
-            <p>Everything you need in one tidy list — the staples you're low on and the extras from your dinner ideas, all in one place. Tick things off as you shop, then file the lot back into your fridge in a single tap.</p>
-            <ul>
-              <li><span class="ck">✓</span> Staples &amp; dinner extras land here automatically</li>
-              <li><span class="ck">✓</span> One tap to file shopping into your fridge</li>
-              <li><span class="ck">✓</span> Syncs across every device you use</li>
+              <li><span class="ck">✓</span> Flags low or missing staples automatically</li>
+              <li><span class="ck">✓</span> One tap sends them to your list</li>
+              <li><span class="ck">✓</span> Tick off, then put it all away in a tap</li>
             </ul>
           </div>
         </div>
@@ -934,20 +936,26 @@
         .from('#f-dinner .bub', { opacity: 0, y: 12, scale: .9, duration: .45, ease: 'back.out(1.8)' })
         .from('#f-dinner .meal', { opacity: 0, y: 20, stagger: .26, duration: .55 }, '+=.35');
 
-      // 5 · Staples — the restock nudge drops, items settle, the Out/Low tags pulse
-      live('#f-staples')
-        .from('#f-staples .nudge', { opacity: 0, y: -12, scale: .94, duration: .4, ease: 'back.out(1.8)' })
-        .from('#f-staples .card', { opacity: 0, y: 16, stagger: .13, duration: .45 }, '-=.05')
-        .from('#f-staples .tag-new', { scale: 0, stagger: .12, duration: .4, ease: 'back.out(2.4)' }, '-=.2')
-        .to('#f-staples .tag-new', { scale: 1.14, yoyo: true, repeat: 1, stagger: .1, duration: .4, ease: 'sine.inOut' }, '+=.05')
-        .from('#f-staples .scr-bar', { opacity: 0, y: 12, scale: .92, duration: .4, ease: 'back.out(2)' }, '-=.1');
-
-      // 6 · Shopping — the list ticks in row by row, then the put-away bar
-      live('#f-shop')
-        .from('#f-shop .nudge', { opacity: 0, y: -12, scale: .94, duration: .4, ease: 'back.out(1.8)' })
-        .from('#f-shop .check-row', { opacity: 0, x: -18, stagger: .16, duration: .42 }, '-=.05')
-        .from('#f-shop .check-row .bx', { scale: 0, stagger: .16, duration: .35, ease: 'back.out(3)' }, '<')
-        .from('#f-shop .scr-bar', { opacity: 0, y: 12, scale: .92, duration: .4, ease: 'back.out(2)' }, '+=.1');
+      // 5 · Restock — staples flag what's low, then those items land on the list
+      const rp = gsap.utils.toArray('#f-restock .hpanel');
+      if (rp.length === 2) {
+        live('#f-restock')
+          .set(rp[1], { opacity: 0 }).set(rp[0], { opacity: 1 })
+          // beat 1: staples flagged
+          .from(rp[0].querySelector('.nudge'), { opacity: 0, y: -12, scale: .94, duration: .4, ease: 'back.out(1.8)' })
+          .from(rp[0].querySelectorAll('.card'), { opacity: 0, y: 16, stagger: .12, duration: .42 }, '-=.05')
+          .from(rp[0].querySelectorAll('.tag-new'), { scale: 0, stagger: .1, duration: .4, ease: 'back.out(2.4)' }, '-=.18')
+          .to(rp[0].querySelectorAll('.tag-new'), { scale: 1.14, yoyo: true, repeat: 1, stagger: .08, duration: .35, ease: 'sine.inOut' })
+          .from(rp[0].querySelector('.scr-bar'), { opacity: 0, y: 12, scale: .92, duration: .4, ease: 'back.out(2)' }, '-=.1')
+          .to({}, { duration: .7 })
+          // beat 2: they drop onto the shopping list
+          .to(rp[0], { opacity: 0, y: -16, duration: .45, ease: 'power2.in' })
+          .fromTo(rp[1], { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .45 }, '<.1')
+          .from(rp[1].querySelector('.nudge'), { opacity: 0, y: -10, duration: .35 }, '-=.1')
+          .from(rp[1].querySelectorAll('.check-row'), { opacity: 0, x: -16, stagger: .14, duration: .4 })
+          .from(rp[1].querySelectorAll('.check-row .bx'), { scale: 0, stagger: .14, duration: .32, ease: 'back.out(3)' }, '<')
+          .from(rp[1].querySelector('.scr-bar'), { opacity: 0, y: 12, scale: .92, duration: .4, ease: 'back.out(2)' }, '+=.05');
+      }
 
       // ---------- HOW IT WORKS: the option icons tap themselves ----------
       const opts = gsap.utils.toArray('#art-snap .spill');
