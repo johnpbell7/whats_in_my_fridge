@@ -20,9 +20,9 @@ const SLIDES = [
   {
     key: 'add',
     Icon: IconCamera,
-    title: 'Fill it in seconds',
+    title: 'Just back from the shop?',
     body:
-      'Snap a photo of your shelves or a shop receipt and it lists everything for you — or add things by hand. Whatever’s quickest.',
+      'Lay your shopping out and snap it — or photograph the receipt — and it lists everything for you in seconds. Your fridge shelves work too, or add by hand.',
     visual: <AddVisual />
   },
   {
@@ -161,7 +161,7 @@ function KnowVisual() {
 function AddVisual() {
   return (
     <div className="ob-card ob-add">
-      <span className="ob-pill ob-pill-accent"><IconCamera size={15} /> Scan photo</span>
+      <span className="ob-pill ob-pill-accent"><IconCamera size={15} /> Snap shopping</span>
       <span className="ob-pill"><IconReceipt size={15} /> Receipt</span>
       <span className="ob-pill"><IconPlus size={15} /> By hand</span>
     </div>

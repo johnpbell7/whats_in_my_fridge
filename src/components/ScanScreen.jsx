@@ -124,7 +124,7 @@ export default function ScanScreen({ onDone, onAddManual }) {
               onClick={() => setMode('groceries')}
               style={{ flex: 1 }}
             >
-              Fridge / groceries
+              Shopping / fridge
             </button>
             <button aria-pressed={mode === 'receipt'} onClick={() => setMode('receipt')} style={{ flex: 1 }}>
               Receipt
@@ -136,13 +136,28 @@ export default function ScanScreen({ onDone, onAddManual }) {
               {mode === 'receipt' ? <IconReceipt size={32} /> : <IconCamera size={32} />}
             </div>
             <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 18 }}>
-              {mode === 'receipt' ? 'Snap your shopping receipt' : 'Snap your fridge or shopping'}
+              {mode === 'receipt' ? 'Snap your shopping receipt' : 'Photograph your shopping'}
             </h3>
             <p style={{ margin: 0, color: 'var(--ink-soft)', fontSize: 14, maxWidth: '34ch' }}>
               {mode === 'receipt'
                 ? "I'll read every item on the receipt and log it. Lay it flat and get the whole list in frame."
-                : "I'll list what I can see. For a fresh shop, the receipt mode is usually more accurate."}
+                : "Lay your shopping out so everything's visible, then snap — that reads best. Fridge shelves work too."}
             </p>
+            <div
+              role="note"
+              style={{
+                display: 'flex', alignItems: 'flex-start', gap: 8, textAlign: 'left',
+                background: 'var(--accent-soft)', color: 'var(--accent-press)',
+                borderRadius: 'var(--r-md)', padding: '10px 12px', fontSize: 12.5, fontWeight: 600, maxWidth: '34ch'
+              }}
+            >
+              <IconSparkle size={15} />
+              <span>
+                {mode === 'receipt'
+                  ? 'Best read: flat, well-lit, the whole receipt in frame.'
+                  : 'Best read: labels facing up, good light — split a big shop into 2–3 photos.'}
+              </span>
+            </div>
             <button className="btn btn-primary" onClick={() => fileRef.current?.click()}>
               <IconCamera size={19} /> {mode === 'receipt' ? 'Take or choose a receipt photo' : 'Take or choose a photo'}
             </button>
