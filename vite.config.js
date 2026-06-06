@@ -11,6 +11,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // We register the SW ourselves (main.jsx) so we can poll for updates and
+      // refresh on refocus, not only at page load.
+      injectRegister: false,
       includeAssets: ['favicon.svg', 'icon.svg', 'icon-maskable.svg', 'apple-touch-icon.png'],
       manifest: {
         name: "What's in my Fridge.",

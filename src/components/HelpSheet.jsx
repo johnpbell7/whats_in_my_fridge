@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useSheet } from '../lib/useSheet.js'
-import { isStandalone, isMobile } from '../lib/install.js'
 import { WHATS_NEW, markSeen } from '../lib/whatsnew.js'
 import { IconClose, IconCamera, IconClock, IconChat, IconSparkle, IconCart, IconFridge } from '../icons.jsx'
 
@@ -43,7 +42,9 @@ const HOWTO = [
 
 export default function HelpSheet({ onClose, onReplay, onInstall }) {
   const ref = useSheet(onClose)
-  const showInstall = onInstall && isMobile() && !isStandalone()
+  // Always offer the "how to add to home screen" guide here so it's reliably
+  // discoverable (it's an explainer, harmless even if already installed).
+  const showInstall = !!onInstall
   // opening Help counts as seeing the latest update
   useEffect(() => { markSeen() }, [])
 

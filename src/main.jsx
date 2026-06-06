@@ -1,8 +1,25 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import { registerSW } from 'virtual:pwa-register'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import './index.css'
+
+// Auto-update to the latest deploy. The service worker (skipWaiting +
+// clientsClaim) activates a new build immediately; on top of that we poll for
+// updates and re-check whenever the app regains focus, so a long-open or
+// reopened session picks up new versions on its own — no reinstall needed.
+registerSW({
+  immediate: true,
+  onRegisteredSW(_swUrl, reg) {
+    if (!reg) return
+    const check = () => reg.update().catch(() => {})
+    setInterval(check, 60 * 1000)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') check()
+    })
+  }
+})
 
 // If anything in the app throws, show a simple reload screen rather than a
 // blank page — and never get stuck on a stale state.
