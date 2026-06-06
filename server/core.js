@@ -122,7 +122,7 @@ const RECEIPT_PROMPT = `You are reading a shopping receipt. Extract every purcha
 
 Rules:
 - Expand cryptic till abbreviations into normal names when you are confident (e.g. "GBL MLK 2PT" -> "Whole milk"). If unsure, keep it close to the printed text.
-- IGNORE non-grocery lines entirely: store name and address, dates, totals, subtotals, VAT/tax, change, card/payment lines, discounts, loyalty/clubcard points, and carrier bags.
+- IGNORE non-grocery lines entirely: store name and address, dates, totals, subtotals, VAT/tax, change, card/payment lines, discounts, loyalty/clubcard points, and ANY kind of carrier/shopping bag (e.g. "Carrier Bag", "Bag for Life", "5p Bag", "Reusable Bag", "Single Use Bag"). Never list a bag as an item.
 - Include household items (cleaning products, toiletries, personal care, medicines) with category 'household'. Skip pet food.
 - quantity comes from the line if shown (e.g. "2 @ £1.50" -> quantity 2), otherwise 1.
 - category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks; bread and baked goods -> bakery; crisps, chocolate, biscuits, sweets -> snacks; cleaning products, toiletries, personal care and medicine -> household. Only use 'other' when nothing else genuinely fits.
@@ -131,6 +131,15 @@ Rules:
 - Also read the date the receipt was ISSUED (the transaction/purchase date, usually near the top or bottom, NOT any 'best before' dates) and return it as receipt_date in YYYY-MM-DD format. If no transaction date is clearly legible, return an empty string.
 
 Return the items plus receipt_date via the tool.`
+
+// Carrier/shopping bags and other checkout cruft that the model sometimes lists
+// as a product despite the prompt. Kept deliberately narrow so genuine foods
+// ("tea bags", "bag salad", "bag of apples") are never dropped.
+const CARRIER_BAG_RE =
+  /^bags?$|\b(carrier bags?|bags? ?(for|4) ?life|reusable (carrier )?bags?|single[- ]?use bags?|shopping bags?|jute bags?|hessian bags?|woven bags?|long ?life bags?|\d+\s*p\s*(carrier\s*)?bags?|bag charge)\b/i
+export function isCarrierBag(name) {
+  return CARRIER_BAG_RE.test(String(name || '').trim())
+}
 
 export function healthHandler() {
   return {
@@ -242,7 +251,7 @@ export async function visionHandler(body = {}, token) {
         confidence: typeof it.confidence === 'number' ? Math.max(0, Math.min(1, it.confidence)) : 0.5,
         frozen: Boolean(it.frozen)
       }))
-      .filter((it) => it.name)
+      .filter((it) => it.name && !isCarrierBag(it.name))
     // Only trust a date from receipt scans.
     const receiptDate = mode === 'receipt' ? validReceiptDate(toolUse?.input?.receipt_date) : null
     return { status: 200, body: { items, receiptDate } }
