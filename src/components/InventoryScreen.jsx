@@ -12,7 +12,7 @@ import SavedMeals from './SavedMeals.jsx'
 import CategorySections from './CategorySections.jsx'
 import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle, IconUser, IconClose, IconInfo } from '../icons.jsx'
 
-export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onGoChat, onAccount, onHelp }) {
+export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onGoChat, onAccount, onHelp, helpBadge }) {
   const [query, setQuery] = useState('')
   const [view, setView] = useState('active') // 'active' | 'archive' | 'staples' | 'meals'
   const [place, setPlace] = useState('all') // 'all' | 'fridge' | 'freezer' | 'pantry'
@@ -106,8 +106,9 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
             {active.length} {active.length === 1 ? 'item' : 'items'}
           </span>
           {onHelp && (
-            <button className="account-btn" onClick={onHelp} aria-label="How it works & what's new">
+            <button className="account-btn" onClick={onHelp} aria-label={helpBadge ? "How it works & what's new (new update)" : "How it works & what's new"}>
               <IconInfo size={18} />
+              {helpBadge && <span className="badge-dot" aria-hidden="true" />}
             </button>
           )}
           {onAccount && (

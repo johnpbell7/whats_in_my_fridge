@@ -1,22 +1,12 @@
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useSheet } from '../lib/useSheet.js'
 import { isStandalone, isMobile } from '../lib/install.js'
+import { WHATS_NEW, markSeen } from '../lib/whatsnew.js'
 import { IconClose, IconCamera, IconClock, IconChat, IconSparkle, IconCart, IconFridge } from '../icons.jsx'
 
 // Help / info centre. Reached from the "i" button by the avatar. Holds the
-// how-to guide, and a "What's new" feed — add an entry to WHATS_NEW whenever a
-// feature ships and it'll surface here for everyone.
-
-const WHATS_NEW = [
-  {
-    date: 'Jun 2026',
-    text: 'New chat shortcuts — “Use what’s expiring”, “No extra shopping”, plus breakfast, healthy & light and freezer-friendly meal ideas.'
-  },
-  {
-    date: 'Jun 2026',
-    text: 'A nudge on the chat screen when food needs using up — tap it for instant meal ideas built around what’s about to go off.'
-  }
-]
+// how-to guide, and a "What's new" feed (see lib/whatsnew.js).
 
 const HOWTO = [
   {
@@ -54,6 +44,8 @@ const HOWTO = [
 export default function HelpSheet({ onClose, onReplay, onInstall }) {
   const ref = useSheet(onClose)
   const showInstall = onInstall && isMobile() && !isStandalone()
+  // opening Help counts as seeing the latest update
+  useEffect(() => { markSeen() }, [])
 
   return (
     <div className="scrim" onClick={onClose}>

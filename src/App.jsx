@@ -21,6 +21,7 @@ import Onboarding from './components/Onboarding.jsx'
 import InstallGuide from './components/InstallGuide.jsx'
 import HelpSheet from './components/HelpSheet.jsx'
 import { isMobile, isStandalone } from './lib/install.js'
+import { hasUnseen, markSeen } from './lib/whatsnew.js'
 import Toast from './components/Toast.jsx'
 import UpgradeGate from './components/UpgradeGate.jsx'
 import Nav from './components/Nav.jsx'
@@ -52,7 +53,14 @@ export default function App() {
   const [account, setAccount] = useState(false)
   const [installGuide, setInstallGuide] = useState(false)
   const [help, setHelp] = useState(false)
+  const [helpUnseen, setHelpUnseen] = useState(() => hasUnseen())
   const [booting, setBooting] = useState(true)
+
+  function openHelp() {
+    markSeen()
+    setHelpUnseen(false)
+    setHelp(true)
+  }
   // Intro walkthrough: shown on every open by default; "Don't show this again"
   // persists an opt-out under its own key.
   const [onboarded, setOnboarded] = useState(() => {
@@ -188,7 +196,8 @@ export default function App() {
           onGoScan={() => setTab('scan')}
           onGoChat={() => setTab('chat')}
           onAccount={authEnabled ? () => setAccount(true) : null}
-          onHelp={() => setHelp(true)}
+          onHelp={openHelp}
+          helpBadge={helpUnseen}
         />
       )}
       {tab === 'scan' && (
