@@ -138,8 +138,8 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
           <div className="empty-art">
             <IconSparkle size={30} />
           </div>
-          <h3>Nothing to ask about yet</h3>
-          <p>Add a few things to your fridge and I can tell you what’s expiring or what you could cook.</p>
+          <h3>Nothing to cook with yet</h3>
+          <p>Add a few things to your fridge and I’ll suggest real meals you could make from what you’ve got.</p>
           <div className="empty-actions">
             <button className="btn btn-primary" onClick={onGoScan}>
               <IconCamera size={19} /> Scan a photo
@@ -195,8 +195,8 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
               <div className="empty-art">
                 <IconSparkle size={30} />
               </div>
-              <h3>Ask about your fridge</h3>
-              <p>Check what's in, what's going off, or what to cook — handy while you're at the shops.</p>
+              <h3>Ask me what to make</h3>
+              <p>I'll turn what's in your fridge into real meal ideas — dinner tonight, a quick lunch, or using up what's about to go off. Tap a question below or ask your own.</p>
             </div>
           )}
 
