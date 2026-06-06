@@ -104,7 +104,7 @@
     .hero-head { grid-column: 1; grid-row: 1; align-self: end; }
     .hero-tail { grid-column: 1; grid-row: 2; align-self: start; }
     .phone-wrap { grid-column: 2; grid-row: 1 / span 2; }
-    .hero h1 { font-size: clamp(38px, 5.4vw, 60px); }
+    .hero h1 { font-size: clamp(30px, 4.1vw, 46px); }
     .hero h1 .u { position: relative; white-space: nowrap; }
     .hero h1 .u svg { position: absolute; left: -2%; bottom: -.16em; width: 104%; height: .34em; color: var(--clay); overflow: visible; }
     .hero h1 .u path { stroke-dasharray: 220; stroke-dashoffset: 220; animation: draw 1s ease .45s forwards; }
@@ -130,6 +130,7 @@
       .phone-wrap { order: 2; grid-column: auto; grid-row: auto; }
       .hero-tail { order: 3; }
       .hero { padding: 26px 0 16px; }
+      .hero h1 { font-size: clamp(26px, 7vw, 40px); }
       .hero p.lede { max-width: none; margin: 0 auto 22px; }
       .hero-ctas { justify-content: center; }
       .hero-trust { justify-content: center; }
@@ -157,11 +158,13 @@
        room, so we keep just two compact chips overlapping the phone's corners. */
     @media (max-width: 1080px) {
       .float { display: none; }
-      .fc1, .fc3 { display: inline-flex; padding: 8px 11px; font-size: 12px; gap: 7px;
+      .fc1, .fc3 { display: inline-flex; padding: 7px 10px; font-size: 11.5px; gap: 6px;
         box-shadow: 0 10px 22px -12px rgba(38, 104, 75, .45); }
-      .fc1 .fi, .fc3 .fi { width: 22px; height: 22px; font-size: 13px; }
-      .fc1 { top: 50px; left: 2px; right: auto; bottom: auto; }
-      .fc3 { bottom: 60px; right: 2px; left: auto; top: auto; }
+      .fc1 .fi, .fc3 .fi { width: 20px; height: 20px; font-size: 12px; }
+      /* sit at the phone's top-left / bottom-right corners, pulled outward so
+         most of each chip is off the screen rather than covering content */
+      .fc1 { top: 6px; left: -16px; right: auto; bottom: auto; }
+      .fc3 { bottom: 16px; right: -16px; left: auto; top: auto; }
     }
     .hero-hint { padding: 0 18px; color: var(--ink-faint); font-size: 12px; margin: -2px 0 10px; }
     /* camera / shutter moment for the scan demo */
@@ -430,7 +433,7 @@
     <div class="wrap hero-grid">
       <div class="hero-head">
         <span class="eyebrow">Your fridge, finally organised</span>
-        <h1 class="display">Know what you've&nbsp;got.<br><span class="u">Waste<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1 6 C 20 9, 40 2, 60 5 S 95 8, 99 4" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span> less. Eat&nbsp;better.</h1>
+        <h1 class="display">Know what you've&nbsp;got.<br><span class="u">Waste<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1 6 C 20 9, 40 2, 60 5 S 95 8, 99 4" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>&nbsp;less.<br>Eat&nbsp;better.</h1>
       </div>
       <div class="hero-tail">
         <p class="lede">Just back from the shop? Lay it out, snap it, and AI logs everything — so you always know what's fresh, what to cook, and what to buy.</p>
