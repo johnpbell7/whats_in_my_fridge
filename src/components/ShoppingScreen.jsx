@@ -98,7 +98,7 @@ export default function ShoppingScreen({ list, items = [] }) {
     <div className="screen">
       <header className="app-header">
         <div>
-          <h1 className="app-title">Shopping</h1>
+          <h1 className="app-title">My list</h1>
           <p className="app-subtitle">
             {checked > 0
               ? `${checked} ticked off`

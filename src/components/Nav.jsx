@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { IconFridge, IconCamera, IconChat, IconCart } from '../icons.jsx'
 
 const TABS = [
-  { key: 'inventory', label: 'Inventory', Icon: IconFridge },
-  { key: 'shopping', label: 'Shopping', Icon: IconCart },
+  { key: 'inventory', label: 'My food', Icon: IconFridge },
+  { key: 'shopping', label: 'My list', Icon: IconCart },
   { key: 'scan', label: 'Scan', Icon: IconCamera },
   { key: 'chat', label: 'Chat', Icon: IconChat }
 ]
