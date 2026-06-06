@@ -99,7 +99,7 @@ export default function HelpSheet({ onClose, onReplay, onInstall }) {
         </button>
         {showInstall && (
           <button className="btn btn-ghost btn-block" onClick={onInstall} style={{ marginTop: 10 }}>
-            Add to home screen
+            How to add to home screen
           </button>
         )}
       </motion.div>

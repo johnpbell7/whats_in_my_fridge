@@ -1233,6 +1233,18 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   color: var(--ink-soft);
   line-height: 1.45;
 }
+/* "How to add a staple" explainer (empty state + first-run tip) */
+.staple-how { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.staple-how li { display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; color: var(--ink-soft); text-align: left; line-height: 1.4; }
+.staple-how li strong { color: var(--ink); font-weight: 600; }
+.staple-how li svg { vertical-align: -2px; color: var(--accent-press); }
+.staple-how-num { flex: none; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-press); font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-top: 1px; }
+.staple-how-card { margin-top: 16px; width: 100%; max-width: 320px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 16px 16px 14px; }
+.staple-tip { position: relative; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px 16px; margin: 0 0 14px; }
+.staple-tip-head { display: flex; align-items: center; gap: 7px; font-weight: 600; font-size: 14px; color: var(--ink); margin-bottom: 10px; }
+.staple-tip-head svg { color: var(--accent-press); }
+.staple-tip-x { position: absolute; top: 9px; right: 9px; background: none; border: 0; color: var(--ink-faint); padding: 4px; display: flex; cursor: pointer; }
+.staple-tip-x:hover { color: var(--ink); }
 .staple-card {
   display: flex;
   align-items: center;
