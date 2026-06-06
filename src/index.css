@@ -1384,6 +1384,24 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .chat-nudge > svg:first-child { flex: none; }
 .chat-nudge > svg:last-child { color: var(--ink-faint); flex: none; }
 
+/* ----- Help / info sheet ----- */
+.help-new {
+  background: var(--accent-soft); border-radius: var(--r-md);
+  padding: 12px 14px; margin-bottom: 18px;
+}
+.help-new-head {
+  display: flex; align-items: center; gap: 7px;
+  font-weight: 700; font-size: 13px; color: var(--accent-press); margin-bottom: 9px;
+}
+.help-new-row { display: flex; gap: 10px; font-size: 13.5px; color: var(--ink); line-height: 1.45; margin-bottom: 8px; }
+.help-new-row:last-child { margin-bottom: 0; }
+.help-new-date { flex: none; width: 54px; font-size: 11px; font-weight: 700; color: var(--accent); padding-top: 2px; }
+.help-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 18px; }
+.help-item { display: flex; gap: 13px; align-items: flex-start; }
+.help-ico { flex: none; width: 34px; height: 34px; border-radius: 10px; background: var(--surface-2); color: var(--accent); display: grid; place-items: center; }
+.help-item strong { display: block; font-weight: 600; font-size: 15px; margin-bottom: 3px; color: var(--ink); }
+.help-item p { margin: 0; color: var(--ink-soft); font-size: 13.5px; line-height: 1.5; }
+
 /* ----- Install guide (Add to Home Screen) ----- */
 .ig-lede { color: var(--ink-soft); font-size: 14.5px; line-height: 1.5; margin: 0 0 16px; }
 .ig-lede b { color: var(--ink); font-weight: 700; }

@@ -19,6 +19,7 @@ import AuthScreen from './components/AuthScreen.jsx'
 import AccountSheet from './components/AccountSheet.jsx'
 import Onboarding from './components/Onboarding.jsx'
 import InstallGuide from './components/InstallGuide.jsx'
+import HelpSheet from './components/HelpSheet.jsx'
 import { isMobile, isStandalone } from './lib/install.js'
 import Toast from './components/Toast.jsx'
 import UpgradeGate from './components/UpgradeGate.jsx'
@@ -50,6 +51,7 @@ export default function App() {
   const [editing, setEditing] = useState(null)
   const [account, setAccount] = useState(false)
   const [installGuide, setInstallGuide] = useState(false)
+  const [help, setHelp] = useState(false)
   const [booting, setBooting] = useState(true)
   // Intro walkthrough: shown on every open by default; "Don't show this again"
   // persists an opt-out under its own key.
@@ -186,6 +188,7 @@ export default function App() {
           onGoScan={() => setTab('scan')}
           onGoChat={() => setTab('chat')}
           onAccount={authEnabled ? () => setAccount(true) : null}
+          onHelp={() => setHelp(true)}
         />
       )}
       {tab === 'scan' && (
@@ -249,6 +252,16 @@ export default function App() {
       {content}
       <AnimatePresence>
         {installGuide && <InstallGuide onClose={dismissInstall} />}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {help && (
+          <HelpSheet
+            onClose={() => setHelp(false)}
+            onReplay={() => { setHelp(false); setOnboarded(false) }}
+            onInstall={() => { setHelp(false); setInstallGuide(true) }}
+          />
+        )}
       </AnimatePresence>
     </>
   )

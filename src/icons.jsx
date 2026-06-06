@@ -103,6 +103,13 @@ export const IconWarning = (p) => (
   </Svg>
 )
 
+export const IconInfo = (p) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 11v5M12 7.7h.01" />
+  </Svg>
+)
+
 export const IconCart = (p) => (
   <Svg {...p}>
     <path d="M3 4h2l2.2 11.2a1.5 1.5 0 0 0 1.5 1.2h8.1a1.5 1.5 0 0 0 1.47-1.18L20.5 7.5H6" />

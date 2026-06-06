@@ -10,9 +10,9 @@ import StaplesBanner from './StaplesBanner.jsx'
 import StaplesList from './StaplesList.jsx'
 import SavedMeals from './SavedMeals.jsx'
 import CategorySections from './CategorySections.jsx'
-import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle, IconUser, IconClose } from '../icons.jsx'
+import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle, IconUser, IconClose, IconInfo } from '../icons.jsx'
 
-export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onGoChat, onAccount }) {
+export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onGoChat, onAccount, onHelp }) {
   const [query, setQuery] = useState('')
   const [view, setView] = useState('active') // 'active' | 'archive' | 'staples' | 'meals'
   const [place, setPlace] = useState('all') // 'all' | 'fridge' | 'freezer' | 'pantry'
@@ -105,6 +105,11 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
           <span className="count-pill">
             {active.length} {active.length === 1 ? 'item' : 'items'}
           </span>
+          {onHelp && (
+            <button className="account-btn" onClick={onHelp} aria-label="How it works & what's new">
+              <IconInfo size={18} />
+            </button>
+          )}
           {onAccount && (
             <button className="account-btn" onClick={onAccount} aria-label="Your account">
               <IconUser size={18} />
