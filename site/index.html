@@ -27,11 +27,13 @@
   <meta name="google-site-verification" content="YOUR_TOKEN_HERE" /> -->
   <link rel="icon" href="/favicon.svg" />
   <link rel="apple-touch-icon" href="/icon.svg" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/plusjakartasans-normal.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="/fonts/fraunces-normal.woff2" crossorigin />
   <style>
+    /* self-hosted fonts (latin subset, variable 400–700) — no third-party request */
+    @font-face{font-family:'Fraunces';font-style:italic;font-weight:400 700;font-display:swap;src:url(/fonts/fraunces-italic.woff2) format('woff2')}
+    @font-face{font-family:'Fraunces';font-style:normal;font-weight:400 700;font-display:swap;src:url(/fonts/fraunces-normal.woff2) format('woff2')}
+    @font-face{font-family:'Plus Jakarta Sans';font-style:normal;font-weight:400 700;font-display:swap;src:url(/fonts/plusjakartasans-normal.woff2) format('woff2')}
     :root {
       --bg: #faf7f2; --surface: #fffdf9; --surface-2: #f3eee5;
       --ink: #1f1b16; --ink-soft: #5d5648; --ink-faint: #8a8170;
@@ -890,8 +892,8 @@
     <span class="sc-go">Open the app →</span>
   </a>
 
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script defer src="/vendor/gsap.min.js"></script>
+  <script defer src="/vendor/ScrollTrigger.min.js"></script>
   <script>
     // --- always-on (no dependency, runs as soon as the DOM is here) ---
     document.getElementById('navtoggle').addEventListener('click', () =>
