@@ -1025,26 +1025,23 @@
           .to(from, { opacity: 0, y: -16, duration: .45, ease: 'power2.in' })
           .fromTo(to, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: .45 }, '<.1');
 
-        const rm = gsap.timeline({ repeat: -1, repeatDelay: 0.5, paused: true, defaults: { ease: 'power2.out' } });
-        // clean slate each loop
-        rm.set([rp[1], rp[2]], { opacity: 0 }).set(rp[0], { opacity: 1 });
-        // beat 1 — staples flagged
-        rm.set(sNudge, { opacity: 0, y: -12 }).set(sCards, { opacity: 0, y: 16 }).set(sTags, { scale: 0 }).set(sBar, { opacity: 0, y: 12 })
-          .to(sNudge, { opacity: 1, y: 0, duration: .4, ease: 'back.out(1.8)' })
-          .to(sCards, { opacity: 1, y: 0, stagger: .12, duration: .42 }, '-=.05')
-          .to(sTags, { scale: 1, stagger: .1, duration: .4, ease: 'back.out(2.4)' }, '-=.18')
-          .to(sTags, { scale: 1.14, yoyo: true, repeat: 1, stagger: .08, duration: .35, ease: 'sine.inOut' })
-          .to(sBar, { opacity: 1, y: 0, duration: .4, ease: 'back.out(2)' }, '-=.1')
-          .to({}, { duration: 1.0 });
-        // beat 2 — onto the shopping list
+        // panels set once (not each loop) so the cycle is seamless — it ends on
+        // staples visible and the next loop just holds it, like the hero.
+        gsap.set([rp[1], rp[2]], { opacity: 0 }); gsap.set(rp[0], { opacity: 1 });
+
+        const rm = gsap.timeline({ repeat: -1, repeatDelay: 0.6, paused: true, defaults: { ease: 'power2.out' } });
+        rm.to({}, { duration: 1.2 }); // hold staples (first view shows content static)
+
+        // → onto the shopping list
         rm.set(shNudge, { opacity: 0 }).set(shRows, { opacity: 0, x: -14 }).set(shBx, { scale: 0 }).set(shBar, { opacity: 0 });
         swap(rm, rp[0], rp[1]);
         rm.to(shNudge, { opacity: 1, duration: .35 }, '-=.1')
           .to(shRows, { opacity: 1, x: 0, stagger: .14, duration: .4 })
           .to(shBx, { scale: 1, stagger: .14, duration: .32, ease: 'back.out(3)' }, '<')
           .to(shBar, { opacity: 1, duration: .4, ease: 'back.out(2)' }, '+=.1')
-          .to({}, { duration: 1.0 });
-        // beat 3 — all sorted sign-off
+          .to({}, { duration: 1.4 });
+
+        // → all sorted sign-off tick
         rm.set(ring, { strokeDashoffset: 145 }).set(check, { strokeDashoffset: 40 }).set(tick, { scale: .4, opacity: 0 }).set([dTitle, dSub], { opacity: 0, y: 10 });
         swap(rm, rp[1], rp[2]);
         rm.to(tick, { scale: 1, opacity: 1, duration: .45, ease: 'back.out(2)' })
@@ -1052,8 +1049,17 @@
           .to(check, { strokeDashoffset: 0, duration: .35 }, '-=.15')
           .to([dTitle, dSub], { opacity: 1, y: 0, stagger: .12, duration: .4 }, '-=.1')
           .to(tick, { scale: 1.08, yoyo: true, repeat: 1, duration: .35, ease: 'sine.inOut' })
-          .to({}, { duration: 1.6 })
-          .to(rp[2], { opacity: 0, y: -16, duration: .45, ease: 'power2.in' }); // loop back
+          .to({}, { duration: 1.6 });
+
+        // → back to staples (content animates in) — ends here, so the loop point
+        // sits on staples with no blank gap
+        rm.set(sNudge, { opacity: 0, y: -12 }).set(sCards, { opacity: 0, y: 16 }).set(sTags, { scale: 0 }).set(sBar, { opacity: 0, y: 12 });
+        swap(rm, rp[2], rp[0]);
+        rm.to(sNudge, { opacity: 1, y: 0, duration: .4, ease: 'back.out(1.8)' }, '-=.1')
+          .to(sCards, { opacity: 1, y: 0, stagger: .12, duration: .42 }, '-=.05')
+          .to(sTags, { scale: 1, stagger: .1, duration: .4, ease: 'back.out(2.4)' }, '-=.1')
+          .to(sTags, { scale: 1.14, yoyo: true, repeat: 1, stagger: .08, duration: .35, ease: 'sine.inOut' })
+          .to(sBar, { opacity: 1, y: 0, duration: .4, ease: 'back.out(2)' }, '-=.1');
 
         ScrollTrigger.create({ trigger: '#f-restock', start: 'top 72%', once: true, onEnter: () => rm.play(0) });
       }
