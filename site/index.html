@@ -891,17 +891,18 @@
           .to(from, { opacity: 0, duration: .45, ease: 'power2.in' })
           .fromTo(to, { opacity: 0 }, { opacity: 1, duration: .45 }, '<.12');
 
-        const m = gsap.timeline({ repeat: -1, defaults: { ease: 'power2.out' } });
-        m.to({}, { duration: 0.9 });                       // brief hold, then go
-        swap(m, hp[0], hp[1]);                             // → snap a photo
-        // camera: line up, shutter press, flash, then items add on
-        m.set(cam, { opacity: 1 }).set(flash, { opacity: 0 }).set(scanBits, { opacity: 0, y: 14 })
-         .to(shutter, { scale: .82, duration: .16, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '+=.55')
+        const m = gsap.timeline({ repeat: -1, repeatDelay: 0.6, defaults: { ease: 'power2.out' } });
+        m.to({}, { duration: 1.1 });                       // hold inventory
+        // reset the scan screen to its camera state BEFORE it fades in, so the
+        // loop never slams the camera back over already-revealed items
+        m.set(cam, { opacity: 1 }).set(flash, { opacity: 0 }).set(scanBits, { opacity: 0, y: 14 });
+        swap(m, hp[0], hp[1]);                             // → snap a photo (shows the camera)
+        m.to(shutter, { scale: .82, duration: .16, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '+=.55')
          .to(flash, { opacity: .92, duration: .08 })
          .to(flash, { opacity: 0, duration: .42 })
          .to(cam, { opacity: 0, duration: .35 }, '<')      // reveal the results
          .to(scanBits, { opacity: 1, y: 0, stagger: .15, duration: .42, ease: 'back.out(1.6)' }, '-=.2')
-         .to({}, { duration: 1.8 });
+         .to({}, { duration: 2.0 });                       // let the result sit
         swap(m, hp[1], hp[2]);                             // → dinner ideas
         m.to({}, { duration: 2.6 });
         swap(m, hp[2], hp[3]);                             // → shopping
