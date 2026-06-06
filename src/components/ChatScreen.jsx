@@ -6,7 +6,7 @@ import { savedMeals } from '../lib/meals.js'
 import { upgrade } from '../lib/upgrade.js'
 import { expiryState } from '../lib/expiry.js'
 import MealBuy from './MealBuy.jsx'
-import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck, IconClose, IconBookmark } from '../icons.jsx'
+import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck, IconClose, IconBookmark, IconWarning, IconChevron } from '../icons.jsx'
 
 const DINNER_PROMPT = 'What can I make for dinner?'
 // Opener chips. All generate structured meal ideas (the most useful, generative
@@ -44,6 +44,11 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
   const logRef = useRef(null)
 
   const active = items.filter((i) => i.status === 'active')
+  // Items at or past their freshness window — the ones worth cooking first.
+  const urgent = active.filter((i) => {
+    const s = expiryState(i)
+    return s === 'soon' || s === 'expired'
+  })
 
   useEffect(() => {
     const el = logRef.current
@@ -171,6 +176,19 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
       </header>
 
       <div className="chat">
+        {urgent.length > 0 && !busy && !dinnerMode && (
+          <button
+            className="chat-nudge"
+            onClick={() => askDinner('What can I make using the things expiring soonest?')}
+          >
+            <IconWarning size={17} />
+            <span>
+              <strong>{urgent.length} {urgent.length === 1 ? 'item' : 'items'}</strong> to use up soon — get meal ideas
+            </span>
+            <IconChevron size={16} />
+          </button>
+        )}
+
         <div className="chat-log" ref={logRef}>
           {messages.length === 0 && (
             <div className="empty" style={{ paddingTop: 32 }}>
