@@ -140,7 +140,16 @@
     .fc2 { top: 250px; right: -34px; }
     .fc3 { bottom: 196px; left: -36px; }
     .fc4 { bottom: 70px; right: -26px; }
-    @media (max-width: 1080px) { .float { display: none; } }
+    /* Desktop floats all four around the phone. On smaller screens there's no
+       room, so we keep just two compact chips overlapping the phone's corners. */
+    @media (max-width: 1080px) {
+      .float { display: none; }
+      .fc1, .fc3 { display: inline-flex; padding: 8px 11px; font-size: 12px; gap: 7px;
+        box-shadow: 0 10px 22px -12px rgba(38, 104, 75, .45); }
+      .fc1 .fi, .fc3 .fi { width: 22px; height: 22px; font-size: 13px; }
+      .fc1 { top: 50px; left: 2px; right: auto; bottom: auto; }
+      .fc3 { bottom: 60px; right: 2px; left: auto; top: auto; }
+    }
     .hero-hint { padding: 0 18px; color: var(--ink-faint); font-size: 12px; margin: -2px 0 10px; }
     /* camera / shutter moment for the scan demo */
     .cam { position: absolute; inset: 0; z-index: 6; background: radial-gradient(120% 90% at 50% 40%, #1c2a22, #0e120f); display: flex; flex-direction: column; align-items: center; justify-content: center; }
