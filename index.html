@@ -10,6 +10,21 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Fridge" />
     <meta name="description" content="Tracks what's in your fridge — with photo recognition and a chat that answers while you're out." />
+    <!-- The app is the product, not an SEO page — keep it out of search so the
+         marketing site (whatsinmyfridge.co.uk) owns the brand result. Crawling is
+         still allowed so this noindex is actually seen. -->
+    <meta name="robots" content="noindex, follow" />
+    <!-- Share/link preview (works regardless of noindex) -->
+    <meta property="og:title" content="What's in my Fridge" />
+    <meta property="og:description" content="Snap your shopping or a receipt and AI logs everything — track freshness, get dinner ideas, waste less." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="What's in my Fridge" />
+    <meta property="og:url" content="https://app.whatsinmyfridge.co.uk/" />
+    <meta property="og:image" content="https://www.whatsinmyfridge.co.uk/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="What's in my Fridge" />
+    <meta name="twitter:description" content="Snap your shopping or a receipt and AI logs everything — track freshness, get dinner ideas, waste less." />
+    <meta name="twitter:image" content="https://www.whatsinmyfridge.co.uk/og.png" />
     <title>What's in my Fridge.</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
