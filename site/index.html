@@ -1129,7 +1129,8 @@
           .set([q, typing], { opacity: 0, y: 10 }).set(meals, { opacity: 0, y: 16 });
         swapD(dm, dp[1], dp[0]);
 
-        ScrollTrigger.create({ trigger: '#f-dinner', start: 'top 72%', once: true, onEnter: () => dm.play(0) });
+        const dTrig = ScrollTrigger.create({ trigger: '#f-dinner', start: 'top 80%', onEnter: () => dm.play(0) });
+        if (dTrig.isActive) dm.play(0); // already in view when set up — start now
       }
 
       // 5 · Restock — loops like the hero: staples flagged → onto the list →
@@ -1190,7 +1191,8 @@
           .to(sTags, { scale: 1.14, yoyo: true, repeat: 1, stagger: .08, duration: .35, ease: 'sine.inOut' })
           .to(sBar, { opacity: 1, y: 0, duration: .4, ease: 'back.out(2)' }, '-=.1');
 
-        ScrollTrigger.create({ trigger: '#f-restock', start: 'top 72%', once: true, onEnter: () => rm.play(0) });
+        const rTrig = ScrollTrigger.create({ trigger: '#f-restock', start: 'top 80%', onEnter: () => rm.play(0) });
+        if (rTrig.isActive) rm.play(0); // already in view when set up — start now
       }
 
       // ---------- HOW IT WORKS: the option icons tap themselves ----------
