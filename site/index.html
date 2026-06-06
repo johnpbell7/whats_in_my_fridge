@@ -905,18 +905,32 @@
       gsap.utils.toArray('#heroPhone, .frow .dev').forEach((el, i) =>
         gsap.to(el, { y: -11, duration: 2.8 + i * 0.25, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: i * 0.3 }));
 
-      // ---------- HERO: a self-playing demo that cycles app screens ----------
+      // ---------- HERO ----------
+      // headline + CTA rise in on load
+      gsap.from(
+        ['.hero-head .eyebrow', '.hero-head h1', '.hero-tail .lede', '.hero-tail .hero-ctas', '.qr-card', '.hero-trust'],
+        { opacity: 0, y: 18, duration: .6, stagger: .1, ease: 'power2.out' }
+      );
+
       // feature chips drift in and bob around the phone
-      gsap.from('.float', { opacity: 0, scale: .8, duration: .5, stagger: .12, ease: 'back.out(1.7)', delay: .4 });
+      gsap.from('.float', { opacity: 0, scale: .8, duration: .5, stagger: .12, ease: 'back.out(1.7)', delay: .5 });
       gsap.utils.toArray('.float').forEach((el, i) =>
         gsap.to(el, { y: -9, duration: 2.4 + i * .3, ease: 'sine.inOut', repeat: -1, yoyo: true, delay: .9 + i * .15 }));
 
+      // a self-playing demo that cycles app screens — every beat animates its content
       const hp = gsap.utils.toArray('#heroScreen .hpanel');
-      if (hp.length) {
+      if (hp.length === 4) {
         const cam = document.querySelector('#heroScreen [data-cam]');
         const flash = document.querySelector('#heroScreen [data-flash]');
         const shutter = document.querySelector('#heroScreen .cam-shutter');
         const scanBits = hp[1].querySelectorAll('.card, .scr-bar');
+        const inv = hp[0].querySelectorAll('.cat-head, .card');
+        const dinnerBub = hp[2].querySelector('.bub');
+        const dinnerMeals = hp[2].querySelectorAll('.meal');
+        const shopNudge = hp[3].querySelector('.nudge');
+        const shopRows = hp[3].querySelectorAll('.check-row');
+        const shopBx = hp[3].querySelectorAll('.check-row .bx');
+        const shopBar = hp[3].querySelector('.scr-bar');
         gsap.set(hp, { opacity: 0 }); gsap.set(hp[0], { opacity: 1 });
 
         const swap = (tl, from, to) => tl
@@ -924,22 +938,39 @@
           .fromTo(to, { opacity: 0 }, { opacity: 1, duration: .45 }, '<.12');
 
         const m = gsap.timeline({ repeat: -1, repeatDelay: 0.6, defaults: { ease: 'power2.out' } });
-        m.to({}, { duration: 1.1 });                       // hold inventory
-        // reset the scan screen to its camera state BEFORE it fades in, so the
-        // loop never slams the camera back over already-revealed items
+        m.to({}, { duration: 1.1 });                       // hold inventory (first view static)
+
+        // → snap a photo: camera resets BEFORE it fades in, then shutter/flash/reveal
         m.set(cam, { opacity: 1 }).set(flash, { opacity: 0 }).set(scanBits, { opacity: 0, y: 14 });
-        swap(m, hp[0], hp[1]);                             // → snap a photo (shows the camera)
+        swap(m, hp[0], hp[1]);
         m.to(shutter, { scale: .82, duration: .16, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '+=.55')
          .to(flash, { opacity: .92, duration: .08 })
          .to(flash, { opacity: 0, duration: .42 })
-         .to(cam, { opacity: 0, duration: .35 }, '<')      // reveal the results
+         .to(cam, { opacity: 0, duration: .35 }, '<')
          .to(scanBits, { opacity: 1, y: 0, stagger: .15, duration: .42, ease: 'back.out(1.6)' }, '-=.2')
-         .to({}, { duration: 2.0 });                       // let the result sit
-        swap(m, hp[1], hp[2]);                             // → dinner ideas
-        m.to({}, { duration: 2.6 });
-        swap(m, hp[2], hp[3]);                             // → shopping
-        m.to({}, { duration: 2.6 });
-        swap(m, hp[3], hp[0]);                             // → back to inventory
+         .to({}, { duration: 1.8 });
+
+        // → dinner: the question, a beat, then the meals
+        m.set(dinnerBub, { opacity: 0, y: 12, scale: .92 }).set(dinnerMeals, { opacity: 0, y: 14 });
+        swap(m, hp[1], hp[2]);
+        m.to(dinnerBub, { opacity: 1, y: 0, scale: 1, duration: .4, ease: 'back.out(1.8)' }, '-=.1')
+         .to(dinnerMeals, { opacity: 1, y: 0, stagger: .22, duration: .45 }, '+=.3')
+         .to({}, { duration: 1.6 });
+
+        // → shopping: list ticks in row by row, then the put-away bar
+        m.set([shopNudge, shopBar], { opacity: 0 }).set(shopRows, { opacity: 0, x: -14 }).set(shopBx, { scale: 0 });
+        swap(m, hp[2], hp[3]);
+        m.to(shopNudge, { opacity: 1, duration: .35 }, '-=.1')
+         .to(shopRows, { opacity: 1, x: 0, stagger: .14, duration: .4 })
+         .to(shopBx, { scale: 1, stagger: .14, duration: .32, ease: 'back.out(3)' }, '<')
+         .to(shopBar, { opacity: 1, duration: .4, ease: 'back.out(2)' }, '+=.1')
+         .to({}, { duration: 1.8 });
+
+        // → back to inventory: folders + cards slide in fresh
+        m.set(inv, { opacity: 0, y: 14 });
+        swap(m, hp[3], hp[0]);
+        m.to(inv, { opacity: 1, y: 0, stagger: .1, duration: .4, ease: 'back.out(1.5)' }, '-=.15')
+         .to({}, { duration: 1.0 });
       }
 
       // ---------- FEATURE 1 · Scan: take a photo, then items get added ----------
