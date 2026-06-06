@@ -9,9 +9,16 @@ import MealBuy from './MealBuy.jsx'
 import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck, IconClose, IconBookmark } from '../icons.jsx'
 
 const DINNER_PROMPT = 'What can I make for dinner?'
-// All three openers generate meal ideas (the most useful, generative use) — the
-// old "what's expiring / do I have X" lookups were already visible in the app.
-const SUGGESTIONS = [DINNER_PROMPT, 'Quick lunch ideas?', 'Plan a few dinners']
+// Opener chips. All generate structured meal ideas (the most useful, generative
+// use) — the old "what's expiring / do I have X" lookups are already visible in
+// the app. Each has a short label and the actual question sent to the AI.
+const SUGGESTIONS = [
+  { label: 'Dinner ideas', prompt: null }, // null → the plain DINNER_PROMPT
+  { label: 'Use what’s expiring', prompt: 'What can I make using the things expiring soonest?' },
+  { label: 'No extra shopping', prompt: 'What can I make using only what I already have — nothing to buy?' },
+  { label: 'Quick lunch', prompt: 'Quick lunch ideas from what I have?' },
+  { label: 'Plan a few dinners', prompt: 'Plan a few different dinners I could make over the next few days.' }
+]
 const REFINE = ['More adventurous', 'Vegetarian', 'Quick & easy', 'Use up what’s expiring']
 
 // Were the most recent suggestions a set of dinner ideas? If so, follow-ups
@@ -203,8 +210,8 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
         {messages.length === 0 && (
           <div className="suggest-row">
             {SUGGESTIONS.map((s) => (
-              <button key={s} onClick={() => askDinner(s === DINNER_PROMPT ? undefined : s)}>
-                {s}
+              <button key={s.label} onClick={() => askDinner(s.prompt || undefined)}>
+                {s.label}
               </button>
             ))}
           </div>
