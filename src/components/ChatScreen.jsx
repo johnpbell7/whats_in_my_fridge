@@ -17,6 +17,9 @@ const SUGGESTIONS = [
   { label: 'Use what’s expiring', prompt: 'What can I make using the things expiring soonest?' },
   { label: 'No extra shopping', prompt: 'What can I make using only what I already have — nothing to buy?' },
   { label: 'Quick lunch', prompt: 'Quick lunch ideas from what I have?' },
+  { label: 'Breakfast ideas', prompt: 'Breakfast ideas from what I have?' },
+  { label: 'Healthy & light', prompt: 'Something healthy and light I could make from what I have?' },
+  { label: 'Freezer-friendly', prompt: 'Meals I could batch-cook and freeze using what I have?' },
   { label: 'Plan a few dinners', prompt: 'Plan a few different dinners I could make over the next few days.' }
 ]
 const REFINE = ['More adventurous', 'Vegetarian', 'Quick & easy', 'Use up what’s expiring']
