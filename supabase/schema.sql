@@ -25,6 +25,9 @@ create table if not exists public.ai_usage (
 
 create index if not exists ai_usage_user_time_idx
   on public.ai_usage (user_id, kind, created_at);
+-- NOTE: ai_usage grows one row per AI call. Run supabase/maintenance.sql once to
+-- schedule a nightly pg_cron job that prunes old usage rows (and stale deletion
+-- tombstones) so the database stays small as you scale.
 
 -- Give every new auth user a profile automatically.
 create or replace function public.handle_new_user()
