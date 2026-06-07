@@ -54,6 +54,19 @@ export function suggestMeals(inventory, request) {
   return post('/api/meals', { inventory, today, request }).then((d) => d.meals || [])
 }
 
+// "I want to make X" — returns { dish, have, need, note }: which of the dish's
+// ingredients are already in the fridge and which still need buying. Same
+// quota/credit as a chat message.
+export function checkDish(dish, inventory) {
+  const today = new Date().toLocaleDateString(undefined, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+  return post('/api/dish', { dish, inventory, today }).then((d) => d.result || null)
+}
+
 // Send a photo for recognition. Returns { items, receiptDate } to confirm.
 // mode: 'groceries' (a fridge/bag photo) or 'receipt' (a till receipt).
 // receiptDate is the date read off a receipt (YYYY-MM-DD) or null.

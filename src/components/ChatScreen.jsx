@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { askChat, suggestMeals } from '../lib/api.js'
+import { askChat, suggestMeals, checkDish } from '../lib/api.js'
 import { chat } from '../lib/chat.js'
 import { savedMeals } from '../lib/meals.js'
 import { upgrade } from '../lib/upgrade.js'
@@ -13,6 +13,7 @@ const DINNER_PROMPT = 'What can I make for dinner?'
 // use) — the old "what's expiring / do I have X" lookups are already visible in
 // the app. Each has a short label and the actual question sent to the AI.
 const SUGGESTIONS = [
+  { label: '🍳 Cook a specific dish', dish: true }, // asks for a dish, then checks have/need
   { label: 'Dinner ideas', prompt: null }, // null → the plain DINNER_PROMPT
   { label: 'Use what’s expiring', prompt: 'What can I make using the things expiring soonest?' },
   { label: 'No extra shopping', prompt: 'What can I make using only what I already have — nothing to buy?' },
@@ -30,6 +31,12 @@ const lastWasMeals = (msgs) => {
   const last = [...msgs].reverse().find((m) => m.role === 'ai' || m.role === 'meals')
   return last?.role === 'meals'
 }
+// Was the last exchange a "specific dish" check? If so, a typed message names
+// another dish to check rather than starting a plain chat.
+const lastWasDish = (msgs) => {
+  const last = [...msgs].reverse().find((m) => m.role === 'ai' || m.role === 'meals' || m.role === 'dish')
+  return last?.role === 'dish' || (last?.role === 'ai' && last.dishPrompt === true)
+}
 
 export default function ChatScreen({ items, onGoScan, onAddManual }) {
   // Conversation persists across tab switches / reloads (cleared on account change).
@@ -41,6 +48,8 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
   // In "dinner" mode the input refines the meal ideas. Initialised from history
   // so a refresh mid-planning keeps refining.
   const [dinnerMode, setDinnerMode] = useState(() => lastWasMeals(chat.getAll()))
+  // In "dish" mode a typed message names a dish to check (have vs. still need).
+  const [dishMode, setDishMode] = useState(() => lastWasDish(chat.getAll()))
   const logRef = useRef(null)
 
   const active = items.filter((i) => i.status === 'active')
@@ -79,6 +88,11 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
     const question = (text ?? draft).trim()
     if (!question || busy) return
     setDraft('')
+    // While checking a specific dish, a typed message names the next dish.
+    if (dishMode) {
+      askDish(question)
+      return
+    }
     // While planning dinner, a typed message refines the ideas.
     if (dinnerMode) {
       askDinner(question)
@@ -109,6 +123,35 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
     try {
       const meals = await suggestMeals(buildInventory(), refineText || undefined)
       setMessages((m) => [...m, { role: 'meals', meals }])
+    } catch (err) {
+      handleError(err)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  // "Cook a specific dish": ask the user which dish, then (on their reply) check
+  // what they have vs. still need.
+  function startDish() {
+    setDinnerMode(false)
+    setDishMode(true)
+    setMessages((m) => [
+      ...m,
+      { role: 'ai', dishPrompt: true, text: 'Sure — what do you want to make? Tell me the dish and I’ll check what you’ve got and what you still need.' }
+    ])
+  }
+
+  async function askDish(dish) {
+    if (busy) return
+    const name = String(dish).trim()
+    if (!name) return
+    setMessages((m) => [...m, { role: 'me', text: name }])
+    setDishMode(true)
+    setBusy(true)
+    try {
+      const result = await checkDish(name, buildInventory())
+      if (result) setMessages((m) => [...m, { role: 'dish', result }])
+      else setMessages((m) => [...m, { role: 'error', text: 'Couldn’t work that one out — try another dish.' }])
     } catch (err) {
       handleError(err)
     } finally {
@@ -168,6 +211,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
             onClick={() => {
               chat.clear()
               setDinnerMode(false)
+              setDishMode(false)
             }}
           >
             Clear chat
@@ -208,10 +252,16 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-                className={m.role === 'meals' ? 'meals-msg' : `bubble ${m.role}`}
+                className={m.role === 'meals' || m.role === 'dish' ? 'meals-msg' : `bubble ${m.role}`}
                 role={m.role === 'error' ? 'alert' : undefined}
               >
-                {m.role === 'meals' ? <MealList meals={m.meals} /> : m.text}
+                {m.role === 'meals' ? (
+                  <MealList meals={m.meals} />
+                ) : m.role === 'dish' ? (
+                  <DishCard res={m.result} />
+                ) : (
+                  m.text
+                )}
               </motion.div>
             ))}
           </AnimatePresence>
@@ -231,7 +281,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
         {messages.length === 0 && (
           <div className="suggest-row">
             {SUGGESTIONS.map((s) => (
-              <button key={s.label} onClick={() => askDinner(s.prompt || undefined)}>
+              <button key={s.label} onClick={() => (s.dish ? startDish() : askDinner(s.prompt || undefined))}>
                 {s.label}
               </button>
             ))}
@@ -251,13 +301,27 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
           </div>
         )}
 
+        {dishMode && messages.length > 0 && !busy && (
+          <div className="suggest-row refine-row">
+            <button className="refine-exit" onClick={() => setDishMode(false)}>
+              <IconClose size={13} /> Ask something else
+            </button>
+          </div>
+        )}
+
         <div className="chat-input">
           <textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={onKeyDown}
             rows={1}
-            placeholder={dinnerMode ? 'Refine the ideas… (e.g. vegetarian, quick)' : 'Ask about your fridge…'}
+            placeholder={
+              dishMode
+                ? 'What do you want to make? (e.g. carbonara)'
+                : dinnerMode
+                  ? 'Refine the ideas… (e.g. vegetarian, quick)'
+                  : 'Ask about your fridge…'
+            }
             aria-label="Your question"
           />
           <button className="send-btn" onClick={() => send()} disabled={!draft.trim() || busy} aria-label="Send">
@@ -284,6 +348,33 @@ function MealList({ meals }) {
       {meals.map((meal, i) => (
         <MealCard key={i} meal={meal} />
       ))}
+    </div>
+  )
+}
+
+// "I want to make X" result: what you've already got vs. what you still need
+// (the missing items are tappable straight onto the shopping list).
+function DishCard({ res }) {
+  if (!res) return null
+  return (
+    <div className="meal-card dish-card">
+      <div className="meal-head">
+        <h4>{res.dish}</h4>
+      </div>
+      {res.note && <p className="meal-desc">{res.note}</p>}
+      {res.have?.length > 0 && (
+        <p className="meal-uses">
+          <strong>You’ve got:</strong> {res.have.join(', ')}
+        </p>
+      )}
+      {res.need?.length > 0 ? (
+        <>
+          <p className="dish-need-label">You still need:</p>
+          <MealBuy items={res.need} />
+        </>
+      ) : (
+        <p className="dish-allset">✅ You’ve got everything you need!</p>
+      )}
     </div>
   )
 }

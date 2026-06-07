@@ -858,6 +858,9 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .meal-cooked-count { font-size: 12px; color: var(--ink-faint); }
 .meal-desc { margin: 0 0 6px; font-size: 13.5px; color: var(--ink); line-height: 1.4; }
 .meal-uses { margin: 0; font-size: 12px; color: var(--ink-faint); line-height: 1.35; }
+.meal-uses strong { color: var(--ink-soft); font-weight: 600; }
+.dish-need-label { margin: 10px 0 0; font-size: 12px; font-weight: 600; color: var(--ink-soft); }
+.dish-allset { margin: 10px 0 0; font-size: 13px; font-weight: 600; color: var(--accent-press); }
 .meal-buy { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 9px; }
 .meal-buy-label { font-size: 12px; font-weight: 600; color: var(--ink-soft); }
 .buy-chip {

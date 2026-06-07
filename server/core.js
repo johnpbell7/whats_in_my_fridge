@@ -344,6 +344,82 @@ Rules:
   }
 }
 
+// "I want to make X" — work out which of the dish's ingredients the user already
+// has and which they still need to buy. Same cheap model + 'chat' quota bucket as
+// a normal question; returns a structured result the app renders as a card with
+// the missing items tappable straight onto the shopping list.
+export async function dishHandler(body = {}, token) {
+  const client = getClient()
+  if (!client) return NO_KEY
+
+  const gate = await guard(token, 'chat')
+  if (gate.error) return gate.error
+  const reject = async (status, error, message) => {
+    if (gate.meter) await refundUsage(gate.usageId)
+    return { status, body: { error, message } }
+  }
+
+  const { dish, inventory = [], today } = body
+  if (!dish || !String(dish).trim()) {
+    return reject(400, 'bad_request', 'Tell me which dish you want to make.')
+  }
+  if (String(dish).length > MAX_QUESTION) {
+    return reject(400, 'bad_request', 'That dish name is too long.')
+  }
+  const inv = Array.isArray(inventory) ? inventory.slice(0, MAX_INVENTORY) : []
+
+  const instructions = `The user names a dish they'd like to cook. Work out the ingredients a typical home version needs, then split them into two lists by checking their inventory:
+- "have": ingredients the dish needs that ARE in their inventory. Use the inventory's own item names.
+- "need": ingredients the dish needs that are NOT in their inventory — the things to buy.
+Rules:
+- Assume kitchen basics are already on hand (salt, pepper, cooking oil, water, common dried herbs/spices) — never put these in "need".
+- Match generously: if the inventory has "cheddar" and the dish needs "cheese", count it as had. Treat sensible substitutes as had only when genuinely interchangeable.
+- Keep ingredient names short and shopping-friendly.
+- "note": one short, friendly line on how close they are (e.g. "You're nearly there — just a couple of bits to grab").`
+
+  try {
+    const message = await client.messages.create({
+      model: CHAT_MODEL,
+      max_tokens: 700,
+      system: [
+        { type: 'text', text: instructions, cache_control: { type: 'ephemeral' } },
+        { type: 'text', text: `Today's date: ${today || 'unknown'}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}` }
+      ],
+      tools: [
+        {
+          name: 'dish_check',
+          description: "Return which of the dish's ingredients the user has and which they still need.",
+          input_schema: {
+            type: 'object',
+            properties: {
+              dish: { type: 'string', description: 'The dish name, tidied up' },
+              have: { type: 'array', items: { type: 'string' }, description: 'Ingredients the dish needs that are in their inventory' },
+              need: { type: 'array', items: { type: 'string' }, description: 'Ingredients the dish needs that are NOT in their inventory — to buy' },
+              note: { type: 'string', description: 'One short, friendly line on how close they are' }
+            },
+            required: ['dish', 'have', 'need']
+          }
+        }
+      ],
+      tool_choice: { type: 'tool', name: 'dish_check' },
+      messages: [{ role: 'user', content: `I want to make: ${String(dish).trim()}` }]
+    })
+    const toolUse = message.content.find((b) => b.type === 'tool_use')
+    const input = toolUse?.input || {}
+    const clean = (a) => (Array.isArray(a) ? a.map((s) => String(s).trim()).filter(Boolean) : [])
+    const result = {
+      dish: String(input.dish || dish).trim(),
+      have: clean(input.have),
+      need: clean(input.need).slice(0, 20),
+      note: String(input.note || '').trim()
+    }
+    return { status: 200, body: { result } }
+  } catch (err) {
+    if (gate.meter) await refundUsage(gate.usageId)
+    return mapClaudeError(err, 'chat')
+  }
+}
+
 export async function chatHandler(body = {}, token) {
   const client = getClient()
   if (!client) return NO_KEY
