@@ -12,7 +12,7 @@ import { authenticate, admin } from './auth.js'
 
 const SECRET = process.env.STRIPE_SECRET_KEY
 const PRICE_ID = process.env.STRIPE_PRICE_ID
-const APP_URL = process.env.APP_URL || 'https://whats-in-my-fridge-lyart.vercel.app'
+const APP_URL = process.env.APP_URL || 'https://app.whatsinmyfridge.co.uk'
 
 let _stripe
 function getStripe() {
