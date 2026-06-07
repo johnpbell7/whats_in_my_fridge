@@ -445,6 +445,20 @@ Rules:
   }
 }
 
+// Safety net: the chat bubble renders plain text, so scrub any stray Markdown
+// the model emits despite the instructions (literal **, #, `, * bullets).
+function stripMarkdown(s = '') {
+  return String(s)
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    .replace(/(^|\n)\s*#{1,6}\s+/g, '$1')
+    .replace(/(^|\n)\s*[-*]\s+/g, '$1• ')
+    .replace(/`{1,3}/g, '')
+    .replace(/\*/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
 export async function chatHandler(body = {}, token) {
   const client = getClient()
   if (!client) return NO_KEY
@@ -465,11 +479,15 @@ export async function chatHandler(body = {}, token) {
   }
   const inv = Array.isArray(inventory) ? inventory.slice(0, MAX_INVENTORY) : []
 
-  const instructions = `You answer questions about what is in the user's fridge, freezer and pantry.
-Be concise and practical — they are often checking on their phone while out shopping.
-You can answer "do I have X?", "what's expiring soon?", and suggest meals from what's available.
-If something is expiring within 2 days, flag it. Never invent items that aren't in the inventory.
-Quantities and units are freeform. If the inventory is empty, say so plainly.`
+  const instructions = `You are the friendly kitchen helper inside the app "What's in my Fridge". You ONLY help with food and the user's kitchen: what's in their fridge/freezer/pantry, what's expiring, meal and recipe ideas, portions and scaling, substitutions, shopping, food storage and basic food safety.
+
+Always reply in this voice and format:
+- Warm, friendly and practical — like a helpful friend who knows their kitchen. British English.
+- Concise: they're usually on their phone. A sentence or two, or a short list. No preamble, no sign-off.
+- PLAIN TEXT ONLY. Never use Markdown — no asterisks or "**bold**", no "#" headings, no backticks. When you list things, put each on its own line starting with "• ".
+- Ground every answer in their ACTUAL inventory; never invent items they don't have. Flag anything expiring within ~2 days. If the inventory is empty, say so plainly.
+
+Off-topic guard: if a question isn't about food, cooking or their kitchen, do NOT answer it. Reply with a single friendly line steering them back — e.g. "I'm just your kitchen helper — ask me about your fridge, meals or shopping 🙂". Never produce unrelated content (code, essays, general knowledge, etc.).`
 
   try {
     const message = await client.messages.create({
@@ -484,7 +502,8 @@ Quantities and units are freeform. If the inventory is empty, say so plainly.`
       ],
       messages: [{ role: 'user', content: String(question) }]
     })
-    const answer = message.content.find((b) => b.type === 'text')?.text || ''
+    const raw = message.content.find((b) => b.type === 'text')?.text || ''
+    const answer = stripMarkdown(raw)
     return { status: 200, body: { answer } }
   } catch (err) {
     if (gate.meter) await refundUsage(gate.usageId)
