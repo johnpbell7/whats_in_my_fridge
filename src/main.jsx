@@ -3,7 +3,11 @@ import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
+import { initMonitoring } from './lib/monitoring.js'
 import './index.css'
+
+// Start error monitoring (no-op unless VITE_SENTRY_DSN is configured).
+initMonitoring()
 
 // Auto-update to the latest deploy. The service worker (skipWaiting +
 // clientsClaim) activates a new build immediately; on top of that we poll for

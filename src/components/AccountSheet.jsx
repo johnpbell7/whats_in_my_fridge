@@ -174,6 +174,8 @@ export default function AccountSheet({ onClose, onInstall }) {
           <a href="/privacy.html" target="_blank" rel="noopener noreferrer">Privacy</a>
           <span aria-hidden="true"> · </span>
           <a href="/terms.html" target="_blank" rel="noopener noreferrer">Terms</a>
+          <span aria-hidden="true"> · </span>
+          <a href="mailto:support@whatsinmyfridge.co.uk">Contact</a>
         </p>
       </motion.div>
     </div>
