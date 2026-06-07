@@ -374,6 +374,7 @@ export async function dishHandler(body = {}, token) {
 Rules:
 - Assume kitchen basics are already on hand (salt, pepper, cooking oil, water, common dried herbs/spices) — never put these in "need".
 - Match generously: if the inventory has "cheddar" and the dish needs "cheese", count it as had. Treat sensible substitutes as had only when genuinely interchangeable.
+- Quantities help: for each "have" item set "have" to how much they've got (from the inventory quantity) and "needs" to how much the recipe wants (e.g. have:"2", needs:"4"). For each "need" item set "qty" to a sensible shopping amount (e.g. "200g", "1 tin", "2"). Leave a quantity as "" when it isn't meaningful.
 - Keep ingredient names short and shopping-friendly.
 - "note": one short, friendly line on how close they are (e.g. "You're nearly there — just a couple of bits to grab").`
 
@@ -393,8 +394,31 @@ Rules:
             type: 'object',
             properties: {
               dish: { type: 'string', description: 'The dish name, tidied up' },
-              have: { type: 'array', items: { type: 'string' }, description: 'Ingredients the dish needs that are in their inventory' },
-              need: { type: 'array', items: { type: 'string' }, description: 'Ingredients the dish needs that are NOT in their inventory — to buy' },
+              have: {
+                type: 'array',
+                description: 'Ingredients the dish needs that are in their inventory, with quantities where sensible',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    have: { type: 'string', description: 'How much they have (from inventory), or "" ' },
+                    needs: { type: 'string', description: 'How much the recipe needs, or "" ' }
+                  },
+                  required: ['name']
+                }
+              },
+              need: {
+                type: 'array',
+                description: 'Ingredients to buy (not in their inventory), with a shopping amount where sensible',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    qty: { type: 'string', description: 'Amount to buy, e.g. "200g", "1 tin", or "" ' }
+                  },
+                  required: ['name']
+                }
+              },
               note: { type: 'string', description: 'One short, friendly line on how close they are' }
             },
             required: ['dish', 'have', 'need']
@@ -406,13 +430,14 @@ Rules:
     })
     const toolUse = message.content.find((b) => b.type === 'tool_use')
     const input = toolUse?.input || {}
-    const clean = (a) => (Array.isArray(a) ? a.map((s) => String(s).trim()).filter(Boolean) : [])
-    const result = {
-      dish: String(input.dish || dish).trim(),
-      have: clean(input.have),
-      need: clean(input.need).slice(0, 20),
-      note: String(input.note || '').trim()
-    }
+    const str = (v) => String(v ?? '').trim()
+    const have = Array.isArray(input.have)
+      ? input.have.map((h) => ({ name: str(h?.name), have: str(h?.have), needs: str(h?.needs) })).filter((h) => h.name)
+      : []
+    const need = Array.isArray(input.need)
+      ? input.need.map((n) => ({ name: str(n?.name), qty: str(n?.qty) })).filter((n) => n.name).slice(0, 20)
+      : []
+    const result = { dish: str(input.dish) || str(dish), have, need, note: str(input.note) }
     return { status: 200, body: { result } }
   } catch (err) {
     if (gate.meter) await refundUsage(gate.usageId)

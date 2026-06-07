@@ -352,25 +352,65 @@ function MealList({ meals }) {
   )
 }
 
-// "I want to make X" result: what you've already got vs. what you still need
-// (the missing items are tappable straight onto the shopping list).
+// "I want to make X" result: what you've already got (with quantities) vs. what
+// you still need (tappable straight onto the shopping list). Save it as a meal
+// to keep it. Tolerates older history where have/need were plain strings.
 function DishCard({ res }) {
+  const have = (res?.have || []).map((h) => (typeof h === 'string' ? { name: h } : h)).filter((h) => h && h.name)
+  const need = (res?.need || []).map((n) => (typeof n === 'string' ? { name: n } : n)).filter((n) => n && n.name)
+  const dishName = res?.dish || ''
+  const saved = useSyncExternalStore(
+    savedMeals.subscribe,
+    () => savedMeals.has(dishName),
+    () => savedMeals.has(dishName)
+  )
   if (!res) return null
+  const save = () =>
+    savedMeals.add({
+      name: dishName,
+      description: res.note || '',
+      uses: have.map((h) => h.name),
+      buy: need.map((n) => n.name)
+    })
+
   return (
     <div className="meal-card dish-card">
       <div className="meal-head">
-        <h4>{res.dish}</h4>
+        <h4>{dishName}</h4>
+        <button
+          className={`meal-save ${saved ? 'on' : ''}`}
+          onClick={save}
+          disabled={saved}
+          aria-pressed={saved}
+        >
+          {saved ? <IconCheck size={13} /> : <IconBookmark size={13} />}
+          {saved ? 'Saved' : 'Save'}
+        </button>
       </div>
       {res.note && <p className="meal-desc">{res.note}</p>}
-      {res.have?.length > 0 && (
-        <p className="meal-uses">
-          <strong>You’ve got:</strong> {res.have.join(', ')}
-        </p>
+      {have.length > 0 && (
+        <div className="dish-have">
+          <p className="dish-have-label">You’ve got:</p>
+          <ul className="dish-have-list">
+            {have.map((h, i) => (
+              <li key={i}>
+                {h.name}
+                {(h.have || h.needs) && (
+                  <span className="dish-qty">
+                    {' — '}
+                    {h.have ? `have ${h.have}` : 'in stock'}
+                    {h.needs ? `, needs ${h.needs}` : ''}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
-      {res.need?.length > 0 ? (
+      {need.length > 0 ? (
         <>
           <p className="dish-need-label">You still need:</p>
-          <MealBuy items={res.need} />
+          <MealBuy items={need} />
         </>
       ) : (
         <p className="dish-allset">✅ You’ve got everything you need!</p>
