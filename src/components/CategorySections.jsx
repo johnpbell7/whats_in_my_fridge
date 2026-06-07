@@ -21,6 +21,7 @@ const CAT_ICON = {
   household: IconSpray,
   other: IconBox
 }
+export { CAT_ICON }
 
 // Groups the (already filtered + sorted) inventory into collapsible sections by
 // category — each a colour-tinted titled block with a line icon. All open by

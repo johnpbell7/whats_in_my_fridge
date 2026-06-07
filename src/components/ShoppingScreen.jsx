@@ -4,13 +4,15 @@ import { shopping } from '../lib/shopping.js'
 import { store } from '../lib/store.js'
 import { useStaples, useStaplePrefs } from '../lib/useStaples.js'
 import { stapleKey, staplePrefs } from '../lib/staples.js'
-import { guessCategory } from '../lib/categories.js'
+import { guessCategory, CATEGORIES } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
-import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge, IconPin } from '../icons.jsx'
+import { CAT_ICON } from './CategorySections.jsx'
+import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge, IconPin, IconChevron, IconBox } from '../icons.jsx'
 
 export default function ShoppingScreen({ list, items = [] }) {
   const [draft, setDraft] = useState('')
   const [toast, setToast] = useState(null)
+  const [collapsed, setCollapsed] = useState({})
   const { staples, missing } = useStaples(items)
   const prefs = useStaplePrefs()
 
@@ -29,12 +31,18 @@ export default function ShoppingScreen({ list, items = [] }) {
     return () => clearTimeout(t)
   }, [toast])
 
-  // Unchecked first (newest at top), then checked at the bottom.
-  const ordered = useMemo(() => {
+  // Group the still-to-buy items by category (same folders as the inventory) so
+  // you can shop aisle by aisle. Category comes from a known staple if we have
+  // one, otherwise a best-guess from the name. Ticked-off items collect in their
+  // own section at the bottom.
+  const groups = useMemo(() => {
+    const catOf = (it) => stapleByKey.get(stapleKey(it.name))?.category || guessCategory(it.name)
     const open = list.filter((i) => !i.checked)
-    const done = list.filter((i) => i.checked)
-    return [...open, ...done]
-  }, [list])
+    return CATEGORIES
+      .map((c) => ({ key: c.key, label: c.label, items: open.filter((i) => catOf(i) === c.key) }))
+      .filter((g) => g.items.length > 0)
+  }, [list, stapleByKey])
+  const checkedItems = useMemo(() => list.filter((i) => i.checked), [list])
 
   // Staples you've run out of that aren't already on the list — one tap to add.
   const suggestions = useMemo(
@@ -92,6 +100,49 @@ export default function ShoppingScreen({ list, items = [] }) {
     )
     shopping.clearChecked()
     setToast(`Added ${bought.length} to your fridge`)
+  }
+
+  // One shopping row — reused inside each category section and the ticked-off one.
+  function renderRow(item) {
+    const isStaple = Boolean(prefs.pinned[stapleKey(item.name)])
+    return (
+      <motion.li
+        key={item.id}
+        layout
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, x: -12, transition: { duration: 0.13 } }}
+        transition={{ type: 'spring', stiffness: 360, damping: 32 }}
+        className={`shop-row ${item.checked ? 'done' : ''}`}
+      >
+        <button
+          className="check"
+          role="checkbox"
+          aria-checked={item.checked}
+          aria-label={`${item.checked ? 'Uncheck' : 'Check off'} ${item.name}`}
+          onClick={() => shopping.toggle(item.id)}
+        >
+          {item.checked && <IconCheck size={17} />}
+        </button>
+        <span className="shop-name">{item.name}</span>
+        <button
+          className="shop-staple"
+          aria-pressed={isStaple}
+          onClick={() => toggleStaple(item)}
+          aria-label={isStaple ? `Stop keeping ${item.name} stocked` : `Keep ${item.name} stocked`}
+          title="Keep this stocked — we’ll flag it when you run out"
+        >
+          <IconPin size={17} />
+        </button>
+        <button
+          className="icon-btn toss"
+          onClick={() => shopping.remove(item.id)}
+          aria-label={`Remove ${item.name}`}
+        >
+          <IconTrash size={18} />
+        </button>
+      </motion.li>
+    )
   }
 
   return (
@@ -169,54 +220,54 @@ export default function ShoppingScreen({ list, items = [] }) {
         <>
           {list.length > 0 && (
             <p className="shop-hint">
-              <IconPin size={13} /> Tap the pin to keep something stocked — we’ll flag it when you run out.
+              <IconPin size={13} /> Grouped by aisle — tap the pin to keep something stocked.
             </p>
           )}
-          <ul className="item-list">
-            <AnimatePresence initial={false}>
-              {ordered.map((item) => {
-                const isStaple = Boolean(prefs.pinned[stapleKey(item.name)])
-                return (
-                  <motion.li
-                    key={item.id}
-                    layout
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -12, transition: { duration: 0.13 } }}
-                    transition={{ type: 'spring', stiffness: 360, damping: 32 }}
-                    className={`shop-row ${item.checked ? 'done' : ''}`}
+          <div className="cat-groups">
+            {groups.map((g) => {
+              const Icon = CAT_ICON[g.key] || IconBox
+              const open = !collapsed[g.key]
+              return (
+                <section className="cat-group" key={g.key}>
+                  <button
+                    className={`cat-header cat-${g.key}`}
+                    aria-expanded={open}
+                    onClick={() => setCollapsed((c) => ({ ...c, [g.key]: !c[g.key] }))}
                   >
-                    <button
-                      className="check"
-                      role="checkbox"
-                      aria-checked={item.checked}
-                      aria-label={`${item.checked ? 'Uncheck' : 'Check off'} ${item.name}`}
-                      onClick={() => shopping.toggle(item.id)}
-                    >
-                      {item.checked && <IconCheck size={17} />}
-                    </button>
-                    <span className="shop-name">{item.name}</span>
-                    <button
-                      className="shop-staple"
-                      aria-pressed={isStaple}
-                      onClick={() => toggleStaple(item)}
-                      aria-label={isStaple ? `Stop keeping ${item.name} stocked` : `Keep ${item.name} stocked`}
-                      title="Keep this stocked — we’ll flag it when you run out"
-                    >
-                      <IconPin size={17} />
-                    </button>
-                    <button
-                      className="icon-btn toss"
-                      onClick={() => shopping.remove(item.id)}
-                      aria-label={`Remove ${item.name}`}
-                    >
-                      <IconTrash size={18} />
-                    </button>
-                  </motion.li>
-                )
-              })}
-            </AnimatePresence>
-          </ul>
+                    <span className="cat-icon"><Icon size={16} /></span>
+                    <span className="cat-label">{g.label}</span>
+                    <span className="cat-count">{g.items.length}</span>
+                    <IconChevron size={15} className={`cat-chevron ${open ? 'open' : ''}`} />
+                  </button>
+                  {open && (
+                    <ul className="item-list cat-items">
+                      <AnimatePresence initial={false}>{g.items.map(renderRow)}</AnimatePresence>
+                    </ul>
+                  )}
+                </section>
+              )
+            })}
+
+            {checkedItems.length > 0 && (
+              <section className="cat-group" key="__done">
+                <button
+                  className="cat-header cat-other"
+                  aria-expanded={!collapsed.__done}
+                  onClick={() => setCollapsed((c) => ({ ...c, __done: !c.__done }))}
+                >
+                  <span className="cat-icon"><IconCheck size={16} /></span>
+                  <span className="cat-label">Ticked off</span>
+                  <span className="cat-count">{checkedItems.length}</span>
+                  <IconChevron size={15} className={`cat-chevron ${!collapsed.__done ? 'open' : ''}`} />
+                </button>
+                {!collapsed.__done && (
+                  <ul className="item-list cat-items">
+                    <AnimatePresence initial={false}>{checkedItems.map(renderRow)}</AnimatePresence>
+                  </ul>
+                )}
+              </section>
+            )}
+          </div>
         </>
       )}
 
