@@ -101,8 +101,17 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
     setMessages((m) => [...m, { role: 'me', text: question }])
     setBusy(true)
     try {
-      const answer = await askChat(question, buildInventory())
-      setMessages((m) => [...m, { role: 'ai', text: answer }])
+      const res = await askChat(question, buildInventory())
+      if (res?.kind === 'meals') {
+        setMessages((m) => [...m, { role: 'meals', meals: res.meals }])
+        setDinnerMode(true) // follow-ups now refine the ideas
+      } else if (res?.kind === 'dish') {
+        setMessages((m) => [...m, { role: 'dish', result: res.result }])
+      } else if (res?.kind === 'list') {
+        setMessages((m) => [...m, { role: 'list', list: { title: res.title, items: res.items } }])
+      } else {
+        setMessages((m) => [...m, { role: 'ai', text: res?.answer || '' }])
+      }
     } catch (err) {
       handleError(err)
     } finally {
@@ -252,13 +261,15 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-                className={m.role === 'meals' || m.role === 'dish' ? 'meals-msg' : `bubble ${m.role}`}
+                className={m.role === 'meals' || m.role === 'dish' || m.role === 'list' ? 'meals-msg' : `bubble ${m.role}`}
                 role={m.role === 'error' ? 'alert' : undefined}
               >
                 {m.role === 'meals' ? (
                   <MealList meals={m.meals} />
                 ) : m.role === 'dish' ? (
                   <DishCard res={m.result} />
+                ) : m.role === 'list' ? (
+                  <ListCard data={m.list} />
                 ) : (
                   m.text
                 )}
@@ -415,6 +426,21 @@ function DishCard({ res }) {
       ) : (
         <p className="dish-allset">✅ You’ve got everything you need!</p>
       )}
+    </div>
+  )
+}
+
+// A plain "things to add" list returned by the chat — rendered as a card with
+// tappable add-to-shopping chips (+ "Add all"), so any list is actionable.
+function ListCard({ data }) {
+  const items = data?.items || []
+  if (!items.length) return null
+  return (
+    <div className="meal-card dish-card">
+      <div className="meal-head">
+        <h4>{data.title || 'Add to your list'}</h4>
+      </div>
+      <MealBuy items={items} />
     </div>
   )
 }

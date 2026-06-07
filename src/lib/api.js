@@ -29,7 +29,9 @@ async function post(path, body) {
   return data
 }
 
-// Ask a question about the current inventory.
+// Ask about the fridge. Returns a typed result the chat renders as the right
+// card: { kind:'meals', meals } | { kind:'dish', result } | { kind:'list',
+// title, items } | { kind:'text', answer }. One AI request regardless of kind.
 export function askChat(question, inventory) {
   const today = new Date().toLocaleDateString(undefined, {
     weekday: 'long',
@@ -37,7 +39,7 @@ export function askChat(question, inventory) {
     month: 'long',
     day: 'numeric'
   })
-  return post('/api/chat', { question, inventory, today }).then((d) => d.answer)
+  return post('/api/chat', { question, inventory, today })
 }
 
 // Ask for dinner ideas from the current inventory. Returns a list of meals,

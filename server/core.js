@@ -481,18 +481,74 @@ export async function chatHandler(body = {}, token) {
 
   const instructions = `You are the friendly kitchen helper inside the app "What's in my Fridge". You ONLY help with food and the user's kitchen: what's in their fridge/freezer/pantry, what's expiring, meal and recipe ideas, portions and scaling, substitutions, shopping, food storage and basic food safety.
 
-Always reply in this voice and format:
-- Warm, friendly and practical — like a helpful friend who knows their kitchen. British English.
-- Concise: they're usually on their phone. A sentence or two, or a short list. No preamble, no sign-off.
-- PLAIN TEXT ONLY. Never use Markdown — no asterisks or "**bold**", no "#" headings, no backticks. When you list things, put each on its own line starting with "• ".
-- Ground every answer in their ACTUAL inventory; never invent items they don't have. Flag anything expiring within ~2 days. If the inventory is empty, say so plainly.
+Voice: warm, friendly and practical — like a helpful friend who knows their kitchen. British English. Concise (they're on their phone). Ground everything in their ACTUAL inventory; never invent items they don't have. Flag anything expiring within ~2 days.
 
-Off-topic guard: if a question isn't about food, cooking or their kitchen, do NOT answer it. Reply with a single friendly line steering them back — e.g. "I'm just your kitchen helper — ask me about your fridge, meals or shopping 🙂". Never produce unrelated content (code, essays, general knowledge, etc.).`
+IMPORTANT — whenever your answer is a LIST, return it through the matching tool so the app shows tidy, tappable cards (never a plain-text list):
+- suggest_meals — for "what can I make / dinner ideas / lunch / meal ideas / feed N people". Give 3-4 meals built from their inventory, each with what it uses and a few extras worth buying.
+- dish_check — when they name a specific dish (e.g. "ingredients for a Sunday roast", "what do I need for carbonara"): split into what they HAVE vs. still NEED, with quantities.
+- add_to_list — when they want a list of things to buy / add to their shopping list (e.g. "give me a shopping list", "what should I add", "list of things to add").
+
+Only reply in PLAIN TEXT for short, factual answers that are NOT a list (e.g. "do I have milk?", "how long does chicken keep?"). Plain text rules: no Markdown at all (no asterisks/**bold**, no #, no backticks); if you must list a couple of things, start each line with "• ".
+
+Off-topic guard: if a question isn't about food, cooking or their kitchen, do NOT answer it — reply with one friendly line steering back, e.g. "I'm just your kitchen helper — ask me about your fridge, meals or shopping 🙂".`
+
+  const trim = (v) => String(v ?? '').trim()
+  const tools = [
+    {
+      name: 'suggest_meals',
+      description: 'Show a short list of meals the user can make from their inventory.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          meals: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                description: { type: 'string', description: 'One practical sentence' },
+                uses: { type: 'array', items: { type: 'string' } },
+                buy: { type: 'array', items: { type: 'string' }, description: 'Up to 5 extras worth buying' }
+              },
+              required: ['name']
+            }
+          }
+        },
+        required: ['meals']
+      }
+    },
+    {
+      name: 'dish_check',
+      description: "For a named dish: which ingredients the user has vs. still needs.",
+      input_schema: {
+        type: 'object',
+        properties: {
+          dish: { type: 'string' },
+          have: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, have: { type: 'string' }, needs: { type: 'string' } }, required: ['name'] } },
+          need: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, qty: { type: 'string' } }, required: ['name'] } },
+          note: { type: 'string' }
+        },
+        required: ['dish', 'have', 'need']
+      }
+    },
+    {
+      name: 'add_to_list',
+      description: 'A list of things to add to the shopping list.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          title: { type: 'string', description: 'Short heading, e.g. "For a Sunday roast"' },
+          items: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, qty: { type: 'string' } }, required: ['name'] } }
+        },
+        required: ['items']
+      }
+    }
+  ]
 
   try {
     const message = await client.messages.create({
       model: CHAT_MODEL,
-      max_tokens: 700,
+      max_tokens: 1000,
       system: [
         { type: 'text', text: instructions, cache_control: { type: 'ephemeral' } },
         {
@@ -500,11 +556,38 @@ Off-topic guard: if a question isn't about food, cooking or their kitchen, do NO
           text: `Today's date: ${today || 'unknown'}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}`
         }
       ],
+      tools,
       messages: [{ role: 'user', content: String(question) }]
     })
-    const raw = message.content.find((b) => b.type === 'text')?.text || ''
-    const answer = stripMarkdown(raw)
-    return { status: 200, body: { answer } }
+
+    const tu = message.content.find((b) => b.type === 'tool_use')
+    if (tu?.name === 'suggest_meals') {
+      const meals = (Array.isArray(tu.input?.meals) ? tu.input.meals : [])
+        .map((m) => ({
+          name: trim(m.name),
+          description: trim(m.description),
+          uses: Array.isArray(m.uses) ? m.uses.map(trim).filter(Boolean) : [],
+          buy: Array.isArray(m.buy) ? m.buy.map(trim).filter(Boolean).slice(0, 5) : []
+        }))
+        .filter((m) => m.name)
+      return { status: 200, body: { kind: 'meals', meals } }
+    }
+    if (tu?.name === 'dish_check') {
+      const inp = tu.input || {}
+      const have = Array.isArray(inp.have) ? inp.have.map((h) => ({ name: trim(h?.name), have: trim(h?.have), needs: trim(h?.needs) })).filter((h) => h.name) : []
+      const need = Array.isArray(inp.need) ? inp.need.map((n) => ({ name: trim(n?.name), qty: trim(n?.qty) })).filter((n) => n.name).slice(0, 20) : []
+      return { status: 200, body: { kind: 'dish', result: { dish: trim(inp.dish), have, need, note: trim(inp.note) } } }
+    }
+    if (tu?.name === 'add_to_list') {
+      const items = (Array.isArray(tu.input?.items) ? tu.input.items : [])
+        .map((i) => ({ name: trim(i?.name), qty: trim(i?.qty) }))
+        .filter((i) => i.name)
+        .slice(0, 30)
+      return { status: 200, body: { kind: 'list', title: trim(tu.input?.title), items } }
+    }
+
+    const answer = stripMarkdown(message.content.find((b) => b.type === 'text')?.text || '')
+    return { status: 200, body: { kind: 'text', answer } }
   } catch (err) {
     if (gate.meter) await refundUsage(gate.usageId)
     return mapClaudeError(err, 'chat')
