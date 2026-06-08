@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { CATEGORIES, LOCATIONS, suggestExpiry } from '../lib/categories.js'
+import { CATEGORIES, LOCATIONS, suggestExpiry, looksLongLife } from '../lib/categories.js'
+import { isLongLife } from '../lib/expiry.js'
 import { suggestLocation } from '../lib/location.js'
 import { staplePrefs, stapleKey } from '../lib/staples.js'
 import { useSheet } from '../lib/useSheet.js'
-import { IconClose, IconTrash, IconPin } from '../icons.jsx'
+import { IconClose, IconTrash, IconPin, IconClock } from '../icons.jsx'
 
 export default function ItemForm({ item, onSave, onDelete, onClose }) {
   const isEdit = Boolean(item)
@@ -20,6 +21,10 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
   // "Always keep this stocked" — pins it as a staple regardless of frequency,
   // so it's flagged whenever you run out.
   const [pinned, setPinned] = useState(() => staplePrefs.isPinned(stapleKey(item?.name || '')))
+  // Long-life staples (tins, dried, condiments) aren't tracked for freshness.
+  // Default from the item / a name guess; the user can override.
+  const [longLife, setLongLife] = useState(() => isLongLife(item))
+  const [llTouched, setLlTouched] = useState(false)
   const sheetRef = useSheet(onClose)
 
   // While adding a new item, keep filing it to the smart location as the name
@@ -27,6 +32,11 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
   useEffect(() => {
     if (!isEdit && !locTouched) setLocation(suggestLocation(name, category))
   }, [name, category, isEdit, locTouched])
+
+  // Likewise guess long-life from the name/category until the user toggles it.
+  useEffect(() => {
+    if (!isEdit && !llTouched) setLongLife(looksLongLife(name, category))
+  }, [name, category, isEdit, llTouched])
 
   const suggestion = suggestExpiry(category, location)
   const nameError = touched && !name.trim()
@@ -49,6 +59,7 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
         unit: unit.trim(),
         location,
         expiry_date: expiry || null,
+        perishable: !longLife,
         notes: notes.trim()
       },
       item?.id
@@ -182,6 +193,8 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
                   Clear &amp; auto-track
                 </button>
               </>
+            ) : longLife ? (
+              <>Long-life staple — we won’t flag this for freshness. Set a date above if you want a reminder.</>
             ) : (
               <>
                 No need to set one — we’ll count freshness from today, fresh until about{' '}
@@ -216,6 +229,31 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
             <small>{pinned ? "We'll flag it whenever you run out." : 'Flag it whenever you run out.'}</small>
           </span>
           <span className={`switch ${pinned ? 'on' : ''}`} aria-hidden="true">
+            <span className="switch-knob" />
+          </span>
+        </button>
+
+        <button
+          type="button"
+          className="staple-toggle"
+          aria-pressed={longLife}
+          onClick={() => {
+            setLongLife((v) => !v)
+            setLlTouched(true)
+          }}
+        >
+          <span className="staple-toggle-icon">
+            <IconClock size={17} />
+          </span>
+          <span className="staple-toggle-text">
+            <strong>Long-life — keeps for ages</strong>
+            <small>
+              {longLife
+                ? 'Tins, dried, condiments — not tracked for freshness.'
+                : 'Off: we track how fresh it stays.'}
+            </small>
+          </span>
+          <span className={`switch ${longLife ? 'on' : ''}`} aria-hidden="true">
             <span className="switch-knob" />
           </span>
         </button>
