@@ -1,4 +1,4 @@
-import { suggestExpiry } from './categories.js'
+import { suggestExpiry, looksLongLife } from './categories.js'
 
 const DAY = 86400000
 
@@ -8,12 +8,26 @@ export function startOfDay(d = new Date()) {
   return x
 }
 
+// Long-life staples (tins, jars, dried goods, condiments…) shouldn't get an
+// automatic freshness window — a tin of beans isn't "off" after a few weeks.
+// Prefer the AI's per-item `perishable` flag from scanning; fall back to a
+// name/category heuristic for manual adds and older items.
+export function isLongLife(item) {
+  if (!item) return false
+  if (typeof item.perishable === 'boolean') return !item.perishable
+  return looksLongLife(item.name, item.category)
+}
+
 // The date an item is judged against. If you set an exact use-by we use it;
 // otherwise we work it out from when it was added (purchased) plus the
 // category's fresh window — so freshness tracks automatically even when nobody
-// types a date.
+// types a date. Long-life staples get no auto window: they only have a date if
+// you set a real one yourself, so they never nag as "expiring".
 export function effectiveExpiry(item) {
   if (!item) return null
+  // A real, user-entered use-by always wins.
+  if (item.expiry_date && !isEstimated(item)) return item.expiry_date
+  if (isLongLife(item)) return null
   if (item.expiry_date) return item.expiry_date
   if (!item.added_date) return null
   return suggestExpiry(item.category, item.location, new Date(item.added_date))

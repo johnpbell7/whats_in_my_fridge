@@ -73,6 +73,20 @@ export function guessCategory(name = '') {
   return 'other'
 }
 
+// Best-effort "does this keep for ages?" check, used when the AI hasn't tagged
+// an item's perishability (manual adds, older items). Catches tins/jars/dried
+// goods by name, common ambient staples, and the inherently long-life
+// categories — so freshness flagging doesn't nag about baked beans or pasta.
+const LONG_LIFE_CATEGORIES = new Set(['condiments', 'snacks', 'household'])
+const LONG_LIFE_WORD = /\b(tinned?|canned?|jarred?|dried|dehydrated|uht|long[- ]?life|powder(ed)?|bouillon|preserved)\b|\b(long life|stock cube|tin of|jar of|can of)\b/i
+const LONG_LIFE_STAPLE = /\b(pasta|spaghetti|penne|macaroni|rice|noodles?|flour|sugar|oats|cereal|lentils?|chickpeas?|baked beans|kidney beans|cannellini|passata|tuna|sardines?|honey|jam|marmalade|peanut butter|coffee|tea\b|crackers?|cous ?cous|quinoa)\b/i
+
+export function looksLongLife(name = '', category = '') {
+  if (LONG_LIFE_CATEGORIES.has(category)) return true
+  const n = String(name).toLowerCase()
+  return LONG_LIFE_WORD.test(n) || LONG_LIFE_STAPLE.test(n)
+}
+
 // Suggest an expiry date from category + location. The freezer stretches
 // everything; the pantry stretches non-produce.
 export function suggestExpiry(category, location, from = new Date()) {

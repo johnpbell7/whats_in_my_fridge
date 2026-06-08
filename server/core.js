@@ -215,9 +215,10 @@ export async function visionHandler(body = {}, token) {
                     quantity: { type: 'number', description: 'How many of this product, default 1' },
                     unit: { type: 'string', description: 'Short freeform unit, or empty string' },
                     confidence: { type: 'number', description: '0 to 1 certainty' },
-                    frozen: { type: 'boolean', description: 'true if this is a frozen product (belongs in the freezer)' }
+                    frozen: { type: 'boolean', description: 'true if this is a frozen product (belongs in the freezer)' },
+                    perishable: { type: 'boolean', description: 'true for fresh/chilled/frozen food that goes off in days–weeks (produce, dairy, meat, bread, leftovers). false for long-life/ambient staples that keep for many months (tins, jars, dried pasta/rice, packaged goods, condiments, household).' }
                   },
-                  required: ['name', 'category', 'quantity', 'unit', 'confidence', 'frozen']
+                  required: ['name', 'category', 'quantity', 'unit', 'confidence', 'frozen', 'perishable']
                 }
               },
               receipt_date: {
@@ -249,7 +250,9 @@ export async function visionHandler(body = {}, token) {
         quantity: Number.isFinite(it.quantity) ? it.quantity : 1,
         unit: String(it.unit || '').trim(),
         confidence: typeof it.confidence === 'number' ? Math.max(0, Math.min(1, it.confidence)) : 0.5,
-        frozen: Boolean(it.frozen)
+        frozen: Boolean(it.frozen),
+        // Default to perishable when unsure — safer to track freshness than miss it.
+        perishable: typeof it.perishable === 'boolean' ? it.perishable : true
       }))
       .filter((it) => it.name && !isCarrierBag(it.name))
     // Only trust a date from receipt scans.
@@ -286,7 +289,7 @@ export async function mealsHandler(body = {}, token) {
   const instructions = `You suggest meals someone can cook, built around what's in their fridge, freezer and pantry. Default to dinner ideas unless the user asks for something else (e.g. a quick lunch, or a few days of dinners to plan).
 Rules:
 - Suggest 3-4 appetising meals. Build each around items that are ACTUALLY in their inventory — never invent inventory items.
-- Prefer meals that use items expiring soon, so nothing goes to waste.
+- Prefer meals that use items expiring soon, so nothing goes to waste. Only treat genuinely perishable items (keeps: "fresh", expiry "soon"/"expired") as needing using up — NEVER push someone to use up long-life staples (keeps: "long-life": tins, jars, dried pasta/rice, condiments) just because they've had them a while.
 - Be a little adventurous and inspiring: for each meal suggest a handful (2-4) of extra ingredients worth buying that would genuinely elevate the dish — a fresh herb, a sauce, a cheese, something that lifts it — not just bare essentials. Assume basics (salt, pepper, oil, common dried herbs/spices) are already on hand.
 - If the user gives a follow-up or preference (e.g. a cuisine, "vegetarian", "quick", "something with chicken", "more adventurous"), tailor the whole set of suggestions to it while still using their inventory.
 - Keep each method to one practical sentence — real weeknight cooking, easy to follow.`
@@ -481,7 +484,7 @@ export async function chatHandler(body = {}, token) {
 
   const instructions = `You are the friendly kitchen helper inside the app "What's in my Fridge". You ONLY help with food and the user's kitchen: what's in their fridge/freezer/pantry, what's expiring, meal and recipe ideas, portions and scaling, substitutions, shopping, food storage and basic food safety.
 
-Voice: warm, friendly and practical — like a helpful friend who knows their kitchen. British English. Concise (they're on their phone). Ground everything in their ACTUAL inventory; never invent items they don't have. Flag anything expiring within ~2 days.
+Voice: warm, friendly and practical — like a helpful friend who knows their kitchen. British English. Concise (they're on their phone). Ground everything in their ACTUAL inventory; never invent items they don't have. Flag anything expiring within ~2 days, but ONLY genuinely perishable food (each item has keeps: "fresh" or "long-life") — never treat long-life staples (tins, jars, dried pasta/rice, condiments) as "expiring" or something to use up just because they've been in a while.
 
 IMPORTANT — whenever your answer is a LIST, return it through the matching tool so the app shows tidy, tappable cards (never a plain-text list):
 - suggest_meals — for "what can I make / dinner ideas / lunch / meal ideas / feed N people". Give 3-4 meals built from their inventory, each with what it uses and a few extras worth buying.

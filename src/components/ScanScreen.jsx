@@ -77,6 +77,10 @@ export default function ScanScreen({ onDone, onAddManual }) {
             // "use by". (A user can still set an exact date later by hand.)
             source: 'photo',
             confidence: d.confidence,
+            // The AI's read on whether this keeps for ages (tins/dried) or goes
+            // off (fresh) — drives freshness flagging. Omitted falls back to a
+            // name/category heuristic.
+            ...(typeof d.perishable === 'boolean' ? { perishable: d.perishable } : {}),
             filed: false
           }
         })

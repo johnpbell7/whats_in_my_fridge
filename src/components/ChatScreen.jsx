@@ -4,7 +4,7 @@ import { askChat, suggestMeals, checkDish } from '../lib/api.js'
 import { chat } from '../lib/chat.js'
 import { savedMeals } from '../lib/meals.js'
 import { upgrade } from '../lib/upgrade.js'
-import { expiryState } from '../lib/expiry.js'
+import { expiryState, isLongLife } from '../lib/expiry.js'
 import MealBuy from './MealBuy.jsx'
 import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck, IconClose, IconBookmark, IconWarning, IconChevron } from '../icons.jsx'
 
@@ -72,7 +72,8 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
       unit: i.unit,
       location: i.location,
       expiry_date: i.expiry_date,
-      expiry: expiryState(i)
+      expiry: expiryState(i),
+      keeps: isLongLife(i) ? 'long-life' : 'fresh'
     }))
 
   // Shared error handling for both flows.

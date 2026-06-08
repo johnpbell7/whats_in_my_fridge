@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { categoryLabel, locationLabel } from '../lib/categories.js'
-import { expiryState, expiryLabel, effectiveExpiry, isEstimated, daysOld, daysUntil } from '../lib/expiry.js'
+import { expiryState, expiryLabel, effectiveExpiry, isEstimated, isLongLife, daysOld, daysUntil } from '../lib/expiry.js'
 import { IconCheck, IconCircle, IconClock, IconWarning, IconPlus } from '../icons.jsx'
 
 export default function ItemRow({ item, onEdit, onUse, onToss, onReadd }) {
@@ -39,9 +39,14 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onReadd }) {
   // longer). ONLY when the user has entered an accurate use-by date do we show
   // the factual "Use by / Expired" instead.
   const remaining = daysUntil(eff)
+  // Long-life staples (tins, dried, condiments…) just read "In stock" — no age,
+  // no warning colour — unless the user set a real use-by themselves.
+  const stocked = isLongLife(item) && !eff
   let displayState = 'none'
   let expiryText = ''
-  if (estimated) {
+  if (stocked) {
+    expiryText = 'In stock'
+  } else if (estimated) {
     const age = daysOld(item)
     displayState = remaining === null ? 'none' : remaining <= 1 ? 'expired' : remaining <= 3 ? 'soon' : 'ok'
     expiryText = age <= 0 ? 'Added today' : age === 1 ? '1 day old' : `${age} days old`
@@ -84,7 +89,7 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onReadd }) {
             <>
               <span className="dot" />
               <span className={`expiry-chip ${displayState}`}>
-                <IconClock size={13} />
+                {!stocked && <IconClock size={13} />}
                 {expiryText}
               </span>
             </>
