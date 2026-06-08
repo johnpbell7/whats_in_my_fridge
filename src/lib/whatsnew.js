@@ -4,14 +4,19 @@
 
 export const WHATS_NEW = [
   {
-    id: '2026-06-chat',
+    id: '2026-06-freshness',
     date: 'Jun 2026',
-    text: 'New chat shortcuts — “Use what’s expiring”, “No extra shopping”, plus breakfast, healthy & light and freezer-friendly meal ideas.'
+    text: 'Smarter freshness — tins, jars and dried staples now read “In stock” instead of being flagged as expiring, so you’re only nudged about food that actually goes off.'
   },
   {
-    id: '2026-06-nudge',
+    id: '2026-06-dish',
     date: 'Jun 2026',
-    text: 'A nudge on the chat screen when food needs using up — tap it for instant meal ideas built around what’s about to go off.'
+    text: 'Cook a specific dish — tell the chat what you fancy and it shows what you’ve already got and what you still need, ready to add to your list.'
+  },
+  {
+    id: '2026-06-aisle',
+    date: 'Jun 2026',
+    text: 'Shop by aisle — your shopping list now groups into categories like the fridge, so you can shop section by section.'
   }
 ]
 
