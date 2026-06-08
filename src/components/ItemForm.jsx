@@ -235,7 +235,7 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
 
         <button
           type="button"
-          className="staple-toggle"
+          className="staple-toggle longlife-toggle"
           aria-pressed={longLife}
           onClick={() => {
             setLongLife((v) => !v)
@@ -247,11 +247,7 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
           </span>
           <span className="staple-toggle-text">
             <strong>Long-life — keeps for ages</strong>
-            <small>
-              {longLife
-                ? 'Tins, dried, condiments — not tracked for freshness.'
-                : 'Off: we track how fresh it stays.'}
-            </small>
+            <small>{longLife ? 'Not tracked for freshness.' : 'We track how fresh it stays.'}</small>
           </span>
           <span className={`switch ${longLife ? 'on' : ''}`} aria-hidden="true">
             <span className="switch-knob" />
