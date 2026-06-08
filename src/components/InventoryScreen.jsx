@@ -224,22 +224,28 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
       ) : view === 'active' ? (
         <CategorySections items={visible} onEdit={onEdit} onFileNew={autoFile} />
       ) : (
-        <ul className="item-list">
-          <AnimatePresence initial={false}>
-            {visible.map((item) => (
-              <ItemRow
-                key={item.id}
-                item={item}
-                onEdit={onEdit}
-                onUse={(it) => store.setStatus(it.id, 'used')}
-                onReadd={(it) => {
-                  shopping.addUnique(it.name, it.quantity || 1)
-                  store.remove(it.id)
-                }}
-              />
-            ))}
-          </AnimatePresence>
-        </ul>
+        <>
+          <p className="staples-intro">
+            Used up or gone off. Tap <IconPlus size={13} className="inline-ico" /> to pop anything back on your
+            shopping list, ready for the next shop.
+          </p>
+          <ul className="item-list">
+            <AnimatePresence initial={false}>
+              {visible.map((item) => (
+                <ItemRow
+                  key={item.id}
+                  item={item}
+                  onEdit={onEdit}
+                  onUse={(it) => store.setStatus(it.id, 'used')}
+                  onReadd={(it) => {
+                    shopping.addUnique(it.name, it.quantity || 1)
+                    store.remove(it.id)
+                  }}
+                />
+              ))}
+            </AnimatePresence>
+          </ul>
+        </>
       )}
     </div>
   )

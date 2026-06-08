@@ -1239,6 +1239,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   color: var(--ink-soft);
   line-height: 1.45;
 }
+.staples-intro .inline-ico { vertical-align: -2px; color: var(--accent-press); }
 /* "How to add a staple" explainer (empty state + first-run tip) */
 .staple-how { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .staple-how li { display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; color: var(--ink-soft); text-align: left; line-height: 1.4; }
