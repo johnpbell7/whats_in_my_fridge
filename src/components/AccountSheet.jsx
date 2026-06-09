@@ -20,17 +20,20 @@ export default function AccountSheet({ onClose, onInstall }) {
   const [deleting, setDeleting] = useState(false)
   const [deleteErr, setDeleteErr] = useState(null)
   const [portalBusy, setPortalBusy] = useState(false)
+  const [portalErr, setPortalErr] = useState(null)
   const loading = !me && !err
   const sheetRef = useSheet(onClose)
 
   async function manageSubscription() {
     if (portalBusy) return
     setPortalBusy(true)
+    setPortalErr(null)
     try {
       const { url } = await openBillingPortal()
       if (url) window.location.href = url
-    } catch {
-      /* leave the button as-is; nothing destructive happened */
+      else setPortalErr('Couldn’t open billing settings. Please try again.')
+    } catch (e) {
+      setPortalErr(e?.message || 'Couldn’t open billing settings. Please try again.')
     } finally {
       setPortalBusy(false)
     }
@@ -144,6 +147,8 @@ export default function AccountSheet({ onClose, onInstall }) {
             </button>
           )
         )}
+
+        {portalErr && <p className="account-note account-note-err">{portalErr}</p>}
 
         {onInstall && isMobile() && !isStandalone() && (
           <button className="btn btn-ghost btn-block" onClick={onInstall}>
