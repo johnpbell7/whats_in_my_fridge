@@ -179,7 +179,15 @@ export async function billingPortalHandler(token) {
     })
     return { status: 200, body: { url: portal.url } }
   } catch (err) {
-    console.error('stripe portal failed:', err?.message || err)
-    return { status: 502, body: { error: 'portal_failed', message: 'Could not open billing settings.' } }
+    const detail = err?.message || String(err)
+    console.error('stripe portal failed:', detail)
+    // Surface the two common live-mode causes so the on-screen error is useful.
+    let message = 'Could not open billing settings.'
+    if (/configuration/i.test(detail)) {
+      message = 'Billing portal isn’t set up in Stripe yet. Save the customer portal settings in live mode and try again.'
+    } else if (/No such customer|test mode/i.test(detail)) {
+      message = 'Your subscription was created in Stripe test mode, but the app is now live. Re-subscribe to manage it.'
+    }
+    return { status: 502, body: { error: 'portal_failed', message } }
   }
 }
