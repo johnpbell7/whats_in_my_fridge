@@ -42,7 +42,18 @@ async function profileOf(userId) {
 
 async function getOrCreateCustomer(stripe, user) {
   const profile = await profileOf(user.id)
-  if (profile.stripe_customer_id) return profile.stripe_customer_id
+  if (profile.stripe_customer_id) {
+    // Make sure the stored customer still exists under the current keys. A
+    // customer created in test mode won't exist once we're live, so retrieving
+    // it throws — in that case fall through and create a fresh live customer
+    // instead of reusing a dead ID (which would break checkout entirely).
+    try {
+      const existing = await stripe.customers.retrieve(profile.stripe_customer_id)
+      if (existing && !existing.deleted) return profile.stripe_customer_id
+    } catch (err) {
+      console.error('stale stripe customer, creating a new one:', err?.message || err)
+    }
+  }
   const customer = await stripe.customers.create({
     email: user.email,
     metadata: { user_id: user.id }
