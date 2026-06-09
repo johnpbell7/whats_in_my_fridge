@@ -241,10 +241,7 @@ export default function App() {
 
       <AnimatePresence>
         {account && (
-          <AccountSheet
-            onClose={() => setAccount(false)}
-            onInstall={() => { setAccount(false); setInstallGuide(true) }}
-          />
+          <AccountSheet onClose={() => setAccount(false)} />
         )}
       </AnimatePresence>
 
