@@ -9,7 +9,7 @@
 
 import Stripe from 'stripe'
 import { authenticate, admin } from './auth.js'
-import { sendEmail, newSubscriberEmail, SUPPORT_EMAIL } from './email.js'
+import { sendEmail, newSubscriberEmail, OWNER_EMAIL } from './email.js'
 
 const SECRET = process.env.STRIPE_SECRET_KEY
 const PRICE_ID = process.env.STRIPE_PRICE_ID
@@ -135,7 +135,7 @@ async function handleEvent(stripe, event) {
       const email = obj.customer_details?.email || null
       const amount = obj.amount_total ? `£${(obj.amount_total / 100).toFixed(2)}` : ''
       const { subject, html } = newSubscriberEmail({ email, amount })
-      await sendEmail({ to: SUPPORT_EMAIL, subject, html })
+      await sendEmail({ to: OWNER_EMAIL, subject, html })
     } catch (err) {
       console.error('new-subscriber notify failed:', err?.message || err)
     }

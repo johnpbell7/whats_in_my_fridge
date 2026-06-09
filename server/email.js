@@ -5,6 +5,10 @@
 
 const FROM = process.env.EMAIL_FROM || "What's in my Fridge <support@whatsinmyfridge.co.uk>"
 export const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@whatsinmyfridge.co.uk'
+// Where owner notifications (new subscriber, problem reports) are delivered.
+// Defaults to the support address, but set OWNER_EMAIL to a personal inbox to
+// get pinged there directly — no need to set up support@ receiving first.
+export const OWNER_EMAIL = process.env.OWNER_EMAIL || SUPPORT_EMAIL
 
 export function emailEnabled() {
   return Boolean(process.env.RESEND_API_KEY)

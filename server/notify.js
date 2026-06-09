@@ -3,7 +3,7 @@
 // no-ops cleanly until RESEND_API_KEY (and, for the cron, CRON_SECRET) are set.
 
 import { authenticate, admin, TRIAL_DAYS } from './auth.js'
-import { sendEmail, welcomeEmail, trialReminderEmail, reportEmail, SUPPORT_EMAIL } from './email.js'
+import { sendEmail, welcomeEmail, trialReminderEmail, reportEmail, OWNER_EMAIL } from './email.js'
 
 const MAX_MSG = 4000
 
@@ -22,7 +22,7 @@ export async function reportHandler(body = {}, token) {
   }
 
   const { subject, html } = reportEmail({ type, message, userEmail, meta })
-  const res = await sendEmail({ to: SUPPORT_EMAIL, subject, html, replyTo: userEmail || undefined })
+  const res = await sendEmail({ to: OWNER_EMAIL, subject, html, replyTo: userEmail || undefined })
   // Treat "not configured yet" as a soft success so the form works pre-launch.
   if (res.skipped) {
     console.warn('Report received but email not configured:', type)
