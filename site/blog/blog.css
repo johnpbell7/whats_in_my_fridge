@@ -1,0 +1,59 @@
+/* Blog styling — matches the landing page (cream, Fraunces headings, Plus
+   Jakarta body, green accent). Self-hosted fonts shared with the main site. */
+@font-face{font-family:'Fraunces';font-weight:400 700;font-display:swap;src:url(/fonts/fraunces-normal.woff2) format('woff2')}
+@font-face{font-family:'Fraunces';font-style:italic;font-weight:400 700;font-display:swap;src:url(/fonts/fraunces-italic.woff2) format('woff2')}
+@font-face{font-family:'Plus Jakarta Sans';font-weight:400 700;font-display:swap;src:url(/fonts/plusjakartasans-normal.woff2) format('woff2')}
+
+:root{
+  --bg:#faf7f2; --surface:#fffdf9; --ink:#1f1b16; --ink-soft:#5d5648; --ink-faint:#8a8170;
+  --line:#ebe5d8; --accent:#2f7d5a; --accent-press:#276848; --accent-soft:#e6efe8; --clay:#c2603a;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-press)}
+img{max-width:100%;height:auto;display:block}
+
+.nav{max-width:760px;margin:0 auto;padding:22px 22px 0;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-family:'Fraunces',serif;font-weight:600;font-size:19px}
+.brand .mark{width:30px;height:30px;border-radius:9px}
+.nav .cta{font-family:'Plus Jakarta Sans';font-weight:600;font-size:14px;text-decoration:none;background:var(--accent);color:#fdfdfb;padding:9px 16px;border-radius:999px}
+
+.wrap{max-width:760px;margin:0 auto;padding:24px 22px 60px}
+.post-hero{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:18px;border:1px solid var(--line);margin:14px 0 26px}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent-press);margin:0 0 8px}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(30px,6vw,44px);letter-spacing:-.02em;line-height:1.08;margin:.1em 0 .2em}
+h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(22px,3.4vw,28px);letter-spacing:-.01em;margin:1.7em 0 .4em}
+h3{font-family:'Plus Jakarta Sans';font-weight:700;font-size:18px;margin:1.4em 0 .3em}
+p,li{font-size:16.5px;color:var(--ink-soft)}
+.lede{font-size:18.5px;color:var(--ink);margin:0 0 8px}
+.meta{color:var(--ink-faint);font-size:14px;margin:0 0 6px}
+ul,ol{padding-left:22px}
+li{margin:5px 0}
+strong{color:var(--ink)}
+blockquote{margin:22px 0;padding:14px 18px;background:var(--accent-soft);border-radius:12px;color:var(--accent-press);font-weight:500}
+.tip{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:20px 0}
+.tip strong{color:var(--accent-press)}
+figure{margin:24px 0}
+figure img{border-radius:14px;border:1px solid var(--line)}
+figcaption{font-size:13px;color:var(--ink-faint);margin-top:7px;text-align:center}
+
+.cta-box{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;margin:34px 0 8px;text-align:center}
+.cta-box h3{font-family:'Fraunces',serif;font-weight:600;font-size:21px;margin:0 0 6px}
+.cta-box p{margin:0 0 14px}
+.btn{display:inline-block;background:var(--accent);color:#fdfdfb;text-decoration:none;font-weight:600;font-size:15.5px;padding:12px 24px;border-radius:999px}
+
+/* index */
+.intro{margin:6px 0 26px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:600px){.cards{grid-template-columns:1fr}}
+.card{display:block;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-2px);box-shadow:0 14px 30px -18px rgba(38,104,75,.4)}
+.card img{aspect-ratio:16/10;object-fit:cover}
+.card .body{padding:15px 16px 18px}
+.card h2{font-size:18.5px;margin:0 0 5px;line-height:1.25}
+.card p{font-size:14px;margin:0;color:var(--ink-soft)}
+
+.foot{border-top:1px solid var(--line);margin-top:40px;padding:24px 22px 50px;text-align:center;color:var(--ink-faint);font-size:13px;max-width:760px;margin-left:auto;margin-right:auto}
+.foot a{color:var(--ink-soft);text-decoration:none;margin:0 8px}
+.backlink{display:inline-block;margin:30px 0 0;color:var(--accent-press);text-decoration:none;font-weight:600;font-size:15px}
