@@ -42,8 +42,11 @@ async function emailFor(db, userId) {
   }
 }
 
-// Daily cron (/api/cron/emails): welcome new users + remind trials ending soon.
-// Protected by CRON_SECRET (Vercel sends it as a Bearer token on scheduled runs).
+// Welcome new users + remind trials ending soon. Kept here (and wired into the
+// dev server) so it's ready to re-home: the Vercel function was dropped to stay
+// under the Hobby plan's 12-function limit, so trigger this from an external
+// scheduler (or a Vercel cron once on Pro) hitting an endpoint that calls it.
+// Protected by CRON_SECRET (sent as a Bearer token on scheduled runs).
 export async function scheduledEmailsHandler(authHeader = '') {
   const secret = process.env.CRON_SECRET
   if (!secret || authHeader !== `Bearer ${secret}`) {
