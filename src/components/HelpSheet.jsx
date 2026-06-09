@@ -40,7 +40,7 @@ const HOWTO = [
   }
 ]
 
-export default function HelpSheet({ onClose, onReplay, onInstall }) {
+export default function HelpSheet({ onClose, onReplay, onInstall, onReport }) {
   const ref = useSheet(onClose)
   // Always offer the "how to add to home screen" guide here so it's reliably
   // discoverable (it's an explainer, harmless even if already installed).
@@ -101,6 +101,11 @@ export default function HelpSheet({ onClose, onReplay, onInstall }) {
         {showInstall && (
           <button className="btn btn-ghost btn-block" onClick={onInstall} style={{ marginTop: 10 }}>
             How to add to home screen
+          </button>
+        )}
+        {onReport && (
+          <button className="btn btn-ghost btn-block" onClick={onReport} style={{ marginTop: 10 }}>
+            Report a problem
           </button>
         )}
       </motion.div>

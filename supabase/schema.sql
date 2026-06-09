@@ -14,6 +14,10 @@ create table if not exists public.profiles (
 -- Stripe linkage (added later) so we can manage a user's subscription.
 alter table public.profiles add column if not exists stripe_customer_id text;
 alter table public.profiles add column if not exists stripe_subscription_id text;
+-- Automated-email bookkeeping: when we sent the welcome / trial-ending reminder
+-- (so the daily cron sends each at most once). Null = not sent yet.
+alter table public.profiles add column if not exists welcomed_at timestamptz;
+alter table public.profiles add column if not exists trial_reminded_at timestamptz;
 
 -- A row per successful AI call, so the server can meter usage per month.
 create table if not exists public.ai_usage (

@@ -20,6 +20,7 @@ import AccountSheet from './components/AccountSheet.jsx'
 import Onboarding from './components/Onboarding.jsx'
 import InstallGuide from './components/InstallGuide.jsx'
 import HelpSheet from './components/HelpSheet.jsx'
+import ReportSheet from './components/ReportSheet.jsx'
 import { isMobile, isStandalone } from './lib/install.js'
 import { hasUnseen, markSeen } from './lib/whatsnew.js'
 import Toast from './components/Toast.jsx'
@@ -53,6 +54,7 @@ export default function App() {
   const [account, setAccount] = useState(false)
   const [installGuide, setInstallGuide] = useState(false)
   const [help, setHelp] = useState(false)
+  const [report, setReport] = useState(false)
   const [helpUnseen, setHelpUnseen] = useState(() => hasUnseen())
   const [booting, setBooting] = useState(true)
 
@@ -269,8 +271,13 @@ export default function App() {
             onClose={() => setHelp(false)}
             onReplay={() => { setHelp(false); setOnboarded(false) }}
             onInstall={() => { setHelp(false); setInstallGuide(true) }}
+            onReport={() => { setHelp(false); setReport(true) }}
           />
         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {report && <ReportSheet onClose={() => setReport(false)} />}
       </AnimatePresence>
     </>
   )

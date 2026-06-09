@@ -79,6 +79,17 @@ export function detectFromImage(imageBase64, mediaType, mode = 'groceries') {
   }))
 }
 
+// Send a "report a problem" message to support (emails it to the owner).
+export function reportProblem(type, message) {
+  let meta = ''
+  try {
+    meta = `${navigator.userAgent} · ${location.href}`
+  } catch {
+    /* non-browser */
+  }
+  return post('/api/report', { type, message, meta })
+}
+
 // Permanently delete the signed-in user's account and all their data.
 export function deleteAccount() {
   return post('/api/delete-account', {})
