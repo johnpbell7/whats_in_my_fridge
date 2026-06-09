@@ -9,6 +9,7 @@
 
 import Stripe from 'stripe'
 import { authenticate, admin } from './auth.js'
+import { sendEmail, newSubscriberEmail, SUPPORT_EMAIL } from './email.js'
 
 const SECRET = process.env.STRIPE_SECRET_KEY
 const PRICE_ID = process.env.STRIPE_PRICE_ID
@@ -117,6 +118,15 @@ async function handleEvent(stripe, event) {
         .from('profiles')
         .update({ tier: 'plus', stripe_customer_id: obj.customer, stripe_subscription_id: obj.subscription })
         .eq('id', obj.client_reference_id)
+    }
+    // Tell the owner there's a new subscriber (best-effort — never block the webhook).
+    try {
+      const email = obj.customer_details?.email || null
+      const amount = obj.amount_total ? `£${(obj.amount_total / 100).toFixed(2)}` : ''
+      const { subject, html } = newSubscriberEmail({ email, amount })
+      await sendEmail({ to: SUPPORT_EMAIL, subject, html })
+    } catch (err) {
+      console.error('new-subscriber notify failed:', err?.message || err)
     }
   } else if (event.type === 'customer.subscription.updated') {
     const active = ['active', 'trialing'].includes(obj.status)

@@ -82,6 +82,16 @@ export function trialReminderEmail(daysLeft) {
   }
 }
 
+export function newSubscriberEmail({ email, amount }) {
+  return {
+    subject: '🎉 New Plus subscriber!',
+    html: shell("You've got a new subscriber 🎉", `
+      <p style="font-size:15px;line-height:1.5;color:#5d5648;margin:0 0 6px"><strong>${esc(email || 'A customer')}</strong> just subscribed to Plus${amount ? ` (${esc(amount)})` : ''}.</p>
+      <p style="font-size:13px;color:#8a8170;margin:12px 0 0">Nice one — that's recurring revenue. 🥦</p>
+    `)
+  }
+}
+
 export function reportEmail({ type, message, userEmail, meta }) {
   return {
     subject: `🐞 Issue report: ${esc(type)}`,
