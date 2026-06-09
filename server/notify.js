@@ -7,9 +7,34 @@ import { sendEmail, welcomeEmail, trialReminderEmail, newSubscriberEmail, report
 
 const MAX_MSG = 4000
 
+// Best-effort abuse guard for the open report endpoint: it sends an email on
+// every call, so an unthrottled script could flood the owner inbox and burn the
+// Resend quota. This is per-instance (serverless), so it won't stop a fully
+// distributed flood, but it stops the common single-source case cheaply with no
+// extra infra. Legit users never hit it.
+const REPORT_WINDOW_MS = 10 * 60 * 1000
+const REPORT_MAX = 5
+const reportHits = new Map() // ip -> recent timestamps
+function reportRateLimited(ip) {
+  if (!ip) return false
+  const now = Date.now()
+  const hits = (reportHits.get(ip) || []).filter((t) => now - t < REPORT_WINDOW_MS)
+  if (hits.length >= REPORT_MAX) {
+    reportHits.set(ip, hits)
+    return true
+  }
+  hits.push(now)
+  reportHits.set(ip, hits)
+  if (reportHits.size > 5000) reportHits.clear() // bound memory
+  return false
+}
+
 // POST /api/report — a signed-in (or anonymous) user reports a problem; we email
 // it to support, with their address as reply-to so you can just hit reply.
-export async function reportHandler(body = {}, token) {
+export async function reportHandler(body = {}, token, ip = null) {
+  if (reportRateLimited(ip)) {
+    return { status: 429, body: { error: 'rate_limited', message: 'Too many reports just now — please try again shortly.' } }
+  }
   const message = String(body.message || '').trim().slice(0, MAX_MSG)
   if (!message) return { status: 400, body: { error: 'bad_request', message: 'Please describe the issue.' } }
   const type = String(body.type || 'Other').slice(0, 80)

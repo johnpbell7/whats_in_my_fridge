@@ -20,6 +20,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'method_not_allowed', message: 'Use POST.' })
   }
   const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '') || null
-  const { status, body } = await reportHandler(req.body, token)
+  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || null
+  const { status, body } = await reportHandler(req.body, token, ip)
   res.status(status).json(body)
 }
