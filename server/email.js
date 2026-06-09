@@ -63,7 +63,7 @@ export function welcomeEmail() {
   return {
     subject: "Welcome to What's in my Fridge 🥦",
     html: shell("You're in — welcome!", `
-      <p style="font-size:15px;line-height:1.55;color:#5d5648;margin:0 0 10px">Thanks for joining! Here's the quickest way to get going:</p>
+      <p style="font-size:15px;line-height:1.55;color:#5d5648;margin:0 0 10px">Thanks for joining! You're starting with <strong>7 days of Plus free</strong> — more photo scans, more chat, and the sharper vision model. Here's the quickest way to get going:</p>
       <ul style="font-size:15px;line-height:1.6;color:#5d5648;padding-left:18px;margin:0">
         <li><strong>Snap your shopping</strong> or a receipt — the AI logs everything for you.</li>
         <li><strong>Ask the chat</strong> what to cook from what you've got.</li>
