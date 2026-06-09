@@ -17,6 +17,20 @@ describe('guessCategory', () => {
   it('falls back to other', () => {
     expect(guessCategory('Mystery thing')).toBe('other')
   })
+  it('cheeses go to dairy, herbs to produce (the parmesan/herbs fix)', () => {
+    expect(guessCategory('Fresh parmesan shavings')).toBe('dairy') // not household via "shaving"
+    expect(guessCategory('Parmesan')).toBe('dairy')
+    expect(guessCategory('Feta')).toBe('dairy')
+    expect(guessCategory('Mozzarella')).toBe('dairy')
+    expect(guessCategory('Fresh thyme or rosemary')).toBe('produce')
+    expect(guessCategory('Tarragon')).toBe('produce')
+    expect(guessCategory('Fresh ginger')).toBe('produce')
+  })
+  it('keeps catching real household items and avoids new false positives', () => {
+    expect(guessCategory('Shaving foam')).toBe('household')
+    expect(guessCategory('Sausages')).toBe('meat') // "sage" must not steal it
+    expect(guessCategory('Peanut butter')).not.toBe('produce') // "pea" must not match
+  })
 })
 
 describe('suggestLocation', () => {
