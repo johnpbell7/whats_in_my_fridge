@@ -48,7 +48,10 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onReadd }) {
     expiryText = 'In stock'
   } else if (estimated) {
     const age = daysOld(item)
-    displayState = remaining === null ? 'none' : remaining <= 1 ? 'expired' : remaining <= 3 ? 'soon' : 'ok'
+    // Fresh items stay calm for the first few days, go amber with ~2 days of
+    // their window left (≈ day 5 of a 7-day item), then red once it's reached
+    // (≈ day 7). Long-life staples are handled above (they read "In stock").
+    displayState = remaining === null ? 'none' : remaining <= 0 ? 'expired' : remaining <= 2 ? 'soon' : 'ok'
     expiryText = age <= 0 ? 'Added today' : age === 1 ? '1 day old' : `${age} days old`
   } else if (eff) {
     displayState = state

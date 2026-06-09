@@ -87,13 +87,14 @@ export function looksLongLife(name = '', category = '') {
   return LONG_LIFE_WORD.test(n) || LONG_LIFE_STAPLE.test(n)
 }
 
-// Suggest an expiry date from category + location. The freezer stretches
-// everything; the pantry stretches non-produce.
+// Suggest an expiry date from category + location. The freezer genuinely
+// extends shelf life; the pantry does NOT make fresh food last longer (bananas
+// in a fruit bowl go off as fast as in the fridge), and long-life staples are
+// kept out of freshness tracking separately by the perishable flag.
 export function suggestExpiry(category, location, from = new Date()) {
   const base = CATEGORIES.find((c) => c.key === category)?.days ?? 7
   let days = base
   if (location === 'freezer') days = Math.max(base, 60)
-  else if (location === 'pantry') days = Math.max(base, category === 'produce' ? 10 : 30)
   const d = new Date(from)
   d.setDate(d.getDate() + days)
   return d.toISOString().slice(0, 10)
