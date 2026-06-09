@@ -10,6 +10,7 @@
 // ---------------------------------------------------------------------------
 
 import { supabase } from './supabase.js'
+import { toast } from './toast.js'
 import { store, initStore } from './store.js'
 import { shopping, initShopping } from './shopping.js'
 import { staplePrefs, initStaplePrefs } from './staples.js'
@@ -156,12 +157,19 @@ async function pullAndWire(lastUser) {
     ok = true
   } catch (err) {
     console.error('cloud pull failed (staying local):', err?.message || err)
+    const online = typeof navigator === 'undefined' || navigator.onLine
     // On a FAILED switch, the previous account's data must not remain visible —
-    // clear it (it's safe in the cloud and will sync next time).
+    // clear it (it's safe in the cloud and will sync next time). Tell the user
+    // so an empty-looking app doesn't read as data loss.
     if (switched) {
       store.clear()
       shopping.clear()
       staplePrefs.clear()
+      if (online) toast.show("Couldn't load this account just now — check your connection and reopen.", 3500)
+    } else if (online) {
+      // Normal login: local data is preserved, so this is non-fatal — just let
+      // the user know we're showing the on-device copy rather than the cloud.
+      toast.show("Couldn't sync — showing this device's copy.", 2500)
     }
     ok = false
   }

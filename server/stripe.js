@@ -167,8 +167,12 @@ export async function webhookHandler(rawBody, signature) {
   try {
     await handleEvent(stripe, event)
   } catch (err) {
-    // Log but still 200 so Stripe doesn't retry-storm on our own bug.
+    // The signature was valid but we failed to apply the change (e.g. the DB
+    // was briefly unavailable). Return 500 so Stripe retries with backoff —
+    // otherwise a paying customer could be left without Plus and never recover.
+    // Stripe gives up after ~3 days, so this can't retry-storm forever.
     console.error('stripe webhook handling failed:', err?.message || err)
+    return { status: 500, body: { error: 'handler_failed' } }
   }
   return { status: 200, body: { received: true } }
 }
