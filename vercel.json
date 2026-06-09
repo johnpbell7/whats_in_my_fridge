@@ -4,8 +4,5 @@
     "api/*.js": {
       "maxDuration": 60
     }
-  },
-  "crons": [
-    { "path": "/api/cron/emails", "schedule": "0 9 * * *" }
-  ]
+  }
 }
