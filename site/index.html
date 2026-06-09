@@ -450,7 +450,7 @@
       <div class="nav-cta">
         <a class="btn btn-ghost" href="https://app.whatsinmyfridge.co.uk">Sign in</a>
         <a class="btn btn-primary" href="https://app.whatsinmyfridge.co.uk"><span class="lbl-full">Open the app</span><span class="lbl-short">Open</span></a>
-        <button class="nav-toggle" id="navtoggle" aria-label="Menu">
+        <button class="nav-toggle" id="navtoggle" aria-label="Menu" aria-expanded="false">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
       </div>
@@ -809,18 +809,9 @@
     </div>
   </section>
 
-  <!-- ============ TESTIMONIALS (REPLACE WITH REAL REVIEWS BEFORE LAUNCH) ============ -->
-  <section style="background:var(--surface-2);">
-    <div class="wrap">
-      <div class="sec-head"><span class="eyebrow">Loved by home cooks</span><h2 class="display">People are <span class="wig">wasting less<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1 6 C 20 9, 40 2, 60 5 S 95 8, 99 4" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span> already</h2></div>
-      <div class="reviews">
-        <div class="review"><div class="stars">★★★★★</div><p>"I used to find mushy veg at the back of the fridge every week. Now I actually use what I buy — and dinner ideas are a lifesaver."</p><div class="who"><div class="av">S</div><div><b>Sarah M.</b><small>Manchester</small></div></div></div>
-        <div class="review"><div class="stars">★★★★★</div><p>"Scanning the receipt after a big shop is so satisfying. The whole trolley is logged before I've even unpacked."</p><div class="who"><div class="av">J</div><div><b>James T.</b><small>Bristol</small></div></div></div>
-        <div class="review"><div class="stars">★★★★★</div><p>"The 'what can I make for dinner' button has basically replaced my evening 'ugh, what do we have' meltdown."</p><div class="who"><div class="av">P</div><div><b>Priya K.</b><small>London</small></div></div></div>
-      </div>
-      <p style="text-align:center;color:var(--ink-faint);font-size:12.5px;margin-top:24px;">Reviews shown are illustrative placeholders — replace with real customer reviews before launch.</p>
-    </div>
-  </section>
+  <!-- Testimonials section intentionally removed until we have real customer
+       reviews. Fabricated reviews are misleading (and unlawful under the UK
+       DMCC Act 2024), so add genuine ones here before reinstating. -->
 
   <!-- ============ PRICING ============ -->
   <section id="pricing">
@@ -859,12 +850,12 @@
     <div class="wrap">
       <div class="sec-head"><span class="eyebrow">FAQ</span><h2 class="display">Good questions</h2></div>
       <div class="faq">
-        <div class="qa"><button>Do I have to type everything in? <span class="pm">+</span></button><div class="ans"><p>No — that's the whole point. Take a photo of your fridge or a shopping receipt and the app recognises and logs the items for you. You can always add or tweak anything by hand too.</p></div></div>
-        <div class="qa"><button>Is it free? <span class="pm">+</span></button><div class="ans"><p>Yes. The free plan lets you track your whole kitchen, keep a shopping list, and use a monthly allowance of scans and AI questions. Every new account also gets a 7-day free trial of Plus. Plus is £3.99/month if you want more.</p></div></div>
-        <div class="qa"><button>How does the dinner suggestion work? <span class="pm">+</span></button><div class="ans"><p>Tap "what can I make for dinner?" and the app suggests real meals built around what's actually in your inventory — favouring things that need using up. Each idea lists what it uses and a few extras you could add to your shopping list in one tap.</p></div></div>
-        <div class="qa"><button>What happens to my photos? <span class="pm">+</span></button><div class="ans"><p>A photo is sent to be read by AI, then it's discarded — we don't keep the image, only the list of items it produced. See our <a href="https://app.whatsinmyfridge.co.uk/privacy.html" style="color:var(--accent);font-weight:600;">Privacy Policy</a> for the full detail.</p></div></div>
-        <div class="qa"><button>Does it work on iPhone and Android? <span class="pm">+</span></button><div class="ans"><p>Yes. It runs in any modern browser and you can add it to your home screen so it works just like an app. Your fridge syncs across every device you sign in on.</p></div></div>
-        <div class="qa"><button>Can I cancel anytime? <span class="pm">+</span></button><div class="ans"><p>Absolutely — manage or cancel your subscription in a couple of taps from your account, and you'll keep Plus until the end of the period you've paid for.</p></div></div>
+        <div class="qa"><button aria-expanded="false">Do I have to type everything in? <span class="pm">+</span></button><div class="ans"><p>No — that's the whole point. Take a photo of your fridge or a shopping receipt and the app recognises and logs the items for you. You can always add or tweak anything by hand too.</p></div></div>
+        <div class="qa"><button aria-expanded="false">Is it free? <span class="pm">+</span></button><div class="ans"><p>Yes. The free plan lets you track your whole kitchen, keep a shopping list, and use a monthly allowance of scans and AI questions. Every new account also gets a 7-day free trial of Plus. Plus is £3.99/month if you want more.</p></div></div>
+        <div class="qa"><button aria-expanded="false">How does the dinner suggestion work? <span class="pm">+</span></button><div class="ans"><p>Tap "what can I make for dinner?" and the app suggests real meals built around what's actually in your inventory — favouring things that need using up. Each idea lists what it uses and a few extras you could add to your shopping list in one tap.</p></div></div>
+        <div class="qa"><button aria-expanded="false">What happens to my photos? <span class="pm">+</span></button><div class="ans"><p>A photo is sent to be read by AI, then it's discarded — we don't keep the image, only the list of items it produced. See our <a href="https://app.whatsinmyfridge.co.uk/privacy.html" style="color:var(--accent);font-weight:600;">Privacy Policy</a> for the full detail.</p></div></div>
+        <div class="qa"><button aria-expanded="false">Does it work on iPhone and Android? <span class="pm">+</span></button><div class="ans"><p>Yes. It runs in any modern browser and you can add it to your home screen so it works just like an app. Your fridge syncs across every device you sign in on.</p></div></div>
+        <div class="qa"><button aria-expanded="false">Can I cancel anytime? <span class="pm">+</span></button><div class="ans"><p>Absolutely — manage or cancel your subscription in a couple of taps from your account, and you'll keep Plus until the end of the period you've paid for.</p></div></div>
       </div>
     </div>
   </section>
@@ -923,12 +914,18 @@
   <script defer src="/vendor/ScrollTrigger.min.js"></script>
   <script>
     // --- always-on (no dependency, runs as soon as the DOM is here) ---
-    document.getElementById('navtoggle').addEventListener('click', () =>
-      document.getElementById('navlinks').classList.toggle('open'));
+    const navtoggle = document.getElementById('navtoggle');
+    navtoggle.addEventListener('click', () =>
+      navtoggle.setAttribute('aria-expanded',
+        document.getElementById('navlinks').classList.toggle('open')));
     document.querySelectorAll('#navlinks a').forEach(a =>
-      a.addEventListener('click', () => document.getElementById('navlinks').classList.remove('open')));
+      a.addEventListener('click', () => {
+        document.getElementById('navlinks').classList.remove('open');
+        navtoggle.setAttribute('aria-expanded', 'false');
+      }));
     document.querySelectorAll('.qa button').forEach(b =>
-      b.addEventListener('click', () => b.parentElement.classList.toggle('open')));
+      b.addEventListener('click', () =>
+        b.setAttribute('aria-expanded', b.parentElement.classList.toggle('open'))));
     document.getElementById('yr').textContent = new Date().getFullYear();
 
     // floating mobile CTA appears once you've scrolled past the hero
