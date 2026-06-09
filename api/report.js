@@ -1,4 +1,4 @@
-import { reportHandler, scheduledEmailsHandler } from '../server/notify.js'
+import { reportHandler, scheduledEmailsHandler, previewEmailsHandler } from '../server/notify.js'
 
 // This function serves two related "notification" jobs so we stay under Vercel's
 // 12-function Hobby limit:
@@ -8,7 +8,12 @@ import { reportHandler, scheduledEmailsHandler } from '../server/notify.js'
 //     Point an external scheduler (e.g. cron-job.org) at this once a day.
 export default async function handler(req, res) {
   if (req.method === 'GET') {
-    const { status, body } = await scheduledEmailsHandler(req.headers.authorization || '')
+    const auth = req.headers.authorization || ''
+    // ?preview=1 sends one of every email to the owner (designs check); the
+    // bare daily call runs the welcome + trial-reminder job.
+    const { status, body } = req.query?.preview
+      ? await previewEmailsHandler(auth)
+      : await scheduledEmailsHandler(auth)
     return res.status(status).json(body)
   }
   if (req.method !== 'POST') {

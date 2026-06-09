@@ -3,7 +3,7 @@
 // no-ops cleanly until RESEND_API_KEY (and, for the cron, CRON_SECRET) are set.
 
 import { authenticate, admin, TRIAL_DAYS } from './auth.js'
-import { sendEmail, welcomeEmail, trialReminderEmail, reportEmail, OWNER_EMAIL } from './email.js'
+import { sendEmail, welcomeEmail, trialReminderEmail, newSubscriberEmail, reportEmail, OWNER_EMAIL } from './email.js'
 
 const MAX_MSG = 4000
 
@@ -108,4 +108,28 @@ export async function scheduledEmailsHandler(authHeader = '') {
   }
 
   return { status: 200, body: { ok: true, welcomed, reminded } }
+}
+
+// Send one of every email to the owner so the designs can be checked in a real
+// inbox. Guarded by CRON_SECRET so it can't be used to spam the owner address.
+export async function previewEmailsHandler(authHeader = '') {
+  const secret = process.env.CRON_SECRET
+  if (!secret || authHeader !== `Bearer ${secret}`) {
+    return { status: 401, body: { error: 'unauthorized' } }
+  }
+  if (!process.env.RESEND_API_KEY) {
+    return { status: 200, body: { ok: true, skipped: 'not-configured' } }
+  }
+  const samples = [
+    welcomeEmail(),
+    trialReminderEmail(2),
+    newSubscriberEmail({ email: 'newcustomer@example.com', amount: '£3.99' }),
+    reportEmail({ type: 'Bug', message: "Scan didn't pick up my milk.", userEmail: 'user@example.com', meta: 'iPhone · preview' })
+  ]
+  let sent = 0
+  for (const s of samples) {
+    const r = await sendEmail({ to: OWNER_EMAIL, subject: `[Preview] ${s.subject}`, html: s.html })
+    if (r.ok) sent++
+  }
+  return { status: 200, body: { ok: true, sent } }
 }
