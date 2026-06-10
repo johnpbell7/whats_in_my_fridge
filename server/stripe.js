@@ -161,17 +161,16 @@ async function handleEvent(stripe, event) {
       console.error('new-subscriber notify failed:', err?.message || err)
     }
   } else if (event.type === 'customer.subscription.updated') {
-    // Keep Plus while the subscription is live OR mid-dunning. `past_due` means
-    // a payment failed but Stripe is still retrying the card — downgrading here
-    // would strip Plus from a paying customer who usually recovers on retry.
-    // Only genuinely terminal states (canceled / unpaid / incomplete_expired,
-    // and `paused`) fall through to free; the final cancel also arrives as
-    // `customer.subscription.deleted` below.
-    const stillPlus = ['active', 'trialing', 'past_due'].includes(obj.status)
-    await admin()
-      .from('profiles')
-      .update({ tier: stillPlus ? 'plus' : 'free', stripe_subscription_id: obj.id })
-      .eq('stripe_customer_id', obj.customer)
+    // `active`/`trialing`/`past_due` keep Plus (past_due = card retrying, mid-
+    // dunning). `incomplete` is transient — the very first payment is still
+    // settling and `checkout.session.completed` may have just granted Plus, so
+    // we must NOT downgrade; only record the subscription id. Everything else
+    // terminal (canceled / unpaid / incomplete_expired / paused) falls to free;
+    // the final cancel also arrives as `customer.subscription.deleted` below.
+    const update = { stripe_subscription_id: obj.id }
+    if (['active', 'trialing', 'past_due'].includes(obj.status)) update.tier = 'plus'
+    else if (obj.status !== 'incomplete') update.tier = 'free'
+    await admin().from('profiles').update(update).eq('stripe_customer_id', obj.customer)
   } else if (event.type === 'customer.subscription.deleted') {
     await admin()
       .from('profiles')
