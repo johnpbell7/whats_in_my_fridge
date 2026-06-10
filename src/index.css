@@ -18,6 +18,7 @@
   --accent-press: #28694c;
   --accent-soft: #e6efe8;
   --on-accent: #fdfdfb;
+  --leaf: #7bb497; /* lighter-green leaf accent on the wordmark */
 
   --warn: #bf6432;
   --warn-soft: #f8ebe0;
@@ -118,8 +119,9 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   font-weight: 600;
   font-size: 33px;
   letter-spacing: -0.02em;
+  color: var(--accent);
 }
-.brand-big .leaf { color: var(--accent); }
+.brand-big .leaf { color: var(--leaf); width: 0.46em; height: auto; margin-left: 0.06em; display: inline-block; transform: translateY(0.02em) rotate(-14deg); }
 .app-subtitle {
   margin: 6px 0 0;
   color: var(--ink-soft);
@@ -1407,16 +1409,18 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   font-size: 20px;
   letter-spacing: 0;
   margin-bottom: 8px;
-  color: #2b2823;
+  color: var(--ink-soft);
 }
 .splash-big {
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 46px;
   letter-spacing: -0.02em;
-  color: #24221e;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: baseline;
 }
-.splash-big i { color: var(--accent); font-style: normal; }
+.splash-big .leaf { color: var(--leaf); width: 0.42em; height: auto; margin-left: 0.08em; align-self: center; transform: rotate(-14deg); }
 
 .crash {
   min-height: 100dvh;
