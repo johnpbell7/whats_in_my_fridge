@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { askChat, suggestMeals, checkDish } from '../lib/api.js'
+import { askChat, suggestMeals, checkDish, aiErrorMessage } from '../lib/api.js'
 import { chat } from '../lib/chat.js'
 import { savedMeals } from '../lib/meals.js'
 import { upgrade } from '../lib/upgrade.js'
@@ -89,7 +89,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
     if (err.code === 'quota_exceeded' || err.code === 'rate_limited') {
       upgrade.show(err.code === 'rate_limited' ? 'rate' : 'chat')
     } else {
-      setMessages((m) => [...m, { role: 'error', text: err.message }])
+      setMessages((m) => [...m, { role: 'error', text: aiErrorMessage(err) }])
     }
   }
 
