@@ -14,6 +14,20 @@ create table if not exists public.profiles (
 -- Stripe linkage (added later) so we can manage a user's subscription.
 alter table public.profiles add column if not exists stripe_customer_id text;
 alter table public.profiles add column if not exists stripe_subscription_id text;
+-- One Stripe customer maps to exactly one profile, so subscription webhooks
+-- (which look the user up by customer id) can never touch the wrong row.
+create unique index if not exists profiles_stripe_customer_id_key
+  on public.profiles (stripe_customer_id) where stripe_customer_id is not null;
+
+-- Idempotency log for Stripe webhooks: Stripe re-delivers events on retry and
+-- can deliver them out of order, so we record each processed event id and skip
+-- duplicates. RLS on with no policy => only the service role can touch it.
+create table if not exists public.stripe_events (
+  id         text primary key,
+  type       text,
+  created_at timestamptz not null default now()
+);
+alter table public.stripe_events enable row level security;
 -- Automated-email bookkeeping: when we sent the welcome / trial-ending reminder
 -- (so the daily cron sends each at most once). Null = not sent yet.
 alter table public.profiles add column if not exists welcomed_at timestamptz;

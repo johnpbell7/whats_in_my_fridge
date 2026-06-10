@@ -341,7 +341,7 @@ function ConfirmRow({ item, onPatch }) {
         min="0"
         step="any"
         value={item.quantity}
-        onChange={(e) => onPatch({ quantity: Number(e.target.value) || 1 })}
+        onChange={(e) => onPatch({ quantity: ((n) => (Number.isFinite(n) && n >= 0 ? n : 1))(Number(e.target.value)) })}
         aria-label="Quantity"
         className="input"
         style={{ width: 58, padding: '10px 8px', minHeight: 44, textAlign: 'center' }}

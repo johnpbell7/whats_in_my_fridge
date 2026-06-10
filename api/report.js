@@ -20,7 +20,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'method_not_allowed', message: 'Use POST.' })
   }
   const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '') || null
-  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || null
+  // Prefer Vercel's trusted client IP. The leftmost x-forwarded-for entry is
+  // client-controlled (spoofable to defeat per-IP limits); the rightmost is the
+  // one the trusted proxy appended, so fall back to that rather than [0].
+  const xff = (req.headers['x-forwarded-for'] || '').split(',').map((s) => s.trim()).filter(Boolean)
+  const ip = (req.headers['x-real-ip'] || xff[xff.length - 1] || '').trim() || null
   const { status, body } = await reportHandler(req.body, token, ip)
   res.status(status).json(body)
 }

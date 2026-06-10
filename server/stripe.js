@@ -140,10 +140,16 @@ async function handleEvent(stripe, event) {
       console.error('new-subscriber notify failed:', err?.message || err)
     }
   } else if (event.type === 'customer.subscription.updated') {
-    const active = ['active', 'trialing'].includes(obj.status)
+    // Keep Plus while the subscription is live OR mid-dunning. `past_due` means
+    // a payment failed but Stripe is still retrying the card — downgrading here
+    // would strip Plus from a paying customer who usually recovers on retry.
+    // Only genuinely terminal states (canceled / unpaid / incomplete_expired,
+    // and `paused`) fall through to free; the final cancel also arrives as
+    // `customer.subscription.deleted` below.
+    const stillPlus = ['active', 'trialing', 'past_due'].includes(obj.status)
     await admin()
       .from('profiles')
-      .update({ tier: active ? 'plus' : 'free', stripe_subscription_id: obj.id })
+      .update({ tier: stillPlus ? 'plus' : 'free', stripe_subscription_id: obj.id })
       .eq('stripe_customer_id', obj.customer)
   } else if (event.type === 'customer.subscription.deleted') {
     await admin()
@@ -164,6 +170,17 @@ export async function webhookHandler(rawBody, signature) {
     console.error('stripe webhook signature failed:', err?.message || err)
     return { status: 400, body: { error: 'bad_signature' } }
   }
+  // Idempotency: Stripe re-delivers on retry and can deliver out of order, so
+  // skip any event we've already fully processed. (If the stripe_events table
+  // doesn't exist yet, this select errors and `seen` stays null — we then
+  // process normally, so the guard degrades gracefully before the migration.)
+  try {
+    const { data: seen } = await admin().from('stripe_events').select('id').eq('id', event.id).maybeSingle()
+    if (seen) return { status: 200, body: { received: true, duplicate: true } }
+  } catch (err) {
+    console.error('stripe event dedupe check failed (processing anyway):', err?.message || err)
+  }
+
   try {
     await handleEvent(stripe, event)
   } catch (err) {
@@ -173,6 +190,14 @@ export async function webhookHandler(rawBody, signature) {
     // Stripe gives up after ~3 days, so this can't retry-storm forever.
     console.error('stripe webhook handling failed:', err?.message || err)
     return { status: 500, body: { error: 'handler_failed' } }
+  }
+
+  // Record as processed only AFTER success, so a failed (500) event can be
+  // retried by Stripe rather than being permanently skipped. Best-effort.
+  try {
+    await admin().from('stripe_events').insert({ id: event.id, type: event.type })
+  } catch (err) {
+    console.error('stripe event record failed (non-fatal):', err?.message || err)
   }
   return { status: 200, body: { received: true } }
 }

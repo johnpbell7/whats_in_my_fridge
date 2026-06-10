@@ -60,7 +60,10 @@ export function mergeItems(local = [], remote = []) {
 const itemsRemote = {
   upsert(records) {
     if (!userId) return
-    supabase.from('items').upsert(records.map((r) => pick(r, ITEM_COLS, { user_id: userId }))).then(logErr('items.upsert'))
+    // Never push demo/sample rows (seeded via ?demo) into a real account.
+    const real = records.filter((r) => r.source !== 'sample')
+    if (!real.length) return
+    supabase.from('items').upsert(real.map((r) => pick(r, ITEM_COLS, { user_id: userId }))).then(logErr('items.upsert'))
   },
   // Soft delete: stamp a tombstone instead of hard-deleting, so the deletion
   // syncs to other devices rather than being undone by their stale copy.
@@ -130,8 +133,9 @@ async function pullAndWire(lastUser) {
       throw new Error(items.error?.message || shop.error?.message || prefs.error?.message)
     }
 
-    // Items: last-write-wins merge, push local-newer rows up.
-    const localItems = base(store.getAll()) || []
+    // Items: last-write-wins merge, push local-newer rows up. Sample/demo rows
+    // are excluded so they can't be merged or pushed into the signed-in account.
+    const localItems = (base(store.getAll()) || []).filter((it) => it.source !== 'sample')
     const { merged, toPush } = mergeItems(localItems, (items.data || []).map((r) => pick(r, ITEM_COLS)))
     store.replaceAll(merged)
     if (toPush.length) await supabase.from('items').upsert(toPush.map((r) => pick(r, ITEM_COLS, { user_id: userId })))
