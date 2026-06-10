@@ -16,7 +16,7 @@ img{max-width:100%;height:auto;display:block}
 
 .nav{max-width:760px;margin:0 auto;padding:22px 22px 0;display:flex;align-items:center;justify-content:space-between}
 .brand{display:inline-flex;align-items:baseline;gap:0;text-decoration:none;font-family:'Fraunces',serif;font-weight:600;font-size:19px}
-.brand .b-sec{color:#5d5648;font-weight:500;font-size:.8em;margin-right:.16em}
+.brand .b-sec{color:#5d5648;font-weight:500;font-size:.92em;margin-right:.16em}
 .brand .b-main{color:var(--accent);font-size:1.28em}
 .brand .leaf{color:#7bb497;width:.82em;height:auto;margin-left:.03em;align-self:center;transform:rotate(-16deg);flex:none}
 .nav .cta{font-family:'Plus Jakarta Sans';font-weight:600;font-size:14px;text-decoration:none;background:var(--accent);color:#fdfdfb;padding:9px 16px;border-radius:999px}
