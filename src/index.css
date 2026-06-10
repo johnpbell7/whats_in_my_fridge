@@ -1419,6 +1419,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   color: var(--accent);
   display: inline-flex;
   align-items: baseline;
+  /* balance the leaf's width on the right so "Fridge" stays centred under the mark */
+  padding-left: 0.5em;
 }
 .splash-big .leaf { color: var(--leaf); width: 0.42em; height: auto; margin-left: 0.08em; align-self: center; transform: rotate(-14deg); }
 

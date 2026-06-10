@@ -68,9 +68,9 @@ export default function Splash({ onDone }) {
             transition={{ delay: 1.28, duration: 0.3 }}
           />
 
-          {/* leaf grows in */}
+          {/* leaf grows in — down near the foot of the fridge */}
           <motion.path
-            d="M256 250 C304 280 304 322 256 352 C208 322 208 280 256 250 Z"
+            d="M256 305 C304 335 304 377 256 407 C208 377 208 335 256 305 Z"
             fill="#2f7d5a"
             style={{ transformBox: 'fill-box', transformOrigin: 'center' }}
             initial={reduce ? false : { opacity: 0, scale: 0 }}
@@ -78,7 +78,7 @@ export default function Splash({ onDone }) {
             transition={{ delay: 1.2, duration: 0.5, type: 'spring', stiffness: 240, damping: 16 }}
           />
           <motion.path
-            d="M256 262 L256 344 M256 296 L282 282 M256 312 L232 298"
+            d="M256 317 L256 399 M256 351 L282 337 M256 367 L232 353"
             stroke="#8fc7a8" strokeWidth="6" strokeLinecap="round" fill="none"
             initial={reduce ? false : { opacity: 0 }}
             animate={shown || { opacity: 1 }}
