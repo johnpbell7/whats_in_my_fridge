@@ -24,7 +24,7 @@ export default function StaplesBanner({ items }) {
   if (toShow.length === 0) return null
 
   return (
-    <section className="staples" aria-label="Staples running low">
+    <section className="staples" aria-label="Essentials running low">
       <div className="staples-head">
         <IconSparkle size={17} />
         <div>
@@ -52,7 +52,7 @@ export default function StaplesBanner({ items }) {
               <span className="staple-info">
                 <span className="staple-name">{s.name}</span>
                 <span className="staple-sub">
-                  {s.pinned ? 'Pinned staple' : `Usually in the ${locationLabel(s.location).toLowerCase()}`}
+                  {s.pinned ? 'Pinned essential' : `Usually in the ${locationLabel(s.location).toLowerCase()}`}
                 </span>
               </span>
 
@@ -70,8 +70,8 @@ export default function StaplesBanner({ items }) {
                 <button
                   className="icon-btn"
                   onClick={() => staplePrefs.ignore(s.key)}
-                  aria-label={`${s.name} isn't a staple — stop suggesting it`}
-                  title="Not a staple"
+                  aria-label={`${s.name} isn't an essential — stop suggesting it`}
+                  title="Not an essential"
                 >
                   <IconClose size={16} />
                 </button>

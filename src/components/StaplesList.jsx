@@ -42,8 +42,8 @@ export default function StaplesList({ items }) {
         <div className="empty-art">
           <IconPin size={28} />
         </div>
-        <h3>No staples yet</h3>
-        <p>Staples are the things you always keep in — milk, butter, eggs. Here’s how to add one:</p>
+        <h3>No essentials yet</h3>
+        <p>Essentials are the things you always keep in — milk, butter, eggs. Here’s how to add one:</p>
         <div className="staple-how-card"><HowToAddStaple /></div>
       </div>
     )
@@ -56,12 +56,12 @@ export default function StaplesList({ items }) {
           <button className="staple-tip-x" onClick={dismissTip} aria-label="Dismiss tip">
             <IconClose size={15} />
           </button>
-          <div className="staple-tip-head"><IconPin size={15} /> How to add a staple</div>
+          <div className="staple-tip-head"><IconPin size={15} /> How to add an essential</div>
           <HowToAddStaple />
         </div>
       )}
       <p className="staples-intro">
-        The things you keep restocking. {staples.length} {staples.length === 1 ? 'staple' : 'staples'} —
+        The things you keep restocking. {staples.length} {staples.length === 1 ? 'essential' : 'essentials'} —
         run-out ones are flagged so you can add them to the list.
       </p>
       <ul className="item-list">
@@ -113,16 +113,16 @@ export default function StaplesList({ items }) {
                         ? staplePrefs.unpin(s.key)
                         : staplePrefs.pin(s.key, { name: s.name, location: s.location, category: s.category })
                     }
-                    aria-label={s.pinned ? `Unpin ${s.name}` : `Pin ${s.name} as a staple`}
-                    title={s.pinned ? 'Pinned — always tracked' : 'Pin as a staple'}
+                    aria-label={s.pinned ? `Unpin ${s.name}` : `Pin ${s.name} as an essential`}
+                    title={s.pinned ? 'Pinned — always tracked' : 'Pin as an essential'}
                   >
                     <IconPin size={18} />
                   </button>
                   <button
                     className="icon-btn"
                     onClick={() => staplePrefs.ignore(s.key)}
-                    aria-label={`Remove ${s.name} from staples`}
-                    title="Not a staple"
+                    aria-label={`Remove ${s.name} from essentials`}
+                    title="Not an essential"
                   >
                     <IconClose size={16} />
                   </button>

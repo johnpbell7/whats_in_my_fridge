@@ -25,13 +25,13 @@ const HOWTO = [
   },
   {
     Icon: IconSparkle,
-    title: 'Never run out of staples',
-    body: 'Mark the things you always keep as staples. The app flags them the moment you’re low or out, and one tap adds them to your shopping list.'
+    title: 'Never run out of essentials',
+    body: 'Mark the things you always keep as essentials. The app flags them the moment you’re low or out, and one tap adds them to your shopping list.'
   },
   {
     Icon: IconCart,
     title: 'Shop, then put it away',
-    body: 'Your list gathers the staples you’re low on and extras from your dinner ideas. Tick things off as you buy, then file the whole lot back into your fridge in one tap. It all syncs across your devices.'
+    body: 'Your list gathers the essentials you’re low on and extras from your dinner ideas. Tick things off as you buy, then file the whole lot back into your fridge in one tap. It all syncs across your devices.'
   },
   {
     Icon: IconFridge,

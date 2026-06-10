@@ -196,7 +196,7 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
                 </button>
               </>
             ) : longLife ? (
-              <>Long-life staple — we won’t flag this for freshness. Set a date above if you want a reminder.</>
+              <>Long-life item — we won’t flag this for freshness. Set a date above if you want a reminder.</>
             ) : (
               <>
                 No need to set one — we’ll count freshness from today, fresh until about{' '}
