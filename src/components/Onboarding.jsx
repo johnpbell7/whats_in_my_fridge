@@ -38,7 +38,7 @@ const SLIDES = [
     Icon: IconSparkle,
     title: 'Never run out of the essentials',
     body:
-      'It learns the staples you always keep — milk, bread, butter — and flags them the moment you run low. Or pin your own.',
+      'It learns the essentials you always keep — milk, bread, butter — and flags them the moment you run low. Or pin your own.',
     visual: <StaplesVisual />
   },
   {
