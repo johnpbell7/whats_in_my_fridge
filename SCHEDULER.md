@@ -7,12 +7,19 @@ Your app sends two **automatic** emails:
   ends, nudging them to subscribe. (This is the one that converts trials to
   paying customers, so it's worth turning on.)
 
-The code lives in `server/notify.js` and works — but **nothing triggers it**.
-The Vercel cron that would normally call it daily was dropped to stay under the
-free Hobby plan's 12-function limit. So until an external scheduler pings the
-endpoint once a day, these two emails never go out.
+The code lives in `server/notify.js` and works — it just needs a daily trigger.
 
-This sets up a free scheduler to do that. ~5 minutes, one time.
+## ✅ Now handled by Vercel Cron (no third party needed)
+A `crons` entry in `vercel.json` points Vercel at `/api/report` once a day
+(`0 9 * * *`). Vercel automatically sends the `CRON_SECRET` as a Bearer token on
+these calls, which is exactly what the endpoint checks — so it works on the next
+deploy, as long as `CRON_SECRET` is set in the project's env vars (it is).
+
+Nothing else to do. Confirm it's live in Vercel → Project → **Settings → Cron
+Jobs** after a deploy, where you can also trigger a manual run to test.
+
+> The cron-job.org steps below are an **optional fallback** (e.g. if you ever
+> move off Vercel). You don't need them now.
 
 ---
 
