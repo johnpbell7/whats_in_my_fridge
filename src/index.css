@@ -769,6 +769,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   display: flex;
   flex-direction: column;
   padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 6px);
+  overflow-x: hidden; /* the horizontal expiring-items strip must never widen the page */
 }
 .chat {
   flex: 1;
@@ -902,11 +903,12 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 
 /* expiring-items quick-pick — shown after the first dinner ideas so you can
    tap what's going off and rebuild the recipes around it */
-.expiring-pick { flex-direction: column; align-items: stretch; gap: 8px; }
+.expiring-pick { flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: 8px; min-width: 0; }
 .expiring-pick-label { font-size: 12.5px; font-weight: 600; color: var(--ink-faint); padding: 0 2px; }
 .expiring-chips {
   display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 4px;
   scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  min-width: 0; max-width: 100%;
 }
 .expiring-chips::-webkit-scrollbar { display: none; }
 .exp-chip {
