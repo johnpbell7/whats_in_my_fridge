@@ -126,6 +126,23 @@ export function getHealth() {
 // The signed-in user's tier + this month's usage (or { authEnabled: false }).
 // no-store so the count is always live, never a cached value.
 export async function getMe() {
-  const res = await fetch('/api/me', { headers: { ...(await authHeader()) }, cache: 'no-store' })
+  let res
+  try {
+    res = await fetch('/api/me', { headers: { ...(await authHeader()) }, cache: 'no-store' })
+  } catch {
+    throw new Error('Network error. Check your connection and try again.')
+  }
+  if (!res.ok) {
+    // Mirror post()'s 401 handling so an expired token re-gates to login rather
+    // than surfacing an unparsed 5xx page as a confusing error.
+    if (res.status === 401 && supabase) {
+      try {
+        await supabase.auth.signOut()
+      } catch {
+        /* best-effort */
+      }
+    }
+    throw new Error('Could not load your account.')
+  }
   return res.json()
 }

@@ -12,7 +12,14 @@ import { checkoutHandler, confirmCheckoutHandler, billingPortalHandler, webhookH
 const PORT = process.env.API_PORT || 8787
 
 const app = express()
-app.use(cors())
+// This Express wrapper is for local dev (Vercel functions are same-origin in
+// prod), but if it's ever deployed, lock CORS to APP_URL rather than allowing
+// every origin to call the authenticated endpoints.
+app.use(cors(
+  process.env.NODE_ENV === 'production' && process.env.APP_URL
+    ? { origin: process.env.APP_URL }
+    : {}
+))
 
 const send = (res, { status, body }) => res.status(status).json(body)
 // Pull the user's access token out of the Authorization header (if signed in).

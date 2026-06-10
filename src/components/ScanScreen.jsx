@@ -296,7 +296,7 @@ function ConfirmList({ detected, setDetected, location, setLocation, receiptDate
 }
 
 function ConfirmRow({ item, onPatch }) {
-  const low = item.confidence < 0.6
+  const low = (item.confidence ?? 1) < 0.6
   return (
     <motion.div layout className={`confirm-item ${item.include ? '' : 'off'}`}>
       <button

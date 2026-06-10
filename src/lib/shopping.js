@@ -178,12 +178,10 @@ export const shopping = {
 
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', (e) => {
-    if (e.key === LS_KEY) {
-      const next = readLocal()
-      if (next) {
-        cache = next
-        notify()
-      }
-    }
+    // null key = another tab cleared storage (e.g. sign-out); propagate the
+    // clear rather than ignoring it and leaving a stale list on this tab.
+    if (e.key !== null && e.key !== LS_KEY) return
+    cache = readLocal() || []
+    notify()
   })
 }
