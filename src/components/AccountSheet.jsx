@@ -173,7 +173,7 @@ export default function AccountSheet({ onClose }) {
           <span aria-hidden="true"> · </span>
           <a href="/terms.html" target="_blank" rel="noopener noreferrer">Terms</a>
           <span aria-hidden="true"> · </span>
-          <a href="mailto:support@whatsinmyfridge.co.uk">Contact</a>
+          <a href="mailto:hello.whatsinmyfridge@gmail.com">Contact</a>
         </p>
       </motion.div>
     </div>

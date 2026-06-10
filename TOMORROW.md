@@ -25,11 +25,11 @@ Claude does once you give the go-ahead. Suggested order is top to bottom
 ## 📧 3. Finish the email setup (~15 min)
 - [ ] Create the **business Gmail** → give Claude the address
 - [ ] Vercel → set **`OWNER_EMAIL`** (new Gmail) + **`CRON_SECRET`** → **Redeploy**
-      - CRON_SECRET value: `36241f02679f3fb8d7cedc68e3116a63c4383c0a43c34434`
+      - CRON_SECRET value: stored in Bitwarden / Vercel env vars (not committed here)
 - [ ] Add the business Gmail to your **phone's Gmail app**
-- [ ] **GoDaddy email forwarding**: `support@whatsinmyfridge.co.uk` → business Gmail
-      (otherwise mail sent to support@ — your site's Contact link + Privacy/Terms
-      address — goes nowhere; it only *sends* today, doesn't *receive*)
+- [ ] *(optional now)* **GoDaddy email forwarding**: `support@whatsinmyfridge.co.uk` → business Gmail
+      (no longer blocking: the site/privacy/terms show the gmail directly, and all
+      outgoing app emails carry the gmail as reply-to — nothing routes to support@)
 - [ ] **[me]** Fire all 4 preview emails to confirm routing
 
 ## 🔍 4. Google / SEO — get indexed (~15 min)

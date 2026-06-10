@@ -3,11 +3,12 @@
 // before email is configured. Once the key + a verified domain are in place,
 // these go out from EMAIL_FROM.
 
+// FROM must stay on the Resend-verified domain; support@ has no mailbox behind
+// it, so every outgoing email carries SUPPORT_EMAIL as reply-to — customer
+// replies land in the monitored gmail instead of bouncing into the void.
 const FROM = process.env.EMAIL_FROM || "What's in my Fridge <support@whatsinmyfridge.co.uk>"
-export const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'support@whatsinmyfridge.co.uk'
+export const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || 'hello.whatsinmyfridge@gmail.com'
 // Where owner notifications (new subscriber, problem reports) are delivered.
-// Defaults to the support address, but set OWNER_EMAIL to a personal inbox to
-// get pinged there directly — no need to set up support@ receiving first.
 export const OWNER_EMAIL = process.env.OWNER_EMAIL || SUPPORT_EMAIL
 
 export function emailEnabled() {
@@ -28,7 +29,7 @@ export async function sendEmail({ to, subject, html, replyTo }) {
         to: Array.isArray(to) ? to : [to],
         subject,
         html,
-        ...(replyTo ? { reply_to: replyTo } : {})
+        reply_to: replyTo || SUPPORT_EMAIL
       })
     })
     if (!res.ok) {
