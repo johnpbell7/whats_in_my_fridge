@@ -15,7 +15,8 @@ const MAX_INVENTORY = 500
 const VISION_MODEL = process.env.VISION_MODEL || 'claude-sonnet-4-6'
 const CHAT_MODEL = process.env.CHAT_MODEL || 'claude-haiku-4-5-20251001'
 
-export const CATEGORIES = ['dairy', 'produce', 'meat', 'bakery', 'leftovers', 'condiments', 'drinks', 'snacks', 'household', 'other']
+export const CATEGORIES = ['dairy', 'produce', 'meat', 'bakery', 'leftovers', 'condiments', 'seasoning', 'drinks', 'snacks', 'household', 'other']
+export const STORAGE_LOCATIONS = ['fridge', 'freezer', 'pantry']
 
 // Lazy + memoized so the API key is read at call time (after dotenv loads
 // locally, or from Vercel's injected env in production).
@@ -110,13 +111,14 @@ Rules:
 - Do not invent items that are fully hidden behind others or sealed inside opaque containers. But DO include items that are only partially visible if you can recognise them.
 - Several of the SAME product = one entry with the count as quantity (e.g. three apples -> quantity 3). Different products are always separate entries.
 - Include food, drink AND household items. Household covers cleaning products, toiletries and personal care (shampoo, soap, toothpaste, deodorant), and medicine/first-aid. Skip pure decor (flowers, ornaments) and pet food.
-- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks; bread and baked goods -> bakery; crisps, chocolate, biscuits, sweets -> snacks; cleaning products, toiletries, personal care and medicine -> household. Only use 'other' when nothing else genuinely fits.
+- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks; bread and baked goods -> bakery; crisps, chocolate, biscuits, sweets -> snacks; cleaning products, toiletries, personal care and medicine -> household; salt, pepper, dried or ground herbs and spices, stock cubes, gravy granules and seasoning blends -> seasoning. Only use 'other' when nothing else genuinely fits.
 - confidence is your certainty from 0 to 1 that the item is present and correctly named.
 - quantity is a number; unit is a short freeform string ("carton", "block", "bunch", "" if not obvious).
 - frozen is true ONLY if it is a frozen product that belongs in the freezer (ice cream, frozen vegetables/fruit/fish/meat, oven chips, frozen ready meals, anything whose packaging says "frozen"); otherwise false.
+- location is where the item is kept at home, one of: fridge, freezer, pantry. Use 'freezer' for anything frozen. Use 'fridge' for things that must be kept cold — fresh dairy (milk, cheese, yoghurt, butter), eggs, meat, fish, leftovers, fresh juice, opened jars/sauces, and fresh refrigerated produce (salad, berries, fresh herbs). Use 'pantry' (cupboard) for ambient/shelf-stable items — tins, jars, dried goods, pasta, rice, bread, snacks, condiments, seasonings, household, and produce normally kept in the cupboard (onions, potatoes, garlic, bananas). Match how a typical UK home stores it.
 
 Return ONLY a JSON array, no prose. Include one element per distinct product:
-{"name": string, "category": string, "quantity": number, "unit": string, "confidence": number, "frozen": boolean}`
+{"name": string, "category": string, "location": string, "quantity": number, "unit": string, "confidence": number, "frozen": boolean}`
 
 const RECEIPT_PROMPT = `You are reading a shopping receipt. Extract every purchased item — food, drink AND household.
 
@@ -125,9 +127,10 @@ Rules:
 - IGNORE non-grocery lines entirely: store name and address, dates, totals, subtotals, VAT/tax, change, card/payment lines, discounts, loyalty/clubcard points, and ANY kind of carrier/shopping bag (e.g. "Carrier Bag", "Bag for Life", "5p Bag", "Reusable Bag", "Single Use Bag"). Never list a bag as an item.
 - Include household items (cleaning products, toiletries, personal care, medicines) with category 'household'. Skip pet food.
 - quantity comes from the line if shown (e.g. "2 @ £1.50" -> quantity 2), otherwise 1.
-- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks; bread and baked goods -> bakery; crisps, chocolate, biscuits, sweets -> snacks; cleaning products, toiletries, personal care and medicine -> household. Only use 'other' when nothing else genuinely fits.
+- category must be exactly one of: ${CATEGORIES.join(', ')}. Use the most specific fit: fresh herbs, salad, vegetables and fruit -> produce; milk, cheese, yoghurt, eggs, butter, cream -> dairy; meat, poultry and fish -> meat; juice, soft drinks, water, coffee and tea -> drinks; bread and baked goods -> bakery; crisps, chocolate, biscuits, sweets -> snacks; cleaning products, toiletries, personal care and medicine -> household; salt, pepper, dried or ground herbs and spices, stock cubes, gravy granules and seasoning blends -> seasoning. Only use 'other' when nothing else genuinely fits.
 - A receipt is printed text, so confidence should usually be high (0.8-1.0) unless the line is genuinely ambiguous.
 - frozen is true if the line is clearly a frozen product (e.g. "FROZEN", "FRZ", ice cream, frozen veg/fish/chips); otherwise false.
+- location is where the item is kept, one of: fridge, freezer, pantry. 'freezer' for frozen items; 'fridge' for chilled/fresh items that need refrigeration (fresh dairy, eggs, meat, fish, leftovers, fresh juice, fresh refrigerated produce); 'pantry' (cupboard) for ambient staples (tins, jars, dried goods, pasta, rice, bread, snacks, condiments, seasonings, household, and cupboard produce like onions, potatoes, garlic, bananas). Match how a typical UK home stores it.
 - Also read the date the receipt was ISSUED (the transaction/purchase date, usually near the top or bottom, NOT any 'best before' dates) and return it as receipt_date in YYYY-MM-DD format. If no transaction date is clearly legible, return an empty string.
 
 Return the items plus receipt_date via the tool.`
@@ -212,13 +215,14 @@ export async function visionHandler(body = {}, token) {
                   properties: {
                     name: { type: 'string', description: 'The product name' },
                     category: { type: 'string', enum: CATEGORIES },
+                    location: { type: 'string', enum: STORAGE_LOCATIONS, description: "Where it's kept: 'freezer' for frozen; 'fridge' for chilled/fresh items (fresh dairy, eggs, meat, fish, leftovers, fresh juice, fresh refrigerated produce); 'pantry' for ambient cupboard staples (tins, jars, dried goods, pasta, rice, bread, snacks, condiments, seasonings, household, and cupboard produce like onions, potatoes, garlic, bananas)." },
                     quantity: { type: 'number', description: 'How many of this product, default 1' },
                     unit: { type: 'string', description: 'Short freeform unit, or empty string' },
                     confidence: { type: 'number', description: '0 to 1 certainty' },
                     frozen: { type: 'boolean', description: 'true if this is a frozen product (belongs in the freezer)' },
-                    perishable: { type: 'boolean', description: 'true for fresh/chilled/frozen food that goes off in days–weeks (produce, dairy, meat, bread, leftovers). false for long-life/ambient staples that keep for many months (tins, jars, dried pasta/rice, packaged goods, condiments, household).' }
+                    perishable: { type: 'boolean', description: 'true for fresh/chilled/frozen food that goes off in days–weeks (produce, dairy, meat, bread, leftovers). false for long-life/ambient staples that keep for many months (tins, jars, dried pasta/rice, packaged goods, condiments, seasonings, household).' }
                   },
-                  required: ['name', 'category', 'quantity', 'unit', 'confidence', 'frozen', 'perishable']
+                  required: ['name', 'category', 'location', 'quantity', 'unit', 'confidence', 'frozen', 'perishable']
                 }
               },
               receipt_date: {
@@ -247,6 +251,9 @@ export async function visionHandler(body = {}, token) {
       .map((it) => ({
         name: String(it.name || '').trim(),
         category: CATEGORIES.includes(it.category) ? it.category : 'other',
+        // AI-assigned storage location; null if it returned something unexpected
+        // so the client falls back to its own name/category guess.
+        location: STORAGE_LOCATIONS.includes(it.location) ? it.location : null,
         quantity: Number.isFinite(it.quantity) ? it.quantity : 1,
         unit: String(it.unit || '').trim(),
         confidence: typeof it.confidence === 'number' ? Math.max(0, Math.min(1, it.confidence)) : 0.5,

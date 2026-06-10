@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { detectFromImage } from '../lib/api.js'
+import { detectFromImage, aiErrorMessage } from '../lib/api.js'
 import { upgrade } from '../lib/upgrade.js'
 import { downscaleImage } from '../lib/image.js'
 import { store } from '../lib/store.js'
@@ -42,7 +42,9 @@ export default function ScanScreen({ onDone, onAddManual }) {
         upgrade.show(err.code === 'rate_limited' ? 'rate' : 'scans')
         setPhase('idle')
       } else {
-        setError(err.message)
+        // aiErrorMessage hides owner/infra detail (no credit, bad key) behind a
+        // generic line; other errors keep their own friendly message.
+        setError(aiErrorMessage(err))
         setPhase('error')
       }
     }
@@ -57,13 +59,14 @@ export default function ScanScreen({ onDone, onAddManual }) {
       const added = purchasedAt.toISOString()
       store.addMany(
         chosen.map((d) => {
-          // Auto filing: a frozen product the AI spotted goes straight to the
-          // freezer, otherwise fall back to the name/category guess.
+          // Auto filing: a frozen product goes straight to the freezer; else
+          // trust the AI's fridge/freezer/pantry call; else fall back to the
+          // name/category guess.
           const loc =
             location === 'auto'
               ? d.frozen
                 ? 'freezer'
-                : suggestLocation(d.name, d.category)
+                : d.location || suggestLocation(d.name, d.category)
               : location
           return {
             name: d.name.trim(),

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { askChat, suggestMeals, checkDish } from '../lib/api.js'
+import { askChat, suggestMeals, checkDish, aiErrorMessage } from '../lib/api.js'
 import { chat } from '../lib/chat.js'
 import { savedMeals } from '../lib/meals.js'
 import { upgrade } from '../lib/upgrade.js'
@@ -50,6 +50,11 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
   const [dinnerMode, setDinnerMode] = useState(() => lastWasMeals(chat.getAll()))
   // In "dish" mode a typed message names a dish to check (have vs. still need).
   const [dishMode, setDishMode] = useState(() => lastWasDish(chat.getAll()))
+  // Expiring-items quick-pick: after the first dinner ideas, the user taps the
+  // soonest-expiring items to refocus the next batch of recipes on using them up.
+  // Once they've done that (refined=true), the normal refine chips take over.
+  const [picked, setPicked] = useState([])
+  const [refined, setRefined] = useState(false)
   const logRef = useRef(null)
 
   const active = items.filter((i) => i.status === 'active')
@@ -58,6 +63,9 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
     const s = expiryState(i)
     return s === 'soon' || s === 'expired'
   })
+  // De-duplicated by name for the quick-pick chips (you only need one "Eggs"),
+  // soonest-expiring first.
+  const urgentPick = [...new Map(urgent.map((i) => [i.name.toLowerCase(), i])).values()]
 
   useEffect(() => {
     const el = logRef.current
@@ -81,7 +89,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
     if (err.code === 'quota_exceeded' || err.code === 'rate_limited') {
       upgrade.show(err.code === 'rate_limited' ? 'rate' : 'chat')
     } else {
-      setMessages((m) => [...m, { role: 'error', text: err.message }])
+      setMessages((m) => [...m, { role: 'error', text: aiErrorMessage(err) }])
     }
   }
 
@@ -106,6 +114,8 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
       if (res?.kind === 'meals') {
         setMessages((m) => [...m, { role: 'meals', meals: res.meals }])
         setDinnerMode(true) // follow-ups now refine the ideas
+        setRefined(false) // fresh dinner session → show the expiring-items picker first
+        setPicked([])
       } else if (res?.kind === 'dish') {
         setMessages((m) => [...m, { role: 'dish', result: res.result }])
       } else if (res?.kind === 'list') {
@@ -132,6 +142,37 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
     setBusy(true)
     try {
       const meals = await suggestMeals(buildInventory(), refineText || undefined)
+      setMessages((m) => [...m, { role: 'meals', meals }])
+    } catch (err) {
+      handleError(err)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const togglePick = (name) =>
+    setPicked((p) => (p.includes(name) ? p.filter((x) => x !== name) : [...p, name]))
+
+  // A fresh dinner session (from a suggestion chip or a typed question) — reset
+  // the picker so the expiring-items chips show again before the refine chips.
+  function startDinner(prompt) {
+    setRefined(false)
+    setPicked([])
+    askDinner(prompt)
+  }
+
+  // Build the next batch of ideas around the items the user picked to use up.
+  async function askDinnerWithItems(names) {
+    if (busy || !names.length) return
+    const label = names.join(', ')
+    setMessages((m) => [...m, { role: 'me', text: `Use what's going off: ${label}` }])
+    setDinnerMode(true)
+    setRefined(true)
+    setPicked([])
+    setBusy(true)
+    try {
+      const req = `Suggest meals that use up these items that are going off soon: ${label}. Prioritise using all of them together where possible.`
+      const meals = await suggestMeals(buildInventory(), req)
       setMessages((m) => [...m, { role: 'meals', meals }])
     } catch (err) {
       handleError(err)
@@ -293,25 +334,56 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
         {messages.length === 0 && (
           <div className="suggest-row">
             {SUGGESTIONS.map((s) => (
-              <button key={s.label} onClick={() => (s.dish ? startDish() : askDinner(s.prompt || undefined))}>
+              <button key={s.label} onClick={() => (s.dish ? startDish() : startDinner(s.prompt || undefined))}>
                 {s.label}
               </button>
             ))}
           </div>
         )}
 
-        {dinnerMode && messages.length > 0 && !busy && (
-          <div className="suggest-row refine-row">
-            {REFINE.map((r) => (
-              <button key={r} onClick={() => askDinner(r)}>
-                {r}
+        {dinnerMode && messages.length > 0 && !busy &&
+          (!refined && urgentPick.length > 0 ? (
+            // First round: tap the soonest-expiring items to cook with.
+            <div className="suggest-row refine-row expiring-pick">
+              <span className="expiring-pick-label">Going off soon — tap to cook with these:</span>
+              <div className="expiring-chips">
+                {urgentPick.map((it) => {
+                  const on = picked.includes(it.name)
+                  return (
+                    <button
+                      key={it.id}
+                      type="button"
+                      className={`exp-chip ${on ? 'on' : ''}`}
+                      aria-pressed={on}
+                      onClick={() => togglePick(it.name)}
+                    >
+                      {on && <IconCheck size={12} />} {it.name}
+                    </button>
+                  )
+                })}
+              </div>
+              <div className="expiring-actions">
+                <button className="exp-go" disabled={!picked.length} onClick={() => askDinnerWithItems(picked)}>
+                  {picked.length ? `Use ${picked.length} → get recipes` : 'Pick items to use'}
+                </button>
+                <button className="refine-exit" onClick={() => setDinnerMode(false)}>
+                  <IconClose size={13} /> Ask something else
+                </button>
+              </div>
+            </div>
+          ) : (
+            // After refining: the usual refine chips.
+            <div className="suggest-row refine-row">
+              {REFINE.map((r) => (
+                <button key={r} onClick={() => askDinner(r)}>
+                  {r}
+                </button>
+              ))}
+              <button className="refine-exit" onClick={() => setDinnerMode(false)}>
+                <IconClose size={13} /> Ask something else
               </button>
-            ))}
-            <button className="refine-exit" onClick={() => setDinnerMode(false)}>
-              <IconClose size={13} /> Ask something else
-            </button>
-          </div>
-        )}
+            </div>
+          ))}
 
         {dishMode && messages.length > 0 && !busy && (
           <div className="suggest-row refine-row">

@@ -4,6 +4,18 @@
 
 import { authHeader, supabase } from './supabase.js'
 
+// Owner/infrastructure failures (no Anthropic credit, bad/missing API key, bad
+// model) come back with developer-facing messages meant for the server logs and
+// the owner — never show those to a customer. Map them to a calm, generic line;
+// everything else keeps its own user-friendly message.
+const OWNER_ERROR_CODES = new Set(['no_credit', 'bad_key', 'no_api_key', 'bad_model'])
+export function aiErrorMessage(err) {
+  if (err && OWNER_ERROR_CODES.has(err.code)) {
+    return 'AI features are temporarily unavailable — please try again later.'
+  }
+  return err?.message || 'Something went wrong. Please try again.'
+}
+
 async function post(path, body) {
   let res
   try {
