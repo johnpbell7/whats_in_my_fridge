@@ -56,27 +56,27 @@ def leaf(cx, cy, s, rot, body_col, rib_col):
 
 def icon_svg(size=512, maskable=False):
     radius = 116
-    pad = 78
-    box = size - pad * 2
-    inner = box * 0.84 if maskable else box
-    lines = ["What's", "in my", "Fridge"]
-    widest = max(width(BOLD, t, 100) for t in lines)
-    fs = inner / widest * 100
-    lh = fs * 0.92
-    y_top = size * (0.2 if maskable else 0.16)
-    d = ""
-    for i, t in enumerate(lines):
-        lx = (size - width(BOLD, t, fs)) / 2
-        by = y_top + fs * 0.74 + i * lh
-        dd, _ = line_path(BOLD, t, lx, by, fs)
-        d += dd
-    last_end = (size + width(BOLD, lines[-1], fs)) / 2
-    last_base = y_top + fs * 0.74 + (len(lines) - 1) * lh
-    lf = leaf(last_end + fs * 0.12, last_base - fs * 0.14, fs * 0.4, -18, LEAF_ON_GREEN, GREEN)
+    pad = size * (0.16 if maskable else 0.1)
+    inner = size - pad * 2
+    word = "Fridge"
+    # Size the word so the word + a trailing leaf fill the inner width.
+    word_w100 = width(BOLD, word, 100)
+    leaf_frac = 0.42   # leaf size relative to font size
+    gap_frac = 0.06
+    unit_w100 = word_w100 + 100 * gap_frac + 100 * leaf_frac * 0.95
+    fs = inner / unit_w100 * 100
+    word_w = width(BOLD, word, fs)
+    leaf_s = fs * leaf_frac
+    gap = fs * gap_frac
+    total = word_w + gap + leaf_s * 0.95
+    x0 = (size - total) / 2
+    baseline = size / 2 + fs * 0.36   # vertically centre the cap height
+    d, _ = line_path(BOLD, word, x0, baseline, fs)
+    lf = leaf(x0 + word_w + gap, baseline - leaf_s * 0.52, leaf_s, -16, LEAF_ON_GREEN, GREEN)
     r = 0 if maskable else radius
     defs = (
         '<defs>'
-        f'<linearGradient id="shine" x1="0" y1="0" x2="0.35" y2="1">'
+        '<linearGradient id="shine" x1="0" y1="0" x2="0.35" y2="1">'
         '<stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>'
         '<stop offset="0.5" stop-color="#ffffff" stop-opacity="0.05"/>'
         '<stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>'
@@ -102,7 +102,7 @@ def wordmark_svg():
     d_big, _ = line_path(BOLD, "Fridge", pad, y2, fs_b)
     fridge_end = pad + width(BOLD, "Fridge", fs_b)
     leaf_w = fs_b * 0.4
-    lf = leaf(fridge_end + fs_b * 0.16, y2 - fs_b * 0.18, leaf_w, -18, LEAF, CREAM)
+    lf = leaf(fridge_end + fs_b * 0.04, y2 - fs_b * 0.18, leaf_w, -18, LEAF, CREAM)
     W = int(max(pad + width(REG, "What's in my", fs_s), fridge_end + leaf_w) + pad)
     H = int(y2 + fs_b * 0.26 + pad)
     return (
