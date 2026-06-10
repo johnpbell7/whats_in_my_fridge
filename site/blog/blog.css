@@ -15,8 +15,8 @@ a{color:var(--accent-press)}
 img{max-width:100%;height:auto;display:block}
 
 .nav{max-width:760px;margin:0 auto;padding:22px 22px 0;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-family:'Fraunces',serif;font-weight:600;font-size:19px}
-.brand .mark{width:30px;height:30px;border-radius:9px}
+.brand{display:inline-flex;align-items:center;gap:0;text-decoration:none;color:var(--accent);font-family:'Fraunces',serif;font-weight:600;font-size:19px}
+.brand .leaf{width:.66em;height:auto;margin-left:.16em;transform:translateY(.05em) rotate(-16deg);flex:none}
 .nav .cta{font-family:'Plus Jakarta Sans';font-weight:600;font-size:14px;text-decoration:none;background:var(--accent);color:#fdfdfb;padding:9px 16px;border-radius:999px}
 
 .wrap{max-width:760px;margin:0 auto;padding:24px 22px 60px}
