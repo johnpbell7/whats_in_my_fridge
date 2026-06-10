@@ -59,20 +59,12 @@ def icon_svg(size=512, maskable=False):
     pad = size * (0.16 if maskable else 0.1)
     inner = size - pad * 2
     word = "Fridge"
-    # Size the word so the word + a trailing leaf fill the inner width.
-    word_w100 = width(BOLD, word, 100)
-    leaf_frac = 0.42   # leaf size relative to font size
-    gap_frac = 0.06
-    unit_w100 = word_w100 + 100 * gap_frac + 100 * leaf_frac * 0.95
-    fs = inner / unit_w100 * 100
+    # Big, centred 'Fridge' — no leaf on the icon.
+    fs = inner / width(BOLD, word, 100) * 100
     word_w = width(BOLD, word, fs)
-    leaf_s = fs * leaf_frac
-    gap = fs * gap_frac
-    total = word_w + gap + leaf_s * 0.95
-    x0 = (size - total) / 2
+    x0 = (size - word_w) / 2
     baseline = size / 2 + fs * 0.36   # vertically centre the cap height
     d, _ = line_path(BOLD, word, x0, baseline, fs)
-    lf = leaf(x0 + word_w + gap, baseline - leaf_s * 0.52, leaf_s, -16, LEAF_ON_GREEN, GREEN)
     r = 0 if maskable else radius
     defs = (
         '<defs>'
@@ -87,7 +79,6 @@ def icon_svg(size=512, maskable=False):
         f'{defs}'
         f'<rect width="{size}" height="{size}" rx="{r}" fill="{GREEN}"/>'
         f'<path d="{d}" fill="{ONACCENT}"/>'
-        f'{lf}'
         f'<rect width="{size}" height="{size}" rx="{r}" fill="url(#shine)"/>'
         f'</svg>'
     )
