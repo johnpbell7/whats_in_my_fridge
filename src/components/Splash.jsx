@@ -95,7 +95,7 @@ export default function Splash({ onDone }) {
       >
         <span className="splash-small">What's in my</span>
         <span className="splash-big">
-          Fridge<i>.</i>
+          Fridge<svg className="leaf" viewBox="0 0 100 52" aria-hidden="true"><path d="M2 26 C 18 2, 64 2, 94 22 C 64 50, 18 50, 2 26 Z" fill="currentColor" /></svg>
         </span>
       </motion.div>
     </motion.div>

@@ -1,52 +1,58 @@
 #!/usr/bin/env python3
-# Build brand SVGs (icon + 2-line wordmark) from the Fraunces serif font,
-# converting text to vector outlines via fontTools (font-independent output).
+# Build brand SVGs from the Fraunces serif font, text -> vector outlines.
+#  - App icon / favicon: stacked wordmark in cream on a GREEN rounded square,
+#    light-green leaf, with a soft premium shine overlay.
+#  - Logo: "What's in my" (secondary, grey, lighter weight) above "Fridge"
+#    (green, bold) + a lighter-green leaf.
 from fontTools.ttLib import TTFont
 from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 
 GREEN = "#2f7d5a"
 CREAM = "#faf7f2"
-FONT = "/tmp/fraunces-bold.ttf"
+ONACCENT = "#fdfdfb"      # text on green
+GREY = "#5d5648"          # secondary "What's in my"
+LEAF = "#7bb497"          # leaf on light backgrounds (the logo)
+LEAF_ON_GREEN = "#a7d8bf" # leaf on the green icon
 
-font = TTFont(FONT)
-upm = font["head"].unitsPerEm
-glyphSet = font.getGlyphSet()
-cmap = font.getBestCmap()
+def load(path):
+    f = TTFont(path)
+    return (f["head"].unitsPerEm, f.getGlyphSet(), f.getBestCmap())
 
-def line_path(text, pen_x, baseline, fs):
-    """Outline path 'd' for a text line; returns (d, end_x)."""
+BOLD = load("/tmp/fraunces-bold.ttf")
+REG = load("/tmp/fraunces-reg.ttf")
+
+def line_path(fnt, text, x, baseline, fs):
+    upm, gs, cmap = fnt
     scale = fs / upm
-    d = ""
-    x = pen_x
+    d, px = "", x
     for ch in text:
-        gname = cmap.get(ord(ch))
-        if gname is None:
-            x += fs * 0.3
+        g = cmap.get(ord(ch))
+        if g is None:
+            px += fs * 0.3
             continue
-        glyph = glyphSet[gname]
-        pen = SVGPathPen(glyphSet)
-        # y is negated: font outlines are y-up, SVG is y-down.
-        tpen = TransformPen(pen, (scale, 0, 0, -scale, x, baseline))
-        glyph.draw(tpen)
+        gl = gs[g]
+        pen = SVGPathPen(gs)
+        gl.draw(TransformPen(pen, (scale, 0, 0, -scale, px, baseline)))
         d += pen.getCommands()
-        x += glyph.width * scale
-    return d, x
+        px += gl.width * scale
+    return d, px
 
-def line_width(text, fs):
-    scale = fs / upm
+def width(fnt, text, fs):
+    upm, gs, cmap = fnt
+    s = fs / upm
     w = 0
     for ch in text:
-        gname = cmap.get(ord(ch))
-        w += (glyphSet[gname].width * scale) if gname else fs * 0.3
+        g = cmap.get(ord(ch))
+        w += (gs[g].width * s) if g else fs * 0.3
     return w
 
-def leaf(cx, cy, s, rot, rib=CREAM):
+def leaf(cx, cy, s, rot, body_col, rib_col):
     body = "M2 26 C 18 2, 64 2, 94 22 C 64 50, 18 50, 2 26 Z"
-    rib_p = "M10 27 C 40 22, 66 22, 90 22"
+    rib = "M10 27 C 40 22, 66 22, 90 22"
     return (f'<g transform="translate({cx} {cy}) rotate({rot}) scale({s/100})">'
-            f'<path d="{body}" fill="{GREEN}"/>'
-            f'<path d="{rib_p}" fill="none" stroke="{rib}" stroke-width="5" stroke-linecap="round"/></g>')
+            f'<path d="{body}" fill="{body_col}"/>'
+            f'<path d="{rib}" fill="none" stroke="{rib_col}" stroke-width="5" stroke-linecap="round"/></g>')
 
 def icon_svg(size=512, maskable=False):
     radius = 116
@@ -54,48 +60,57 @@ def icon_svg(size=512, maskable=False):
     box = size - pad * 2
     inner = box * 0.84 if maskable else box
     lines = ["What's", "in my", "Fridge"]
-    widest = max(line_width(t, 100) for t in lines)
+    widest = max(width(BOLD, t, 100) for t in lines)
     fs = inner / widest * 100
     lh = fs * 0.92
-    x0 = (size - max(line_width(t, fs) for t in lines)) / 2  # center block
     y_top = size * (0.2 if maskable else 0.16)
     d = ""
     for i, t in enumerate(lines):
-        # center each line individually
-        lx = (size - line_width(t, fs)) / 2
+        lx = (size - width(BOLD, t, fs)) / 2
         by = y_top + fs * 0.74 + i * lh
-        dd, _ = line_path(t, lx, by, fs)
+        dd, _ = line_path(BOLD, t, lx, by, fs)
         d += dd
-    last = lines[-1]
-    last_lx = (size - line_width(last, fs)) / 2
-    last_end = last_lx + line_width(last, fs)
+    last_end = (size + width(BOLD, lines[-1], fs)) / 2
     last_base = y_top + fs * 0.74 + (len(lines) - 1) * lh
-    lf = leaf(last_end + fs * 0.12, last_base - fs * 0.14, fs * 0.4, -18)
-    if maskable:
-        bg = f'<rect width="{size}" height="{size}" fill="{CREAM}"/>'
-    else:
-        bg = f'<rect width="{size}" height="{size}" rx="{radius}" fill="{CREAM}"/>'
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
-            f'viewBox="0 0 {size} {size}">{bg}<path d="{d}" fill="{GREEN}"/>{lf}</svg>')
+    lf = leaf(last_end + fs * 0.12, last_base - fs * 0.14, fs * 0.4, -18, LEAF_ON_GREEN, GREEN)
+    r = 0 if maskable else radius
+    defs = (
+        '<defs>'
+        f'<linearGradient id="shine" x1="0" y1="0" x2="0.35" y2="1">'
+        '<stop offset="0" stop-color="#ffffff" stop-opacity="0.22"/>'
+        '<stop offset="0.5" stop-color="#ffffff" stop-opacity="0.05"/>'
+        '<stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>'
+        '</linearGradient></defs>'
+    )
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {size} {size}">'
+        f'{defs}'
+        f'<rect width="{size}" height="{size}" rx="{r}" fill="{GREEN}"/>'
+        f'<path d="{d}" fill="{ONACCENT}"/>'
+        f'{lf}'
+        f'<rect width="{size}" height="{size}" rx="{r}" fill="url(#shine)"/>'
+        f'</svg>'
+    )
 
 def wordmark_svg():
-    lines = ["What's in", "my Fridge"]
-    fs = 200
-    pad = 20
-    lh = fs * 0.96
-    leaf_w = fs * 0.4
-    d = ""
-    for i, t in enumerate(lines):
-        by = pad + fs * 0.74 + i * lh
-        dd, _ = line_path(t, pad, by, fs)
-        d += dd
-    last_base = pad + fs * 0.74 + (len(lines) - 1) * lh
-    last_end = pad + line_width(lines[-1], fs)
-    lf = leaf(last_end + fs * 0.16, last_base - fs * 0.18, leaf_w, -18, rib="#cfe0d6")
-    W = int(max(max(line_width(t, fs) for t in lines) + pad, last_end + leaf_w) + pad)
-    H = int(last_base + fs * 0.28 + pad)
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" '
-            f'viewBox="0 0 {W} {H}"><path d="{d}" fill="{GREEN}"/>{lf}</svg>')
+    pad = 24
+    fs_b = 200          # "Fridge"
+    fs_s = 86           # "What's in my"
+    y1 = pad + fs_s * 0.74
+    y2 = y1 + fs_s * 0.34 + fs_b * 0.74
+    d_small, _ = line_path(REG, "What's in my", pad, y1, fs_s)
+    d_big, _ = line_path(BOLD, "Fridge", pad, y2, fs_b)
+    fridge_end = pad + width(BOLD, "Fridge", fs_b)
+    leaf_w = fs_b * 0.4
+    lf = leaf(fridge_end + fs_b * 0.16, y2 - fs_b * 0.18, leaf_w, -18, LEAF, CREAM)
+    W = int(max(pad + width(REG, "What's in my", fs_s), fridge_end + leaf_w) + pad)
+    H = int(y2 + fs_b * 0.26 + pad)
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">'
+        f'<path d="{d_small}" fill="{GREY}"/>'
+        f'<path d="{d_big}" fill="{GREEN}"/>'
+        f'{lf}</svg>'
+    )
 
 std = icon_svg()
 mask = icon_svg(maskable=True)
