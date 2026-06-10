@@ -14,11 +14,13 @@ Claude does once you give the go-ahead. Updated 10 Jun 2026.
 - [ ] Stripe → Settings → Business details / Customer emails → set public
       support email to `hello.whatsinmyfridge@gmail.com`
 
-## 🛠️ 0b. Apply the review fixes to the database — do after merge
-- [ ] **Supabase → SQL Editor → run the updated `supabase/schema.sql`** (safe to
-      re-run). Adds the unique index on `stripe_customer_id` and the new
-      `stripe_events` table — the webhook idempotency + correct-row guarantees
-      from the code review depend on these existing.
+## 🛠️ 0b. Apply the review fixes to the database
+- [x] **Full code review done** (HIGH→NIT across app, backend, site) — fixed,
+      merged (PRs #82, #83) and deployed.
+- [x] Ran `schema.sql` additions in Supabase: unique index on
+      `stripe_customer_id` + `stripe_events` idempotency table.
+- [x] Ran `maintenance.sql`: locked down `prune_old_data()` EXECUTE + scheduled
+      the nightly prune (returned job id `1`).
 - [ ] One oversized blog image left: **`site/blog/img/dinner-ideas.jpg` (562 KB)**
       — compress to ~120 KB (couldn't do it here: no image tooling in the env).
 
@@ -62,8 +64,8 @@ Claude does once you give the go-ahead. Updated 10 Jun 2026.
 
 ## ⚖️ 5. Legal / GDPR (~30 min)
 - [ ] **Register with the ICO** (£40/yr data-protection fee) — ico.org.uk
-- [ ] **[me]** Add **Resend** to the privacy policy's processors list
-      (currently names Supabase, Anthropic, Stripe, Vercel — Resend missing)
+- [x] **[me]** Added **Resend** to the privacy policy's processors list (also
+      added an Anthropic US-transfer note) — merged & live.
 - [ ] **Accept the DPA** in each: Supabase, Stripe, Resend, Vercel, Anthropic
 
 ## 💼 6. Business admin
@@ -73,8 +75,11 @@ Claude does once you give the go-ahead. Updated 10 Jun 2026.
 - [x] **Live payment test** with a real card (done 9 Jun — created the test sub below)
 
 ## 🧹 7. Cleanup (~5 min)
-- [ ] Stripe → **refund/cancel** the test £3.99 subscription (`johnbell_7@hotmail.com`)
-- [ ] **[me]** 1-line SQL to reset main account (`johnpbell7@gmail.com`) from test "plus" → free
+- [x] Stripe → test £3.99 sub (`johnbell_7@hotmail.com`) **cancelled** (ends
+      9 Jul; no refund — by choice, access runs out at period end).
+- [ ] Reset main account (`johnpbell7@gmail.com`) from test "plus" → free. SQL
+      ready (run in Supabase SQL Editor):
+      `update public.profiles set tier='free' where id in (select id from auth.users where email='johnpbell7@gmail.com');`
 
 ## 🟡 8. When you're ready (optional, not blocking)
 - [ ] **[me]** Set up **analytics** (see signups + conversions)
