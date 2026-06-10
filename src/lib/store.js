@@ -174,6 +174,17 @@ export const store = {
     this.update(id, { status })
   },
 
+  // "Used one of these." A multi-quantity item (e.g. 2 bottles of wine) just
+  // loses a single unit and stays in the list; only the LAST one archives to
+  // the Used tab. A single item archives straight away, as before.
+  useOne(id) {
+    const it = cache.find((x) => x.id === id)
+    if (!it) return
+    const qty = Number(it.quantity) || 1
+    if (qty > 1) this.update(id, { quantity: qty - 1 })
+    else this.setStatus(id, 'used')
+  },
+
   // Wipe all items locally (account change). Does NOT touch the cloud.
   clear() {
     commit([])

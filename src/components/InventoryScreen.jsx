@@ -236,7 +236,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
                   key={item.id}
                   item={item}
                   onEdit={onEdit}
-                  onUse={(it) => store.setStatus(it.id, 'used')}
+                  onUse={(it) => store.useOne(it.id)}
                   onReadd={(it) => {
                     shopping.addUnique(it.name, it.quantity || 1)
                     store.remove(it.id)
