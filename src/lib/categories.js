@@ -9,6 +9,7 @@ export const CATEGORIES = [
   { key: 'bakery', label: 'Bakery', days: 5 },
   { key: 'leftovers', label: 'Leftovers', days: 5 },
   { key: 'condiments', label: 'Condiments', days: 90 },
+  { key: 'seasoning', label: 'Seasoning', days: 365 },
   { key: 'drinks', label: 'Drinks', days: 14 },
   { key: 'snacks', label: 'Snacks', days: 60 },
   { key: 'household', label: 'Household', days: 365 },
@@ -58,6 +59,19 @@ const CATEGORY_KEYWORDS = [
     'cracker', 'wafer', 'haribo', 'snack', 'chocolate bar', 'crackers', 'nachos', 'tortilla chip']],
   ['drinks', ['juice', 'soda', 'cola', 'wine', 'beer', 'coffee', 'tea', 'squash', 'lemonade',
     'cordial', 'smoothie', 'fizzy drink', 'sparkling water', 'still water']],
+  // Salt, pepper, dried/ground herbs & spices, stock cubes and seasoning blends.
+  // Checked BEFORE produce (so 'black peppercorns' beats produce's 'pepper'), but
+  // uses only distinctly-seasoning words (e.g. 'peppercorn' not bare 'pepper',
+  // 'ground ginger' not 'ginger', 'dried basil' not 'basil') so fresh
+  // produce/herbs stay in produce. After meat/dairy so 'salted butter' -> dairy.
+  ['seasoning', ['salt', 'peppercorn', 'black pepper', 'white pepper', 'ground pepper',
+    'paprika', 'cumin', 'turmeric', 'cinnamon', 'nutmeg', 'cayenne', 'chilli powder', 'chili powder',
+    'chilli flake', 'chili flake', 'curry powder', 'garam masala', 'mixed spice', 'mixed herbs', 'dried herb',
+    'dried oregano', 'dried basil', 'dried thyme', 'italian seasoning', 'spice', 'spices', 'seasoning',
+    'stock cube', 'stock pot', 'bouillon', 'gravy granule', 'gravy', 'oxo', 'baking powder', 'baking soda',
+    'bicarbonate of soda', 'bicarb', 'cardamom', 'star anise', 'allspice', 'saffron', 'vanilla extract',
+    'vanilla essence', 'vanilla pod', 'ground ginger', 'ginger powder', 'garlic powder', 'garlic granule',
+    'onion powder', 'taco seasoning', 'fajita seasoning']],
   ['produce', ['apple', 'banana', 'orange', 'lettuce', 'tomato', 'potato', 'onion', 'carrot', 'pepper',
     'cucumber', 'spinach', 'broccoli', 'fruit', 'veg', 'salad', 'berry', 'berries', 'grape', 'lemon',
     'lime', 'garlic', 'mushroom', 'avocado', 'courgette', 'cabbage', 'celery', 'kale', 'pear',
@@ -83,7 +97,7 @@ export function guessCategory(name = '') {
 // an item's perishability (manual adds, older items). Catches tins/jars/dried
 // goods by name, common ambient staples, and the inherently long-life
 // categories — so freshness flagging doesn't nag about baked beans or pasta.
-const LONG_LIFE_CATEGORIES = new Set(['condiments', 'snacks', 'household'])
+const LONG_LIFE_CATEGORIES = new Set(['condiments', 'seasoning', 'snacks', 'household'])
 const LONG_LIFE_WORD = /\b(tinned?|canned?|jarred?|dried|dehydrated|uht|long[- ]?life|powder(ed)?|bouillon|preserved)\b|\b(long life|stock cube|tin of|jar of|can of)\b/i
 const LONG_LIFE_STAPLE = /\b(pasta|spaghetti|penne|macaroni|rice|noodles?|flour|sugar|oats|cereal|lentils?|chickpeas?|baked beans|kidney beans|cannellini|passata|tuna|sardines?|honey|jam|marmalade|peanut butter|coffee|tea\b|crackers?|cous ?cous|quinoa)\b/i
 

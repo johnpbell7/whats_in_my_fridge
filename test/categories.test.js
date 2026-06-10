@@ -26,6 +26,16 @@ describe('guessCategory', () => {
     expect(guessCategory('Tarragon')).toBe('produce')
     expect(guessCategory('Fresh ginger')).toBe('produce')
   })
+  it('classifies seasonings, and keeps fresh produce/herbs out of it', () => {
+    expect(guessCategory('Sea salt')).toBe('seasoning')
+    expect(guessCategory('Black peppercorns')).toBe('seasoning')
+    expect(guessCategory('Paprika')).toBe('seasoning')
+    expect(guessCategory('Gravy granules')).toBe('seasoning')
+    expect(guessCategory('Garlic powder')).toBe('seasoning')
+    expect(guessCategory('Red pepper')).toBe('produce') // bell pepper, not the spice
+    expect(guessCategory('Fresh basil')).toBe('produce') // not 'dried basil'
+    expect(guessCategory('Salted butter')).toBe('dairy') // 'salt' must not steal it
+  })
   it('keeps catching real household items and avoids new false positives', () => {
     expect(guessCategory('Shaving foam')).toBe('household')
     expect(guessCategory('Sausages')).toBe('meat') // "sage" must not steal it
@@ -40,5 +50,6 @@ describe('suggestLocation', () => {
     expect(suggestLocation('Frozen peas', 'produce')).toBe('freezer')
     expect(suggestLocation('Shampoo', 'household')).toBe('pantry')
     expect(suggestLocation('Bananas', 'produce')).toBe('pantry') // pantry produce
+    expect(suggestLocation('Paprika', 'seasoning')).toBe('pantry') // seasonings live in the cupboard
   })
 })

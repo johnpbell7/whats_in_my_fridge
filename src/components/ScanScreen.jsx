@@ -57,13 +57,14 @@ export default function ScanScreen({ onDone, onAddManual }) {
       const added = purchasedAt.toISOString()
       store.addMany(
         chosen.map((d) => {
-          // Auto filing: a frozen product the AI spotted goes straight to the
-          // freezer, otherwise fall back to the name/category guess.
+          // Auto filing: a frozen product goes straight to the freezer; else
+          // trust the AI's fridge/freezer/pantry call; else fall back to the
+          // name/category guess.
           const loc =
             location === 'auto'
               ? d.frozen
                 ? 'freezer'
-                : suggestLocation(d.name, d.category)
+                : d.location || suggestLocation(d.name, d.category)
               : location
           return {
             name: d.name.trim(),

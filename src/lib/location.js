@@ -71,6 +71,6 @@ export function suggestLocation(name = '', category = 'other') {
   if (category === 'produce') return 'fridge'
   // Broad pantry word list, then category default.
   if (PANTRY.some((k) => n.includes(k))) return 'pantry'
-  if (category === 'condiments' || category === 'bakery' || category === 'snacks') return 'pantry'
+  if (category === 'condiments' || category === 'seasoning' || category === 'bakery' || category === 'snacks') return 'pantry'
   return 'pantry' // "other" tends to be ambient (tins, packets, household staples)
 }
