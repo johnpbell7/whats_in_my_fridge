@@ -16,10 +16,18 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onReadd }) {
   // The "Used" control starts unticked (neutral); tapping it ticks green, then
   // the row removes itself a beat later for a satisfying confirm.
   const [checking, setChecking] = useState(false)
+  // Multiples (e.g. 2 bottles of wine) use one unit per tap and stay in the
+  // list; only the last one archives.
+  const multi = (item.quantity ?? 1) > 1
   function markUsed() {
     if (checking) return
     setChecking(true)
-    setTimeout(() => onUse(item), 300)
+    setTimeout(() => {
+      onUse(item)
+      // A multi-pack just lost a unit and stays — reset the tick for the next
+      // one. A single item archives and the row animates out.
+      if (multi) setChecking(false)
+    }, 300)
   }
   // On the "Used & gone" screen, the action re-adds the item to the shopping
   // list and clears it from the archive. Tapping flips the plus to a green tick
@@ -123,11 +131,11 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onReadd }) {
             className={`item-done ${checking ? 'on' : ''}`}
             onClick={markUsed}
             aria-pressed={checking}
-            aria-label={`Mark ${item.name} as used`}
-            title="Tap when you've used or finished this"
+            aria-label={multi ? `Use one ${item.name}` : `Mark ${item.name} as used`}
+            title={multi ? 'Tap to use one' : "Tap when you've used or finished this"}
           >
             {checking ? <IconCheck size={17} /> : <IconCircle size={17} />}
-            <span>Used</span>
+            <span>{multi ? 'Use 1' : 'Used'}</span>
           </button>
         )}
       </div>

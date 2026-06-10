@@ -84,7 +84,7 @@ export default function CategorySections({ items, onEdit, onFileNew }) {
                       key={item.id}
                       item={item}
                       onEdit={onEdit}
-                      onUse={(it) => store.setStatus(it.id, 'used')}
+                      onUse={(it) => store.useOne(it.id)}
                     />
                   ))}
                 </AnimatePresence>
