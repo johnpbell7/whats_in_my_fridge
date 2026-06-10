@@ -90,7 +90,9 @@ Claude does once you give the go-ahead. Updated 10 Jun 2026.
       blocks nothing — promote to enforcing once the reports look clean).
 - [ ] Get **3–5 real people** using it → real feedback + real reviews for the site
 - [ ] **[me]** Re-home the **trial-reminder email** to a free scheduler
-      (needs a free cron-job.org account — point a daily GET at
-      `/api/report` with the `CRON_SECRET` Bearer; I can document the exact setup)
+      — **[me] done: exact setup written in `SCHEDULER.md`.** You just create a
+      free cron-job.org account and paste the URL + Bearer header (5 min). This
+      switches on the welcome + trial-reminder emails (currently nothing triggers
+      them).
 - [ ] **Sentry** error monitoring (code wired, dormant until `VITE_SENTRY_DSN` set)
 - [ ] **Trademark** (~£170–220, Classes 9 + 42) once there's traction
