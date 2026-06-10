@@ -47,6 +47,20 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    // Split big, rarely-changing dependencies out of the main app chunk so the
+    // first paint isn't held behind one 585 KB file and they cache separately
+    // across deploys.
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          motion: ['framer-motion'],
+          supabase: ['@supabase/supabase-js']
+        }
+      }
+    }
+  },
   server: {
     port: 5173,
     proxy: {

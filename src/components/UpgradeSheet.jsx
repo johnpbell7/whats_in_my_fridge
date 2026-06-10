@@ -23,6 +23,7 @@ const REASON_HEAD = {
 // payments (RevenueCat) are wired up. `reason` adds a contextual headline.
 export default function UpgradeSheet({ onClose, reason = '' }) {
   const [pending, setPending] = useState(false)
+  const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const contextHead = REASON_HEAD[reason]
   const sheetRef = useSheet(onClose)
@@ -30,6 +31,7 @@ export default function UpgradeSheet({ onClose, reason = '' }) {
   async function subscribe() {
     if (busy) return
     setBusy(true)
+    setError('')
     try {
       const { url } = await startCheckout()
       if (url) {
@@ -38,11 +40,11 @@ export default function UpgradeSheet({ onClose, reason = '' }) {
       }
       setPending(true)
     } catch (err) {
-      // Payments not set up yet → keep the friendly "launching soon" note.
+      // Only show the "launching soon" note when payments genuinely aren't set
+      // up yet. A real failure (network, Stripe error) shows a retryable error
+      // instead of a misleading "coming soon" message.
       if (err.code === 'not_configured') setPending(true)
-      else {
-        setPending(true)
-      }
+      else setError(err.message || 'Could not start checkout. Please try again.')
     } finally {
       setBusy(false)
     }
@@ -96,9 +98,12 @@ export default function UpgradeSheet({ onClose, reason = '' }) {
             Card payments are launching very soon — your account will be the first to be able to upgrade. Thanks for the support! 💚
           </p>
         ) : (
-          <button className="btn btn-primary btn-block" onClick={subscribe} disabled={busy}>
-            {busy ? 'Starting checkout…' : 'Subscribe — £3.99/month'}
-          </button>
+          <>
+            <button className="btn btn-primary btn-block" onClick={subscribe} disabled={busy}>
+              {busy ? 'Starting checkout…' : 'Subscribe — £3.99/month'}
+            </button>
+            {error && <p className="auth-error" role="alert">{error}</p>}
+          </>
         )}
         <button className="btn-text upgrade-later" onClick={onClose}>
           Maybe later

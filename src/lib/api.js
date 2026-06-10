@@ -2,7 +2,7 @@
 // the Anthropic key lives on the server (server/index.js). When accounts are
 // enabled, the signed-in user's token rides along so the server can meter use.
 
-import { authHeader } from './supabase.js'
+import { authHeader, supabase } from './supabase.js'
 
 async function post(path, body) {
   let res
@@ -22,6 +22,15 @@ async function post(path, body) {
     /* non-JSON error body */
   }
   if (!res.ok) {
+    // A 401 means the session token is expired/revoked. Sign out so the app
+    // re-gates to the login screen instead of showing a generic error forever.
+    if (res.status === 401 && supabase) {
+      try {
+        await supabase.auth.signOut()
+      } catch {
+        /* best-effort */
+      }
+    }
     const err = new Error(data.message || 'Something went wrong. Please try again.')
     err.code = data.error
     throw err

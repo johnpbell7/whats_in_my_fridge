@@ -55,7 +55,9 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
       {
         name: cleanName,
         category,
-        quantity: Number(quantity) || 1,
+        // Keep a typed 0 ("none left") instead of silently coercing it to 1;
+        // only fall back to 1 for blank/invalid input.
+        quantity: ((n) => (Number.isFinite(n) && n >= 0 ? n : 1))(Number(quantity)),
         unit: unit.trim(),
         location,
         expiry_date: expiry || null,

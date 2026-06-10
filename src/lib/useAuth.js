@@ -9,11 +9,17 @@ export function useAuth() {
 
   useEffect(() => {
     if (!supabaseEnabled) return
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
+    // Always clear `loading`, even if getSession rejects (network blip / corrupt
+    // stored session) — otherwise the app hangs on a permanently blank screen.
+    supabase.auth
+      .getSession()
+      .then(({ data }) => setSession(data.session))
+      .catch(() => setSession(null))
+      .finally(() => setLoading(false))
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s)
       setLoading(false)
     })
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => setSession(s))
     return () => sub.subscription.unsubscribe()
   }, [])
 

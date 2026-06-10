@@ -2,10 +2,21 @@
 // run that welcomes new users + reminds trials that are about to end. All of it
 // no-ops cleanly until RESEND_API_KEY (and, for the cron, CRON_SECRET) are set.
 
+import { timingSafeEqual } from 'node:crypto'
 import { authenticate, admin, TRIAL_DAYS } from './auth.js'
 import { sendEmail, welcomeEmail, trialReminderEmail, newSubscriberEmail, reportEmail, OWNER_EMAIL } from './email.js'
 
 const MAX_MSG = 4000
+
+// Constant-time check of the cron Bearer token, so the secret can't be guessed
+// by timing the response. Returns false when CRON_SECRET isn't set.
+function cronAuthorized(authHeader = '') {
+  const secret = process.env.CRON_SECRET
+  if (!secret) return false
+  const got = Buffer.from(String(authHeader))
+  const want = Buffer.from(`Bearer ${secret}`)
+  return got.length === want.length && timingSafeEqual(got, want)
+}
 
 // Best-effort abuse guard for the open report endpoint: it sends an email on
 // every call, so an unthrottled script could flood the owner inbox and burn the
@@ -14,18 +25,28 @@ const MAX_MSG = 4000
 // extra infra. Legit users never hit it.
 const REPORT_WINDOW_MS = 10 * 60 * 1000
 const REPORT_MAX = 5
+// Coarse global ceiling per serverless instance: even spread across many IPs,
+// one instance won't fire more than this many report emails per window. Blunts
+// the IP-rotation flood that the per-IP cap alone can't (the per-IP map is also
+// per-instance — a shared KV counter would be the full fix, noted for later).
+const REPORT_GLOBAL_MAX = 50
 const reportHits = new Map() // ip -> recent timestamps
+let globalHits = [] // recent timestamps across all IPs
 function reportRateLimited(ip) {
-  if (!ip) return false
   const now = Date.now()
-  const hits = (reportHits.get(ip) || []).filter((t) => now - t < REPORT_WINDOW_MS)
-  if (hits.length >= REPORT_MAX) {
+  globalHits = globalHits.filter((t) => now - t < REPORT_WINDOW_MS)
+  if (globalHits.length >= REPORT_GLOBAL_MAX) return true
+  if (ip) {
+    const hits = (reportHits.get(ip) || []).filter((t) => now - t < REPORT_WINDOW_MS)
+    if (hits.length >= REPORT_MAX) {
+      reportHits.set(ip, hits)
+      return true
+    }
+    hits.push(now)
     reportHits.set(ip, hits)
-    return true
+    if (reportHits.size > 5000) reportHits.clear() // bound memory
   }
-  hits.push(now)
-  reportHits.set(ip, hits)
-  if (reportHits.size > 5000) reportHits.clear() // bound memory
+  globalHits.push(now)
   return false
 }
 
@@ -73,8 +94,7 @@ async function emailFor(db, userId) {
 // scheduler (or a Vercel cron once on Pro) hitting an endpoint that calls it.
 // Protected by CRON_SECRET (sent as a Bearer token on scheduled runs).
 export async function scheduledEmailsHandler(authHeader = '') {
-  const secret = process.env.CRON_SECRET
-  if (!secret || authHeader !== `Bearer ${secret}`) {
+  if (!cronAuthorized(authHeader)) {
     return { status: 401, body: { error: 'unauthorized' } }
   }
   const db = admin()
@@ -138,8 +158,7 @@ export async function scheduledEmailsHandler(authHeader = '') {
 // Send one of every email to the owner so the designs can be checked in a real
 // inbox. Guarded by CRON_SECRET so it can't be used to spam the owner address.
 export async function previewEmailsHandler(authHeader = '') {
-  const secret = process.env.CRON_SECRET
-  if (!secret || authHeader !== `Bearer ${secret}`) {
+  if (!cronAuthorized(authHeader)) {
     return { status: 401, body: { error: 'unauthorized' } }
   }
   if (!process.env.RESEND_API_KEY) {

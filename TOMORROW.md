@@ -3,16 +3,24 @@
 Single source of truth for what's left. Items marked **[me]** are things
 Claude does once you give the go-ahead. Updated 10 Jun 2026.
 
-## ⚡ 0. Unblock the email pipeline (~10 min) — do first
-- [ ] Vercel → Settings → Environment Variables → **add `CRON_SECRET`**
-      (value: Bitwarden / chat — not committed here) → Production → Save
-- [ ] Same screen → **`OWNER_EMAIL`**: still points at the personal Gmail, which
-      overrides the code default → change to `hello.whatsinmyfridge@gmail.com`
-      (or delete the var entirely) → **Redeploy**
+## ⚡ 0. Email pipeline — LIVE ✅
+- [x] Vercel `CRON_SECRET` set on **Production** (was mis-set to a Stripe key on
+      Preview; corrected) → redeployed
+- [x] **[me]** Fired all 4 preview emails — endpoint returned `{"ok":true,"sent":4}`
+- [ ] Confirm `OWNER_EMAIL` resolves to `hello.whatsinmyfridge@gmail.com`
+      (check which inbox the 4 previews landed in; if personal Gmail, change it)
+- [ ] Verify a separate **`STRIPE_SECRET_KEY`** holds the `sk_live_…` value
+      (it was briefly pasted into CRON_SECRET by mistake)
 - [ ] Stripe → Settings → Business details / Customer emails → set public
       support email to `hello.whatsinmyfridge@gmail.com`
-- [ ] **[me]** Fire all 4 preview emails into the new gmail to confirm routing
-      (blocked until `CRON_SECRET` is set — last test: `unauthorized`)
+
+## 🛠️ 0b. Apply the review fixes to the database — do after merge
+- [ ] **Supabase → SQL Editor → run the updated `supabase/schema.sql`** (safe to
+      re-run). Adds the unique index on `stripe_customer_id` and the new
+      `stripe_events` table — the webhook idempotency + correct-row guarantees
+      from the code review depend on these existing.
+- [ ] One oversized blog image left: **`site/blog/img/dinner-ideas.jpg` (562 KB)**
+      — compress to ~120 KB (couldn't do it here: no image tooling in the env).
 
 ## 🔐 1. Security & passwords (~30 min)
 - [ ] Get a **password manager** (Bitwarden, free) — stores passwords + 2FA backup codes
