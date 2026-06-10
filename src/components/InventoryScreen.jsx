@@ -148,7 +148,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
           In stock
         </button>
         <button aria-pressed={view ==='archive'} onClick={() => setView('archive')}>
-          Used &amp; gone
+          Used
         </button>
         <button aria-pressed={view ==='staples'} onClick={() => setView('staples')}>
           Staples
