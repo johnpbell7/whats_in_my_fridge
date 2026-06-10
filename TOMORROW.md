@@ -33,9 +33,9 @@ Claude does once you give the go-ahead. Suggested order is top to bottom
 - [ ] **[me]** Fire all 4 preview emails to confirm routing
 
 ## 🔍 4. Google / SEO — get indexed (~15 min)
-- [ ] **[me]** Add the Google verification tag to the site
-- [ ] **Google Search Console** → add `whatsinmyfridge.co.uk` → verify → **submit `sitemap.xml`**
-- [ ] **Bing Webmaster Tools** → same (covers Bing + ChatGPT search)
+- [x] **[me]** Add the Google verification file to the site
+- [x] **Google Search Console** → verified → **sitemap.xml submitted** (6 pages discovered)
+- [ ] **Bing Webmaster Tools** → import from Search Console (covers Bing + ChatGPT search)
 
 ## ⚖️ 5. Legal / GDPR (~30 min)
 - [ ] **Register with the ICO** (£40/yr data-protection fee) — ico.org.uk
