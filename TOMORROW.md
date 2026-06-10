@@ -82,10 +82,15 @@ Claude does once you give the go-ahead. Updated 10 Jun 2026.
       `update public.profiles set tier='free' where id in (select id from auth.users where email='johnpbell7@gmail.com');`
 
 ## 🟡 8. When you're ready (optional, not blocking)
-- [ ] **[me]** Set up **analytics** (see signups + conversions)
-- [ ] **[me]** Write the **launch plan** (channels + ready-to-post blurbs)
+- [x] **[me]** **Analytics** wired — Vercel Web Analytics + `signup` /
+      `upgrade_started` / `subscribed` events. **Flip it on:** Vercel → Project →
+      Analytics → Enable (free). Dormant until then.
+- [x] **[me]** **Launch plan** written — see `LAUNCH.md` (channels + copy).
+- [x] **[me]** **Report-only CSP** added to `vercel.json` (observes violations,
+      blocks nothing — promote to enforcing once the reports look clean).
 - [ ] Get **3–5 real people** using it → real feedback + real reviews for the site
-- [ ] **[me]** Add a **report-only CSP** (deeper security hardening)
 - [ ] **[me]** Re-home the **trial-reminder email** to a free scheduler
-- [ ] **Sentry** error monitoring (code wired, dormant until DSN set)
+      (needs a free cron-job.org account — point a daily GET at
+      `/api/report` with the `CRON_SECRET` Bearer; I can document the exact setup)
+- [ ] **Sentry** error monitoring (code wired, dormant until `VITE_SENTRY_DSN` set)
 - [ ] **Trademark** (~£170–220, Classes 9 + 42) once there's traction

@@ -9,6 +9,7 @@ import { initShopping } from './lib/shopping.js'
 import { initStaplePrefs } from './lib/staples.js'
 import { startSync, stopSync } from './lib/cloud.js'
 import { confirmCheckout } from './lib/api.js'
+import { track } from './lib/analytics.js'
 import { toast } from './lib/toast.js'
 import InventoryScreen from './components/InventoryScreen.jsx'
 import ScanScreen from './components/ScanScreen.jsx'
@@ -123,7 +124,10 @@ export default function App() {
     const clean = () => window.history.replaceState({}, document.title, window.location.pathname)
     if (checkout === 'success' && params.get('session_id')) {
       confirmCheckout(params.get('session_id'))
-        .then(() => toast.show('Welcome to Plus — thank you! 💚', 3000))
+        .then(() => {
+          track('subscribed') // conversion: a paid Plus subscription completed
+          toast.show('Welcome to Plus — thank you! 💚', 3000)
+        })
         .catch(() => toast.show('Payment received — it may take a moment to show.', 3000))
         .finally(clean)
     } else {

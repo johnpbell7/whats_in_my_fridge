@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase.js'
+import { track } from '../lib/analytics.js'
 import { IconFridge } from '../icons.jsx'
 
 // Sign in / create account. Shown (in place of the app) when accounts are
@@ -23,6 +24,7 @@ export default function AuthScreen() {
       if (mode === 'signup') {
         const { data, error } = await supabase.auth.signUp({ email: email.trim(), password })
         if (error) throw error
+        track('signup') // conversion: a new account was created
         // If the project requires email confirmation there's no session yet.
         if (!data.session) {
           setCheckEmail(true)
