@@ -20,8 +20,9 @@ const REASON_HEAD = {
   account: ''
 }
 
-// Plus upgrade offer. The Subscribe button is a placeholder until card
-// payments (RevenueCat) are wired up. `reason` adds a contextual headline.
+// Plus upgrade offer. "Subscribe" starts Stripe Checkout (startCheckout); a
+// "coming soon" note only shows if payments aren't configured yet
+// (err.code === 'not_configured'). `reason` adds a contextual headline.
 export default function UpgradeSheet({ onClose, reason = '' }) {
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
