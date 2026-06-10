@@ -9,3 +9,7 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 .vercel
+
+# Generated marketing bundle (delivered to user, not source)
+whats-in-my-fridge-marketing.zip
+*.zip
