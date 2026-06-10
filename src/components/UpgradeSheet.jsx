@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useSheet } from '../lib/useSheet.js'
 import { startCheckout } from '../lib/api.js'
+import { track } from '../lib/analytics.js'
 import { IconClose, IconCheck, IconSparkle } from '../icons.jsx'
 
 const BENEFITS = [
@@ -35,6 +36,7 @@ export default function UpgradeSheet({ onClose, reason = '' }) {
     try {
       const { url } = await startCheckout()
       if (url) {
+        track('upgrade_started', { reason: reason || 'direct' }) // funnel: reached Stripe checkout
         window.location.href = url // hand off to Stripe's hosted checkout
         return
       }

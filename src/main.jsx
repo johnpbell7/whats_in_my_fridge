@@ -4,6 +4,7 @@ import { registerSW } from 'virtual:pwa-register'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { initMonitoring } from './lib/monitoring.js'
+import { Analytics } from './lib/analytics.js'
 import './index.css'
 
 // Start error monitoring (no-op unless VITE_SENTRY_DSN is configured).
@@ -45,6 +46,7 @@ createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary fallback={<Fallback />}>
       <App />
+      <Analytics />
     </ErrorBoundary>
   </React.StrictMode>
 )
