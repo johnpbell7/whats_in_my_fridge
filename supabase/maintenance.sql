@@ -36,6 +36,11 @@ as $$
      and deleted_at < now() - interval '90 days';
 $$;
 
+-- This is SECURITY DEFINER, so EXECUTE must not be open to app users — only the
+-- cron job (run by the table owner) should be able to call it. RLS does not
+-- guard function execution, so revoke it explicitly.
+revoke execute on function public.prune_old_data() from public, anon, authenticated;
+
 -- Replace any previous version of the job, then (re)schedule it for 03:17 UTC
 -- daily — a quiet hour, and an odd minute so it doesn't collide with other jobs.
 do $$

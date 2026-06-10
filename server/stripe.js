@@ -40,6 +40,22 @@ async function profileOf(userId) {
   return data || {}
 }
 
+// Confirm a checkout session was actually for our Plus price, so a session for
+// some other (cheaper) price can't be used to unlock Plus. Fails OPEN only when
+// we genuinely can't read the line items (transient) — never on a real mismatch.
+async function checkoutPriceOk(stripe, sessionId) {
+  if (!PRICE_ID) return true
+  try {
+    const items = await stripe.checkout.sessions.listLineItems(sessionId, { limit: 10 })
+    const prices = (items.data || []).map((li) => li.price?.id).filter(Boolean)
+    if (!prices.length) return true // couldn't read items — don't block a paid session
+    return prices.includes(PRICE_ID)
+  } catch (err) {
+    console.error('could not verify checkout price (allowing):', err?.message || err)
+    return true
+  }
+}
+
 async function getOrCreateCustomer(stripe, user) {
   const profile = await profileOf(user.id)
   if (profile.stripe_customer_id) {
@@ -107,6 +123,9 @@ export async function confirmCheckoutHandler(body = {}, token) {
     if (!paid) {
       return { status: 402, body: { error: 'not_paid', message: 'Payment not completed.' } }
     }
+    if (!(await checkoutPriceOk(stripe, session.id))) {
+      return { status: 400, body: { error: 'wrong_price', message: 'That checkout was not for the Plus plan.' } }
+    }
     await admin()
       .from('profiles')
       .update({ tier: 'plus', stripe_customer_id: session.customer, stripe_subscription_id: session.subscription })
@@ -124,12 +143,14 @@ export async function confirmCheckoutHandler(body = {}, token) {
 async function handleEvent(stripe, event) {
   const obj = event.data.object
   if (event.type === 'checkout.session.completed') {
-    if (obj.client_reference_id) {
-      await admin()
-        .from('profiles')
-        .update({ tier: 'plus', stripe_customer_id: obj.customer, stripe_subscription_id: obj.subscription })
-        .eq('id', obj.client_reference_id)
-    }
+    // Only grant Plus (and notify) when the session is genuinely for our Plus
+    // price — a checkout for any other price must never unlock Plus.
+    const priceOk = obj.client_reference_id ? await checkoutPriceOk(stripe, obj.id) : false
+    if (!priceOk) return
+    await admin()
+      .from('profiles')
+      .update({ tier: 'plus', stripe_customer_id: obj.customer, stripe_subscription_id: obj.subscription })
+      .eq('id', obj.client_reference_id)
     // Tell the owner there's a new subscriber (best-effort — never block the webhook).
     try {
       const email = obj.customer_details?.email || null

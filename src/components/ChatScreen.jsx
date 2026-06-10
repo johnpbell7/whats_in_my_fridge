@@ -257,7 +257,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
           <AnimatePresence initial={false}>
             {messages.map((m, i) => (
               <motion.div
-                key={i}
+                key={m.id ?? i}
                 layout
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

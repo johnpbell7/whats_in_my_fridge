@@ -83,7 +83,6 @@ export default function App() {
     }
     setOnboarded(true)
   }
-  const dontShowOnboarding = finishOnboarding
 
   // Load saved inventory + shopping list from durable storage on launch.
   useEffect(() => {
@@ -178,7 +177,7 @@ export default function App() {
   let content
   if (!onboarded) {
     // Walkthrough — shown before anything else each time you open the app.
-    content = <Onboarding onDone={finishOnboarding} onNeverShow={dontShowOnboarding} />
+    content = <Onboarding onDone={finishOnboarding} onNeverShow={finishOnboarding} />
   } else if (authEnabled && authLoading) {
     // While the session is still resolving, hold a blank screen rather than
     // flashing the app to someone who may not be signed in.

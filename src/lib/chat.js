@@ -40,8 +40,14 @@ export const chat = {
   },
 
   // Replace the whole conversation (the screen builds the next array and sets it).
+  // Give every message a stable id so React can key on it — keying on array
+  // index breaks enter/exit animations once the list is sliced to the last MAX.
   setAll(messages) {
-    cache = Array.isArray(messages) ? messages.slice(-MAX) : []
+    const next = Array.isArray(messages) ? messages.slice(-MAX) : []
+    for (const m of next) {
+      if (m && m.id == null) m.id = `m-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    }
+    cache = next
     persist()
     notify()
   },

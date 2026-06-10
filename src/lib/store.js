@@ -244,12 +244,11 @@ export const hasSample = () => cache.some((i) => i.source === 'sample')
 // Pick up edits made in another tab/window (via the localStorage mirror).
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', (e) => {
-    if (e.key === LS_KEY) {
-      const next = readLocal()
-      if (next) {
-        cache = next
-        notify()
-      }
-    }
+    // e.key is null when another tab calls localStorage.clear() (e.g. sign-out);
+    // treat that, and a removed key, as an empty list so the clear propagates
+    // here instead of leaving stale items on this tab.
+    if (e.key !== null && e.key !== LS_KEY) return
+    cache = readLocal() || []
+    notify()
   })
 }
