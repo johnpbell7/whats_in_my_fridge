@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useSheet } from '../lib/useSheet.js'
 import { WHATS_NEW, markSeen } from '../lib/whatsnew.js'
-import { IconClose, IconCamera, IconClock, IconChat, IconSparkle, IconCart, IconFridge } from '../icons.jsx'
+import { IconClose, IconCamera, IconClock, IconChat, IconSparkle, IconCart, IconFridge, IconUser } from '../icons.jsx'
 
 // Help / info centre. Reached from the "i" button by the avatar. Holds the
 // how-to guide, and a "What's new" feed (see lib/whatsnew.js).
@@ -37,6 +37,11 @@ const HOWTO = [
     Icon: IconFridge,
     title: 'Add to your home screen',
     body: 'Pop the app on your phone’s home screen so it opens full-screen like a normal app — no app store needed.'
+  },
+  {
+    Icon: IconUser,
+    title: 'Your free trial & credits',
+    body: 'New accounts get 7 days of full Plus access — 60 photo scans and 200 chat questions a month. After that, Free gives you 10 scans and 30 questions a month. Tap your account icon at the top to check how many you’ve got left; it resets at the start of each month.'
   }
 ]
 
