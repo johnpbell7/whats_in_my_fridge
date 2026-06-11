@@ -17,6 +17,12 @@ describe('guessCategory', () => {
   it('falls back to other', () => {
     expect(guessCategory('Mystery thing')).toBe('other')
   })
+  it('puts tobacco/nicotine products in other, never produce or snacks', () => {
+    expect(guessCategory('Nicotine pouches')).toBe('other')
+    expect(guessCategory('Marlboro cigarettes')).toBe('other')
+    expect(guessCategory('Vape pods')).toBe('other')
+    expect(guessCategory('Rolling tobacco')).toBe('other')
+  })
   it('cheeses go to dairy, herbs to produce (the parmesan/herbs fix)', () => {
     expect(guessCategory('Fresh parmesan shavings')).toBe('dairy') // not household via "shaving"
     expect(guessCategory('Parmesan')).toBe('dairy')

@@ -48,3 +48,21 @@ describe('freshness: long-life items never auto-flag', () => {
     expect(effectiveExpiry(jar)).toBe('2020-01-01')
   })
 })
+
+describe('freshness: non-food (household) never appears in expiring', () => {
+  it('never tracks household items, even old ones', () => {
+    const bleach = { name: 'Bleach', category: 'household', added_date: daysAgo(400) }
+    expect(effectiveExpiry(bleach)).toBe(null)
+    expect(expiryState(bleach)).toBe('none')
+  })
+  it('ignores a use-by date attached to a household item', () => {
+    const soap = { name: 'Dish soap', category: 'household', added_date: daysAgo(2), expiry_date: '2020-01-01' }
+    expect(effectiveExpiry(soap)).toBe(null)
+    expect(expiryState(soap)).toBe('none')
+  })
+  it('ignores a household item explicitly marked perishable', () => {
+    const wipes = { name: 'Antibacterial wipes', category: 'household', added_date: daysAgo(30), perishable: true }
+    expect(effectiveExpiry(wipes)).toBe(null)
+    expect(expiryState(wipes)).toBe('none')
+  })
+})

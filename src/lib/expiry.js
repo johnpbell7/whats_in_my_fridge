@@ -1,4 +1,4 @@
-import { suggestExpiry, looksLongLife } from './categories.js'
+import { suggestExpiry, looksLongLife, isNonFoodCategory } from './categories.js'
 
 const DAY = 86400000
 
@@ -25,6 +25,10 @@ export function isLongLife(item) {
 // you set a real one yourself, so they never nag as "expiring".
 export function effectiveExpiry(item) {
   if (!item) return null
+  // Non-food (household: bleach, dish soap, cleaning, toiletries) is never
+  // tracked for freshness — it must never show in "what's expiring", even with
+  // a use-by date attached or without being marked long-life.
+  if (isNonFoodCategory(item.category)) return null
   // A real, user-entered use-by always wins.
   if (item.expiry_date && !isEstimated(item)) return item.expiry_date
   if (isLongLife(item)) return null

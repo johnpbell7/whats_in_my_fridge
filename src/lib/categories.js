@@ -16,6 +16,12 @@ export const CATEGORIES = [
   { key: 'other', label: 'Other', days: 21 }
 ]
 
+// Non-food categories never belong in freshness/"what's expiring" — bleach,
+// dish soap, cleaning products and toiletries don't go off like food, so they
+// must never nag as expiring even if a date gets attached to them.
+export const NON_FOOD_CATEGORIES = new Set(['household'])
+export const isNonFoodCategory = (category) => NON_FOOD_CATEGORIES.has(category)
+
 export const LOCATIONS = [
   { key: 'fridge', label: 'Fridge' },
   { key: 'freezer', label: 'Freezer' },
@@ -36,6 +42,10 @@ export const locationLabel = (key) => LOCATIONS.find((l) => l.key === key)?.labe
 // condiments so obvious matches win over coincidental substrings (e.g.
 // "chocolate" contains "cola").
 const CATEGORY_KEYWORDS = [
+  // Non-food, non-household products (tobacco/nicotine). Checked first so a
+  // brand name never collides with a food keyword and lands in produce/snacks.
+  ['other', ['tobacco', 'cigarette', 'cigar', 'rolling tobacco', 'rollie', 'nicotine',
+    'nicotine pouch', 'snus', 'vape', 'e-cigarette', 'e cigarette', 'vape pod', 'vape juice']],
   // Non-food household items.
   ['household', ['bleach', 'detergent', 'washing up', 'washing-up', 'washing powder', 'fabric softener',
     'softener', 'disinfectant', 'surface spray', 'cleaner', 'cleaning', 'dishwasher tablet', 'dishwasher',
