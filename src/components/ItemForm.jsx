@@ -227,7 +227,7 @@ export default function ItemForm({ item, onSave, onDelete, onClose }) {
             <IconPin size={17} />
           </span>
           <span className="staple-toggle-text">
-            <strong>Keep this stocked</strong>
+            <strong>Add to your essentials</strong>
             <small>{pinned ? "We'll flag it whenever you run out." : 'Flag it whenever you run out.'}</small>
           </span>
           <span className={`switch ${pinned ? 'on' : ''}`} aria-hidden="true">

@@ -15,7 +15,7 @@ function HowToAddStaple() {
   return (
     <ol className="staple-how">
       <li><span className="staple-how-num">1</span><span>Tap any item in your fridge</span></li>
-      <li><span className="staple-how-num">2</span><span>In the item window, turn on <strong>Keep this stocked</strong> <IconPin size={13} /></span></li>
+      <li><span className="staple-how-num">2</span><span>In the item window, turn on <strong>Add to your essentials</strong> <IconPin size={13} /></span></li>
       <li><span className="staple-how-num">3</span><span>It lives here, and gets flagged whenever you run out</span></li>
     </ol>
   )

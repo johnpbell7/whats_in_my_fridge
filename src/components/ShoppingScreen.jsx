@@ -129,8 +129,8 @@ export default function ShoppingScreen({ list, items = [] }) {
           className="shop-staple"
           aria-pressed={isStaple}
           onClick={() => toggleStaple(item)}
-          aria-label={isStaple ? `Stop keeping ${item.name} stocked` : `Keep ${item.name} stocked`}
-          title="Keep this stocked — we’ll flag it when you run out"
+          aria-label={isStaple ? `Remove ${item.name} from your essentials` : `Add ${item.name} to your essentials`}
+          title="Add to your essentials — we’ll flag it when you run out"
         >
           <IconPin size={17} />
         </button>
