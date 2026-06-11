@@ -48,6 +48,14 @@ const SLIDES = [
     body:
       'Send what’s missing to your shopping list, tick it off as you buy, then pop it straight back in your fridge. Stuck for dinner? Ask what you can make.',
     visual: <ShopVisual />
+  },
+  {
+    key: 'trial',
+    Icon: IconSparkle,
+    title: 'Your first week’s on us',
+    body:
+      'Every new account gets 7 days of full Plus access — 60 photo scans and 200 chat questions a month. After that you stay on Free with 10 scans and 30 questions a month, unless you upgrade. Tap your account icon up top any time to see how many you’ve got left.',
+    visual: <TrialVisual />
   }
 ]
 
@@ -207,6 +215,24 @@ function ShopVisual() {
         <span className="ob-line-name"><span className="ob-check"><IconCheck size={12} /></span> Bread</span>
       </div>
       <div className="ob-putaway"><IconFridge size={14} /> Put 2 away</div>
+    </div>
+  )
+}
+
+function TrialVisual() {
+  return (
+    <div className="ob-card ob-staple">
+      <div className="ob-staple-head">
+        <IconSparkle size={15} /> Plus trial — 7 days left
+      </div>
+      <div className="ob-line">
+        <span className="ob-line-name">Photo scans</span>
+        <span className="ob-line-meta">60 a month</span>
+      </div>
+      <div className="ob-line">
+        <span className="ob-line-name">Chat questions</span>
+        <span className="ob-line-meta">200 a month</span>
+      </div>
     </div>
   )
 }
