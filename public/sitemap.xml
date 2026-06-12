@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Only the pages we actually want in search. The app itself (index.html) is
+     intentionally noindex, so it is deliberately left out. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://app.whatsinmyfridge.co.uk/privacy.html</loc>
+  </url>
+  <url>
+    <loc>https://app.whatsinmyfridge.co.uk/terms.html</loc>
+  </url>
+</urlset>
