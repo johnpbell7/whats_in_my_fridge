@@ -7,7 +7,7 @@ import { stapleKey, staplePrefs } from '../lib/staples.js'
 import { guessCategory, CATEGORIES } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { CAT_ICON } from './CategorySections.jsx'
-import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge, IconPin, IconChevron, IconBox } from '../icons.jsx'
+import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge, IconPin, IconChevron, IconBox, IconSend } from '../icons.jsx'
 
 export default function ShoppingScreen({ list, items = [] }) {
   const [draft, setDraft] = useState('')
@@ -102,6 +102,41 @@ export default function ShoppingScreen({ list, items = [] }) {
     setToast(`Added ${bought.length} to your fridge`)
   }
 
+  // Share the list as plain text via the OS share sheet (WhatsApp, Messages,
+  // email, anything installed); falls back to the clipboard where share isn't
+  // available. The note reminds whoever shops that buying it elsewhere doesn't
+  // update the fridge — that happens by scanning the receipt or ticking items
+  // off back in the app.
+  async function sendList() {
+    const toBuy = list.filter((i) => !i.checked)
+    const rows = (toBuy.length ? toBuy : list).map((i) => {
+      const qty = i.quantity > 1 ? ` ×${i.quantity}` : ''
+      return `• ${i.name}${qty}`
+    })
+    const text =
+      `🛒 Shopping list\n\n${rows.join('\n')}\n\n` +
+      `— Sent from What's in my Fridge.\n` +
+      `Once it's home, scan the receipt or tick the items off in the app to add them to your fridge.`
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Shopping list', text })
+      } else {
+        await navigator.clipboard.writeText(text)
+        setToast('List copied — paste it anywhere')
+      }
+    } catch (err) {
+      // A plain "user cancelled the share sheet" isn't an error — stay quiet.
+      if (err?.name === 'AbortError') return
+      try {
+        await navigator.clipboard.writeText(text)
+        setToast('List copied — paste it anywhere')
+      } catch {
+        setToast("Couldn't share the list just now")
+      }
+    }
+  }
+
   // One shopping row — reused inside each category section and the ticked-off one.
   function renderRow(item) {
     const isStaple = Boolean(prefs.pinned[stapleKey(item.name)])
@@ -160,11 +195,22 @@ export default function ShoppingScreen({ list, items = [] }) {
                   : 'Build your list'}
           </p>
         </div>
-        {checked > 0 && (
-          <button className="btn-text" onClick={() => shopping.clearChecked()}>
-            Just clear
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {left > 0 && (
+            <button
+              className="btn-text"
+              onClick={sendList}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}
+            >
+              <IconSend size={15} /> Send list
+            </button>
+          )}
+          {checked > 0 && (
+            <button className="btn-text" onClick={() => shopping.clearChecked()}>
+              Just clear
+            </button>
+          )}
+        </div>
       </header>
 
       {checked > 0 && (
