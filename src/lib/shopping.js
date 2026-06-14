@@ -142,6 +142,16 @@ export const shopping = {
     if (rec) remote?.upsert([rec])
   },
 
+  // Merge fields into one item — used to mark it bought and remember which
+  // inventory item it was filed into (filed_id). Fields outside SHOP_COLS, like
+  // filed_id, stay on this device; the cloud sync only carries the known columns.
+  patch(id, fields) {
+    const next = cache.map((it) => (it.id === id ? { ...it, ...fields } : it))
+    commit(next)
+    const rec = next.find((it) => it.id === id)
+    if (rec) remote?.upsert([rec])
+  },
+
   remove(id) {
     commit(cache.filter((it) => it.id !== id))
     remote?.remove(id)
