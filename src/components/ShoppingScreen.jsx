@@ -44,11 +44,34 @@ export default function ShoppingScreen({ list, items = [] }) {
   }, [list, stapleByKey])
   const checkedItems = useMemo(() => list.filter((i) => i.checked), [list])
 
-  // Staples you've run out of that aren't already on the list — one tap to add.
-  const suggestions = useMemo(
-    () => missing.filter((s) => !shopping.has(s.name)),
-    [missing, list]
-  )
+  // Things you've recently marked "Used" that aren't on the list or back in
+  // stock — a strong "you just ran out" signal, newest first.
+  const usedUp = useMemo(() => {
+    const onList = new Set(list.map((i) => i.name.trim().toLowerCase()))
+    const inStock = new Set(
+      items.filter((i) => i.status === 'active').map((i) => i.name.trim().toLowerCase())
+    )
+    const seen = new Set()
+    return items
+      .filter((i) => i.status !== 'active')
+      .sort((a, b) => Date.parse(b.updated_at || b.added_date || 0) - Date.parse(a.updated_at || a.added_date || 0))
+      .filter((i) => {
+        const k = i.name.trim().toLowerCase()
+        if (!k || onList.has(k) || inStock.has(k) || seen.has(k)) return false
+        seen.add(k)
+        return true
+      })
+      .slice(0, 6)
+  }, [items, list])
+
+  // Staples you've run out of that aren't already on the list, or already shown
+  // under "just used up" — one tap to add.
+  const suggestions = useMemo(() => {
+    const usedKeys = new Set(usedUp.map((i) => i.name.trim().toLowerCase()))
+    return missing.filter(
+      (s) => !shopping.has(s.name) && !usedKeys.has(s.name.trim().toLowerCase())
+    )
+  }, [missing, list, usedUp])
 
   const left = list.filter((i) => !i.checked).length
   const checked = list.filter((i) => i.checked).length
@@ -230,25 +253,48 @@ export default function ShoppingScreen({ list, items = [] }) {
         )}
       </form>
 
-      {suggestions.length > 0 && (
+      {(usedUp.length > 0 || suggestions.length > 0) && (
         <div className="suggest-block">
-          <p className="suggest-label">Usually stocked — tap to add</p>
-          <div className="chips">
-            {suggestions.map((s) => (
-              <button
-                key={s.key}
-                className="suggest-chip"
-                onClick={() => shopping.addUnique(s.name)}
-                aria-label={`Add ${s.name} to the list`}
-              >
-                <IconPlus size={14} /> {s.name}
-              </button>
-            ))}
-          </div>
+          {usedUp.length > 0 && (
+            <>
+              <p className="suggest-label">Just used up — tap to re-add</p>
+              <div className="chips">
+                {usedUp.map((s) => (
+                  <button
+                    key={s.id}
+                    className="suggest-chip"
+                    onClick={() => shopping.addUnique(s.name, s.quantity || 1)}
+                    aria-label={`Add ${s.name} to the list`}
+                  >
+                    <IconPlus size={14} /> {s.name}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+          {suggestions.length > 0 && (
+            <>
+              <p className="suggest-label" style={usedUp.length > 0 ? { marginTop: 12 } : undefined}>
+                Usually stocked — tap to add
+              </p>
+              <div className="chips">
+                {suggestions.map((s) => (
+                  <button
+                    key={s.key}
+                    className="suggest-chip"
+                    onClick={() => shopping.addUnique(s.name)}
+                    aria-label={`Add ${s.name} to the list`}
+                  >
+                    <IconPlus size={14} /> {s.name}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       )}
 
-      {list.length === 0 && suggestions.length === 0 ? (
+      {list.length === 0 && suggestions.length === 0 && usedUp.length === 0 ? (
         <div className="empty">
           <div className="empty-art">
             <IconCart size={30} />
@@ -296,7 +342,10 @@ export default function ShoppingScreen({ list, items = [] }) {
                   onClick={() => setCollapsed((c) => ({ ...c, __done: !c.__done }))}
                 >
                   <span className="cat-icon"><IconCheck size={16} /></span>
-                  <span className="cat-label">
+                  <span
+                    className="cat-label"
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1, lineHeight: 1.15 }}
+                  >
                     Ticked off
                     <small className="cat-file-hint">Added to New in My food</small>
                   </span>
