@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSavedMeals } from '../lib/useSavedMeals.js'
 import { savedMeals } from '../lib/meals.js'
+import { store } from '../lib/store.js'
+import { toast } from '../lib/toast.js'
 import MealBuy from './MealBuy.jsx'
-import { IconSparkle, IconTrash, IconChat, IconCheck } from '../icons.jsx'
+import { IconSparkle, IconTrash, IconChat, IconCheck, IconFridge, IconClose } from '../icons.jsx'
 
 const fmtDate = (iso) => {
   try {
@@ -41,41 +44,82 @@ export default function SavedMeals({ onGoChat }) {
     <div className="meals saved-meals">
       <AnimatePresence initial={false}>
         {meals.map((m) => (
-          <motion.div
-            key={m.id}
-            layout
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.12 } }}
-            transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-            className="meal-card"
-          >
-            <div className="meal-head">
-              <h4>{m.name}</h4>
-              <button
-                className="icon-btn toss"
-                onClick={() => savedMeals.remove(m.id)}
-                aria-label={`Remove ${m.name} from saved meals`}
-              >
-                <IconTrash size={17} />
-              </button>
-            </div>
-            {m.description && <p className="meal-desc">{m.description}</p>}
-            {m.uses?.length > 0 && <p className="meal-uses">Uses: {m.uses.join(', ')}</p>}
-            <MealBuy items={m.buy} />
-            <div className="meal-foot">
-              <button className="meal-cooked" onClick={() => savedMeals.markCooked(m.id)}>
-                <IconCheck size={13} /> Cooked
-              </button>
-              {m.cooked_count > 0 && (
-                <span className="meal-cooked-count">
-                  Made {m.cooked_count}×{m.last_cooked ? ` · last ${fmtDate(m.last_cooked)}` : ''}
-                </span>
-              )}
-            </div>
-          </motion.div>
+          <MealRow key={m.id} m={m} />
         ))}
       </AnimatePresence>
     </div>
+  )
+}
+
+function MealRow({ m }) {
+  // When choosing, the footer swaps to a fridge/freezer picker — cooked leftovers
+  // go in the fridge (5-day window) or freezer (kept fresh for ages).
+  const [choosing, setChoosing] = useState(false)
+
+  function addLeftovers(location) {
+    store.add({
+      name: m.name,
+      category: 'leftovers',
+      location,
+      source: 'manual',
+      filed: true
+    })
+    setChoosing(false)
+    toast.show(`Saved “${m.name}” to your ${location}`)
+  }
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.12 } }}
+      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+      className="meal-card"
+    >
+      <div className="meal-head">
+        <h4>{m.name}</h4>
+        <button
+          className="icon-btn toss"
+          onClick={() => savedMeals.remove(m.id)}
+          aria-label={`Remove ${m.name} from saved meals`}
+        >
+          <IconTrash size={17} />
+        </button>
+      </div>
+      {m.description && <p className="meal-desc">{m.description}</p>}
+      {m.uses?.length > 0 && <p className="meal-uses">Uses: {m.uses.join(', ')}</p>}
+      <MealBuy items={m.buy} />
+      <div className="meal-foot">
+        {choosing ? (
+          <>
+            <span className="meal-cooked-count">Save leftovers to…</span>
+            <button className="meal-cooked" onClick={() => addLeftovers('fridge')}>
+              Fridge
+            </button>
+            <button className="meal-cooked" onClick={() => addLeftovers('freezer')}>
+              Freezer
+            </button>
+            <button className="icon-btn" onClick={() => setChoosing(false)} aria-label="Cancel">
+              <IconClose size={16} />
+            </button>
+          </>
+        ) : (
+          <>
+            <button className="meal-cooked" onClick={() => savedMeals.markCooked(m.id)}>
+              <IconCheck size={13} /> Cooked
+            </button>
+            <button className="meal-cooked" onClick={() => setChoosing(true)}>
+              <IconFridge size={13} /> Leftovers
+            </button>
+            {m.cooked_count > 0 && (
+              <span className="meal-cooked-count">
+                Made {m.cooked_count}×{m.last_cooked ? ` · last ${fmtDate(m.last_cooked)}` : ''}
+              </span>
+            )}
+          </>
+        )}
+      </div>
+    </motion.div>
   )
 }

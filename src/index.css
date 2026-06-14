@@ -854,7 +854,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .meal-buy-all:disabled { color: var(--ink-faint); }
 /* Saved meals tab uses the same cards, stacked. */
 .saved-meals { margin-top: 2px; }
-.meal-foot { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.meal-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; }
 .meal-cooked {
   display: inline-flex; align-items: center; gap: 5px;
   font-size: 12px; font-weight: 600; padding: 6px 12px;
