@@ -69,7 +69,12 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
   }
   const needsFix = (i) => {
     const cat = betterCategory(i)
-    return cat !== i.category || suggestLocation(i.name, cat) !== i.location
+    if (cat !== i.category) return true
+    // The freezer is always a deliberate choice — never treat a frozen item as
+    // being in the "wrong" place, even if by name/category it'd live in the
+    // fridge (e.g. leftovers you've frozen to keep for ages).
+    if (i.location === 'freezer') return false
+    return suggestLocation(i.name, cat) !== i.location
   }
 
   // Items waiting to be sorted: freshly added ("New", filed === false) plus any
@@ -83,10 +88,14 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
   function autoFile() {
     active.forEach((i) => {
       const cat = betterCategory(i)
-      const loc = suggestLocation(i.name, cat)
       const patch = {}
       if (cat !== i.category) patch.category = cat
-      if (loc !== i.location) patch.location = loc
+      // Respect a deliberate freezer placement — only auto-relocate items that
+      // aren't already in the freezer, so frozen leftovers stay frozen.
+      if (i.location !== 'freezer') {
+        const loc = suggestLocation(i.name, cat)
+        if (loc !== i.location) patch.location = loc
+      }
       if (i.filed === false) patch.filed = true
       if (Object.keys(patch).length) store.update(i.id, patch)
     })
