@@ -75,31 +75,32 @@ export default function ShoppingScreen({ list, items = [] }) {
     }
   }
 
-  // Ticked items have been bought — file each into the inventory, choosing the
-  // area and a use-by from its name, then take them off the list.
-  function putAway() {
-    const bought = list.filter((i) => i.checked)
-    if (!bought.length) return
-    store.addMany(
-      bought.map((it) => {
-        // If this is a staple we know, put it back where it usually lives.
-        const known = stapleByKey.get(stapleKey(it.name))
-        const category = known?.category || guessCategory(it.name)
-        const location = known?.location || suggestLocation(it.name, category)
-        return {
-          name: it.name,
-          quantity: it.quantity || 1,
-          category,
-          location,
-          // No use-by stored — freshness counts from today + the category's
-          // window, so the card shows the item's age rather than a "use by".
-          source: 'manual',
-          filed: false
-        }
+  // Ticking an item off files it straight into the inventory's "New" section —
+  // so there's no separate "put away" step to forget. Unticking pulls that item
+  // back out. The row itself stays in the list's "Ticked off" group until you
+  // tap Clear list.
+  function toggleBought(item) {
+    if (!item.checked) {
+      // If this is a staple we know, file it where it usually lives.
+      const known = stapleByKey.get(stapleKey(item.name))
+      const category = known?.category || guessCategory(item.name)
+      const location = known?.location || suggestLocation(item.name, category)
+      const filed = store.add({
+        name: item.name,
+        quantity: item.quantity || 1,
+        category,
+        location,
+        // No use-by — freshness counts from today + the category's window.
+        source: 'manual',
+        filed: false
       })
-    )
-    shopping.clearChecked()
-    setToast(`Added ${bought.length} to your fridge`)
+      shopping.patch(item.id, { checked: true, filed_id: filed?.id || null })
+    } else {
+      // Untick: pull the item we just filed back out of the fridge, then clear
+      // the tick. (filed_id is on-device only, so this undoes ticks made here.)
+      if (item.filed_id) store.remove(item.filed_id)
+      shopping.patch(item.id, { checked: false, filed_id: null })
+    }
   }
 
   // Share the list as plain text via the OS share sheet (WhatsApp, Messages,
@@ -155,7 +156,7 @@ export default function ShoppingScreen({ list, items = [] }) {
           role="checkbox"
           aria-checked={item.checked}
           aria-label={`${item.checked ? 'Uncheck' : 'Check off'} ${item.name}`}
-          onClick={() => shopping.toggle(item.id)}
+          onClick={() => toggleBought(item)}
         >
           {item.checked && <IconCheck size={17} />}
         </button>
@@ -207,18 +208,11 @@ export default function ShoppingScreen({ list, items = [] }) {
           )}
           {checked > 0 && (
             <button className="btn-text" onClick={() => shopping.clearChecked()}>
-              Just clear
+              Clear list
             </button>
           )}
         </div>
       </header>
-
-      {checked > 0 && (
-        <button className="putaway" onClick={putAway}>
-          <IconFridge size={18} />
-          Put {checked} {checked === 1 ? 'item' : 'items'} away
-        </button>
-      )}
 
       <form className="search" onSubmit={add} style={{ marginBottom: 16 }}>
         <IconPlus size={18} />
@@ -302,7 +296,10 @@ export default function ShoppingScreen({ list, items = [] }) {
                   onClick={() => setCollapsed((c) => ({ ...c, __done: !c.__done }))}
                 >
                   <span className="cat-icon"><IconCheck size={16} /></span>
-                  <span className="cat-label">Ticked off</span>
+                  <span className="cat-label">
+                    Ticked off
+                    <small className="cat-file-hint">Added to New in My food</small>
+                  </span>
                   <span className="cat-count">{checkedItems.length}</span>
                   <IconChevron size={15} className={`cat-chevron ${!collapsed.__done ? 'open' : ''}`} />
                 </button>
