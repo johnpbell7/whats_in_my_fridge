@@ -1200,6 +1200,18 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .reel-sub { margin: 0; font-size: clamp(14px, 4.2vw, 18px); line-height: 1.4; color: var(--ink-soft); }
 .reel-foot { text-align: center; font-size: 14px; font-weight: 700; color: var(--accent); padding-top: 8px; }
 
+/* green welcome screen before the reel */
+.reel-intro {
+  position: absolute; inset: 0;
+  background: radial-gradient(125% 90% at 50% 8%, #389069 0%, #1f5c3d 72%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 40px; gap: 6px;
+}
+.reel-intro-eyebrow { font-size: clamp(13px, 4vw, 16px); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.7); }
+.reel-intro-title { margin: 4px 0 0; font-family: var(--font-display); font-size: clamp(40px, 13vw, 62px); line-height: 1.02; font-weight: 600; color: #fbfaf5; }
+.reel-intro-leaf { color: #a9e0bf; }
+.reel-intro-sub { margin: 14px 0 0; font-size: clamp(13px, 4.2vw, 17px); font-weight: 600; color: rgba(255, 255, 255, 0.85); }
+
 /* phone app-screen content */
 .scr { position: absolute; inset: 0; padding: 15px 13px; display: flex; flex-direction: column; gap: 8px; text-align: left; }
 .scr-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; }

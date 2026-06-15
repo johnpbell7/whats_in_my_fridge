@@ -181,6 +181,7 @@ function DietScreen() {
 // --- slides: variable durations so it doesn't feel evenly timed -------------
 
 const SLIDES = [
+  { key: 'intro', dur: 2.8, intro: true },
   { key: 'scan', dur: 4.6, title: 'A photo does the typing', sub: 'Point your camera at the shopping and AI reads every item in seconds — no typing, ever.', screen: <CamScreen /> },
   { key: 'know', dur: 3.6, title: 'Always know what you’ve got', sub: 'Fridge, freezer and pantry in one tidy list that’s always up to date.', screen: <StockScreen /> },
   { key: 'fresh', dur: 4.0, title: 'Use it before you lose it', sub: 'Everything’s tracked by freshness — whatever’s about to turn floats to the top.', screen: <FreshScreen /> },
@@ -211,11 +212,27 @@ export default function Showreel() {
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="reel-phone">
-              <div className="reel-screen">{slide.screen}</div>
-            </div>
-            <h1 className="reel-title">{slide.title}</h1>
-            <p className="reel-sub">{slide.sub}</p>
+            {slide.intro ? (
+              <div className="reel-intro">
+                <motion.span className="reel-intro-eyebrow" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                  Welcome to
+                </motion.span>
+                <motion.h1 className="reel-intro-title" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                  What’s in my Fridge<span className="reel-intro-leaf"> 🍃</span>
+                </motion.h1>
+                <motion.p className="reel-intro-sub" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.65 }}>
+                  Snap it · track it · cook it · waste less
+                </motion.p>
+              </div>
+            ) : (
+              <>
+                <div className="reel-phone">
+                  <div className="reel-screen">{slide.screen}</div>
+                </div>
+                <h1 className="reel-title">{slide.title}</h1>
+                <p className="reel-sub">{slide.sub}</p>
+              </>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
