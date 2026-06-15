@@ -153,7 +153,10 @@ async function pullAndWire(lastUser) {
     const localPrefs = base(staplePrefs.getAll()) || { pinned: {}, ignored: {} }
     const mergedPrefs = {
       pinned: { ...remotePrefs.pinned, ...localPrefs.pinned },
-      ignored: { ...remotePrefs.ignored, ...localPrefs.ignored }
+      ignored: { ...remotePrefs.ignored, ...localPrefs.ignored },
+      // Dietary prefs are a single object — keep this device's if it's set,
+      // otherwise take the cloud's (last-write-wins on a per-device basis).
+      diet: localPrefs.diet && Object.keys(localPrefs.diet).length ? localPrefs.diet : remotePrefs.diet || {}
     }
     staplePrefs.replaceData(mergedPrefs)
     await supabase.from('staple_prefs').upsert({ user_id: userId, data: mergedPrefs, updated_at: new Date().toISOString() })

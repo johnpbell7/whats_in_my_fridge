@@ -1132,6 +1132,14 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .usage-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width 200ms; }
 .usage-fill.full { background: var(--warn); }
 .account-note { font-size: 12px; color: var(--ink-faint); margin: 2px 0 0; }
+
+/* ----- Dietary preferences (account sheet) ----- */
+.account-section { margin: 6px 0 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.account-section-head { font-size: 14px; font-weight: 700; color: var(--ink); margin: 0 0 2px; }
+.account-section-sub { font-size: 12px; color: var(--ink-faint); margin: 0 0 4px; }
+.diet-group-label { font-size: 12px; font-weight: 600; color: var(--ink-soft); margin: 12px 0 6px; }
+.diet-note-input { margin-top: 12px; }
+.diet-safety { font-size: 11.5px; color: var(--ink-faint); line-height: 1.4; margin: 10px 0 0; }
 .account-note-err { color: var(--warn); text-align: center; margin-top: 8px; }
 
 /* loading skeletons so the account sheet holds its size while data loads */
@@ -1452,6 +1460,19 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 }
 .chat-nudge:hover { background: #f4e2cf; }
 .chat-nudge:active { transform: scale(0.99); }
+
+.chat-diet-hint {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  background: var(--accent-soft); color: var(--accent);
+  border: 1px solid #bcdcc8; border-radius: var(--r-md);
+  padding: 11px 13px; margin: 16px 0 0; cursor: pointer; text-align: left;
+  font-size: 13px; font-weight: 600; line-height: 1.35;
+  transition: background 160ms, transform 120ms;
+}
+.chat-diet-hint span { flex: 1; }
+.chat-diet-hint svg { flex-shrink: 0; }
+.chat-diet-hint:hover { background: #d9ecdf; }
+.chat-diet-hint:active { transform: scale(0.99); }
 .chat-nudge > span { flex: 1; color: var(--ink); font-weight: 500; font-size: 14px; }
 .chat-nudge > span strong { color: var(--warn); font-weight: 700; }
 .chat-nudge > svg:first-child { flex: none; }

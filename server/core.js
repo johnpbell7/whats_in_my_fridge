@@ -144,6 +144,14 @@ export function isCarrierBag(name) {
   return CARRIER_BAG_RE.test(String(name || '').trim())
 }
 
+// The user's dietary requirements (built client-side from their toggles).
+// Woven into the per-request system block — NOT the cached instructions block,
+// since it's per-user — so it never breaks prompt caching. Capped for safety.
+function dietBlock(diet) {
+  const s = String(diet || '').trim()
+  return s ? `\n\n${s.slice(0, 600)}` : ''
+}
+
 export function healthHandler() {
   return {
     status: 200,
@@ -307,7 +315,7 @@ Rules:
       max_tokens: 1000,
       system: [
         { type: 'text', text: instructions, cache_control: { type: 'ephemeral' } },
-        { type: 'text', text: `Today's date: ${today || 'unknown'}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}` }
+        { type: 'text', text: `Today's date: ${today || 'unknown'}${dietBlock(body.diet)}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}` }
       ],
       tools: [
         {
@@ -394,7 +402,7 @@ Rules:
       max_tokens: 700,
       system: [
         { type: 'text', text: instructions, cache_control: { type: 'ephemeral' } },
-        { type: 'text', text: `Today's date: ${today || 'unknown'}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}` }
+        { type: 'text', text: `Today's date: ${today || 'unknown'}${dietBlock(body.diet)}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}` }
       ],
       tools: [
         {
@@ -563,7 +571,7 @@ Off-topic guard: if a question isn't about food, cooking or their kitchen, do NO
         { type: 'text', text: instructions, cache_control: { type: 'ephemeral' } },
         {
           type: 'text',
-          text: `Today's date: ${today || 'unknown'}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}`
+          text: `Today's date: ${today || 'unknown'}${dietBlock(body.diet)}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}`
         }
       ],
       tools,

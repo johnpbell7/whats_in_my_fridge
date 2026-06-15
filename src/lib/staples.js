@@ -125,7 +125,7 @@ const RECORD_KEY = 'staple-prefs'
 const LS_KEY = 'fridge.staples.v1'
 
 const listeners = new Set()
-let cache = { pinned: {}, ignored: {} }
+let cache = { pinned: {}, ignored: {}, diet: {} }
 let ready = null
 
 function notify() {
@@ -166,7 +166,7 @@ async function idbSet(value) {
 
 function clean(value) {
   if (!value || typeof value !== 'object') return null
-  return { pinned: value.pinned || {}, ignored: value.ignored || {} }
+  return { pinned: value.pinned || {}, ignored: value.ignored || {}, diet: value.diet || {} }
 }
 
 function readLocal() {
@@ -189,10 +189,10 @@ export function initStaplePrefs() {
           await idbSet(legacy)
         }
       }
-      cache = data || { pinned: {}, ignored: {} }
+      cache = data || { pinned: {}, ignored: {}, diet: {} }
     } catch (err) {
       console.error('Staple prefs IndexedDB unavailable, using localStorage:', err)
-      cache = readLocal() || { pinned: {}, ignored: {} }
+      cache = readLocal() || { pinned: {}, ignored: {}, diet: {} }
     }
     notify()
   })()
@@ -229,7 +229,8 @@ export const staplePrefs = {
     delete ignored[key]
     commit({
       pinned: { ...cache.pinned, [key]: { name: meta.name || key, location: meta.location, category: meta.category } },
-      ignored
+      ignored,
+      diet: cache.diet
     })
     remote?.save(cache)
   },
@@ -238,7 +239,14 @@ export const staplePrefs = {
     if (!cache.pinned[key]) return
     const pinned = { ...cache.pinned }
     delete pinned[key]
-    commit({ pinned, ignored: cache.ignored })
+    commit({ pinned, ignored: cache.ignored, diet: cache.diet })
+    remote?.save(cache)
+  },
+
+  // The user's dietary requirements (diets + allergies + a free-text note).
+  getDiet: () => cache.diet || {},
+  setDiet(diet) {
+    commit({ pinned: cache.pinned, ignored: cache.ignored, diet: diet || {} })
     remote?.save(cache)
   },
 
@@ -247,18 +255,18 @@ export const staplePrefs = {
     if (!key) return
     const pinned = { ...cache.pinned }
     delete pinned[key]
-    commit({ pinned, ignored: { ...cache.ignored, [key]: true } })
+    commit({ pinned, ignored: { ...cache.ignored, [key]: true }, diet: cache.diet })
     remote?.save(cache)
   },
 
   // Wipe pins/dismissals locally (account change). Cloud untouched.
   clear() {
-    commit({ pinned: {}, ignored: {} })
+    commit({ pinned: {}, ignored: {}, diet: {} })
   },
 
   // Replace prefs from a pull. Local-only.
   replaceData(data) {
-    commit(clean(data) || { pinned: {}, ignored: {} })
+    commit(clean(data) || { pinned: {}, ignored: {}, diet: {} })
   },
 
   setRemote(r) {

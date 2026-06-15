@@ -29,6 +29,11 @@ const HOWTO = [
     body: 'Mark the things you always keep as essentials. The app flags them the moment you’re low or out, and one tap adds them to your shopping list.'
   },
   {
+    Icon: IconChat,
+    title: 'Cooks for your diet',
+    body: 'Set your dietary needs and allergies in Account — vegetarian, gluten-free, no nuts, and so on — and every meal idea and chat answer respects them.'
+  },
+  {
     Icon: IconCart,
     title: 'Shop, then put it away',
     body: 'Your list gathers the essentials you’re low on and extras from your dinner ideas. Tick things off as you buy, then file the whole lot back into your fridge in one tap. It all syncs across your devices.'

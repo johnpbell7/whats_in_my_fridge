@@ -7,6 +7,7 @@ import { upgrade } from '../lib/upgrade.js'
 import { store } from '../lib/store.js'
 import { shopping } from '../lib/shopping.js'
 import { staplePrefs } from '../lib/staples.js'
+import { DIET_OPTIONS, AVOID_OPTIONS } from '../lib/diet.js'
 import { savedMeals } from '../lib/meals.js'
 import { IconClose, IconUser, IconSparkle } from '../icons.jsx'
 
@@ -149,6 +150,8 @@ export default function AccountSheet({ onClose }) {
 
         {portalErr && <p className="account-note account-note-err">{portalErr}</p>}
 
+        <DietSection />
+
         <button className="btn btn-ghost btn-block" onClick={() => supabase.auth.signOut()}>
           Sign out
         </button>
@@ -176,6 +179,68 @@ export default function AccountSheet({ onClose }) {
           <a href="mailto:hello.whatsinmyfridge@gmail.com">Contact</a>
         </p>
       </motion.div>
+    </div>
+  )
+}
+
+// Dietary preferences: diets + allergies, saved straight to the synced prefs.
+// The AI reads these on every meal/chat/dish request.
+function DietSection() {
+  const [diet, setDiet] = useState(() => staplePrefs.getDiet())
+  const update = (next) => {
+    setDiet(next)
+    staplePrefs.setDiet(next)
+  }
+  const toggle = (group, key) =>
+    update({ ...diet, [group]: { ...(diet[group] || {}), [key]: !diet[group]?.[key] } })
+
+  return (
+    <div className="account-section">
+      <p className="account-section-head">Dietary preferences</p>
+      <p className="account-section-sub">Meal ideas and chat answers will follow these.</p>
+
+      <p className="diet-group-label">Diet</p>
+      <div className="chips">
+        {DIET_OPTIONS.map((o) => (
+          <button
+            key={o.key}
+            type="button"
+            className="chip"
+            aria-pressed={!!diet.diets?.[o.key]}
+            onClick={() => toggle('diets', o.key)}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+
+      <p className="diet-group-label">Avoid / allergies</p>
+      <div className="chips">
+        {AVOID_OPTIONS.map((o) => (
+          <button
+            key={o.key}
+            type="button"
+            className="chip"
+            aria-pressed={!!diet.avoid?.[o.key]}
+            onClick={() => toggle('avoid', o.key)}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+
+      <input
+        className="input diet-note-input"
+        placeholder="Anything else to avoid (e.g. mushrooms)"
+        value={diet.note || ''}
+        onChange={(e) => update({ ...diet, note: e.target.value })}
+        maxLength={200}
+        aria-label="Anything else to avoid"
+      />
+      <p className="diet-safety">
+        We pass these to the AI for every suggestion, but it can make mistakes — always check labels
+        yourself, especially for allergies.
+      </p>
     </div>
   )
 }
