@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { quotaDecision, effectivePlan, periodStart, dayStart, TRIAL_DAYS } from '../server/auth.js'
+import { quotaDecision, effectivePlan, visionModelFor, periodStart, dayStart, TRIAL_DAYS } from '../server/auth.js'
 
 describe('quotaDecision', () => {
   it('allows under the monthly limit and blocks at/over it', () => {
@@ -26,6 +26,28 @@ describe('effectivePlan', () => {
   })
   it('is paid Plus regardless of dates when tier is plus', () => {
     expect(effectivePlan({ tier: 'plus', created_at: '2000-01-01' })).toMatchObject({ tier: 'plus', paid: true })
+  })
+})
+
+describe('trial premium window (best AI for first 2 days)', () => {
+  const hoursAgo = (h) => new Date(Date.now() - h * 3600000).toISOString()
+
+  it('first 48h of the trial gets the sharp Sonnet scans', () => {
+    const p = effectivePlan({ tier: 'free', created_at: hoursAgo(1) })
+    expect(p).toMatchObject({ trial: true, trialPremium: true })
+    expect(visionModelFor(p)).toMatch(/sonnet/i)
+  })
+  it('after 48h (still in trial) drops scans to Haiku', () => {
+    const p = effectivePlan({ tier: 'free', created_at: hoursAgo(72) }) // day 3
+    expect(p).toMatchObject({ trial: true, trialPremium: false })
+    expect(visionModelFor(p)).toMatch(/haiku/i)
+  })
+  it('paid Plus always gets Sonnet', () => {
+    expect(visionModelFor(effectivePlan({ tier: 'plus', created_at: '2000-01-01' }))).toMatch(/sonnet/i)
+  })
+  it('lapsed (free) gets Haiku', () => {
+    const old = new Date(Date.now() - (TRIAL_DAYS + 1) * 86400000).toISOString()
+    expect(visionModelFor(effectivePlan({ tier: 'free', created_at: old }))).toMatch(/haiku/i)
   })
 })
 

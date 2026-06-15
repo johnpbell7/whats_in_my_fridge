@@ -99,20 +99,46 @@ export function overQuotaResponse(kind, decision) {
 // Free — the trial is what makes losing it (back to manual entry) feel real.
 export const TRIAL_DAYS = 7
 
+// Within the trial, the first couple of days run photo scans on the sharper
+// (pricier) Sonnet model — that's when people actively try the app and form
+// their first impression. After that the trial drops to the faster, cheaper
+// Haiku for the rest of the week, to keep costs down while we wait to see if
+// they convert. Chat and receipts always use Haiku regardless. Tune the window
+// with TRIAL_PREMIUM_HOURS (default 48 = 2 days).
+export const TRIAL_PREMIUM_HOURS = Number(process.env.TRIAL_PREMIUM_HOURS) || 48
+
 // Work out a user's effective plan: paid Plus, a Plus trial (first 7 days), or
 // Free. Trial is derived from when their profile was created, so no extra state
-// to manage. Returns { tier, paid, trial, trialDaysLeft }.
+// to manage. `trialPremium` marks the early-trial window that gets the sharper
+// vision model. Returns { tier, paid, trial, trialDaysLeft, trialPremium }.
 export function effectivePlan(profile) {
   const tier = profile?.tier || 'free'
-  if (tier === 'plus') return { tier: 'plus', paid: true, trial: false, trialDaysLeft: 0 }
+  if (tier === 'plus') return { tier: 'plus', paid: true, trial: false, trialDaysLeft: 0, trialPremium: false }
   const created = profile?.created_at ? Date.parse(profile.created_at) : NaN
   if (!Number.isNaN(created)) {
+    const ageMs = Date.now() - created
     const msLeft = created + TRIAL_DAYS * 86400000 - Date.now()
     if (msLeft > 0) {
-      return { tier: 'plus', paid: false, trial: true, trialDaysLeft: Math.ceil(msLeft / 86400000) }
+      return {
+        tier: 'plus',
+        paid: false,
+        trial: true,
+        trialDaysLeft: Math.ceil(msLeft / 86400000),
+        trialPremium: ageMs < TRIAL_PREMIUM_HOURS * 3600000
+      }
     }
   }
-  return { tier: 'free', paid: false, trial: false, trialDaysLeft: 0 }
+  return { tier: 'free', paid: false, trial: false, trialDaysLeft: 0, trialPremium: false }
+}
+
+// Which vision (photo-scan) model a plan gets. Paid Plus and the early-trial
+// premium window get the sharper Sonnet; everyone else (later trial + Free)
+// gets the faster, cheaper Haiku.
+export function visionModelFor(plan) {
+  if (!plan) return HAIKU
+  if (plan.paid) return SONNET
+  if (plan.trial && plan.trialPremium) return SONNET
+  return HAIKU
 }
 
 // Verify the bearer token and load the user's plan. Returns
@@ -215,7 +241,8 @@ export async function guard(token, kind) {
     return { error: dailyLimitResponse(kind, dailyLimit) }
   }
   // The slot is already recorded; the handler refunds usageId if the call fails.
-  return { user: auth.user, tier: auth.tier, visionModel: tierConfig(auth.tier).visionModel, meter: true, usageId }
+  // Vision model depends on the plan (trial premium window vs. not), not just tier.
+  return { user: auth.user, tier: auth.tier, visionModel: visionModelFor(auth.plan), meter: true, usageId }
 }
 
 // Account summary for the client (tier + this month's usage vs limits).
