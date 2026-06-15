@@ -148,7 +148,7 @@ export default function Onboarding({ onDone, onNeverShow }) {
 
 // --- little feature mock-ups shown on each slide --------------------------
 
-function KnowVisual() {
+export function KnowVisual() {
   const rows = [
     { name: 'Whole milk', where: 'Fridge' },
     { name: 'Eggs', where: 'Fridge' },
@@ -166,7 +166,7 @@ function KnowVisual() {
   )
 }
 
-function AddVisual() {
+export function AddVisual() {
   return (
     <div className="ob-card ob-add">
       <span className="ob-pill ob-pill-accent"><IconCamera size={15} /> Snap shopping</span>
@@ -176,7 +176,7 @@ function AddVisual() {
   )
 }
 
-function FreshVisual() {
+export function FreshVisual() {
   return (
     <div className="ob-card">
       <div className="ob-line">
@@ -191,7 +191,7 @@ function FreshVisual() {
   )
 }
 
-function StaplesVisual() {
+export function StaplesVisual() {
   return (
     <div className="ob-card ob-staple">
       <div className="ob-staple-head">
@@ -205,7 +205,7 @@ function StaplesVisual() {
   )
 }
 
-function ShopVisual() {
+export function ShopVisual() {
   return (
     <div className="ob-card">
       <div className="ob-line">
