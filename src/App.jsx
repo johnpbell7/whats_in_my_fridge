@@ -216,6 +216,7 @@ export default function App() {
           items={items}
           onGoScan={() => setTab('scan')}
           onAddManual={() => setEditing('new')}
+          onAccount={authEnabled ? () => setAccount(true) : null}
         />
       )}
       {tab === 'shopping' && <ShoppingScreen list={list} items={items} />}

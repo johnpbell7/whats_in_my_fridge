@@ -5,6 +5,8 @@ import { chat } from '../lib/chat.js'
 import { savedMeals } from '../lib/meals.js'
 import { upgrade } from '../lib/upgrade.js'
 import { expiryState, isLongLife } from '../lib/expiry.js'
+import { staplePrefs } from '../lib/staples.js'
+import { hasDiet } from '../lib/diet.js'
 import MealBuy from './MealBuy.jsx'
 import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck, IconClose, IconBookmark, IconWarning, IconChevron } from '../icons.jsx'
 
@@ -38,7 +40,10 @@ const lastWasDish = (msgs) => {
   return last?.role === 'dish' || (last?.role === 'ai' && last.dishPrompt === true)
 }
 
-export default function ChatScreen({ items, onGoScan, onAddManual }) {
+export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) {
+  // Nudge to set dietary needs, until they have. Read once per mount — good
+  // enough for a hint (the tab remounts on switch, so it clears once set).
+  const showDietHint = Boolean(onAccount) && !hasDiet(staplePrefs.getDiet())
   // Conversation persists across tab switches / reloads (cleared on account change).
   const messages = useSyncExternalStore(chat.subscribe, chat.getAll, chat.getAll)
   const setMessages = (updater) =>
@@ -292,6 +297,13 @@ export default function ChatScreen({ items, onGoScan, onAddManual }) {
               </div>
               <h3>Ask me what to make</h3>
               <p>I'll turn what's in your fridge into real meal ideas — dinner tonight, a quick lunch, or using up what's about to go off. Tap a question below or ask your own.</p>
+              {showDietHint && (
+                <button className="chat-diet-hint" onClick={onAccount}>
+                  <IconSparkle size={15} />
+                  <span>Vegetarian, gluten-free or allergic to something? Set your dietary needs so every idea fits.</span>
+                  <IconChevron size={15} />
+                </button>
+              )}
             </div>
           )}
 

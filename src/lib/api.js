@@ -3,6 +3,12 @@
 // enabled, the signed-in user's token rides along so the server can meter use.
 
 import { authHeader, supabase } from './supabase.js'
+import { staplePrefs } from './staples.js'
+import { dietInstruction } from './diet.js'
+
+// The user's dietary requirements, ready to weave into the prompt. Empty string
+// when nothing is set, so it costs zero tokens for users who haven't picked any.
+const diet = () => dietInstruction(staplePrefs.getDiet())
 
 // Owner/infrastructure failures (no Anthropic credit, bad/missing API key, bad
 // model) come back with developer-facing messages meant for the server logs and
@@ -60,7 +66,7 @@ export function askChat(question, inventory) {
     month: 'long',
     day: 'numeric'
   })
-  return post('/api/chat', { question, inventory, today })
+  return post('/api/chat', { question, inventory, today, diet: diet() })
 }
 
 // Ask for dinner ideas from the current inventory. Returns a list of meals,
@@ -74,7 +80,7 @@ export function suggestMeals(inventory, request) {
     month: 'long',
     day: 'numeric'
   })
-  return post('/api/meals', { inventory, today, request }).then((d) => d.meals || [])
+  return post('/api/meals', { inventory, today, request, diet: diet() }).then((d) => d.meals || [])
 }
 
 // "I want to make X" — returns { dish, have, need, note }: which of the dish's
@@ -87,7 +93,7 @@ export function checkDish(dish, inventory) {
     month: 'long',
     day: 'numeric'
   })
-  return post('/api/dish', { dish, inventory, today }).then((d) => d.result || null)
+  return post('/api/dish', { dish, inventory, today, diet: diet() }).then((d) => d.result || null)
 }
 
 // Send a photo for recognition. Returns { items, receiptDate } to confirm.

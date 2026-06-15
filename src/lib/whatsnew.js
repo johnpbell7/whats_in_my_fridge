@@ -4,6 +4,11 @@
 
 export const WHATS_NEW = [
   {
+    id: '2026-06-diet',
+    date: 'Jun 2026',
+    text: 'Cooks for your diet — set your dietary needs and allergies in Account (vegetarian, gluten-free, no nuts…) and every meal idea and chat answer follows them.'
+  },
+  {
     id: '2026-06-freshness',
     date: 'Jun 2026',
     text: 'Smarter freshness — tins, jars and dried staples now read “In stock” instead of being flagged as expiring, so you’re only nudged about food that actually goes off.'
