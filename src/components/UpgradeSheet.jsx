@@ -17,6 +17,7 @@ const REASON_HEAD = {
   scans: "You've used this month's free scans",
   chat: "You've used this month's free chat",
   rate: "Whoa, speedy — that's today's limit",
+  trial_ended: 'Your free trial has ended — keep your Plus',
   account: ''
 }
 

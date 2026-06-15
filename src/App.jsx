@@ -8,7 +8,8 @@ import { store, initStore } from './lib/store.js'
 import { initShopping } from './lib/shopping.js'
 import { initStaplePrefs } from './lib/staples.js'
 import { startSync, stopSync } from './lib/cloud.js'
-import { confirmCheckout } from './lib/api.js'
+import { confirmCheckout, getMe } from './lib/api.js'
+import { upgrade } from './lib/upgrade.js'
 import { track } from './lib/analytics.js'
 import { toast } from './lib/toast.js'
 import InventoryScreen from './components/InventoryScreen.jsx'
@@ -159,6 +160,38 @@ export default function App() {
     const t = setTimeout(() => setInstallGuide(true), 1200)
     return () => clearTimeout(t)
   }, [onboarded, authEnabled, authLoading, session])
+
+  // One-time "your free trial has ended" nudge: the first time a lapsed user
+  // (now on Free, no longer trialling or paying) opens the app, open the Plus
+  // sheet framed as keeping what they had. Shown once, then flagged — reactive
+  // limit prompts still cover them after that.
+  useEffect(() => {
+    if (!authEnabled || authLoading || !session?.user || !onboarded) return
+    try {
+      if (localStorage.getItem('fridge.trialEnded.shown') === '1') return
+    } catch {
+      return
+    }
+    let cancelled = false
+    getMe()
+      .then((me) => {
+        if (cancelled) return
+        const lapsed = me && me.authEnabled !== false && me.tier === 'free' && !me.paid && !me.trial
+        if (!lapsed) return
+        try {
+          localStorage.setItem('fridge.trialEnded.shown', '1')
+        } catch {
+          /* private mode — it may show again, which is harmless */
+        }
+        setTimeout(() => {
+          if (!cancelled) upgrade.show('trial_ended')
+        }, 900)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [authEnabled, authLoading, session?.user?.id, onboarded])
 
   function dismissInstall() {
     try {
