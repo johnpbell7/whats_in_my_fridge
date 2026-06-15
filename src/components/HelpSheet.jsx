@@ -84,7 +84,7 @@ export default function HelpSheet({ onClose, onReplay, onInstall, onReport }) {
         {WHATS_NEW.length > 0 && (
           <div className="help-new">
             <div className="help-new-head"><IconSparkle size={15} /> What’s new</div>
-            {WHATS_NEW.map((n, i) => (
+            {WHATS_NEW.slice(0, 3).map((n, i) => (
               <div className="help-new-row" key={i}>
                 <span className="help-new-date">{n.date}</span>
                 <span>{n.text}</span>
