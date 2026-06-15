@@ -27,6 +27,7 @@ import { isMobile, isStandalone } from './lib/install.js'
 import { hasUnseen, markSeen } from './lib/whatsnew.js'
 import Toast from './components/Toast.jsx'
 import UpgradeGate from './components/UpgradeGate.jsx'
+import Showreel from './components/Showreel.jsx'
 import Nav from './components/Nav.jsx'
 import Splash from './components/Splash.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
@@ -206,6 +207,12 @@ export default function App() {
     if (id) store.update(id, values)
     else store.add(values)
     setEditing(null)
+  }
+
+  // Self-playing USP reel for screen-recording — open with ?showreel. Renders
+  // alone (no app chrome) and works without sign-in; normal users never see it.
+  if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('showreel')) {
+    return <Showreel />
   }
 
   // Pick the screen to show into `content`, then render the install guide
