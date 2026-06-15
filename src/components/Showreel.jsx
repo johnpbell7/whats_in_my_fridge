@@ -1,93 +1,176 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { KnowVisual, AddVisual, FreshVisual, StaplesVisual, ShopVisual } from './Onboarding.jsx'
-import { IconSparkle, IconCheck } from '../icons.jsx'
+import { IconCheck } from '../icons.jsx'
 
-// A self-playing, looping reel of every USP — a phone mockup showing the app
-// screen, with the headline underneath (like the website). Open at /?showreel
-// and screen-record it. Full-screen, no app chrome, no sign-in. Gated on the
-// query flag in App, so normal users never see it.
+// A self-playing, looping product demo of every USP — a realistic phone mockup
+// of the actual app screen, with a descriptive headline underneath (like the
+// website). Variable pacing (no rigid timer feel). Open at /?showreel and
+// screen-record it. Full-screen, no app chrome, no sign-in; gated on the query
+// flag in App so normal users never see it.
 
-const DURATION = 3 // seconds per slide
+const ScrHead = ({ tab }) => (
+  <div className="scr-head">
+    <span className="scr-brand">Fridge<span className="reel-leaf">.</span></span>
+    <span className="scr-tab">{tab}</span>
+  </div>
+)
 
-function MealsVisual() {
+// --- the app screens shown inside the phone --------------------------------
+
+function CamScreen() {
+  const food = ['🥬', '🍅', '🥚', '🥛', '🍞', '🫑', '🥕', '🧀', '🍓']
   return (
-    <div className="ob-card ob-staple">
-      <div className="ob-staple-head"><IconSparkle size={15} /> Tonight you could make…</div>
-      <div className="ob-line"><span className="ob-line-name">Veg &amp; egg shakshuka</span></div>
-      <div className="ob-line"><span className="ob-line-name">Creamy garlic pasta</span></div>
-    </div>
-  )
-}
-
-function DietVisual() {
-  return (
-    <div className="ob-card ob-add">
-      <span className="ob-pill ob-pill-accent"><IconCheck size={13} /> Vegetarian</span>
-      <span className="ob-pill ob-pill-accent"><IconCheck size={13} /> Gluten-free</span>
-      <span className="ob-pill">No nuts</span>
-    </div>
-  )
-}
-
-// One app "screen" inside the phone: a little header bar, the USP mock-up, and
-// an optional green call-to-action button (like the real app screens).
-function Screen({ tab, cta, children }) {
-  return (
-    <div className="reel-screen">
-      <div className="reel-screen-head">
-        <span className="reel-screen-brand">Fridge<span className="reel-leaf">.</span></span>
-        <span className="reel-screen-tab">{tab}</span>
+    <div className="cam">
+      <div className="cam-top"><span className="cam-rec">● AI scanning your shopping</span></div>
+      <div className="cam-frame">
+        <span className="cam-corner tl" /><span className="cam-corner tr" />
+        <span className="cam-corner bl" /><span className="cam-corner br" />
+        <div className="cam-food">{food.map((f, i) => <span key={i}>{f}</span>)}</div>
       </div>
-      <div className="reel-screen-body">{children}</div>
-      {cta && <div className="reel-cta">{cta}</div>}
+      <div className="cam-chips">
+        <span className="cam-chip">✓ Eggs</span>
+        <span className="cam-chip">✓ Milk</span>
+        <span className="cam-chip">✓ Peppers</span>
+        <span className="cam-chip">✓ Cheddar</span>
+      </div>
+      <div className="cam-shutter"><span /></div>
     </div>
   )
 }
+
+function StockScreen() {
+  const rows = [
+    ['🥛', 'Whole milk', 'Fridge', ''],
+    ['🥚', 'Eggs', 'Fridge', ''],
+    ['🧀', 'Cheddar', 'Fridge', ''],
+    ['🥬', 'Spinach', 'Fridge', 'soon'],
+    ['🍅', 'Tomatoes', 'Pantry', '']
+  ]
+  return (
+    <div className="scr">
+      <ScrHead tab="In stock · 12" />
+      <ul className="scr-list">
+        {rows.map((r, i) => (
+          <li key={i} className="scr-row">
+            <span className="scr-emoji">{r[0]}</span>
+            <span className="scr-name">{r[1]}</span>
+            {r[3] === 'soon' ? <span className="scr-chip soon">Use soon</span> : <span className="scr-meta">{r[2]}</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function FreshScreen() {
+  return (
+    <div className="scr">
+      <ScrHead tab="Use soon" />
+      <div className="scr-banner">⚠ 2 items to use up</div>
+      <ul className="scr-list">
+        <li className="scr-row"><span className="scr-emoji">🍗</span><span className="scr-name">Chicken breast</span><span className="scr-chip today">Use today</span></li>
+        <li className="scr-row"><span className="scr-emoji">🥬</span><span className="scr-name">Spinach</span><span className="scr-chip soon">Tomorrow</span></li>
+        <li className="scr-row"><span className="scr-emoji">🍓</span><span className="scr-name">Strawberries</span><span className="scr-chip soon">2 days</span></li>
+        <li className="scr-row"><span className="scr-emoji">🥛</span><span className="scr-name">Milk</span><span className="scr-meta">5 days</span></li>
+      </ul>
+    </div>
+  )
+}
+
+function EssentialsScreen() {
+  const rows = [['🥛', 'Milk', 'Running low'], ['🍞', 'Bread', 'Out'], ['🧈', 'Butter', 'Running low'], ['🥚', 'Eggs', 'Out']]
+  return (
+    <div className="scr">
+      <ScrHead tab="Essentials" />
+      <ul className="scr-list">
+        {rows.map((r, i) => (
+          <li key={i} className="scr-row">
+            <span className="scr-emoji">{r[0]}</span>
+            <span className="scr-name">{r[1]}<span className="scr-sub2"> · {r[2]}</span></span>
+            <span className="scr-add">+ Add</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function ListScreen() {
+  const rows = [['Milk', true], ['Bread', true], ['Eggs', false], ['Butter', false], ['Tomatoes', false]]
+  return (
+    <div className="scr">
+      <ScrHead tab="My list" />
+      <ul className="scr-list">
+        {rows.map((r, i) => (
+          <li key={i} className={`scr-row ${r[1] ? 'done' : ''}`}>
+            <span className={`scr-check ${r[1] ? 'on' : ''}`}>{r[1] && <IconCheck size={11} />}</span>
+            <span className="scr-name">{r[0]}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="scr-cta">🧊 Put 2 away</div>
+    </div>
+  )
+}
+
+function MealsScreen() {
+  return (
+    <div className="scr">
+      <ScrHead tab="Dinner ideas" />
+      <div className="scr-meal">
+        <h4>Creamy garlic chicken pasta</h4>
+        <p>Uses: chicken, cream, garlic, pasta</p>
+      </div>
+      <div className="scr-meal">
+        <h4>Veg &amp; egg shakshuka</h4>
+        <p>Uses: eggs, peppers, tomatoes</p>
+      </div>
+      <div className="scr-cta">View recipe</div>
+    </div>
+  )
+}
+
+function DietScreen() {
+  const rows = [['Vegetarian', true], ['Vegan', false], ['Gluten-free', true], ['Dairy-free', false], ['No nuts', true]]
+  return (
+    <div className="scr">
+      <ScrHead tab="Dietary preferences" />
+      <ul className="scr-list">
+        {rows.map((r, i) => (
+          <li key={i} className="scr-row">
+            <span className="scr-name">{r[0]}</span>
+            <span className={`scr-check ${r[1] ? 'on' : ''}`}>{r[1] && <IconCheck size={11} />}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="scr-cta">Save preferences</div>
+    </div>
+  )
+}
+
+// --- slides: variable durations so it doesn't feel evenly timed -------------
 
 const SLIDES = [
-  { key: 'scan', title: 'A photo does the typing', sub: 'Snap your shopping or a receipt', tab: 'Add food', cta: 'Scan shopping', Visual: AddVisual },
-  { key: 'know', title: 'Know what’s in your fridge', sub: 'Fridge, freezer & pantry — always up to date', tab: 'In stock', Visual: KnowVisual },
-  { key: 'fresh', title: 'Use it before you lose it', sub: 'Use-by nudges, so good food isn’t binned', tab: 'Use soon', Visual: FreshVisual },
-  { key: 'staples', title: 'Never run out of essentials', sub: 'Flagged the moment you run low', tab: 'Essentials', Visual: StaplesVisual },
-  { key: 'shop', title: 'Shop it, then restock it', sub: 'A list that files itself back into your fridge', tab: 'My list', Visual: ShopVisual },
-  { key: 'meals', title: 'Dinner from what you’ve got', sub: 'Real meal ideas from your own fridge', tab: 'Dinner ideas', cta: 'View recipe', Visual: MealsVisual },
-  { key: 'diet', title: 'Cooks for your diet', sub: 'Vegan, gluten-free, allergies — all respected', tab: 'Preferences', cta: 'Save preferences', Visual: DietVisual }
+  { key: 'scan', dur: 4.4, title: 'A photo does the typing', sub: 'Point your camera at the shopping and AI reads every item in seconds — no typing, ever.', screen: <CamScreen /> },
+  { key: 'know', dur: 3.4, title: 'Always know what you’ve got', sub: 'Fridge, freezer and pantry in one tidy list that’s always up to date.', screen: <StockScreen /> },
+  { key: 'fresh', dur: 3.8, title: 'Use it before you lose it', sub: 'Everything’s tracked by freshness — whatever’s about to turn floats to the top.', screen: <FreshScreen /> },
+  { key: 'staples', dur: 3.4, title: 'Never run out of essentials', sub: 'It learns the things you always keep and flags them the moment you’re low.', screen: <EssentialsScreen /> },
+  { key: 'shop', dur: 3.6, title: 'Shop it, then restock it', sub: 'Tick items off as you buy, then file the whole shop back into your fridge in one tap.', screen: <ListScreen /> },
+  { key: 'meals', dur: 4.6, title: 'Dinner from what you’ve got', sub: 'Stuck for ideas? Get real recipes built around what’s already in your fridge.', screen: <MealsScreen /> },
+  { key: 'diet', dur: 4.0, title: 'Cooks for your diet', sub: 'Vegetarian, gluten-free, allergic to nuts? Every meal idea respects it.', screen: <DietScreen /> }
 ]
 
 export default function Showreel() {
   const [i, setI] = useState(0)
   useEffect(() => {
-    const t = setTimeout(() => setI((n) => (n + 1) % SLIDES.length), DURATION * 1000)
+    const t = setTimeout(() => setI((n) => (n + 1) % SLIDES.length), (SLIDES[i].dur || 3.6) * 1000)
     return () => clearTimeout(t)
   }, [i])
 
   const slide = SLIDES[i]
-  const Visual = slide.Visual
 
   return (
     <div className="reel">
-      <div className="reel-top">
-        <span className="reel-brand">
-          What’s in my Fridge<span className="reel-leaf">.</span>
-        </span>
-        <div className="reel-progress">
-          {SLIDES.map((s, idx) => (
-            <span key={s.key} className="reel-seg">
-              {idx < i && <i className="reel-fill done" />}
-              {idx === i && (
-                <motion.i
-                  className="reel-fill"
-                  initial={{ width: 0 }}
-                  animate={{ width: '100%' }}
-                  transition={{ duration: DURATION, ease: 'linear' }}
-                />
-              )}
-            </span>
-          ))}
-        </div>
-      </div>
-
       <div className="reel-stage">
         <AnimatePresence mode="wait">
           <motion.div
@@ -96,12 +179,10 @@ export default function Showreel() {
             initial={{ opacity: 0, y: 26 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -18 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="reel-phone">
-              <Screen tab={slide.tab} cta={slide.cta}>
-                <Visual />
-              </Screen>
+              <div className="reel-screen">{slide.screen}</div>
             </div>
             <h1 className="reel-title">{slide.title}</h1>
             <p className="reel-sub">{slide.sub}</p>
