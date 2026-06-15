@@ -384,6 +384,20 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   color: var(--warn);
 }
 
+/* "you already have this" — shown on scan items that match your fridge */
+.scan-already {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: var(--accent-soft); color: var(--accent-press);
+  border-radius: var(--r-md); padding: 10px 12px; margin-bottom: 14px;
+  font-size: 12.5px; font-weight: 600; line-height: 1.35;
+}
+.scan-already svg { flex-shrink: 0; margin-top: 1px; }
+.confirm-already {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 700; color: var(--accent-press);
+  background: var(--accent-soft); padding: 3px 8px; border-radius: 999px;
+}
+
 /* ----- Auto-file prompt (a real, attention-grabbing button) ----- */
 .autofile {
   display: flex;

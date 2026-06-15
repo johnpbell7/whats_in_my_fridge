@@ -4,6 +4,7 @@ import { detectFromImage, aiErrorMessage } from '../lib/api.js'
 import { upgrade } from '../lib/upgrade.js'
 import { downscaleImage } from '../lib/image.js'
 import { store } from '../lib/store.js'
+import { sameItem } from '../lib/staples.js'
 import { CATEGORIES, LOCATIONS } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { IconCamera, IconReceipt, IconPlus, IconCheck, IconClose, IconSparkle, IconWarning, IconClock } from '../icons.jsx'
@@ -28,12 +29,21 @@ export default function ScanScreen({ onDone, onAddManual }) {
       setPreview(dataUrl)
       const { items, receiptDate: rd } = await detectFromImage(base64, mediaType, mode)
       setReceiptDate(rd)
+      // Spot anything already in the fridge so we don't double up when someone
+      // scans a shop they've also ticked off their list. Matches are flagged and
+      // left UNticked by default; the user can re-tick if they bought more.
+      const inStock = store.getAll().filter((it) => it.status === 'active')
+      const haveAlready = (name) => inStock.some((it) => sameItem(name, it.name))
       setDetected(
-        items.map((it, i) => ({
-          ...it,
-          _id: `${i}-${it.name}`,
-          include: true // tick everything by default; user unticks anything wrong
-        }))
+        items.map((it, i) => {
+          const already = haveAlready(it.name)
+          return {
+            ...it,
+            _id: `${i}-${it.name}`,
+            already,
+            include: !already // tick new items; leave ones you already have unticked
+          }
+        })
       )
       setPhase('confirm')
     } catch (err) {
@@ -221,6 +231,7 @@ function ConfirmList({ detected, setDetected, location, setLocation, receiptDate
   const receiptWhen =
     receiptDate &&
     new Date(receiptDate + 'T00:00:00').toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+  const alreadyCount = detected.filter((d) => d.already).length
   function patch(id, change) {
     setDetected((list) => list.map((d) => (d._id === id ? { ...d, ...change } : d)))
   }
@@ -257,6 +268,15 @@ function ConfirmList({ detected, setDetected, location, setLocation, receiptDate
         <div className="banner" role="status" style={{ marginBottom: 14 }}>
           <IconClock size={18} />
           <span>Dated from your receipt — freshness counts from <strong>{receiptWhen}</strong>, not today.</span>
+        </div>
+      )}
+      {alreadyCount > 0 && (
+        <div className="scan-already" role="status">
+          <IconCheck size={17} />
+          <span>
+            {alreadyCount} {alreadyCount === 1 ? 'item’s' : 'items are'} already in your fridge — left unticked so you don’t
+            double up. Tick any you bought more of.
+          </span>
         </div>
       )}
       <div className="field" style={{ marginTop: 4 }}>
@@ -332,6 +352,11 @@ function ConfirmRow({ item, onPatch }) {
               </option>
             ))}
           </select>
+          {item.already && (
+            <span className="confirm-already">
+              <IconCheck size={11} /> Already in fridge
+            </span>
+          )}
           {low && (
             <span className="confidence-flag">
               <IconWarning size={12} /> not sure

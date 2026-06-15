@@ -40,6 +40,19 @@ export function stapleKey(name = '') {
     .join(' ')
 }
 
+// Loose "is this the same grocery?" check, used when scanning to spot items
+// you already have so the same thing isn't added twice. Matches when one
+// name's words are a subset of the other's — so "milk" ≈ "whole milk" and
+// "eggs" ≈ "free range eggs" — but NOT merely-related items like
+// "chicken breast" vs "chicken thigh".
+export function sameItem(a = '', b = '') {
+  const ta = new Set(stapleKey(a).split(' ').filter(Boolean))
+  const tb = new Set(stapleKey(b).split(' ').filter(Boolean))
+  if (!ta.size || !tb.size) return false
+  const subset = (x, y) => [...x].every((t) => y.has(t))
+  return subset(ta, tb) || subset(tb, ta)
+}
+
 // Build the list of staples from the full inventory (active + archived) and
 // the user's pin/dismiss preferences. Returns every tracked staple plus the
 // subset that's currently missing (nothing active in stock).
