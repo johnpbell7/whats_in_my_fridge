@@ -258,7 +258,7 @@ export default function ShoppingScreen({ list, items = [] }) {
           {usedUp.length > 0 && (
             <>
               <p className="suggest-label">Just used up — tap to re-add</p>
-              <div className="chips">
+              <div className="suggest-scroll">
                 {usedUp.map((s) => (
                   <button
                     key={s.id}

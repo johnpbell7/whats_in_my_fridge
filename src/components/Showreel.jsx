@@ -202,42 +202,48 @@ export default function Showreel() {
 
   return (
     <div className="reel">
-      <div className="reel-stage">
-        <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait">
+        {slide.intro ? (
+          <motion.div
+            key="intro"
+            className="reel-intro"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <motion.span className="reel-intro-eyebrow" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+              Welcome to
+            </motion.span>
+            <motion.h1 className="reel-intro-title" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              What’s in my Fridge
+            </motion.h1>
+            <motion.p className="reel-intro-sub" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.65 }}>
+              Snap it · track it · cook it · waste less
+            </motion.p>
+          </motion.div>
+        ) : (
           <motion.div
             key={slide.key}
-            className="reel-slide"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="reel-body"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            {slide.intro ? (
-              <div className="reel-intro">
-                <motion.span className="reel-intro-eyebrow" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-                  Welcome to
-                </motion.span>
-                <motion.h1 className="reel-intro-title" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                  What’s in my Fridge<span className="reel-intro-leaf"> 🍃</span>
-                </motion.h1>
-                <motion.p className="reel-intro-sub" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.65 }}>
-                  Snap it · track it · cook it · waste less
-                </motion.p>
-              </div>
-            ) : (
-              <>
+            <div className="reel-stage">
+              <div className="reel-slide">
                 <div className="reel-phone">
                   <div className="reel-screen">{slide.screen}</div>
                 </div>
                 <h1 className="reel-title">{slide.title}</h1>
                 <p className="reel-sub">{slide.sub}</p>
-              </>
-            )}
+              </div>
+            </div>
+            <div className="reel-foot">whatsinmyfridge.co.uk</div>
           </motion.div>
-        </AnimatePresence>
-      </div>
-
-      <div className="reel-foot">whatsinmyfridge.co.uk</div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
