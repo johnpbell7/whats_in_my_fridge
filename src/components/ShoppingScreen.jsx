@@ -7,6 +7,8 @@ import { stapleKey, staplePrefs } from '../lib/staples.js'
 import { guessCategory, CATEGORIES } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { CAT_ICON } from './CategorySections.jsx'
+import CoachTip from './CoachTip.jsx'
+import { coach, useCoachStep } from '../lib/coach.js'
 import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge, IconPin, IconChevron, IconBox, IconSend } from '../icons.jsx'
 
 export default function ShoppingScreen({ list, items = [] }) {
@@ -15,6 +17,7 @@ export default function ShoppingScreen({ list, items = [] }) {
   const [collapsed, setCollapsed] = useState({})
   const { staples, missing } = useStaples(items)
   const prefs = useStaplePrefs()
+  const coachStep = useCoachStep()
 
   // Look up where a known staple usually lives, so restocking it lands it back
   // in the right place (fridge/freezer/pantry) rather than a name-based guess.
@@ -118,6 +121,9 @@ export default function ShoppingScreen({ list, items = [] }) {
         filed: false
       })
       shopping.patch(item.id, { checked: true, filed_id: filed?.id || null })
+      // Ticking one off is the "it files straight into your fridge" moment — once
+      // they've felt it, move the coach on to the dinner tip.
+      if (coach.step() === 'shop') coach.next()
     } else {
       // Untick: pull the item we just filed back out of the fridge, then clear
       // the tick. (filed_id is on-device only, so this undoes ticks made here.)
@@ -236,6 +242,13 @@ export default function ShoppingScreen({ list, items = [] }) {
           )}
         </div>
       </header>
+
+      {coachStep === 'shop' && (
+        <CoachTip icon="🛒" title="The clever bit" onDismiss={() => coach.next()}>
+          Tick things off as you buy them and each one files <strong>straight into your
+          fridge</strong> — no re-typing. Add something to your list and give it a go.
+        </CoachTip>
+      )}
 
       <form className="search" onSubmit={add} style={{ marginBottom: 16 }}>
         <IconPlus size={18} />

@@ -7,6 +7,8 @@ import { store } from '../lib/store.js'
 import { sameItem } from '../lib/staples.js'
 import { CATEGORIES, LOCATIONS } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
+import { coach, useCoachStep } from '../lib/coach.js'
+import CoachTip from './CoachTip.jsx'
 import { IconCamera, IconReceipt, IconPlus, IconCheck, IconClose, IconSparkle, IconWarning, IconClock } from '../icons.jsx'
 
 // phases: idle -> reading -> confirm  (error can interrupt reading)
@@ -19,6 +21,7 @@ export default function ScanScreen({ onDone, onAddManual }) {
   const [location, setLocation] = useState('auto') // 'auto' files each item smartly
   const [receiptDate, setReceiptDate] = useState(null) // date read off a receipt
   const fileRef = useRef(null)
+  const coachStep = useCoachStep()
 
   async function handleFile(file) {
     if (!file) return
@@ -132,6 +135,13 @@ export default function ScanScreen({ onDone, onAddManual }) {
         className="sr-only"
         onChange={(e) => handleFile(e.target.files?.[0])}
       />
+
+      {phase === 'idle' && coachStep === 'scan' && (
+        <CoachTip icon="📸" title="Let's try it on your own food" onDismiss={coach.skip}>
+          Snap your shopping — or grab anything from a cupboard or the fridge — and watch
+          it get listed in seconds. This is the bit people love.
+        </CoachTip>
+      )}
 
       {phase === 'idle' && (
         <>

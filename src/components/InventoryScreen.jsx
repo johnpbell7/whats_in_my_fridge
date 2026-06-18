@@ -10,6 +10,8 @@ import StaplesBanner from './StaplesBanner.jsx'
 import StaplesList from './StaplesList.jsx'
 import SavedMeals from './SavedMeals.jsx'
 import CategorySections from './CategorySections.jsx'
+import CoachTip from './CoachTip.jsx'
+import { coach, useCoachStep } from '../lib/coach.js'
 import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle, IconUser, IconClose, IconInfo } from '../icons.jsx'
 
 export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onGoChat, onAccount, onHelp, helpBadge }) {
@@ -18,6 +20,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
   const [place, setPlace] = useState('all') // 'all' | 'fridge' | 'freezer' | 'pantry'
   const [confirmClear, setConfirmClear] = useState(false)
   const [soonDismissed, setSoonDismissed] = useState(false)
+  const coachStep = useCoachStep()
 
   // Reset the "tap again to clear" confirm whenever you leave the archive.
   useEffect(() => {
@@ -135,6 +138,20 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
         >
           {sampleLoaded ? 'Clear sample data' : 'Load sample data'}
         </button>
+      )}
+
+      {view === 'active' && active.length > 0 && coachStep === 'organise' && (
+        <CoachTip icon="🗂️" title="Now make it yours" onDismiss={() => coach.next()}>
+          Tap <strong>New</strong> to file these into folders — and tap any item to set a
+          use-by, mark it an <strong>essential ⭐</strong>, or flag it <strong>long-life</strong>.
+        </CoachTip>
+      )}
+
+      {view === 'active' && active.length > 0 && coachStep === 'used' && (
+        <CoachTip icon="✅" title="Used something up?" onDismiss={() => coach.next()}>
+          Tap <strong>Used</strong> on any item when you finish it — it moves to your
+          <strong> Used</strong> list, ready to pop straight back on your shopping list.
+        </CoachTip>
       )}
 
       {view === 'active' && soonCount > 0 && !soonDismissed && (

@@ -8,6 +8,8 @@ import { expiryState, isLongLife } from '../lib/expiry.js'
 import { staplePrefs } from '../lib/staples.js'
 import { hasDiet } from '../lib/diet.js'
 import MealBuy from './MealBuy.jsx'
+import CoachTip from './CoachTip.jsx'
+import { coach, useCoachStep } from '../lib/coach.js'
 import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck, IconClose, IconBookmark, IconWarning, IconChevron } from '../icons.jsx'
 
 const DINNER_PROMPT = 'What can I make for dinner?'
@@ -61,6 +63,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
   const [picked, setPicked] = useState([])
   const [refined, setRefined] = useState(false)
   const logRef = useRef(null)
+  const coachStep = useCoachStep()
 
   const active = items.filter((i) => i.status === 'active')
   // Items at or past their freshness window — the ones worth cooking first.
@@ -274,6 +277,13 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
           </button>
         )}
       </header>
+
+      {coachStep === 'cook' && (
+        <CoachTip icon="🍳" title="Last one — stuck for dinner?" onDismiss={() => coach.next()}>
+          Ask what you can make from what you've got. Tap a question below or type your own —
+          I'll turn your fridge into real meal ideas.
+        </CoachTip>
+      )}
 
       <div className="chat">
         {urgent.length > 0 && !busy && !dinnerMode && (

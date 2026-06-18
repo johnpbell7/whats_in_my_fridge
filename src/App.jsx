@@ -5,6 +5,7 @@ import { useShopping } from './lib/useShopping.js'
 import { shopping } from './lib/shopping.js'
 import { useAuth } from './lib/useAuth.js'
 import { store, initStore } from './lib/store.js'
+import { coach, useCoachStep } from './lib/coach.js'
 import { initShopping } from './lib/shopping.js'
 import { initStaplePrefs } from './lib/staples.js'
 import { startSync, stopSync } from './lib/cloud.js'
@@ -45,13 +46,21 @@ export default function App() {
   const tabRef = useRef(tab)
   tabRef.current = tab
   const prevAddCount = useRef(addCount)
-  const [shoppingPulse, setShoppingPulse] = useState(0)
+  // One pulse channel for the bottom nav, driven by two sources: a new item
+  // landing on the shopping list from another screen, and the coach wanting to
+  // draw you to the tab where the next tip lives.
+  const [pulse, setPulse] = useState({ tab: 'shopping', n: 0 })
   useEffect(() => {
     if (addCount !== prevAddCount.current) {
       prevAddCount.current = addCount
-      if (tabRef.current !== 'shopping') setShoppingPulse((n) => n + 1)
+      if (tabRef.current !== 'shopping') setPulse((p) => ({ tab: 'shopping', n: p.n + 1 }))
     }
   }, [addCount])
+
+  // First-run coach (hands-on onboarding — separate from the Onboarding
+  // slideshow). The current step drives which contextual tip a screen shows.
+  const coachStep = useCoachStep()
+  const activeCount = items.filter((i) => i.status === 'active').length
   // null = closed; 'new' = blank add form; object = editing that item
   const [editing, setEditing] = useState(null)
   const [account, setAccount] = useState(false)
@@ -94,6 +103,37 @@ export default function App() {
     initStaplePrefs()
   }, [])
 
+  // Coach step 1 ("scan"): the moment a brand-new, empty fridge is ready, land
+  // them on the Scan screen so the very first thing they do is snap their own
+  // food. Once only — never yank them back if they navigate away themselves.
+  const routedToScan = useRef(false)
+  useEffect(() => {
+    if (routedToScan.current) return
+    if (!onboarded) return
+    if (authEnabled && (authLoading || !session)) return
+    if (coachStep === 'scan' && activeCount === 0) {
+      routedToScan.current = true
+      setTab('scan')
+    }
+  }, [onboarded, authEnabled, authLoading, session, coachStep, activeCount])
+
+  // Auto-advance past "scan" the instant they've actually added something — the
+  // rest of the tips key off their real items, so this hands over to "organise".
+  useEffect(() => {
+    if (coachStep === 'scan' && activeCount > 0) coach.reach('organise')
+  }, [coachStep, activeCount])
+
+  // When the next tip lives on another tab (shopping / chat), pulse that tab so
+  // they know where to look.
+  const coachPulsed = useRef(null)
+  useEffect(() => {
+    if ((coachStep === 'shop' || coachStep === 'cook') && coachPulsed.current !== coachStep) {
+      coachPulsed.current = coachStep
+      const target = coachStep === 'shop' ? 'shopping' : 'chat'
+      if (tabRef.current !== target) setPulse((p) => ({ tab: target, n: p.n + 1 }))
+    }
+  }, [coachStep])
+
   // Testing/preview shortcuts:
   //   ?reset=1   — clear the local "seen" flags and reload, so you get the
   //                full first-run experience (onboarding + install guide) again.
@@ -105,6 +145,7 @@ export default function App() {
       try {
         localStorage.removeItem('fridge.onboarding.hide')
         localStorage.removeItem('fridge.install.hide')
+        localStorage.removeItem('fridge.coach.v1')
       } catch {
         /* private mode */
       }
@@ -152,6 +193,9 @@ export default function App() {
   useEffect(() => {
     if (!onboarded) return
     if (authEnabled && (authLoading || !session)) return
+    // Hold the install nudge until the first-run coach has finished, so a new
+    // user isn't hit with two prompts at once.
+    if (coachStep) return
     try {
       if (localStorage.getItem('fridge.install.hide') === '1') return
     } catch {
@@ -160,7 +204,7 @@ export default function App() {
     if (!isMobile() || isStandalone()) return
     const t = setTimeout(() => setInstallGuide(true), 1200)
     return () => clearTimeout(t)
-  }, [onboarded, authEnabled, authLoading, session])
+  }, [onboarded, authEnabled, authLoading, session, coachStep])
 
   // One-time "your free trial has ended" nudge: the first time a lapsed user
   // (now on Free, no longer trialling or paying) opens the app, open the Plus
@@ -267,7 +311,7 @@ export default function App() {
         </button>
       )}
 
-      <Nav tab={tab} onChange={setTab} pulseTab="shopping" pulseAt={shoppingPulse} />
+      <Nav tab={tab} onChange={setTab} pulseTab={pulse.tab} pulseAt={pulse.n} />
 
       <AnimatePresence>
         {editing && (

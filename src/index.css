@@ -1330,6 +1330,49 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 }
 .banner-close:hover { opacity: 1; }
 
+/* ----- First-run coach tips (contextual onboarding nudges) ----- */
+.coach-tip {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--accent-soft);
+  border: 1px solid #cfe5d6;
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r-md);
+  padding: 12px 12px 12px 13px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.coach-ico { font-size: 18px; line-height: 1.25; flex-shrink: 0; }
+.coach-body { flex: 1; min-width: 0; }
+.coach-title { display: block; font-size: 14px; font-weight: 700; color: var(--ink); }
+.coach-text { margin: 2px 0 0; font-size: 13px; line-height: 1.45; color: var(--accent-press); }
+.coach-cta {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 15px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.coach-cta:active { background: var(--accent-press); transform: scale(0.98); }
+.coach-x {
+  flex-shrink: 0;
+  align-self: flex-start;
+  background: none;
+  border: 0;
+  color: var(--accent-press);
+  opacity: 0.55;
+  padding: 2px;
+  display: inline-flex;
+}
+.coach-x:hover { opacity: 1; }
+
 /* ----- Dev-only sample-data button (hidden in production builds) ----- */
 .dev-seed {
   width: 100%;
