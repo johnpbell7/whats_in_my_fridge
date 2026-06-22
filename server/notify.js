@@ -4,7 +4,7 @@
 
 import { timingSafeEqual } from 'node:crypto'
 import { authenticate, admin, TRIAL_DAYS } from './auth.js'
-import { sendEmail, welcomeEmail, trialReminderEmail, reengagementEmail, newSubscriberEmail, reportEmail, OWNER_EMAIL } from './email.js'
+import { sendEmail, welcomeEmail, trialReminderEmail, reengagementEmail, newSubscriberEmail, reportEmail, OWNER_EMAIL, unsubscribeUrl, unsubscribeToken } from './email.js'
 
 const MAX_MSG = 4000
 
@@ -48,6 +48,38 @@ function reportRateLimited(ip) {
   }
   globalHits.push(now)
   return false
+}
+
+// Public one-click unsubscribe from marketing emails (GDPR/PECR). Verifies the
+// HMAC token (so links can't be forged), records unsubscribed_at, and returns a
+// small confirmation page (link click) or JSON (List-Unsubscribe one-click POST).
+// Account/transactional emails are unaffected.
+const unsubPage = (title, body) =>
+  `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:460px;margin:64px auto;padding:0 22px;text-align:center;color:#1f1b16"><div style="font-family:Georgia,serif;font-weight:600;font-size:22px;margin-bottom:18px">What's in my Fridge<span style="color:#2f7d5a">.</span></div><h1 style="font-family:Georgia,serif;font-size:20px;font-weight:600;margin:0 0 10px">${title}</h1><p style="color:#5d5648;line-height:1.55;margin:0">${body}</p></div>`
+
+export async function unsubscribeHandler(userId, token) {
+  const bad = {
+    status: 400,
+    html: unsubPage('Invalid link', 'This unsubscribe link is invalid or has expired. You can manage email preferences in your account.'),
+    json: { ok: false }
+  }
+  if (!userId || !token) return bad
+  const want = Buffer.from(unsubscribeToken(userId))
+  const got = Buffer.from(String(token))
+  if (got.length !== want.length || !timingSafeEqual(got, want)) return bad
+  const db = admin()
+  if (db) {
+    try {
+      await db.from('profiles').update({ unsubscribed_at: new Date().toISOString() }).eq('id', userId)
+    } catch (err) {
+      console.warn('unsubscribe update failed (add an `unsubscribed_at` column to profiles):', err?.message || err)
+    }
+  }
+  return {
+    status: 200,
+    html: unsubPage("You're unsubscribed", "You won't get any more marketing emails from What's in my Fridge. You'll still get important account emails, like billing."),
+    json: { ok: true }
+  }
 }
 
 // POST /api/report — a signed-in (or anonymous) user reports a problem; we email
@@ -159,9 +191,10 @@ export async function scheduledEmailsHandler(authHeader = '') {
   try {
     const { data: lapsed, error } = await db
       .from('profiles')
-      .select('id, created_at, tier, reengaged_at')
+      .select('id, created_at, tier, reengaged_at, unsubscribed_at')
       .neq('tier', 'plus')
       .is('reengaged_at', null)
+      .is('unsubscribed_at', null)
       .limit(200)
     if (error) throw error
     for (const p of lapsed || []) {
@@ -177,8 +210,9 @@ export async function scheduledEmailsHandler(authHeader = '') {
       }
       const email = await emailFor(db, p.id)
       if (email) {
-        const { subject, html } = reengagementEmail()
-        const r = await sendEmail({ to: email, subject, html })
+        const unsub = unsubscribeUrl(p.id)
+        const { subject, html } = reengagementEmail(unsub)
+        const r = await sendEmail({ to: email, subject, html, unsubscribeUrl: unsub })
         if (r.ok || r.skipped) {
           await db.from('profiles').update({ reengaged_at: nowISO() }).eq('id', p.id)
           if (r.ok) reengaged++

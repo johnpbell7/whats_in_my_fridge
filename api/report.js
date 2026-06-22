@@ -1,12 +1,19 @@
-import { reportHandler, scheduledEmailsHandler, previewEmailsHandler } from '../server/notify.js'
+import { reportHandler, scheduledEmailsHandler, previewEmailsHandler, unsubscribeHandler } from '../server/notify.js'
 
-// This function serves two related "notification" jobs so we stay under Vercel's
-// 12-function Hobby limit:
-//   • POST /api/report                       — a user submits the "report a problem" form
-//   • GET  /api/report (Bearer CRON_SECRET)  — the daily scheduled run that sends
-//     welcome emails to new users and reminds trials that are about to end.
-//     Point an external scheduler (e.g. cron-job.org) at this once a day.
+// This function serves several related "notification" jobs so we stay under
+// Vercel's 12-function Hobby limit:
+//   • POST /api/report                            — "report a problem" form
+//   • GET  /api/report (Bearer CRON_SECRET)       — daily welcome + trial-reminder run
+//   • GET/POST /api/report?unsubscribe=<id>&t=…   — one-click marketing unsubscribe
 export default async function handler(req, res) {
+  // Public unsubscribe link from marketing emails (GET click / POST one-click).
+  // No auth — the HMAC token in `t` is the credential.
+  if (req.query?.unsubscribe) {
+    const { status, html, json } = await unsubscribeHandler(String(req.query.unsubscribe), String(req.query.t || ''))
+    if (req.method === 'POST') return res.status(status).json(json || { ok: true })
+    res.setHeader('Content-Type', 'text/html; charset=utf-8')
+    return res.status(status).send(html)
+  }
   if (req.method === 'GET') {
     const auth = req.headers.authorization || ''
     // ?preview=1 sends one of every email to the owner (designs check); the

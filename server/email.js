@@ -3,6 +3,22 @@
 // before email is configured. Once the key + a verified domain are in place,
 // these go out from EMAIL_FROM.
 
+import { createHmac } from 'node:crypto'
+
+// One-click unsubscribe for marketing emails (GDPR/PECR). The token is an HMAC
+// of the user id so the link can't be forged to unsubscribe someone else, and
+// needs no stored state. Secret is server-only.
+const UNSUB_SECRET =
+  process.env.UNSUBSCRIBE_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET || 'dev-unsub'
+const APP_BASE = (process.env.APP_URL || 'https://app.whatsinmyfridge.co.uk').replace(/\/$/, '')
+
+export function unsubscribeToken(userId) {
+  return createHmac('sha256', UNSUB_SECRET).update(String(userId)).digest('hex').slice(0, 32)
+}
+export function unsubscribeUrl(userId) {
+  return `${APP_BASE}/api/report?unsubscribe=${encodeURIComponent(userId)}&t=${unsubscribeToken(userId)}`
+}
+
 // FROM must stay on the Resend-verified domain; support@ has no mailbox behind
 // it, so every outgoing email carries SUPPORT_EMAIL as reply-to — customer
 // replies land in the monitored gmail instead of bouncing into the void.
@@ -17,7 +33,7 @@ export function emailEnabled() {
 
 // Returns { ok } on success, { skipped:true } when email isn't configured (so
 // callers can treat "not set up yet" as a soft success), { ok:false } on error.
-export async function sendEmail({ to, subject, html, replyTo }) {
+export async function sendEmail({ to, subject, html, replyTo, unsubscribeUrl }) {
   const key = process.env.RESEND_API_KEY
   if (!key) return { skipped: true }
   try {
@@ -29,7 +45,12 @@ export async function sendEmail({ to, subject, html, replyTo }) {
         to: Array.isArray(to) ? to : [to],
         subject,
         html,
-        reply_to: replyTo || SUPPORT_EMAIL
+        reply_to: replyTo || SUPPORT_EMAIL,
+        // One-click unsubscribe for marketing mail — surfaces the native
+        // "unsubscribe" button in Gmail/Apple Mail and lets them POST to opt out.
+        ...(unsubscribeUrl
+          ? { headers: { 'List-Unsubscribe': `<${unsubscribeUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' } }
+          : {})
       })
     })
     if (!res.ok) {
@@ -45,15 +66,16 @@ export async function sendEmail({ to, subject, html, replyTo }) {
 
 const esc = (s) => String(s || '').replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]))
 
-// Shared branded shell for outgoing emails.
-const shell = (title, inner) => `<!doctype html><html><body style="margin:0;background:#faf7f2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1f1b16">
+// Shared branded shell for outgoing emails. `footerExtra` appends to the footer
+// line (used for the marketing-email unsubscribe link).
+const shell = (title, inner, footerExtra = '') => `<!doctype html><html><body style="margin:0;background:#faf7f2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1f1b16">
   <div style="max-width:520px;margin:0 auto;padding:28px 22px">
     <div style="font-family:Georgia,'Times New Roman',serif;font-weight:600;font-size:22px;margin-bottom:16px">What's in my Fridge<span style="color:#2f7d5a">.</span></div>
     <div style="background:#fffdf9;border:1px solid #ebe5d8;border-radius:16px;padding:24px">
       <h1 style="margin:0 0 12px;font-size:19px;font-family:Georgia,serif;font-weight:600">${title}</h1>
       ${inner}
     </div>
-    <p style="color:#8a8170;font-size:12px;margin:16px 6px">What's in my Fridge · <a href="https://whatsinmyfridge.co.uk" style="color:#5d5648">whatsinmyfridge.co.uk</a></p>
+    <p style="color:#8a8170;font-size:12px;margin:16px 6px">What's in my Fridge · <a href="https://whatsinmyfridge.co.uk" style="color:#5d5648">whatsinmyfridge.co.uk</a>${footerExtra}</p>
   </div>
 </body></html>`
 
@@ -90,14 +112,18 @@ export function trialReminderEmail(daysLeft) {
 
 // Re-engage a lapsed free user (~a week after their trial ended) — lead with the
 // free dinner hook, then the loss-framed nudge that their saved stuff is waiting.
-export function reengagementEmail() {
+export function reengagementEmail(unsubUrl) {
   return {
     subject: 'Stuck for dinner tonight? 🍳',
-    html: shell('Your fridge is waiting', `
+    html: shell(
+      'Your fridge is waiting',
+      `
       <p style="font-size:15px;line-height:1.55;color:#5d5648;margin:0 0 10px">Not sure what to cook? Snap whatever's in your fridge and we'll turn it into a few real dinner ideas, plus what to buy — that bit's <strong>always free</strong>.</p>
       ${button('https://app.whatsinmyfridge.co.uk', "See tonight's dinner")}
       <p style="font-size:13px;color:#8a8170;margin:16px 0 0">Your saved fridge, shopping list and meals are still here too — pick them back up any time with Plus for £3.99/month.</p>
-    `)
+    `,
+      unsubUrl ? ` · <a href="${unsubUrl}" style="color:#8a8170">Unsubscribe</a>` : ''
+    )
   }
 }
 
