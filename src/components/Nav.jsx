@@ -5,8 +5,8 @@ const TABS = [
   { key: 'dinner', label: 'Tonight', Icon: IconSparkle },
   { key: 'chat', label: 'Ask', Icon: IconChat },
   { key: 'scan', label: 'Scan', Icon: IconCamera },
-  { key: 'inventory', label: 'My food', Icon: IconFridge },
-  { key: 'shopping', label: 'My list', Icon: IconCart }
+  { key: 'inventory', label: 'Fridge', Icon: IconFridge },
+  { key: 'shopping', label: 'List', Icon: IconCart }
 ]
 
 export default function Nav({ tab, onChange, pulseTab, pulseAt }) {

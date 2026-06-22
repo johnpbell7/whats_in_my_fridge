@@ -570,7 +570,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
   border-top: 1px solid var(--line);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   z-index: 30;
 }
 .nav button {
@@ -582,8 +582,9 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   align-items: center;
   justify-content: center;
   gap: 3px;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 600;
+  white-space: nowrap;
   transition: color 160ms;
 }
 .nav button[aria-current='page'] { color: var(--accent); }
@@ -1372,6 +1373,62 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   display: inline-flex;
 }
 .coach-x:hover { opacity: 1; }
+
+/* ----- Locked (Plus-only) feature screen — a teaser, not a wall ----- */
+.locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 14px 4px 28px;
+}
+.locked-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+.locked-preview {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto 20px;
+  pointer-events: none;
+}
+.locked-preview .ob-card { margin: 0 auto; }
+/* Soft fade at the base so it reads as a "peek" behind the paywall. */
+.locked-preview::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 38%;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+  border-radius: 0 0 var(--r-md) var(--r-md);
+}
+.locked h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  margin: 2px 0 6px;
+}
+.locked p {
+  color: var(--ink-soft);
+  font-size: 14px;
+  max-width: 32ch;
+  margin: 0 0 16px;
+}
+.locked-benefits {
+  text-align: left;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 0 20px;
+}
+.locked-cta { max-width: 320px; }
 
 /* ----- Dev-only sample-data button (hidden in production builds) ----- */
 .dev-seed {
