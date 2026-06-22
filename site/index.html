@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>What's in my Fridge — Track Your Fridge, Waste Less Food &amp; Get Dinner Ideas</title>
-  <meta name="description" content="Track your fridge with AI: snap a photo or receipt to log food, get use-by reminders that cut waste, dinner ideas from what you already have, and a smart shopping list. Free to start." />
+  <title>What's in my Fridge — Dinner Ideas From a Photo, Track Your Fridge &amp; Waste Less</title>
+  <meta name="description" content="Snap whatever's in your fridge and AI tells you what to cook tonight — plus what to buy. Track your food, cut waste with use-by reminders, and keep a smart shopping list. Free to start." />
   <meta name="theme-color" content="#2f7d5a" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="author" content="What's in my Fridge" />
@@ -13,7 +13,7 @@
   <meta property="og:locale" content="en_GB" />
   <meta property="og:image:alt" content="What's in my Fridge — track your fridge, waste less, eat better" />
   <meta property="og:title" content="What's in my Fridge" />
-  <meta property="og:description" content="Snap your fridge or a receipt and AI logs everything — track freshness, get dinner ideas, waste less." />
+  <meta property="og:description" content="Snap what's in your fridge and AI tells you what to cook tonight — plus what to buy. Track freshness, waste less. Free to start." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.whatsinmyfridge.co.uk/" />
   <meta property="og:image" content="https://www.whatsinmyfridge.co.uk/og.png?v=4" />
@@ -21,7 +21,7 @@
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="What's in my Fridge" />
-  <meta name="twitter:description" content="Snap your fridge or a receipt and AI logs everything — track freshness, get dinner ideas, waste less." />
+  <meta name="twitter:description" content="Snap what's in your fridge and AI tells you what to cook tonight — plus what to buy. Track freshness, waste less. Free to start." />
   <meta name="twitter:image" content="https://www.whatsinmyfridge.co.uk/og.png?v=4" />
   <link rel="canonical" href="https://www.whatsinmyfridge.co.uk/" />
   <!-- Google Search Console: paste your verification token below and uncomment.
@@ -418,7 +418,7 @@
         "@type": "FAQPage",
         "mainEntity": [
           { "@type": "Question", "name": "Do I have to type everything in?", "acceptedAnswer": { "@type": "Answer", "text": "No — take a photo of your fridge or a shopping receipt and the app recognises and logs the items for you. You can always add or tweak anything by hand too." } },
-          { "@type": "Question", "name": "Is it free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The free plan lets you track your whole kitchen, keep a shopping list, and use a monthly allowance of scans and AI questions. Every new account also gets a 7-day free trial of Plus, which is £3.99/month." } },
+          { "@type": "Question", "name": "Is it free?", "acceptedAnswer": { "@type": "Answer", "text": "The 'what's for dinner?' feature — snap your food and get AI meal ideas — is free forever, with a monthly allowance. Every new account also gets the whole app free for 14 days, including fridge tracking, a shopping list and scanning shopping in. After that those extras are part of Plus, which is £3.99/month." } },
           { "@type": "Question", "name": "How does the dinner suggestion work?", "acceptedAnswer": { "@type": "Answer", "text": "Tap ‘what can I make for dinner?’ and the app suggests real meals built around what's actually in your inventory — favouring things that need using up — and lists a few extras you could add to your shopping list in one tap." } },
           { "@type": "Question", "name": "What happens to my photos?", "acceptedAnswer": { "@type": "Answer", "text": "A photo is sent to be read by AI, then it's discarded — we don't keep the image, only the list of items it produced." } },
           { "@type": "Question", "name": "Does it work on iPhone and Android?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. It runs in any modern browser and you can add it to your home screen so it works just like an app. Your fridge syncs across every device you sign in on." } },
@@ -455,11 +455,11 @@
   <section class="hero">
     <div class="wrap hero-grid">
       <div class="hero-head">
-        <span class="eyebrow">Your fridge, finally organised</span>
-        <h1 class="display">Know what you've&nbsp;got.<br><span class="u">Waste<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1 6 C 20 9, 40 2, 60 5 S 95 8, 99 4" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>&nbsp;less.<br>Eat&nbsp;better.</h1>
+        <span class="eyebrow">AI dinner from a photo</span>
+        <h1 class="display">Snap your&nbsp;food.<br>Get <span class="u">dinner<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1 6 C 20 9, 40 2, 60 5 S 95 8, 99 4" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>.<br>Waste&nbsp;less.</h1>
       </div>
       <div class="hero-tail">
-        <p class="lede">Just back from the shop? Lay it out, snap it, and AI logs everything — so you always know what's fresh, what to cook, and what to buy.</p>
+        <p class="lede">Point your phone at whatever you've got — or whatever needs using up — and AI turns it into tonight's dinner, plus the few things to buy. Know what's in, track freshness, waste less.</p>
         <div class="hero-ctas">
           <a class="btn btn-primary btn-lg" href="https://app.whatsinmyfridge.co.uk">Start free</a>
         </div>
@@ -481,6 +481,16 @@
         <div class="float fc3"><span class="fi">🍝</span> Dinner ideas</div>
         <div class="float fc4"><span class="fi">🛒</span> Smart shopping list</div>
         <div class="phone" id="heroPhone"><div class="screen" id="heroScreen">
+
+          <!-- panel · what's for dinner — snap to cook (the free hero) -->
+          <div class="hpanel">
+            <div class="cam" data-camd style="opacity:0"><div class="cam-scene">🥦🍗🧄<br>🍅🧅🫑</div><div class="cam-bracket"></div><div class="cam-shutter"></div><div class="cam-label">What can I cook?</div></div>
+            <div class="flash" data-flashd></div>
+            <div class="screen-top"><div class="sm">What's for dinner?</div><div class="lg">Tonight's ideas</div></div>
+            <div class="hero-hint">From what you snapped, you could make…</div>
+            <div class="meal"><h5>Garlic chicken &amp; greens</h5><div class="u">Uses: chicken, spinach, garlic</div><div class="buy"><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">🛒 + Lemon</span></div></div>
+            <div class="meal" style="margin-top:9px;"><h5>Roasted pepper pasta</h5><div class="u">Uses: peppers, onion, tomatoes</div></div>
+          </div>
 
           <!-- panel 0 · inventory -->
           <div class="hpanel">
@@ -571,6 +581,34 @@
         <p>One simple app that tracks your food, tells you what to cook, and keeps your shopping list sorted.</p>
       </div>
       <div class="feature-rows">
+
+        <!-- 0 · Tonight's dinner — the free hero -->
+        <div class="frow rev" id="f-tonight">
+          <div class="frow-media">
+            <div class="dev"><div class="scr">
+              <div class="scr-h"><div class="s">What's for dinner?</div><div class="b">Snap to cook</div></div>
+              <div class="hint">Tap to drop anything I misread, then cook.</div>
+              <div style="margin:0 16px 10px;display:flex;flex-wrap:wrap;gap:6px;">
+                <span class="chip" style="background:var(--accent-soft);color:var(--accent-press);padding:5px 9px;">✓ Chicken</span>
+                <span class="chip" style="background:var(--accent-soft);color:var(--accent-press);padding:5px 9px;">✓ Spinach</span>
+                <span class="chip" style="background:var(--accent-soft);color:var(--accent-press);padding:5px 9px;">✓ Garlic</span>
+                <span class="chip" style="background:var(--surface);border:1px solid var(--line);color:var(--ink-faint);padding:5px 9px;">Pasta</span>
+              </div>
+              <div class="meal"><h5>Garlic chicken &amp; greens</h5><div class="u">Uses: chicken, spinach, garlic</div><div class="buy"><span class="chip" style="background:var(--accent-soft);color:var(--accent-press);">🛒 + Lemon</span></div></div>
+              <div class="meal" style="margin-top:9px;"><h5>Creamy spinach orzo</h5><div class="u">Uses: spinach, garlic, pasta</div></div>
+            </div></div>
+          </div>
+          <div class="frow-text">
+            <span class="eyebrow">Free, always</span>
+            <h3 class="display">Tonight's dinner, from a photo</h3>
+            <p>Snap whatever you fancy cooking with — or whatever's about to go off — and AI turns it into real dinner ideas, plus the few things you still need. Pick a cuisine, set any dietary needs, and you're cooking. No tracking or setup required.</p>
+            <ul>
+              <li><span class="ck">✓</span> Just snap — no typing, no inventory needed</li>
+              <li><span class="ck">✓</span> Choose a cuisine &amp; it fits your dietary needs</li>
+              <li><span class="ck">✓</span> Tells you the few extras to buy</li>
+            </ul>
+          </div>
+        </div>
 
         <!-- 1 · Snap -->
         <div class="frow" id="f-scan">
@@ -810,30 +848,30 @@
   <!-- ============ PRICING ============ -->
   <section id="pricing">
     <div class="wrap">
-      <div class="sec-head"><span class="eyebrow">Pricing</span><h2 class="display">Start free. Upgrade if you love it.</h2><p>Every new account gets a 7-day free trial of Plus.</p></div>
+      <div class="sec-head"><span class="eyebrow">Pricing</span><h2 class="display">Dinner's free. The rest is £3.99.</h2><p>Every new account gets the <strong>whole app free for 14 days</strong> — no card needed. After that, dinner-from-a-photo stays free forever.</p></div>
       <div class="price-grid">
         <div class="price">
           <h3>Free</h3>
           <div class="amt">£0<small> / forever</small></div>
           <ul>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Track your whole fridge, freezer &amp; pantry</li>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Shopping list &amp; essentials</li>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> 10 photo/receipt scans a month</li>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> 30 AI chat questions a month</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> <strong>Dinner from a photo</strong> — snap &amp; cook, always free</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Ask the AI what to make, your way</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> ~10 photo dinners + 30 questions a month</li>
           </ul>
-          <a class="btn btn-ghost btn-block" style="width:100%;justify-content:center;" href="https://app.whatsinmyfridge.co.uk">Get started</a>
+          <a class="btn btn-ghost btn-block" style="width:100%;justify-content:center;" href="https://app.whatsinmyfridge.co.uk">Start free</a>
         </div>
         <div class="price pop">
-          <span class="badge">Most popular</span>
+          <span class="badge">Best value</span>
           <h3>Plus</h3>
           <div class="amt">£3.99<small> / month</small></div>
           <ul>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Everything in Free, plus…</li>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> 60 photo/receipt scans a month</li>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> 200 AI chat questions a month</li>
-            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Sharper AI recognition for trickier photos</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Everything free, plus the full kitchen organiser:</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> <strong>Track your whole fridge</strong>, freezer &amp; pantry</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> <strong>Snap your shopping &amp; receipts</strong> into your fridge</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> Smart shopping list, freshness reminders &amp; essentials</li>
+            <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 12.5l5 5 10-11"/></svg> 6× the AI (60 scans / 200 questions) + sharper recognition</li>
           </ul>
-          <a class="btn btn-primary btn-block" style="width:100%;justify-content:center;" href="https://app.whatsinmyfridge.co.uk">Start 7-day free trial</a>
+          <a class="btn btn-primary btn-block" style="width:100%;justify-content:center;" href="https://app.whatsinmyfridge.co.uk">Start 14-day free trial</a>
         </div>
       </div>
     </div>
@@ -845,7 +883,7 @@
       <div class="sec-head"><span class="eyebrow">FAQ</span><h2 class="display">Good questions</h2></div>
       <div class="faq">
         <div class="qa"><button aria-expanded="false">Do I have to type everything in? <span class="pm">+</span></button><div class="ans"><p>No — that's the whole point. Take a photo of your fridge or a shopping receipt and the app recognises and logs the items for you. You can always add or tweak anything by hand too.</p></div></div>
-        <div class="qa"><button aria-expanded="false">Is it free? <span class="pm">+</span></button><div class="ans"><p>Yes. The free plan lets you track your whole kitchen, keep a shopping list, and use a monthly allowance of scans and AI questions. Every new account also gets a 7-day free trial of Plus. Plus is £3.99/month if you want more.</p></div></div>
+        <div class="qa"><button aria-expanded="false">Is it free? <span class="pm">+</span></button><div class="ans"><p>The "what's for dinner?" feature — snap your food and get AI meal ideas — is <strong>free forever</strong> (with a monthly allowance). Every new account also gets the <strong>whole app free for 14 days</strong>, including fridge tracking, your shopping list and scanning shopping in. After that those extras are part of Plus, which is £3.99/month.</p></div></div>
         <div class="qa"><button aria-expanded="false">How does the dinner suggestion work? <span class="pm">+</span></button><div class="ans"><p>Tap "what can I make for dinner?" and the app suggests real meals built around what's actually in your inventory — favouring things that need using up. Each idea lists what it uses and a few extras you could add to your shopping list in one tap.</p></div></div>
         <div class="qa"><button aria-expanded="false">What happens to my photos? <span class="pm">+</span></button><div class="ans"><p>A photo is sent to be read by AI, then it's discarded — we don't keep the image, only the list of items it produced. See our <a href="https://app.whatsinmyfridge.co.uk/privacy.html" style="color:var(--accent);font-weight:600;">Privacy Policy</a> for the full detail.</p></div></div>
         <div class="qa"><button aria-expanded="false">Does it work on iPhone and Android? <span class="pm">+</span></button><div class="ans"><p>Yes. It runs in any modern browser and you can add it to your home screen so it works just like an app. Your fridge syncs across every device you sign in on.</p></div></div>
@@ -964,75 +1002,94 @@
       // a self-playing demo that cycles all six app screens, ending each loop on
       // the "all sorted" sign-off — every beat animates its own content.
       const hp = gsap.utils.toArray('#heroScreen .hpanel');
-      if (hp.length === 6) {
-        const cam = document.querySelector('#heroScreen [data-cam]');
-        const flash = document.querySelector('#heroScreen [data-flash]');
-        const shutter = document.querySelector('#heroScreen .cam-shutter');
-        const scanBits = hp[1].querySelectorAll('.card, .scr-bar');
-        const inv = hp[0].querySelectorAll('.cat-head, .card');
-        const dinnerBub = hp[2].querySelector('.bub');
-        const dinnerMeals = hp[2].querySelectorAll('.meal');
-        const stNudge = hp[3].querySelector('.nudge');
-        const stCards = hp[3].querySelectorAll('.card');
-        const stTags = hp[3].querySelectorAll('.tag-new');
-        const stBar = hp[3].querySelector('.scr-bar');
-        const shNudge = hp[4].querySelector('.nudge');
-        const shRows = hp[4].querySelectorAll('.check-row');
-        const shBx = hp[4].querySelectorAll('.check-row .bx');
-        const shBar = hp[4].querySelector('.scr-bar');
-        const tick = hp[5].querySelector('.done-tick');
-        const ring = hp[5].querySelector('.done-ring');
-        const check = hp[5].querySelector('.done-check');
-        const dTitle = hp[5].querySelector('.done-title');
-        const dSub = hp[5].querySelector('.done-sub');
-        gsap.set(hp, { opacity: 0 }); gsap.set(hp[0], { opacity: 1 });
+      if (hp.length === 7) {
+        const dinner = hp[0], inv = hp[1], snap = hp[2], ask = hp[3], stap = hp[4], shop = hp[5], done = hp[6];
+        // dinner (lead): snap → tonight's meals
+        const dCam = dinner.querySelector('[data-camd]');
+        const dFlash = dinner.querySelector('[data-flashd]');
+        const dShut = dinner.querySelector('.cam-shutter');
+        const dMeals = dinner.querySelectorAll('.meal');
+        // snap your shopping
+        const cam = snap.querySelector('[data-cam]');
+        const flash = snap.querySelector('[data-flash]');
+        const shutter = snap.querySelector('.cam-shutter');
+        const scanBits = snap.querySelectorAll('.card, .scr-bar');
+        // inventory
+        const invBits = inv.querySelectorAll('.cat-head, .card');
+        // ask: dinner ideas (chat)
+        const askBub = ask.querySelector('.bub');
+        const askMeals = ask.querySelectorAll('.meal');
+        // staples
+        const stNudge = stap.querySelector('.nudge');
+        const stCards = stap.querySelectorAll('.card');
+        const stTags = stap.querySelectorAll('.tag-new');
+        const stBar = stap.querySelector('.scr-bar');
+        // shopping
+        const shNudge = shop.querySelector('.nudge');
+        const shRows = shop.querySelectorAll('.check-row');
+        const shBx = shop.querySelectorAll('.check-row .bx');
+        const shBar = shop.querySelector('.scr-bar');
+        // all sorted
+        const tick = done.querySelector('.done-tick');
+        const ring = done.querySelector('.done-ring');
+        const check = done.querySelector('.done-check');
+        const dTitle = done.querySelector('.done-title');
+        const dSub = done.querySelector('.done-sub');
+
+        gsap.set(hp, { opacity: 0 }); gsap.set(dinner, { opacity: 1 }); gsap.set(dCam, { opacity: 0 });
 
         const swap = (tl, from, to) => tl
           .to(from, { opacity: 0, duration: .45, ease: 'power2.in' })
           .fromTo(to, { opacity: 0 }, { opacity: 1, duration: .45 }, '<.12');
 
         const m = gsap.timeline({ repeat: -1, repeatDelay: 0.6, defaults: { ease: 'power2.out' } });
-        m.to({}, { duration: 1.1 });                       // hold inventory (first view static)
+        m.to({}, { duration: 1.4 });                       // hold tonight's dinner ideas (first view static)
 
-        // → snap a photo: camera resets BEFORE it fades in, then shutter/flash/reveal
+        // → snap your shopping: shutter/flash, items reveal
         m.set(cam, { opacity: 1 }).set(flash, { opacity: 0 }).set(scanBits, { opacity: 0, y: 14 });
-        swap(m, hp[0], hp[1]);
+        swap(m, dinner, snap);
         m.to(shutter, { scale: .82, duration: .16, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '+=.5')
          .to(flash, { opacity: .92, duration: .08 })
          .to(flash, { opacity: 0, duration: .42 })
          .to(cam, { opacity: 0, duration: .35 }, '<')
          .to(scanBits, { opacity: 1, y: 0, stagger: .15, duration: .42, ease: 'back.out(1.6)' }, '-=.2')
-         .to({}, { duration: 1.5 });
+         .to({}, { duration: 1.4 });
 
-        // → dinner: the question, a beat, then the meals
-        m.set(dinnerBub, { opacity: 0, y: 12, scale: .92 }).set(dinnerMeals, { opacity: 0, y: 14 });
-        swap(m, hp[1], hp[2]);
-        m.to(dinnerBub, { opacity: 1, y: 0, scale: 1, duration: .4, ease: 'back.out(1.8)' }, '-=.1')
-         .to(dinnerMeals, { opacity: 1, y: 0, stagger: .22, duration: .45 }, '+=.3')
-         .to({}, { duration: 1.5 });
+        // → it's all tracked (inventory)
+        m.set(invBits, { opacity: 0, y: 14 });
+        swap(m, snap, inv);
+        m.to(invBits, { opacity: 1, y: 0, stagger: .1, duration: .4, ease: 'back.out(1.5)' }, '-=.15')
+         .to({}, { duration: 1.3 });
+
+        // → or ask for dinner ideas (chat)
+        m.set(askBub, { opacity: 0, y: 12, scale: .92 }).set(askMeals, { opacity: 0, y: 14 });
+        swap(m, inv, ask);
+        m.to(askBub, { opacity: 1, y: 0, scale: 1, duration: .4, ease: 'back.out(1.8)' }, '-=.1')
+         .to(askMeals, { opacity: 1, y: 0, stagger: .22, duration: .45 }, '+=.3')
+         .to({}, { duration: 1.4 });
 
         // → staples: usuals flagged low/out, tags pulse
         m.set(stNudge, { opacity: 0, y: -12 }).set(stCards, { opacity: 0, y: 16 }).set(stTags, { scale: 0 }).set(stBar, { opacity: 0, y: 12 });
-        swap(m, hp[2], hp[3]);
+        swap(m, ask, stap);
         m.to(stNudge, { opacity: 1, y: 0, duration: .4, ease: 'back.out(1.8)' }, '-=.1')
          .to(stCards, { opacity: 1, y: 0, stagger: .12, duration: .42 }, '-=.05')
          .to(stTags, { scale: 1, stagger: .1, duration: .4, ease: 'back.out(2.4)' }, '-=.15')
          .to(stTags, { scale: 1.14, yoyo: true, repeat: 1, stagger: .08, duration: .35, ease: 'sine.inOut' })
          .to(stBar, { opacity: 1, y: 0, duration: .4, ease: 'back.out(2)' }, '-=.1')
-         .to({}, { duration: 1.3 });
+         .to({}, { duration: 1.2 });
 
         // → shopping: list ticks in row by row, then the put-away bar
         m.set([shNudge, shBar], { opacity: 0 }).set(shRows, { opacity: 0, x: -14 }).set(shBx, { scale: 0 });
-        swap(m, hp[3], hp[4]);
+        swap(m, stap, shop);
         m.to(shNudge, { opacity: 1, duration: .35 }, '-=.1')
          .to(shRows, { opacity: 1, x: 0, stagger: .14, duration: .4 })
          .to(shBx, { scale: 1, stagger: .14, duration: .32, ease: 'back.out(3)' }, '<')
          .to(shBar, { opacity: 1, duration: .4, ease: 'back.out(2)' }, '+=.1')
-         .to({}, { duration: 1.4 });
+         .to({}, { duration: 1.3 });
 
         // → all sorted sign-off tick
         m.set(ring, { strokeDashoffset: 145 }).set(check, { strokeDashoffset: 40 }).set(tick, { scale: .4, opacity: 0 }).set([dTitle, dSub], { opacity: 0, y: 10 });
-        swap(m, hp[4], hp[5]);
+        swap(m, shop, done);
         m.to(tick, { scale: 1, opacity: 1, duration: .45, ease: 'back.out(2)' })
          .to(ring, { strokeDashoffset: 0, duration: .5, ease: 'power2.inOut' }, '<')
          .to(check, { strokeDashoffset: 0, duration: .35 }, '-=.15')
@@ -1040,10 +1097,14 @@
          .to(tick, { scale: 1.08, yoyo: true, repeat: 1, duration: .35, ease: 'sine.inOut' })
          .to({}, { duration: 1.6 });
 
-        // → back to inventory: folders + cards slide in fresh, ready to loop
-        m.set(inv, { opacity: 0, y: 14 });
-        swap(m, hp[5], hp[0]);
-        m.to(inv, { opacity: 1, y: 0, stagger: .1, duration: .4, ease: 'back.out(1.5)' }, '-=.15')
+        // → back to tonight's dinner: snap the ingredients, reveal the meals — loops
+        m.set(dCam, { opacity: 1 }).set(dFlash, { opacity: 0 }).set(dMeals, { opacity: 0, y: 14 });
+        swap(m, done, dinner);
+        m.to(dShut, { scale: .82, duration: .16, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '+=.4')
+         .to(dFlash, { opacity: .92, duration: .08 })
+         .to(dFlash, { opacity: 0, duration: .42 })
+         .to(dCam, { opacity: 0, duration: .35 }, '<')
+         .to(dMeals, { opacity: 1, y: 0, stagger: .18, duration: .42, ease: 'back.out(1.6)' }, '-=.2')
          .to({}, { duration: 1.0 });
       }
 
