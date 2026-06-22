@@ -87,6 +87,10 @@ export default function App() {
   const [account, setAccount] = useState(false)
   const [savedSheet, setSavedSheet] = useState(false)
   const [installGuide, setInstallGuide] = useState(false)
+  // Live value of installGuide for async callbacks (the trial prompts fire
+  // after a network round-trip, so their closure would otherwise be stale).
+  const installGuideRef = useRef(installGuide)
+  installGuideRef.current = installGuide
   const [help, setHelp] = useState(false)
   const [report, setReport] = useState(false)
   const [helpUnseen, setHelpUnseen] = useState(() => hasUnseen())
@@ -224,9 +228,15 @@ export default function App() {
     if (authEnabled && (authLoading || !session)) return
     if (firstrun.seen('fridge.install.hide', userId)) return
     if (!isMobile() || isStandalone()) return
-    const t = setTimeout(() => setInstallGuide(true), 1200)
+    const t = setTimeout(() => {
+      // Never stack on top of the Plus paywall or account sheet — stacked
+      // sheets were the first-run freeze. It'll try again next eligible load.
+      if (upgrade.get() || account) return
+      installGuideRef.current = true // claim it now so a racing trial prompt yields
+      setInstallGuide(true)
+    }, 1200)
     return () => clearTimeout(t)
-  }, [onboarded, authEnabled, authLoading, session, userId])
+  }, [onboarded, authEnabled, authLoading, session, userId, account])
 
   // Loss-framed "trial ends tomorrow" nudge: on the last day of the trial, once,
   // remind them exactly what's about to lock (fridge, list, saved meals) so they
@@ -240,7 +250,10 @@ export default function App() {
     } catch {
       return
     }
-    const t = setTimeout(() => upgrade.show('trial_ending'), 900)
+    const t = setTimeout(() => {
+      if (installGuideRef.current) return // don't stack on the install guide
+      upgrade.show('trial_ending')
+    }, 900)
     return () => clearTimeout(t)
   }, [meState.loaded, meState.trial, meState.trialDaysLeft])
 
@@ -267,7 +280,8 @@ export default function App() {
           /* private mode — it may show again, which is harmless */
         }
         setTimeout(() => {
-          if (!cancelled) upgrade.show('trial_ended')
+          if (cancelled || installGuideRef.current) return // don't stack on the install guide
+          upgrade.show('trial_ended')
         }, 900)
       })
       .catch(() => {})
