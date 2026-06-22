@@ -331,11 +331,8 @@
     .flow-sep { height: 40px; }
     .steps.two { grid-template-columns: repeat(2, 1fr); }
 
-    /* the free flow leads — wrap it so it reads apart from the Plus flow */
-    .flow-free { background: var(--accent-soft); border-radius: var(--r-lg); padding: 22px 22px 10px; }
-    .flow-free .flow-head { margin-bottom: 16px; }
-    .flow-free .step { box-shadow: 0 14px 28px -22px rgba(38,104,75,.5); }
-    .flow-plus { margin-top: 4px; }
+    /* the free flow leads — no container, just its own heading + steps */
+    .flow-free .flow-head { margin-bottom: 20px; }
     .flow-plus .step { background: var(--surface); }
     /* directional connectors so each flow reads as a sequence, not a stack */
     .step { position: relative; }
@@ -351,7 +348,7 @@
     .snap-photo .cap { position: absolute; bottom: 9px; left: 50%; transform: translateX(-50%);
       font-size: 10.5px; font-weight: 700; color: var(--accent-press); letter-spacing: 0;
       background: rgba(255,253,249,.92); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
-    @media (max-width: 760px) { .step-arrow { display: none; } .flow-free { padding: 16px 16px 2px; } }
+    @media (max-width: 760px) { .step-arrow { display: none; } }
 
     /* benefits split */
     .split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
