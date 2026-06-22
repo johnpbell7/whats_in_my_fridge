@@ -64,13 +64,14 @@ export function welcomeEmail() {
   return {
     subject: "Welcome to What's in my Fridge 🥦",
     html: shell("You're in — welcome!", `
-      <p style="font-size:15px;line-height:1.55;color:#5d5648;margin:0 0 10px">Thanks for joining! You're starting with <strong>7 days of Plus free</strong> — more photo scans, more chat, and the sharper vision model. Here's the quickest way to get going:</p>
+      <p style="font-size:15px;line-height:1.55;color:#5d5648;margin:0 0 10px">Thanks for joining! You've got <strong>the full app free for 14 days</strong>. Quickest way to start:</p>
       <ul style="font-size:15px;line-height:1.6;color:#5d5648;padding-left:18px;margin:0">
-        <li><strong>Snap your shopping</strong> or a receipt — the AI logs everything for you.</li>
-        <li><strong>Ask the chat</strong> what to cook from what you've got.</li>
+        <li><strong>Snap what's in your fridge</strong> — the AI turns it into tonight's dinner.</li>
+        <li><strong>Track your fridge &amp; build a shopping list</strong> — try them free during your trial.</li>
         <li><strong>Add it to your home screen</strong> so it's one tap away.</li>
       </ul>
       ${button('https://app.whatsinmyfridge.co.uk', 'Open the app')}
+      <p style="font-size:13px;color:#8a8170;margin:14px 0 0">After 14 days, dinner-from-a-photo stays free — keep the rest with Plus for £3.99/month.</p>
     `)
   }
 }
@@ -78,11 +79,24 @@ export function welcomeEmail() {
 export function trialReminderEmail(daysLeft) {
   const when = daysLeft <= 1 ? 'tomorrow' : `in ${daysLeft} days`
   return {
-    subject: `Your Plus trial ends ${when}`,
-    html: shell(`Your Plus trial ends ${when}`, `
-      <p style="font-size:15px;line-height:1.55;color:#5d5648;margin:0">You're on the Plus trial — more photo scans, more chat, and the sharper vision model. To keep all of it, add a card before your trial ends.</p>
-      ${button('https://app.whatsinmyfridge.co.uk', 'Keep Plus — £3.99/month')}
-      <p style="font-size:13px;color:#8a8170;margin:14px 0 0">No worries if not — you'll just move to the free plan, and your fridge stays exactly as it is.</p>
+    subject: `Your trial ends ${when} — keep your fridge & list`,
+    html: shell(`Your trial ends ${when}`, `
+      <p style="font-size:15px;line-height:1.55;color:#5d5648;margin:0">When your trial ends, dinner-from-a-photo stays free — but your <strong>fridge, shopping list and saved meals will lock</strong>. Keep them all with Plus.</p>
+      ${button('https://app.whatsinmyfridge.co.uk', 'Keep everything — £3.99/month')}
+      <p style="font-size:13px;color:#8a8170;margin:14px 0 0">No card? No worries — you'll just move to the free plan with the dinner feature.</p>
+    `)
+  }
+}
+
+// Re-engage a lapsed free user (~a week after their trial ended) — lead with the
+// free dinner hook, then the loss-framed nudge that their saved stuff is waiting.
+export function reengagementEmail() {
+  return {
+    subject: 'Stuck for dinner tonight? 🍳',
+    html: shell('Your fridge is waiting', `
+      <p style="font-size:15px;line-height:1.55;color:#5d5648;margin:0 0 10px">Not sure what to cook? Snap whatever's in your fridge and we'll turn it into a few real dinner ideas, plus what to buy — that bit's <strong>always free</strong>.</p>
+      ${button('https://app.whatsinmyfridge.co.uk', "See tonight's dinner")}
+      <p style="font-size:13px;color:#8a8170;margin:16px 0 0">Your saved fridge, shopping list and meals are still here too — pick them back up any time with Plus for £3.99/month.</p>
     `)
   }
 }

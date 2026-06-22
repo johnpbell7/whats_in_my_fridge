@@ -4,7 +4,7 @@
 
 import { timingSafeEqual } from 'node:crypto'
 import { authenticate, admin, TRIAL_DAYS } from './auth.js'
-import { sendEmail, welcomeEmail, trialReminderEmail, newSubscriberEmail, reportEmail, OWNER_EMAIL } from './email.js'
+import { sendEmail, welcomeEmail, trialReminderEmail, reengagementEmail, newSubscriberEmail, reportEmail, OWNER_EMAIL } from './email.js'
 
 const MAX_MSG = 4000
 
@@ -104,6 +104,7 @@ export async function scheduledEmailsHandler(authHeader = '') {
 
   let welcomed = 0
   let reminded = 0
+  let reengaged = 0
   const nowISO = () => new Date().toISOString()
 
   // 1) Welcome anyone we haven't welcomed yet.
@@ -152,7 +153,45 @@ export async function scheduledEmailsHandler(authHeader = '') {
     }
   }
 
-  return { status: 200, body: { ok: true, welcomed, reminded } }
+  // 3) Re-engage lapsed free users ~a week after their trial ended — once each.
+  // Needs a nullable `reengaged_at timestamptz` column on `profiles`; until it's
+  // added, the query errors and this whole block is skipped (the others still run).
+  try {
+    const { data: lapsed, error } = await db
+      .from('profiles')
+      .select('id, created_at, tier, reengaged_at')
+      .neq('tier', 'plus')
+      .is('reengaged_at', null)
+      .limit(200)
+    if (error) throw error
+    for (const p of lapsed || []) {
+      const created = Date.parse(p.created_at)
+      if (Number.isNaN(created)) continue
+      const daysSinceLapse = (now - (created + TRIAL_DAYS * 86400000)) / 86400000
+      // Only contact people whose trial ended 7–60 days ago — not the moment they
+      // lapse, and not ancient dormant accounts (mark those done so they're skipped).
+      if (daysSinceLapse < 7) continue
+      if (daysSinceLapse > 60) {
+        await db.from('profiles').update({ reengaged_at: nowISO() }).eq('id', p.id)
+        continue
+      }
+      const email = await emailFor(db, p.id)
+      if (email) {
+        const { subject, html } = reengagementEmail()
+        const r = await sendEmail({ to: email, subject, html })
+        if (r.ok || r.skipped) {
+          await db.from('profiles').update({ reengaged_at: nowISO() }).eq('id', p.id)
+          if (r.ok) reengaged++
+        }
+      } else {
+        await db.from('profiles').update({ reengaged_at: nowISO() }).eq('id', p.id)
+      }
+    }
+  } catch (err) {
+    console.warn('Re-engagement skipped (add a `reengaged_at` column to profiles to enable):', err?.message || err)
+  }
+
+  return { status: 200, body: { ok: true, welcomed, reminded, reengaged } }
 }
 
 // Send one of every email to the owner so the designs can be checked in a real
@@ -166,7 +205,8 @@ export async function previewEmailsHandler(authHeader = '') {
   }
   const samples = [
     welcomeEmail(),
-    trialReminderEmail(2),
+    trialReminderEmail(1),
+    reengagementEmail(),
     newSubscriberEmail({ email: 'newcustomer@example.com', amount: '£3.99' }),
     reportEmail({ type: 'Bug', message: "Scan didn't pick up my milk.", userEmail: 'user@example.com', meta: 'iPhone · preview' })
   ]
