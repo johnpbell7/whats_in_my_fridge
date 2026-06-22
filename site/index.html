@@ -322,6 +322,15 @@
       .steps-hint i:first-child { background: var(--accent); }
     }
 
+    /* two-flow "how it works" */
+    .flow-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0 0 20px; }
+    .flow-head h3 { font-family: var(--display); font-weight: 600; font-size: clamp(20px, 3vw, 26px); }
+    .flow-pill { font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 6px 13px; border-radius: 999px; white-space: nowrap; }
+    .flow-pill.free { background: var(--accent); color: var(--on-accent); }
+    .flow-pill.plus { background: var(--accent-soft); color: var(--accent-press); }
+    .flow-sep { height: 48px; }
+    .steps.two { grid-template-columns: repeat(2, 1fr); }
+
     /* benefits split */
     .split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
     .benefit-list { list-style: none; display: flex; flex-direction: column; gap: 18px; margin-top: 22px; }
@@ -784,12 +793,41 @@
   <!-- ============ HOW IT WORKS ============ -->
   <section id="how" style="background:var(--surface-2);">
     <div class="wrap">
-      <div class="sec-head"><span class="eyebrow">How it works</span><h2 class="display">From shopping bag to dinner in <span class="wig">three steps<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1 6 C 20 9, 40 2, 60 5 S 95 8, 99 4" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span></h2></div>
+      <div class="sec-head"><span class="eyebrow">How it works</span><h2 class="display">Two ways to <span class="wig">use it<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1 6 C 20 9, 40 2, 60 5 S 95 8, 99 4" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span></h2><p>Just want dinner tonight? Snap and go. Want your whole kitchen sorted? It does that too.</p></div>
+
+      <!-- Flow 1 · just dinner (free) -->
+      <div class="flow-head"><span class="flow-pill free">Free · in seconds</span><h3>Tonight's dinner</h3></div>
+      <div class="steps two">
+        <div class="step">
+          <div class="num">1</div>
+          <h3>Snap your ingredients</h3>
+          <p>Photograph whatever you've got — or whatever needs using up. No typing, no tracking, no setup.</p>
+          <div class="step-art">
+            <span class="spill on">🥦 Your veg</span>
+            <span class="spill">🍗 The meat</span>
+            <span class="spill">🧀 Bits in the fridge</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <h3>Get dinner</h3>
+          <p>AI turns it into real meal ideas — pick a cuisine, and it even tells you the few extras to buy.</p>
+          <div class="step-art">
+            <div class="mini" style="display:block;"><div>🍝 Garlic chicken &amp; greens</div><div style="font-weight:500;color:var(--ink-faint);font-size:10.5px;margin-top:3px;">Uses what you snapped + 1 to buy</div></div>
+            <div class="mini">🛒 + Lemon <span class="mc" style="color:var(--accent);">add</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-sep" aria-hidden="true"></div>
+
+      <!-- Flow 2 · run your whole kitchen (Plus) -->
+      <div class="flow-head"><span class="flow-pill plus">Plus · the full kitchen</span><h3>Run your whole kitchen</h3></div>
       <div class="steps">
         <div class="step">
           <div class="num">1</div>
-          <h3>Snap</h3>
-          <p>Lay your shopping out and snap it — or photograph the receipt. That's it: no barcodes, no typing. Split a big shop into a couple of photos.</p>
+          <h3>Snap your shopping</h3>
+          <p>Lay a whole shop out and snap it — or photograph the receipt. It all lands in your fridge in seconds.</p>
           <div class="step-art" id="art-snap">
             <span class="spill on">📸 Snap your shopping</span>
             <span class="spill">🧾 Or a receipt</span>
@@ -798,8 +836,8 @@
         </div>
         <div class="step">
           <div class="num">2</div>
-          <h3>Track</h3>
-          <p>Everything's logged and sorted by category, with freshness tracked automatically so you always know what to use first.</p>
+          <h3>Track it</h3>
+          <p>Everything's logged and sorted by category, with freshness watched so you always know what to use first.</p>
           <div class="step-art">
             <div class="mini">🥗 Spinach <span class="mc" style="color:#4a7a43;">Produce</span></div>
             <div class="mini">🥛 Whole milk <span class="mc" style="color:#46618c;">Dairy</span></div>
@@ -809,14 +847,13 @@
         <div class="step">
           <div class="num">3</div>
           <h3>Cook &amp; shop</h3>
-          <p>Get dinner ideas from what you have, save the ones you love, and add anything you're missing to your shopping list.</p>
+          <p>Dinner from your tracked fridge, a list that flags low essentials, and it all files back in when you shop.</p>
           <div class="step-art">
             <div class="mini" style="display:block;"><div>🍝 Tomato &amp; spinach pasta</div><div style="font-weight:500;color:var(--ink-faint);font-size:10.5px;margin-top:3px;">Uses what you have + 2 to buy</div></div>
             <div class="mini" id="art-addall">🛒 Add all to shopping <span class="mc" style="color:var(--accent);">✓</span></div>
           </div>
         </div>
       </div>
-      <div class="steps-hint" aria-hidden="true"><i></i><i></i><i></i></div>
     </div>
   </section>
 
