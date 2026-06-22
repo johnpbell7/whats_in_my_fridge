@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import AppHeader from './AppHeader.jsx'
 import { upgrade } from '../lib/upgrade.js'
 import { IconSparkle, IconChat, IconCamera, IconFridge, IconCart, IconBookmark } from '../icons.jsx'
@@ -16,6 +17,12 @@ const FEATURES = [
 
 export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, onAccount, onReplay, plus, trial, trialDaysLeft }) {
   const locked = new Set(lockedKeys)
+  // Briefly pulse the Tonight card on load to point people at the free hero.
+  const [nudgeTonight, setNudgeTonight] = useState(true)
+  useEffect(() => {
+    const t = setTimeout(() => setNudgeTonight(false), 3200)
+    return () => clearTimeout(t)
+  }, [])
   // Three banner states: on trial (countdown), paying (thanks), or free (upsell).
   const onTrial = trial && typeof trialDaysLeft === 'number'
   const paid = plus && !onTrial
@@ -68,7 +75,7 @@ export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, 
             <button
               key={key}
               type="button"
-              className={`dash-card ${isLocked ? 'dash-locked' : ''}`}
+              className={`dash-card ${isLocked ? 'dash-locked' : ''} ${key === 'dinner' && nudgeTonight ? 'dash-pulse' : ''}`}
               onClick={() => onOpen(key)}
             >
               <span className="dash-ico">
