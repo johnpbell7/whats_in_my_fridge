@@ -328,8 +328,30 @@
     .flow-pill { font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 6px 13px; border-radius: 999px; white-space: nowrap; }
     .flow-pill.free { background: var(--accent); color: var(--on-accent); }
     .flow-pill.plus { background: var(--accent-soft); color: var(--accent-press); }
-    .flow-sep { height: 48px; }
+    .flow-sep { height: 40px; }
     .steps.two { grid-template-columns: repeat(2, 1fr); }
+
+    /* the free flow leads — wrap it so it reads apart from the Plus flow */
+    .flow-free { background: var(--accent-soft); border-radius: var(--r-lg); padding: 22px 22px 10px; }
+    .flow-free .flow-head { margin-bottom: 16px; }
+    .flow-free .step { box-shadow: 0 14px 28px -22px rgba(38,104,75,.5); }
+    .flow-plus { margin-top: 4px; }
+    .flow-plus .step { background: var(--surface); }
+    /* directional connectors so each flow reads as a sequence, not a stack */
+    .step { position: relative; }
+    .step-arrow { position: absolute; top: 50%; right: -24px; transform: translateY(-50%);
+      width: 26px; height: 26px; border-radius: 50%; background: var(--surface);
+      border: 1px solid var(--line); color: var(--accent); display: grid; place-items: center; z-index: 3;
+      box-shadow: 0 8px 16px -10px rgba(38,104,75,.5); }
+    .step-arrow svg { width: 13px; height: 13px; display: block; }
+    /* the "from a photo" tile that sets the free snap apart from the Plus one */
+    .snap-photo { flex: 1; min-height: 96px; border-radius: 12px; display: grid; place-items: center;
+      font-size: 27px; line-height: 1.5; text-align: center; letter-spacing: 3px;
+      background: radial-gradient(130% 100% at 50% 22%, #eef4ec, #dde8d9); position: relative; }
+    .snap-photo .cap { position: absolute; bottom: 9px; left: 50%; transform: translateX(-50%);
+      font-size: 10.5px; font-weight: 700; color: var(--accent-press); letter-spacing: 0;
+      background: rgba(255,253,249,.92); padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+    @media (max-width: 760px) { .step-arrow { display: none; } .flow-free { padding: 16px 16px 2px; } }
 
     /* benefits split */
     .split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
@@ -795,26 +817,27 @@
     <div class="wrap">
       <div class="sec-head"><span class="eyebrow">How it works</span><h2 class="display">Two ways to <span class="wig">use it<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1 6 C 20 9, 40 2, 60 5 S 95 8, 99 4" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span></h2><p>Just want dinner tonight? Snap and go. Want your whole kitchen sorted? It does that too.</p></div>
 
-      <!-- Flow 1 · just dinner (free) -->
-      <div class="flow-head"><span class="flow-pill free">Free · in seconds</span><h3>Tonight's dinner</h3></div>
-      <div class="steps two">
-        <div class="step">
-          <div class="num">1</div>
-          <h3>Snap your ingredients</h3>
-          <p>Photograph whatever you've got — or whatever needs using up. No typing, no tracking, no setup.</p>
-          <div class="step-art">
-            <span class="spill on">🥦 Your veg</span>
-            <span class="spill">🍗 The meat</span>
-            <span class="spill">🧀 Bits in the fridge</span>
+      <!-- Flow 1 · just dinner (free) — the hero, in its own highlighted panel -->
+      <div class="flow-free">
+        <div class="flow-head"><span class="flow-pill free">Free · in seconds</span><h3>Tonight's dinner</h3></div>
+        <div class="steps two">
+          <div class="step">
+            <div class="num">1</div>
+            <h3>Snap your ingredients</h3>
+            <p>Photograph whatever you've got — or whatever needs using up. No typing, no tracking, no setup.</p>
+            <div class="step-art" style="padding:0;overflow:hidden;">
+              <div class="snap-photo">🥦🍅🧄<br>🍗🧅🫑<span class="cap">📷 just a photo</span></div>
+            </div>
+            <div class="step-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
           </div>
-        </div>
-        <div class="step">
-          <div class="num">2</div>
-          <h3>Get dinner</h3>
-          <p>AI turns it into real meal ideas — pick a cuisine, and it even tells you the few extras to buy.</p>
-          <div class="step-art">
-            <div class="mini" style="display:block;"><div>🍝 Garlic chicken &amp; greens</div><div style="font-weight:500;color:var(--ink-faint);font-size:10.5px;margin-top:3px;">Uses what you snapped + 1 to buy</div></div>
-            <div class="mini">🛒 + Lemon <span class="mc" style="color:var(--accent);">add</span></div>
+          <div class="step">
+            <div class="num">2</div>
+            <h3>Get dinner</h3>
+            <p>AI turns it into real meal ideas — pick a cuisine, and it even tells you the few extras to buy.</p>
+            <div class="step-art">
+              <div class="mini" style="display:block;"><div>🍝 Garlic chicken &amp; greens</div><div style="font-weight:500;color:var(--ink-faint);font-size:10.5px;margin-top:3px;">Uses what you snapped + 1 to buy</div></div>
+              <div class="mini">🛒 + Lemon <span class="mc" style="color:var(--accent);">add</span></div>
+            </div>
           </div>
         </div>
       </div>
@@ -822,35 +845,39 @@
       <div class="flow-sep" aria-hidden="true"></div>
 
       <!-- Flow 2 · run your whole kitchen (Plus) -->
-      <div class="flow-head"><span class="flow-pill plus">Plus · the full kitchen</span><h3>Run your whole kitchen</h3></div>
-      <div class="steps">
-        <div class="step">
-          <div class="num">1</div>
-          <h3>Snap your shopping</h3>
-          <p>Lay a whole shop out and snap it — or photograph the receipt. It all lands in your fridge in seconds.</p>
-          <div class="step-art" id="art-snap">
-            <span class="spill on">📸 Snap your shopping</span>
-            <span class="spill">🧾 Or a receipt</span>
-            <span class="spill">✏️ Or by hand</span>
+      <div class="flow-plus">
+        <div class="flow-head"><span class="flow-pill plus">Plus · the full kitchen</span><h3>Run your whole kitchen</h3></div>
+        <div class="steps">
+          <div class="step">
+            <div class="num">1</div>
+            <h3>Snap your shopping</h3>
+            <p>Lay a whole shop out and snap it — or photograph the receipt. It all lands in your fridge in seconds.</p>
+            <div class="step-art" id="art-snap">
+              <span class="spill on">📸 Snap your shopping</span>
+              <span class="spill">🧾 Or a receipt</span>
+              <span class="spill">✏️ Or by hand</span>
+            </div>
+            <div class="step-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
           </div>
-        </div>
-        <div class="step">
-          <div class="num">2</div>
-          <h3>Track it</h3>
-          <p>Everything's logged and sorted by category, with freshness watched so you always know what to use first.</p>
-          <div class="step-art">
-            <div class="mini">🥗 Spinach <span class="mc" style="color:#4a7a43;">Produce</span></div>
-            <div class="mini">🥛 Whole milk <span class="mc" style="color:#46618c;">Dairy</span></div>
-            <div class="mini">⏱ Chicken <span class="mc" style="color:#b4453a;">Use today</span></div>
+          <div class="step">
+            <div class="num">2</div>
+            <h3>Track it</h3>
+            <p>Everything's logged and sorted by category, with freshness watched so you always know what to use first.</p>
+            <div class="step-art">
+              <div class="mini">🥗 Spinach <span class="mc" style="color:#4a7a43;">Produce</span></div>
+              <div class="mini">🥛 Whole milk <span class="mc" style="color:#46618c;">Dairy</span></div>
+              <div class="mini">⏱ Chicken <span class="mc" style="color:#b4453a;">Use today</span></div>
+            </div>
+            <div class="step-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
           </div>
-        </div>
-        <div class="step">
-          <div class="num">3</div>
-          <h3>Cook &amp; shop</h3>
-          <p>Dinner from your tracked fridge, a list that flags low essentials, and it all files back in when you shop.</p>
-          <div class="step-art">
-            <div class="mini" style="display:block;"><div>🍝 Tomato &amp; spinach pasta</div><div style="font-weight:500;color:var(--ink-faint);font-size:10.5px;margin-top:3px;">Uses what you have + 2 to buy</div></div>
-            <div class="mini" id="art-addall">🛒 Add all to shopping <span class="mc" style="color:var(--accent);">✓</span></div>
+          <div class="step">
+            <div class="num">3</div>
+            <h3>Cook &amp; shop</h3>
+            <p>Dinner from your tracked fridge, a list that flags low essentials, and it all files back in when you shop.</p>
+            <div class="step-art">
+              <div class="mini" style="display:block;"><div>🍝 Tomato &amp; spinach pasta</div><div style="font-weight:500;color:var(--ink-faint);font-size:10.5px;margin-top:3px;">Uses what you have + 2 to buy</div></div>
+              <div class="mini" id="art-addall">🛒 Add all to shopping <span class="mc" style="color:var(--accent);">✓</span></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1134,14 +1161,11 @@
          .to(tick, { scale: 1.08, yoyo: true, repeat: 1, duration: .35, ease: 'sine.inOut' })
          .to({}, { duration: 1.6 });
 
-        // → back to tonight's dinner: snap the ingredients, reveal the meals — loops
-        m.set(dCam, { opacity: 1 }).set(dFlash, { opacity: 0 }).set(dMeals, { opacity: 0, y: 14 });
+        // → back to tonight's dinner: the snap already happened earlier in the
+        // loop, so just slide back to the meals (no second camera animation).
+        m.set(dCam, { opacity: 0 }).set(dMeals, { opacity: 0, y: 14 });
         swap(m, done, dinner);
-        m.to(dShut, { scale: .82, duration: .16, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '+=.4')
-         .to(dFlash, { opacity: .92, duration: .08 })
-         .to(dFlash, { opacity: 0, duration: .42 })
-         .to(dCam, { opacity: 0, duration: .35 }, '<')
-         .to(dMeals, { opacity: 1, y: 0, stagger: .18, duration: .42, ease: 'back.out(1.6)' }, '-=.2')
+        m.to(dMeals, { opacity: 1, y: 0, stagger: .18, duration: .42, ease: 'back.out(1.6)' }, '-=.15')
          .to({}, { duration: 1.0 });
       }
 
