@@ -176,6 +176,14 @@
     }
     .hero-hint { padding: 0 18px; color: var(--ink-faint); font-size: 12px; margin: -2px 0 10px; }
     /* camera / shutter moment for the scan demo */
+    /* feature flag floating above the phone — flips Free → Plus in the loop */
+    .feat-flag { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); z-index: 5; height: 0; pointer-events: none; }
+    .ff { position: absolute; top: 0; left: 50%; transform: translateX(-50%); white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; padding: 8px 16px; border-radius: 999px; box-shadow: 0 14px 26px -12px rgba(38,104,75,.45); }
+    .ff .d { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+    .ff-free { background: var(--accent); color: var(--on-accent); }
+    .ff-plus { background: var(--surface); color: var(--accent-press); border: 1.6px solid var(--accent); }
+    @media (max-width: 760px) { .ff { font-size: 11.5px; padding: 7px 13px; } }
+
     .cam { position: absolute; inset: 0; z-index: 6; background: radial-gradient(120% 90% at 50% 40%, #1c2a22, #0e120f); display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .cam-scene { font-size: 40px; line-height: 1.5; text-align: center; letter-spacing: 8px; filter: saturate(1.15); opacity: .92; }
     .cam-bracket { position: absolute; inset: 30px; border-radius: 20px; }
@@ -508,6 +516,10 @@
         <div class="float fc2"><span class="fi">⏱️</span> Freshness tracked</div>
         <div class="float fc3"><span class="fi">🍝</span> Dinner ideas</div>
         <div class="float fc4"><span class="fi">🛒</span> Smart shopping list</div>
+        <div class="feat-flag" aria-hidden="true">
+          <span class="ff ff-free" data-ff-free><span class="d"></span>Free · What's for dinner</span>
+          <span class="ff ff-plus" data-ff-plus><span class="d"></span>Plus · Your fridge, tracked</span>
+        </div>
         <div class="phone" id="heroPhone"><div class="screen" id="heroScreen">
 
           <!-- panel · what's for dinner — snap to cook (the free hero) -->
@@ -1097,41 +1109,61 @@
         const dTitle = done.querySelector('.done-title');
         const dSub = done.querySelector('.done-sub');
 
-        gsap.set(hp, { opacity: 0 }); gsap.set(dinner, { opacity: 1 }); gsap.set(dCam, { opacity: 0 });
+        // feature flag floating over the phone — flips Free → Plus so it's
+        // obvious "what I saw / track your fridge" is a separate, paid feature.
+        const freeFlag = document.querySelector('[data-ff-free]');
+        const plusFlag = document.querySelector('[data-ff-plus]');
+
+        gsap.set(hp, { opacity: 0 }); gsap.set(dinner, { opacity: 1 }); gsap.set(dCam, { opacity: 1 });
+        gsap.set(freeFlag, { opacity: 1 }); gsap.set(plusFlag, { opacity: 0 });
 
         const swap = (tl, from, to) => tl
           .to(from, { opacity: 0, duration: .45, ease: 'power2.in' })
           .fromTo(to, { opacity: 0 }, { opacity: 1, duration: .45 }, '<.12');
+        // swap which feature flag is showing, with a little pop on the way in
+        const flag = (tl, out, into, pop) => {
+          tl.to(out, { opacity: 0, y: -6, duration: .3 })
+            .fromTo(into, { opacity: 0, y: 8, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: .42, ease: 'back.out(2)' }, '<.04');
+          if (pop) tl.to(into, { scale: 1.09, yoyo: true, repeat: 1, duration: .3, ease: 'sine.inOut' });
+          return tl;
+        };
 
         const m = gsap.timeline({ repeat: -1, repeatDelay: 0.6, defaults: { ease: 'power2.out' } });
-        m.to({}, { duration: 1.4 });                       // hold tonight's dinner ideas (first view static)
 
-        // → snap your shopping: shutter/flash, items reveal
-        m.set(cam, { opacity: 1 }).set(flash, { opacity: 0 }).set(scanBits, { opacity: 0, y: 14 });
-        swap(m, dinner, snap);
-        m.to(shutter, { scale: .82, duration: .16, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '+=.5')
-         .to(flash, { opacity: .92, duration: .08 })
-         .to(flash, { opacity: 0, duration: .42 })
-         .to(cam, { opacity: 0, duration: .35 }, '<')
-         .to(scanBits, { opacity: 1, y: 0, stagger: .15, duration: .42, ease: 'back.out(1.6)' }, '-=.2')
+        // ░ FREE ░ snap your ingredients → tonight's dinner ideas
+        m.set(dFlash, { opacity: 0 }).set(dMeals, { opacity: 0, y: 14 });
+        m.to(dShut, { scale: .82, duration: .16, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '+=.5')
+         .to(dFlash, { opacity: .92, duration: .08 })
+         .to(dFlash, { opacity: 0, duration: .42 })
+         .to(dCam, { opacity: 0, duration: .35 }, '<')
+         .to(dMeals, { opacity: 1, y: 0, stagger: .18, duration: .42, ease: 'back.out(1.6)' }, '-=.2')
+         .to({}, { duration: 1.5 });
+
+        // ░ FREE ░ …or just ask what to make
+        m.set(askBub, { opacity: 0, y: 12, scale: .92 }).set(askMeals, { opacity: 0, y: 14 });
+        swap(m, dinner, ask);
+        m.to(askBub, { opacity: 1, y: 0, scale: 1, duration: .4, ease: 'back.out(1.8)' }, '-=.1')
+         .to(askMeals, { opacity: 1, y: 0, stagger: .22, duration: .45 }, '+=.25')
          .to({}, { duration: 1.4 });
 
-        // → it's all tracked (inventory)
+        // ═══ switch to a SEPARATE feature — flip the flag, then show what I saw ═══
+        flag(m, freeFlag, plusFlag, true);
+
+        // ░ PLUS ░ what I saw — the same photo, now itemised into your fridge
+        m.set(cam, { opacity: 0 }).set(scanBits, { opacity: 0, y: 14 });
+        swap(m, ask, snap);
+        m.to(scanBits, { opacity: 1, y: 0, stagger: .15, duration: .42, ease: 'back.out(1.6)' }, '-=.15')
+         .to({}, { duration: 1.5 });
+
+        // ░ PLUS ░ it's all tracked (inventory)
         m.set(invBits, { opacity: 0, y: 14 });
         swap(m, snap, inv);
         m.to(invBits, { opacity: 1, y: 0, stagger: .1, duration: .4, ease: 'back.out(1.5)' }, '-=.15')
          .to({}, { duration: 1.3 });
 
-        // → or ask for dinner ideas (chat)
-        m.set(askBub, { opacity: 0, y: 12, scale: .92 }).set(askMeals, { opacity: 0, y: 14 });
-        swap(m, inv, ask);
-        m.to(askBub, { opacity: 1, y: 0, scale: 1, duration: .4, ease: 'back.out(1.8)' }, '-=.1')
-         .to(askMeals, { opacity: 1, y: 0, stagger: .22, duration: .45 }, '+=.3')
-         .to({}, { duration: 1.4 });
-
-        // → staples: usuals flagged low/out, tags pulse
+        // ░ PLUS ░ staples: usuals flagged low/out, tags pulse
         m.set(stNudge, { opacity: 0, y: -12 }).set(stCards, { opacity: 0, y: 16 }).set(stTags, { scale: 0 }).set(stBar, { opacity: 0, y: 12 });
-        swap(m, ask, stap);
+        swap(m, inv, stap);
         m.to(stNudge, { opacity: 1, y: 0, duration: .4, ease: 'back.out(1.8)' }, '-=.1')
          .to(stCards, { opacity: 1, y: 0, stagger: .12, duration: .42 }, '-=.05')
          .to(stTags, { scale: 1, stagger: .1, duration: .4, ease: 'back.out(2.4)' }, '-=.15')
@@ -1158,12 +1190,12 @@
          .to(tick, { scale: 1.08, yoyo: true, repeat: 1, duration: .35, ease: 'sine.inOut' })
          .to({}, { duration: 1.6 });
 
-        // → back to tonight's dinner: the snap already happened earlier in the
-        // loop, so just slide back to the meals (no second camera animation).
-        m.set(dCam, { opacity: 0 }).set(dMeals, { opacity: 0, y: 14 });
+        // → back to the FREE feature: flip the flag, re-arm the camera so the
+        // next loop opens by snapping the ingredients again.
+        flag(m, plusFlag, freeFlag, false);
+        m.set(dCam, { opacity: 1 }).set(dFlash, { opacity: 0 }).set(dMeals, { opacity: 0, y: 14 });
         swap(m, done, dinner);
-        m.to(dMeals, { opacity: 1, y: 0, stagger: .18, duration: .42, ease: 'back.out(1.6)' }, '-=.15')
-         .to({}, { duration: 1.0 });
+        m.to({}, { duration: .5 });
       }
 
       // ---------- FEATURE 1 · Scan: take a photo, then items get added ----------

@@ -4,6 +4,11 @@
 
 export const WHATS_NEW = [
   {
+    id: '2026-06-dinner',
+    date: 'Jun 2026',
+    text: 'Dinner from a photo — snap whatever you’ve got and AI turns it into real meal ideas for tonight, with the few extras to buy. Pick a cuisine, cook for your diet, no typing or setup.'
+  },
+  {
     id: '2026-06-diet',
     date: 'Jun 2026',
     text: 'Cooks for your diet — set your dietary needs and allergies in Account (vegetarian, gluten-free, no nuts…) and every meal idea and chat answer follows them.'
