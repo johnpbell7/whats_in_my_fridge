@@ -8,7 +8,7 @@ import { hasDiet, DIET_OPTIONS, AVOID_OPTIONS } from '../lib/diet.js'
 import { savedMeals } from '../lib/meals.js'
 import { useIsPlus } from '../lib/me.js'
 import MealBuy from './MealBuy.jsx'
-import { IconCamera, IconSparkle, IconChevron, IconClock, IconClose, IconWarning, IconBookmark, IconCheck, IconUser } from '../icons.jsx'
+import { IconCamera, IconSparkle, IconChevron, IconClose, IconWarning, IconBookmark, IconCheck, IconUser } from '../icons.jsx'
 
 // PROTOTYPE — the proposed new lead flow. Snap the food that's about to go off →
 // straight to the meal engine (diet auto-applied via suggestMeals) → "here's
@@ -16,9 +16,12 @@ import { IconCamera, IconSparkle, IconChevron, IconClock, IconClose, IconWarning
 // nothing here is wired into the main app yet (reached only via ?dinner).
 
 const BASE_REQUEST =
-  'Suggest a few dinners I can make mainly from these ingredients — they need using up. ' +
-  "For each dish: a short description, which of my items it uses, and what I'd still need " +
-  'to buy. Keep them realistic for a home cook.'
+  'I want to cook dinner tonight using these ingredients. Suggest a few dishes built around them — ' +
+  "for each: a short description, which of my items it uses, and what I'd still need to buy. " +
+  'Keep them realistic for a home cook.'
+
+// Cuisine moods for the confirm screen. 'Any' leaves it open.
+const CUISINES = ['Any', 'Italian', 'Asian', 'Indian', 'Mexican', 'Mediterranean', 'Comfort food', 'Healthy & light']
 
 // A short, friendly summary of the user's diet for the reassurance chip.
 function dietSummary() {
@@ -37,8 +40,17 @@ export default function DinnerSnap({ onExit, onAccount }) {
   const [items, setItems] = useState([])
   const [meals, setMeals] = useState([])
   const [error, setError] = useState(null)
+  const [cuisine, setCuisine] = useState('Any')
   const fileRef = useRef(null)
   const diet = dietSummary()
+
+  // Build the meal request from the base ask + chosen cuisine + any refine tap.
+  function buildRequest(extra) {
+    let r = BASE_REQUEST
+    if (cuisine && cuisine !== 'Any') r += `\n\nMake them ${cuisine} style.`
+    if (extra) r += `\n\nExtra: ${extra}.`
+    return r
+  }
 
   async function handleFile(file) {
     if (!file) return
@@ -68,16 +80,12 @@ export default function DinnerSnap({ onExit, onAccount }) {
       name: i.name.trim(),
       category: i.category || 'other',
       quantity: i.quantity || 1,
-      unit: i.unit || '',
-      // Flag everything as "use soon" so the meal engine prioritises using it up.
-      expiry: 'soon',
-      keeps: 'fresh'
+      unit: i.unit || ''
     }))
     setPhase('cooking')
     setError(null)
     try {
-      const request = extra ? `${BASE_REQUEST}\n\nExtra: ${extra}.` : BASE_REQUEST
-      const result = await suggestMeals(inventory, request)
+      const result = await suggestMeals(inventory, buildRequest(extra))
       setMeals(result)
       setPhase('results')
     } catch (err) {
@@ -118,8 +126,8 @@ export default function DinnerSnap({ onExit, onAccount }) {
             {phase === 'results'
               ? 'Here’s what you could make tonight.'
               : phase === 'pick'
-                ? 'Check what I spotted, then cook.'
-                : 'Snap what’s going off — I’ll do the thinking.'}
+                ? 'Tweak it, then let’s cook.'
+                : 'Snap what you fancy cooking with.'}
           </p>
         </div>
         {onAccount && (
@@ -141,24 +149,15 @@ export default function DinnerSnap({ onExit, onAccount }) {
       {phase === 'idle' && (
         <div className="scan-drop">
           <div className="empty-art">
-            <IconClock size={32} />
+            <IconSparkle size={32} />
           </div>
-          <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 19 }}>What needs using up?</h3>
+          <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 19 }}>What do you want to use tonight?</h3>
           <p style={{ margin: 0, color: 'var(--ink-soft)', fontSize: 14, maxWidth: '34ch' }}>
-            Snap the food that’s about to go off — the veg, the meat, the leftovers — and I’ll tell you what
-            to cook tonight and the few things you still need.
+            Snap whatever you fancy cooking with — the veg, the meat, the bits in the fridge — and I’ll turn it
+            into dinner, plus the few things you still need.
           </p>
-          {diet ? (
-            <span className="suggest-chip" style={{ pointerEvents: 'none' }}>
-              <IconCheck size={13} /> Ideas will fit: {diet}
-            </span>
-          ) : (
-            <span style={{ fontSize: 12.5, color: 'var(--ink-soft)' }}>
-              Tip: set dietary needs in your account for tailored ideas.
-            </span>
-          )}
           <button className="btn btn-primary" onClick={() => fileRef.current?.click()}>
-            <IconCamera size={19} /> Snap what’s going off
+            <IconCamera size={19} /> Snap your ingredients
           </button>
         </div>
       )}
@@ -194,6 +193,36 @@ export default function DinnerSnap({ onExit, onAccount }) {
               ))}
             </div>
           )}
+
+          {items.length > 0 && (
+            <div className="field" style={{ marginTop: 2 }}>
+              <label>What are you in the mood for?</label>
+              <div className="chips">
+                {CUISINES.map((c) => (
+                  <button key={c} type="button" className="chip" aria-pressed={cuisine === c} onClick={() => setCuisine(c)}>
+                    {c}
+                  </button>
+                ))}
+              </div>
+              {diet ? (
+                <p className="expiry-suggest" style={{ marginTop: 9 }}>
+                  <IconCheck size={12} className="inline-ico" /> Ideas will fit your diet: {diet}.{' '}
+                  {onAccount && (
+                    <button type="button" onClick={onAccount}>
+                      Change
+                    </button>
+                  )}
+                </p>
+              ) : onAccount ? (
+                <button className="chat-diet-hint" style={{ marginTop: 10 }} onClick={onAccount}>
+                  <IconSparkle size={15} />
+                  <span>Vegetarian, gluten-free or allergic to something? Set your dietary needs so every idea fits.</span>
+                  <IconChevron size={15} />
+                </button>
+              ) : null}
+            </div>
+          )}
+
           <div className="form-actions">
             <button className="btn btn-ghost" onClick={reset} aria-label="Start over">
               <IconClose size={18} />
