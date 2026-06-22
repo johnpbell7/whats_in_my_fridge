@@ -299,9 +299,21 @@ export async function mealsHandler(body = {}, token) {
     return reject(400, 'bad_request', 'That request is too long.')
   }
   const inv = Array.isArray(inventory) ? inventory.slice(0, MAX_INVENTORY) : []
-  const ask = (typeof request === 'string' && request.trim()) || 'What can I make for dinner from what I have?'
+  const noFridge = inv.length === 0
+  const ask =
+    (typeof request === 'string' && request.trim()) ||
+    (noFridge ? 'Give me some easy dinner ideas for tonight.' : 'What can I make for dinner from what I have?')
 
-  const instructions = `You suggest meals someone can cook, built around what's in their fridge, freezer and pantry. Default to dinner ideas unless the user asks for something else (e.g. a quick lunch, or a few days of dinners to plan).
+  // When the user isn't tracking a fridge yet (free tier, before any items),
+  // answer from general knowledge instead of insisting on their inventory.
+  const instructions = noFridge
+    ? `The user isn't tracking a fridge yet, so suggest meals from general knowledge. Default to easy dinner ideas unless they ask for something else (a quick lunch, breakfast, healthy, etc).
+Rules:
+- Suggest 3-4 appetising, realistic meals an average home cook could make tonight.
+- Put the handful of ingredients each meal needs in the "buy" field (3-6 items). Leave "uses" empty — they have nothing tracked yet.
+- If the user gives a preference (a cuisine, "vegetarian", "quick", "something with chicken"), tailor the whole set to it.
+- Keep each method to one practical sentence — real weeknight cooking, easy to follow.`
+    : `You suggest meals someone can cook, built around what's in their fridge, freezer and pantry. Default to dinner ideas unless the user asks for something else (e.g. a quick lunch, or a few days of dinners to plan).
 Rules:
 - Suggest 3-4 appetising meals. Build each around items that are ACTUALLY in their inventory — never invent inventory items.
 - Prefer meals that use items expiring soon, so nothing goes to waste. Only treat genuinely perishable items (keeps: "fresh", expiry "soon"/"expired") as needing using up — NEVER push someone to use up long-life staples (keeps: "long-life": tins, jars, dried pasta/rice, condiments) just because they've had them a while.
@@ -496,10 +508,15 @@ export async function chatHandler(body = {}, token) {
     return reject(400, 'bad_request', 'That question is too long.')
   }
   const inv = Array.isArray(inventory) ? inventory.slice(0, MAX_INVENTORY) : []
+  const noFridge = inv.length === 0
 
   const instructions = `You are the friendly kitchen helper inside the app "What's in my Fridge". You ONLY help with food and the user's kitchen: what's in their fridge/freezer/pantry, what's expiring, meal and recipe ideas, portions and scaling, substitutions, shopping, food storage and basic food safety.
 
-Voice: warm, friendly and practical — like a helpful friend who knows their kitchen. British English. Concise (they're on their phone). Ground everything in their ACTUAL inventory; never invent items they don't have. Flag anything expiring within ~2 days, but ONLY genuinely perishable food (each item has keeps: "fresh" or "long-life") — never treat long-life staples (tins, jars, dried pasta/rice, condiments) as "expiring" or something to use up just because they've been in a while.
+Voice: warm, friendly and practical — like a helpful friend who knows their kitchen. British English. Concise (they're on their phone). ${
+    noFridge
+      ? "The user isn't tracking a fridge yet (their inventory is empty), so answer from general cooking knowledge — suggest popular, easy meals and put the ingredients to buy in the \"buy\" field. Do NOT tell them their fridge is empty or to add items; just help."
+      : 'Ground everything in their ACTUAL inventory; never invent items they don\'t have. Flag anything expiring within ~2 days, but ONLY genuinely perishable food (each item has keeps: "fresh" or "long-life") — never treat long-life staples (tins, jars, dried pasta/rice, condiments) as "expiring" or something to use up just because they\'ve been in a while.'
+  }
 
 IMPORTANT — whenever your answer is a LIST, return it through the matching tool so the app shows tidy, tappable cards (never a plain-text list):
 - suggest_meals — for "what can I make / dinner ideas / lunch / meal ideas / feed N people". Give 3-4 meals built from their inventory, each with what it uses and a few extras worth buying.

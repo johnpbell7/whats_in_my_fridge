@@ -16,15 +16,17 @@ const DINNER_PROMPT = 'What can I make for dinner?'
 // Opener chips. All generate structured meal ideas (the most useful, generative
 // use) — the old "what's expiring / do I have X" lookups are already visible in
 // the app. Each has a short label and the actual question sent to the AI.
+// `needsFridge` chips are hidden when the user isn't tracking a fridge yet
+// (they only make sense against real inventory).
 const SUGGESTIONS = [
   { label: '🍳 Cook a specific dish', dish: true }, // asks for a dish, then checks have/need
   { label: 'Dinner ideas', prompt: null }, // null → the plain DINNER_PROMPT
-  { label: 'Use what’s expiring', prompt: 'What can I make using the things expiring soonest?' },
-  { label: 'No extra shopping', prompt: 'What can I make using only what I already have — nothing to buy?' },
-  { label: 'Quick lunch', prompt: 'Quick lunch ideas from what I have?' },
-  { label: 'Breakfast ideas', prompt: 'Breakfast ideas from what I have?' },
-  { label: 'Healthy & light', prompt: 'Something healthy and light I could make from what I have?' },
-  { label: 'Freezer-friendly', prompt: 'Meals I could batch-cook and freeze using what I have?' },
+  { label: 'Use what’s expiring', prompt: 'What can I make using the things expiring soonest?', needsFridge: true },
+  { label: 'No extra shopping', prompt: 'What can I make using only what I already have — nothing to buy?', needsFridge: true },
+  { label: 'Quick lunch', prompt: 'Quick lunch ideas?' },
+  { label: 'Breakfast ideas', prompt: 'Breakfast ideas?' },
+  { label: 'Healthy & light', prompt: 'Something healthy and light I could make?' },
+  { label: 'Freezer-friendly', prompt: 'Meals I could batch-cook and freeze?' },
   { label: 'Plan a few dinners', prompt: 'Plan a few different dinners I could make over the next few days.' }
 ]
 const REFINE = ['More adventurous', 'Vegetarian', 'Quick & easy', 'Use up what’s expiring']
@@ -229,35 +231,9 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
     }
   }
 
-  // Chat only makes sense once there's something to talk about — guide empty
-  // fridges to add items first rather than asking about nothing.
-  if (active.length === 0) {
-    return (
-      <div className="screen chat-screen">
-        <header className="app-header" style={{ marginBottom: 8 }}>
-          <div>
-            <h1 className="app-title">Ask</h1>
-            <p className="app-subtitle">Add to your fridge to get started.</p>
-          </div>
-        </header>
-        <div className="empty" style={{ paddingTop: 40 }}>
-          <div className="empty-art">
-            <IconSparkle size={30} />
-          </div>
-          <h3>Nothing to cook with yet</h3>
-          <p>Add a few things to your fridge and I’ll suggest real meals you could make from what you’ve got.</p>
-          <div className="empty-actions">
-            <button className="btn btn-primary" onClick={onGoScan}>
-              <IconCamera size={19} /> Scan a photo
-            </button>
-            <button className="btn btn-ghost" onClick={onAddManual}>
-              <IconPlus size={19} /> Add by hand
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // Ask works with or without a fridge: with items it cooks from them, with an
+  // empty fridge it answers from general knowledge (the free standalone mode).
+  const noFridge = active.length === 0
 
   return (
     <div className="screen chat-screen">
@@ -265,7 +241,9 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
         <div>
           <h1 className="app-title">Ask</h1>
           <p className="app-subtitle">
-            {active.length} {active.length === 1 ? 'item' : 'items'} in the fridge right now.
+            {noFridge
+              ? 'Ask for dinner ideas — no fridge needed.'
+              : `${active.length} ${active.length === 1 ? 'item' : 'items'} in the fridge right now.`}
           </p>
         </div>
         {messages.length > 0 && (
@@ -348,7 +326,11 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
                 <IconSparkle size={30} />
               </div>
               <h3>Ask me what to make</h3>
-              <p>I'll turn what's in your fridge into real meal ideas — dinner tonight, a quick lunch, or using up what's about to go off. Tap a question below or ask your own.</p>
+              <p>
+                {noFridge
+                  ? "Tell me what you fancy and I'll suggest real meals — dinner tonight, a quick lunch, breakfast, something healthy. Tap a question below or ask your own."
+                  : "I'll turn what's in your fridge into real meal ideas — dinner tonight, a quick lunch, or using up what's about to go off. Tap a question below or ask your own."}
+              </p>
               {showDietHint && (
                 <button className="chat-diet-hint" onClick={onAccount}>
                   <IconSparkle size={15} />
@@ -397,7 +379,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
 
         {messages.length === 0 && !picking && (
           <div className="suggest-row">
-            {SUGGESTIONS.map((s) => (
+            {SUGGESTIONS.filter((s) => !(noFridge && s.needsFridge)).map((s) => (
               <button key={s.label} onClick={() => (s.dish ? startDish() : startDinner(s.prompt || undefined))}>
                 {s.label}
               </button>
