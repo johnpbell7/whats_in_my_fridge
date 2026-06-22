@@ -355,7 +355,13 @@ export default function App() {
         </button>
       )}
 
-      <Nav tab={tab} onChange={setTab} pulseTab={pulse.tab} pulseAt={pulse.n} />
+      <Nav
+        tab={tab}
+        onChange={setTab}
+        pulseTab={pulse.tab}
+        pulseAt={pulse.n}
+        lockedKeys={plus ? [] : ['scan', 'inventory', 'shopping']}
+      />
 
       <AnimatePresence>
         {editing && (

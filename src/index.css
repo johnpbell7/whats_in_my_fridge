@@ -591,6 +591,14 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .nav button[aria-current='page'] .nav-icon { transform: translateY(-1px); }
 .nav button:active { transform: scale(0.95); }
 
+/* Plus tabs for free users — greyed but still tappable (they reach the upsell /
+   read-only screen), with a small Plus dot so the paywall is signposted. */
+.nav button.nav-locked { color: var(--ink-faint); opacity: 0.62; }
+.nav button.nav-locked[aria-current='page'] { color: var(--accent); opacity: 1; }
+.nav-icon { position: relative; }
+.nav-plus { position: absolute; top: -5px; right: -8px; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); color: var(--on-accent); display: grid; place-items: center; box-shadow: 0 0 0 2px var(--surface); }
+
 /* Tab attention pulse — a quick scale + accent flash so a new shopping-list
    item draws the eye to the Shopping tab. */
 .nav-icon { display: inline-flex; }
