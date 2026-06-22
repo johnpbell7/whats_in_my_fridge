@@ -1400,6 +1400,12 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   margin-bottom: 16px;
 }
 .banner svg { flex-shrink: 0; margin-top: 1px; }
+/* Post-trial view-only fridge banner — accent-tinted, taps to upgrade. */
+.readonly-banner {
+  width: 100%; text-align: left; cursor: pointer;
+  background: var(--accent-soft); border-color: #cfe2d5; color: var(--accent-press); font-weight: 500;
+}
+.readonly-banner strong { font-weight: 700; }
 .banner-close {
   flex-shrink: 0; margin-left: auto; align-self: flex-start;
   color: #b07a52; opacity: 0.7; padding: 0 0 0 6px; display: inline-flex;

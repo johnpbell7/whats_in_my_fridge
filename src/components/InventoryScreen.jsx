@@ -5,6 +5,7 @@ import { shopping } from '../lib/shopping.js'
 import { LOCATIONS, guessCategory } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { sortByExpiry, expiryState } from '../lib/expiry.js'
+import { upgrade } from '../lib/upgrade.js'
 import ItemRow from './ItemRow.jsx'
 import StaplesBanner from './StaplesBanner.jsx'
 import StaplesList from './StaplesList.jsx'
@@ -14,7 +15,10 @@ import CoachTip from './CoachTip.jsx'
 import { coach, useCoachStep } from '../lib/coach.js'
 import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle, IconUser, IconClose, IconInfo } from '../icons.jsx'
 
-export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onGoChat, onAccount, onHelp, helpBadge }) {
+// `readOnly` is the post-trial state: a free user who tracked a fridge during
+// the trial can still SEE it, but every action (add, edit, scan, use) becomes an
+// upgrade prompt rather than a wall — so they don't lose sight of their data.
+export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onGoChat, readOnly = false }) {
   const [query, setQuery] = useState('')
   const [view, setView] = useState('active') // 'active' | 'archive' | 'staples' | 'meals'
   const [place, setPlace] = useState('all') // 'all' | 'fridge' | 'freezer' | 'pantry'
@@ -104,8 +108,31 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
     })
   }
 
+  // In read-only mode every mutating action opens the upgrade sheet instead.
+  const lock = () => upgrade.show('fridge')
+  const gEdit = readOnly ? lock : onEdit
+  const gAdd = readOnly ? lock : onAddManual
+  const gScan = readOnly ? lock : onGoScan
+  const gFile = readOnly ? lock : autoFile
+  const gUse = readOnly ? lock : (it) => store.useOne(it.id)
+  const gReadd = readOnly
+    ? lock
+    : (it) => {
+        shopping.addUnique(it.name, it.quantity || 1)
+        store.remove(it.id)
+      }
+
   return (
     <div className="screen">
+      {readOnly && (
+        <button className="banner readonly-banner" onClick={lock}>
+          <IconSparkle size={18} />
+          <span>
+            Your trial’s ended — your fridge is <strong>view-only</strong>. Upgrade to Plus to keep adding,
+            scanning and editing.
+          </span>
+        </button>
+      )}
       {/* The brand / help / account live in the app-wide AppHeader now. */}
       {showSeed && (
         <button
@@ -116,14 +143,14 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
         </button>
       )}
 
-      {view === 'active' && active.length > 0 && coachStep === 'organise' && (
+      {!readOnly && view === 'active' && active.length > 0 && coachStep === 'organise' && (
         <CoachTip icon="🗂️" title="Now make it yours" onDismiss={() => coach.next()}>
           Tap <strong>New</strong> to file these into folders — and tap any item to set a
           use-by, mark it an <strong>essential ⭐</strong>, or flag it <strong>long-life</strong>.
         </CoachTip>
       )}
 
-      {view === 'active' && active.length > 0 && coachStep === 'used' && (
+      {!readOnly && view === 'active' && active.length > 0 && coachStep === 'used' && (
         <CoachTip icon="✅" title="Used something up?" onDismiss={() => coach.next()}>
           Tap <strong>Used</strong> on any item when you finish it — it moves to your
           <strong> Used</strong> list, ready to pop straight back on your shopping list.
@@ -143,7 +170,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
         </div>
       )}
 
-      {view === 'active' && <StaplesBanner items={items} />}
+      {!readOnly && view === 'active' && <StaplesBanner items={items} />}
 
       <div className="segment" role="group" aria-label="Which items to show">
         <button aria-pressed={view ==='active'} onClick={() => setView('active')}>
@@ -183,7 +210,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
           covers the other case: items already filed but sitting in the wrong
           category/place. */}
       {view === 'active' && unfiledCount === 0 && toSortCount > 0 && (
-        <button className="autofile" onClick={autoFile}>
+        <button className="autofile" onClick={gFile}>
           <IconSparkle size={17} />
           {`Tap to file ${toSortCount} ${toSortCount === 1 ? 'item' : 'items'} where they belong`}
         </button>
@@ -220,11 +247,11 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
           view={view}
           place={place}
           hasQuery={Boolean(query.trim())}
-          onAddManual={onAddManual}
-          onGoScan={onGoScan}
+          onAddManual={gAdd}
+          onGoScan={gScan}
         />
       ) : view === 'active' ? (
-        <CategorySections items={visible} onEdit={onEdit} onFileNew={autoFile} />
+        <CategorySections items={visible} onEdit={gEdit} onFileNew={gFile} />
       ) : (
         <>
           <p className="staples-intro">
@@ -234,16 +261,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
           <ul className="item-list">
             <AnimatePresence initial={false}>
               {visible.map((item) => (
-                <ItemRow
-                  key={item.id}
-                  item={item}
-                  onEdit={onEdit}
-                  onUse={(it) => store.useOne(it.id)}
-                  onReadd={(it) => {
-                    shopping.addUnique(it.name, it.quantity || 1)
-                    store.remove(it.id)
-                  }}
-                />
+                <ItemRow key={item.id} item={item} onEdit={gEdit} onUse={gUse} onReadd={gReadd} />
               ))}
             </AnimatePresence>
           </ul>

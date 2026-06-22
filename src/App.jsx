@@ -332,7 +332,7 @@ export default function App() {
             onHelp={openHelp}
             helpBadge={helpUnseen}
             onAccount={authEnabled ? () => setAccount(true) : null}
-            count={tab === 'inventory' && plus ? activeCountNow : null}
+            count={tab === 'inventory' && activeCountNow > 0 ? activeCountNow : null}
           />
 
           {/* Tonight — the photo → dinner lead. Free + the hero of the app. */}
@@ -344,7 +344,8 @@ export default function App() {
             />
           )}
 
-          {/* My food — Plus. Free users see the upsell instead. */}
+          {/* My food — Plus. Free users who tracked a fridge during the trial
+              keep it VIEW-ONLY; those with nothing tracked see the upsell. */}
           {tab === 'inventory' &&
             (plus ? (
               <InventoryScreen
@@ -354,6 +355,8 @@ export default function App() {
                 onGoScan={() => setTab('scan')}
                 onGoChat={() => setTab('chat')}
               />
+            ) : items.length > 0 ? (
+              <InventoryScreen items={items} readOnly onGoChat={() => setTab('chat')} />
             ) : (
               <LockedFeature kind="fridge" headerTitle="My food" />
             ))}
