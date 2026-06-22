@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { detectFromImage, suggestMeals, aiErrorMessage } from '../lib/api.js'
 import { downscaleImage } from '../lib/image.js'
 import { upgrade } from '../lib/upgrade.js'
-import { staplePrefs } from '../lib/staples.js'
+import { store } from '../lib/store.js'
+import { staplePrefs, sameItem } from '../lib/staples.js'
 import { hasDiet, DIET_OPTIONS, AVOID_OPTIONS } from '../lib/diet.js'
 import { savedMeals } from '../lib/meals.js'
 import { dinnerLast, useDinnerLast } from '../lib/dinnerLast.js'
@@ -45,6 +46,9 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
   const [meals, setMeals] = useState([])
   const [error, setError] = useState(null)
   const [cuisine, setCuisine] = useState('Any')
+  // Names of tracked-fridge items we offered to the meal engine alongside the
+  // photo — so the result cards can show "using X from your fridge".
+  const [fridgeUsed, setFridgeUsed] = useState([])
   // First-use nudge on the Tonight screen — shown once per account until they
   // take their first photo (or dismiss it).
   const [showCoach, setShowCoach] = useState(() => !firstrun.seen('fridge.dinnercoach', userId))
@@ -68,9 +72,14 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
   }
 
   // Build the meal request from the base ask + chosen cuisine + any refine tap.
-  function buildRequest(extra) {
+  // When we're also sending tracked-fridge items, anchor the dishes on the
+  // photographed ingredients so the fresh stuff leads, not the spice rack.
+  function buildRequest(extra, photoNames, hasFridge) {
     let r = BASE_REQUEST
     if (cuisine && cuisine !== 'Any') r += `\n\nMake them ${cuisine} style.`
+    if (hasFridge && photoNames?.length) {
+      r += `\n\nBuild the dishes around the ingredients I just photographed (${photoNames.join(', ')}). Use other things I already have where they genuinely help, and only list as "to buy" what I have in neither.`
+    }
     if (extra) r += `\n\nExtra: ${extra}.`
     return r
   }
@@ -100,20 +109,27 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
   async function getMeals(extra) {
     const chosen = items.filter((i) => i.include && i.name?.trim())
     if (!chosen.length) return
-    const inventory = chosen.map((i) => ({
-      name: i.name.trim(),
-      category: i.category || 'other',
-      quantity: i.quantity || 1,
-      unit: i.unit || ''
-    }))
+    const photoNames = chosen.map((i) => i.name.trim())
+    // Bring in what's already tracked in the fridge (minus anything they just
+    // photographed) so dishes can use staples they own — shrinking "to buy".
+    // Empty for free users with no fridge, so they're unaffected.
+    const fridgeExtra = store
+      .getAll()
+      .filter((it) => it.status === 'active' && it.name && !photoNames.some((n) => sameItem(n, it.name)))
+    setFridgeUsed(fridgeExtra.map((it) => it.name))
+    const inventory = [
+      // Photo items first so they survive the server-side inventory cap.
+      ...chosen.map((i) => ({ name: i.name.trim(), category: i.category || 'other', quantity: i.quantity || 1, unit: i.unit || '', from: 'photo' })),
+      ...fridgeExtra.map((it) => ({ name: it.name, category: it.category || 'other', quantity: it.quantity || 1, unit: it.unit || '', from: 'fridge' }))
+    ]
     setPhase('cooking')
     setError(null)
     try {
-      const result = await suggestMeals(inventory, buildRequest(extra))
+      const result = await suggestMeals(inventory, buildRequest(extra, photoNames, fridgeExtra.length > 0))
       setMeals(result)
       setPhase('results')
       // Remember this result so it's still here when they come back to Tonight.
-      dinnerLast.save({ items: chosen.map((i) => i.name.trim()), meals: result, cuisine })
+      dinnerLast.save({ items: photoNames, meals: result, cuisine })
     } catch (err) {
       if (err.code === 'quota_exceeded' || err.code === 'rate_limited') {
         upgrade.show(err.code === 'rate_limited' ? 'rate' : 'chat')
@@ -131,6 +147,7 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
     setItems([])
     setMeals([])
     setError(null)
+    setFridgeUsed([])
   }
   function toggle(id) {
     setItems((list) => list.map((i) => (i._id === id ? { ...i, include: !i.include } : i)))
@@ -298,7 +315,7 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
               <>
                 <p className="meals-intro">From what you snapped, you could make:</p>
                 {meals.map((m, i) => (
-                  <ResultCard key={i} meal={m} />
+                  <ResultCard key={i} meal={m} fridgeNames={fridgeUsed} />
                 ))}
               </>
             )}
@@ -335,12 +352,15 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
   )
 }
 
-function ResultCard({ meal }) {
+function ResultCard({ meal, fridgeNames = [] }) {
   const saved = useSyncExternalStore(
     savedMeals.subscribe,
     () => savedMeals.has(meal.name),
     () => savedMeals.has(meal.name)
   )
+  // Which of this meal's ingredients came from the tracked fridge (not the
+  // photo) — so we can show off that we used what they already had.
+  const fromFridge = (meal.uses || []).filter((u) => fridgeNames.some((f) => sameItem(u, f)))
   // Saving is free — it's just local storage. The first time, explain where
   // saved meals live (the Tonight screen) so they know how to find them.
   function onSave() {
@@ -368,6 +388,11 @@ function ResultCard({ meal }) {
       </div>
       {meal.description && <p className="meal-desc">{meal.description}</p>}
       {meal.uses?.length > 0 && <p className="meal-uses">Uses: {meal.uses.join(', ')}</p>}
+      {fromFridge.length > 0 && (
+        <p className="meal-have">
+          <IconCheck size={12} className="inline-ico" /> Using {fromFridge.length} from your fridge: {fromFridge.join(', ')}
+        </p>
+      )}
       <MealBuy items={meal.buy} />
     </div>
   )
