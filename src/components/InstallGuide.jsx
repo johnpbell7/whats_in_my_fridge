@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSheet } from '../lib/useSheet.js'
-import { platform, canPrompt, promptInstall } from '../lib/install.js'
-import { IconClose, IconCheck, IconFridge } from '../icons.jsx'
+import { platform, canPrompt, promptInstall, iosNeedsSafari } from '../lib/install.js'
+import { IconClose, IconCheck, IconFridge, IconWarning } from '../icons.jsx'
 
 // "Add to your home screen" guide. People reach the app by scanning the QR on
 // the marketing site, so most arrive in a mobile browser and don't know a PWA
@@ -147,8 +147,22 @@ export default function InstallGuide({ onClose }) {
   const [os, setOs] = useState(() => (platform() === 'android' ? 'android' : 'ios'))
   const [phase, setPhase] = useState(0)
   const [installing, setInstalling] = useState(false)
+  const [copied, setCopied] = useState(false)
   const reduce = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   const showInstallBtn = os === 'android' && canPrompt()
+  // iPhone users in Chrome/Firefox/etc can't "Add to Home Screen" — only Safari
+  // can. Show them how to switch to Safari first.
+  const needSafari = os === 'ios' && iosNeedsSafari()
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(window.location.origin)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      /* clipboard blocked — they can still type the address into Safari */
+    }
+  }
 
   // Loop the demo through its three phases (skip the motion if reduced).
   useEffect(() => {
@@ -193,6 +207,19 @@ export default function InstallGuide({ onClose }) {
         </div>
 
         <p className="ig-lede">Add <b>What’s in my Fridge</b> to your home screen so it opens full-screen, like a normal app — no app store needed.</p>
+
+        {needSafari && (
+          <div className="ig-safari" role="note">
+            <IconWarning size={18} />
+            <div>
+              <strong>You’re not in Safari.</strong> On iPhone, “Add to Home Screen” only works in <b>Safari</b>.
+              Copy the link, open <b>Safari</b>, paste it in, then follow the steps below.
+              <button type="button" className="ig-copy" onClick={copyLink}>
+                {copied ? '✓ Link copied — now open Safari' : 'Copy link'}
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="ig-toggle" role="tablist" aria-label="Choose your phone">
           {['ios', 'android'].map((key) => (

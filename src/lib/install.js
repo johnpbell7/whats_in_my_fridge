@@ -39,6 +39,17 @@ export function platform() {
   return 'other'
 }
 
+// On iOS, "Add to Home Screen" ONLY exists in Safari — Chrome, Firefox, Edge,
+// the Google app, etc. on iPhone can't install a PWA (an Apple restriction). So
+// detect a non-Safari iOS browser, so the guide can tell them to switch first.
+export function iosNeedsSafari() {
+  if (platform() !== 'ios') return false
+  const ua = navigator.userAgent || ''
+  // CriOS=Chrome, FxiOS=Firefox, EdgiOS=Edge, OPiOS/OPT=Opera, GSA=Google app,
+  // DuckDuckGo/Brave and in-app webviews also lack Add to Home Screen.
+  return /CriOS|FxiOS|EdgiOS|OPiOS|OPT\/|GSA\/|DuckDuckGo|Brave/i.test(ua)
+}
+
 // Treat real phones/tablets as mobile; this is what gates the auto-popup.
 export function isMobile() {
   if (typeof window === 'undefined') return false
