@@ -93,7 +93,15 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
       const { dataUrl, mediaType, base64 } = await downscaleImage(file)
       setPreview(dataUrl)
       const { items: found } = await detectFromImage(base64, mediaType, 'groceries')
-      setItems(found.map((it, i) => ({ ...it, _id: `${i}-${it.name}`, include: true })))
+      const photoItems = found.map((it, i) => ({ ...it, _id: `p${i}-${it.name}`, include: true, from: 'photo' }))
+      // Offer what's in the tracked fridge as "you might already have" — UNticked,
+      // so they only confirm what they actually have (the fridge can be stale).
+      const photoNames = photoItems.map((p) => p.name)
+      const fridgeItems = store
+        .getAll()
+        .filter((it) => it.status === 'active' && it.name && !photoNames.some((n) => sameItem(n, it.name)))
+        .map((it, i) => ({ ...it, _id: `f${i}-${it.name}`, include: false, from: 'fridge' }))
+      setItems([...photoItems, ...fridgeItems])
       setPhase('pick')
     } catch (err) {
       if (err.code === 'quota_exceeded' || err.code === 'rate_limited') {
@@ -109,23 +117,22 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
   async function getMeals(extra) {
     const chosen = items.filter((i) => i.include && i.name?.trim())
     if (!chosen.length) return
-    const photoNames = chosen.map((i) => i.name.trim())
-    // Bring in what's already tracked in the fridge (minus anything they just
-    // photographed) so dishes can use staples they own — shrinking "to buy".
-    // Empty for free users with no fridge, so they're unaffected.
-    const fridgeExtra = store
-      .getAll()
-      .filter((it) => it.status === 'active' && it.name && !photoNames.some((n) => sameItem(n, it.name)))
-    setFridgeUsed(fridgeExtra.map((it) => it.name))
-    const inventory = [
-      // Photo items first so they survive the server-side inventory cap.
-      ...chosen.map((i) => ({ name: i.name.trim(), category: i.category || 'other', quantity: i.quantity || 1, unit: i.unit || '', from: 'photo' })),
-      ...fridgeExtra.map((it) => ({ name: it.name, category: it.category || 'other', quantity: it.quantity || 1, unit: it.unit || '', from: 'fridge' }))
-    ]
+    // Only the fridge items they TICKED count as "have" — the rest the AI lists
+    // as things to buy. Photo items first so they survive the server's cap.
+    const photoNames = chosen.filter((i) => i.from !== 'fridge').map((i) => i.name.trim())
+    const fridgeChosen = chosen.filter((i) => i.from === 'fridge')
+    setFridgeUsed(fridgeChosen.map((i) => i.name))
+    const inventory = chosen.map((i) => ({
+      name: i.name.trim(),
+      category: i.category || 'other',
+      quantity: i.quantity || 1,
+      unit: i.unit || '',
+      from: i.from || 'photo'
+    }))
     setPhase('cooking')
     setError(null)
     try {
-      const result = await suggestMeals(inventory, buildRequest(extra, photoNames, fridgeExtra.length > 0))
+      const result = await suggestMeals(inventory, buildRequest(extra, photoNames, fridgeChosen.length > 0))
       setMeals(result)
       setPhase('results')
       // Remember this result so it's still here when they come back to Tonight.
@@ -251,19 +258,47 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
           {items.length === 0 ? (
             <p className="meals-empty">I couldn’t make out distinct items — try a brighter, closer photo.</p>
           ) : (
-            <div className="expiring-chips" style={{ marginBottom: 16 }}>
-              {items.map((it) => (
-                <button
-                  key={it._id}
-                  type="button"
-                  className={`exp-chip ${it.include ? 'on' : ''}`}
-                  aria-pressed={it.include}
-                  onClick={() => toggle(it._id)}
-                >
-                  {it.include && <IconCheck size={12} />} {it.name}
-                </button>
-              ))}
-            </div>
+            <>
+              <div className="expiring-chips" style={{ marginBottom: 14 }}>
+                {items
+                  .filter((it) => it.from !== 'fridge')
+                  .map((it) => (
+                    <button
+                      key={it._id}
+                      type="button"
+                      className={`exp-chip ${it.include ? 'on' : ''}`}
+                      aria-pressed={it.include}
+                      onClick={() => toggle(it._id)}
+                    >
+                      {it.include && <IconCheck size={12} />} {it.name}
+                    </button>
+                  ))}
+              </div>
+
+              {items.some((it) => it.from === 'fridge') && (
+                <div className="might-have">
+                  <p className="might-have-label">
+                    <IconCheck size={12} className="inline-ico" /> You might already have these — tick only what you
+                    actually have. I’ll add anything else to buy.
+                  </p>
+                  <div className="expiring-chips" style={{ marginBottom: 16 }}>
+                    {items
+                      .filter((it) => it.from === 'fridge')
+                      .map((it) => (
+                        <button
+                          key={it._id}
+                          type="button"
+                          className={`exp-chip ${it.include ? 'on' : ''}`}
+                          aria-pressed={it.include}
+                          onClick={() => toggle(it._id)}
+                        >
+                          {it.include && <IconCheck size={12} />} {it.name}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           {items.length > 0 && (
