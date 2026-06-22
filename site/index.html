@@ -524,7 +524,7 @@
 
           <!-- panel · what's for dinner — snap to cook (the free hero) -->
           <div class="hpanel">
-            <div class="cam" data-camd style="opacity:0"><div class="cam-scene">🥦🍗🧄<br>🍅🧅🫑</div><div class="cam-bracket"></div><div class="cam-shutter"></div><div class="cam-label">What can I cook?</div></div>
+            <div class="cam" data-camd style="opacity:0"><div class="cam-scene">🥦🍗🧄<br>🍅🧅🫑</div><div class="cam-bracket"></div><div class="cam-shutter"></div><div class="cam-label">Snap your food…</div></div>
             <div class="flash" data-flashd></div>
             <div class="screen-top"><div class="sm">What's for dinner?</div><div class="lg">Tonight's ideas</div></div>
             <div class="hero-hint">From what you snapped, you could make…</div>
@@ -1038,7 +1038,24 @@
     // --- motion (GSAP is deferred, so wait for load) ---
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     document.addEventListener('DOMContentLoaded', () => {
-      if (!window.gsap || reduce) return;
+      if (!window.gsap) return;
+
+      // Reduced motion (incl. Android battery-saver, which can force it): skip
+      // the looping animation, but POSE a clean static hero so the phone screen
+      // is never left blank — show the dinner panel with its meal ideas.
+      if (reduce) {
+        const hpr = gsap.utils.toArray('#heroScreen .hpanel');
+        if (hpr.length) {
+          gsap.set(hpr, { opacity: 0 });
+          gsap.set(hpr[0], { opacity: 1 });
+          gsap.set(hpr[0].querySelector('[data-camd]'), { opacity: 0 });
+          gsap.set(hpr[0].querySelectorAll('.meal'), { opacity: 1, y: 0 });
+        }
+        gsap.set('[data-ff-free]', { opacity: 1 });
+        gsap.set('[data-ff-plus]', { opacity: 0 });
+        return;
+      }
+
       gsap.registerPlugin(ScrollTrigger);
       // a timeline that plays in and rewinds when it leaves the viewport
       const live = (trigger, start = 'top 72%') => gsap.timeline({
@@ -1130,73 +1147,37 @@
 
         const m = gsap.timeline({ repeat: -1, repeatDelay: 0.6, defaults: { ease: 'power2.out' } });
 
-        // ░ FREE ░ snap your ingredients → tonight's dinner ideas. Hold on the
-        // camera first so you clearly see the fruit & veg being photographed.
+        // ░ FREE · SNAP ░ photograph your food — hold the shot so the
+        // photo-taking is unmistakable, then shutter + flash.
         m.set(dFlash, { opacity: 0 }).set(dMeals, { opacity: 0, y: 14 });
-        m.to(dCam, { scale: 1.05, duration: 1.2, ease: 'sine.inOut' }, 0);  // ~1.2s lining up the shot
-        m.to(dShut, { scale: .82, duration: .16, yoyo: true, repeat: 1, ease: 'power1.inOut' })  // then snap
-         .to(dFlash, { opacity: .92, duration: .08 })
-         .to(dFlash, { opacity: 0, duration: .42 })
-         .to(dCam, { opacity: 0, scale: 1, duration: .35 }, '<')
-         .to(dMeals, { opacity: 1, y: 0, stagger: .18, duration: .42, ease: 'back.out(1.6)' }, '-=.2')
-         .to({}, { duration: 1.5 });
+        m.to(dCam, { scale: 1.05, duration: 1.3, ease: 'sine.inOut' }, 0);   // line up the shot on the food
+        m.to(dShut, { scale: .8, duration: .18, yoyo: true, repeat: 1, ease: 'power1.inOut' })  // press the shutter
+         .to(dFlash, { opacity: .95, duration: .08 })
+         .to(dFlash, { opacity: 0, duration: .45 })
+         .to(dCam, { opacity: 0, scale: 1, duration: .4 }, '<')
+        // ░ FREE · AI ░ tonight's dinner ideas, straight from that photo
+         .to(dMeals, { opacity: 1, y: 0, stagger: .2, duration: .45, ease: 'back.out(1.6)' }, '-=.15')
+         .to({}, { duration: 2.0 });
 
-        // ░ FREE ░ …or just ask what to make
-        m.set(askBub, { opacity: 0, y: 12, scale: .92 }).set(askMeals, { opacity: 0, y: 14 });
-        swap(m, dinner, ask);
-        m.to(askBub, { opacity: 1, y: 0, scale: 1, duration: .4, ease: 'back.out(1.8)' }, '-=.1')
-         .to(askMeals, { opacity: 1, y: 0, stagger: .22, duration: .45 }, '+=.25')
-         .to({}, { duration: 1.4 });
-
-        // ═══ switch to a SEPARATE feature — flip the flag, then show what I saw ═══
+        // ═══ a SEPARATE Plus feature — flip the flag, then log a shop into the fridge ═══
         flag(m, freeFlag, plusFlag, true);
 
-        // ░ PLUS ░ what I saw — the same photo, now itemised into your fridge
+        // ░ PLUS ░ logs your shopping — items land in your fridge
         m.set(cam, { opacity: 0 }).set(scanBits, { opacity: 0, y: 14 });
-        swap(m, ask, snap);
-        m.to(scanBits, { opacity: 1, y: 0, stagger: .15, duration: .42, ease: 'back.out(1.6)' }, '-=.15')
-         .to({}, { duration: 1.5 });
+        swap(m, dinner, snap);
+        m.to(scanBits, { opacity: 1, y: 0, stagger: .16, duration: .42, ease: 'back.out(1.6)' }, '-=.15')
+         .to({}, { duration: 1.6 });
 
-        // ░ PLUS ░ it's all tracked (inventory)
+        // ░ PLUS ░ …all tracked and sorted in your fridge
         m.set(invBits, { opacity: 0, y: 14 });
         swap(m, snap, inv);
         m.to(invBits, { opacity: 1, y: 0, stagger: .1, duration: .4, ease: 'back.out(1.5)' }, '-=.15')
-         .to({}, { duration: 1.3 });
+         .to({}, { duration: 1.8 });
 
-        // ░ PLUS ░ staples: usuals flagged low/out, tags pulse
-        m.set(stNudge, { opacity: 0, y: -12 }).set(stCards, { opacity: 0, y: 16 }).set(stTags, { scale: 0 }).set(stBar, { opacity: 0, y: 12 });
-        swap(m, inv, stap);
-        m.to(stNudge, { opacity: 1, y: 0, duration: .4, ease: 'back.out(1.8)' }, '-=.1')
-         .to(stCards, { opacity: 1, y: 0, stagger: .12, duration: .42 }, '-=.05')
-         .to(stTags, { scale: 1, stagger: .1, duration: .4, ease: 'back.out(2.4)' }, '-=.15')
-         .to(stTags, { scale: 1.14, yoyo: true, repeat: 1, stagger: .08, duration: .35, ease: 'sine.inOut' })
-         .to(stBar, { opacity: 1, y: 0, duration: .4, ease: 'back.out(2)' }, '-=.1')
-         .to({}, { duration: 1.2 });
-
-        // → shopping: list ticks in row by row, then the put-away bar
-        m.set([shNudge, shBar], { opacity: 0 }).set(shRows, { opacity: 0, x: -14 }).set(shBx, { scale: 0 });
-        swap(m, stap, shop);
-        m.to(shNudge, { opacity: 1, duration: .35 }, '-=.1')
-         .to(shRows, { opacity: 1, x: 0, stagger: .14, duration: .4 })
-         .to(shBx, { scale: 1, stagger: .14, duration: .32, ease: 'back.out(3)' }, '<')
-         .to(shBar, { opacity: 1, duration: .4, ease: 'back.out(2)' }, '+=.1')
-         .to({}, { duration: 1.3 });
-
-        // → all sorted sign-off tick
-        m.set(ring, { strokeDashoffset: 145 }).set(check, { strokeDashoffset: 40 }).set(tick, { scale: .4, opacity: 0 }).set([dTitle, dSub], { opacity: 0, y: 10 });
-        swap(m, shop, done);
-        m.to(tick, { scale: 1, opacity: 1, duration: .45, ease: 'back.out(2)' })
-         .to(ring, { strokeDashoffset: 0, duration: .5, ease: 'power2.inOut' }, '<')
-         .to(check, { strokeDashoffset: 0, duration: .35 }, '-=.15')
-         .to([dTitle, dSub], { opacity: 1, y: 0, stagger: .12, duration: .4 }, '-=.1')
-         .to(tick, { scale: 1.08, yoyo: true, repeat: 1, duration: .35, ease: 'sine.inOut' })
-         .to({}, { duration: 1.6 });
-
-        // → back to the FREE feature: flip the flag, re-arm the camera so the
-        // next loop opens by snapping the ingredients again.
+        // → loop: flip back to FREE and re-arm the camera so it snaps again
         flag(m, plusFlag, freeFlag, false);
-        m.set(dCam, { opacity: 1 }).set(dFlash, { opacity: 0 }).set(dMeals, { opacity: 0, y: 14 });
-        swap(m, done, dinner);
+        m.set(dCam, { opacity: 1, scale: 1 }).set(dFlash, { opacity: 0 }).set(dMeals, { opacity: 0, y: 14 });
+        swap(m, inv, dinner);
         m.to({}, { duration: .5 });
       }
 
