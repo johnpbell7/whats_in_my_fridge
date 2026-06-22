@@ -36,11 +36,17 @@ import Nav from './components/Nav.jsx'
 import Splash from './components/Splash.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { IconPlus } from './icons.jsx'
+import * as firstrun from './lib/firstrun.js'
+import { dinnerLast } from './lib/dinnerLast.js'
 
 export default function App() {
   const items = useItems()
   const list = useShopping()
   const { enabled: authEnabled, loading: authLoading, session } = useAuth()
+  // Who first-run guidance is keyed to: the signed-in account (so a brand-new
+  // account gets the walkthrough/prompts again, even on a browser that's seen
+  // them), or 'local' in open mode.
+  const userId = authEnabled ? session?.user?.id || null : 'local'
   // "Tonight" (the photo → dinner lead) is the front door now.
   const [tab, setTab] = useState('dinner')
   // Pulse the Shopping tab when an item is added from elsewhere, so the user
@@ -87,25 +93,17 @@ export default function App() {
     setHelpUnseen(false)
     setHelp(true)
   }
-  // Intro walkthrough: shown on every open by default; "Don't show this again"
-  // persists an opt-out under its own key.
-  const [onboarded, setOnboarded] = useState(() => {
-    try {
-      return localStorage.getItem('fridge.onboarding.hide') === '1'
-    } catch {
-      return false
-    }
-  })
+  // Intro walkthrough: shown once per ACCOUNT (firstrun namespaces the flag by
+  // userId), so a brand-new account gets it again even on a browser that's seen
+  // it. `onboardBump` just forces a re-read after we mark it done. Until we know
+  // who's signed in (userId === null), treat as "seen" so the app doesn't flash
+  // the walkthrough before the account resolves.
+  const [onboardBump, setOnboardBump] = useState(0)
+  const onboarded = userId === null ? true : firstrun.seen('fridge.onboarding.hide', userId)
 
-  // Persist completion so the walkthrough shows once (first open) and not on
-  // every launch — re-showing a 5-slide intro each time is real friction.
   function finishOnboarding() {
-    try {
-      localStorage.setItem('fridge.onboarding.hide', '1')
-    } catch {
-      /* private mode — it'll just keep showing */
-    }
-    setOnboarded(true)
+    firstrun.markSeen('fridge.onboarding.hide', userId)
+    setOnboardBump((n) => n + 1)
   }
 
   // Load saved inventory + shopping list from durable storage on launch.
@@ -114,6 +112,11 @@ export default function App() {
     initShopping()
     initStaplePrefs()
   }, [])
+
+  // Point the "your last dinner" memory at the current account.
+  useEffect(() => {
+    dinnerLast.setAccount(userId)
+  }, [userId])
 
   // Load Plus entitlements when the session is ready (and in open mode); clear
   // them on sign-out. This is the source of truth for the paywall gates.
@@ -151,6 +154,11 @@ export default function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.has('reset')) {
+      // Clear both the account-namespaced first-run flags and the old global
+      // ones, so ?reset gives a clean first-run on any build.
+      firstrun.clearSeen('fridge.onboarding.hide', userId)
+      firstrun.clearSeen('fridge.install.hide', userId)
+      firstrun.clearSeen('fridge.dinnercoach', userId)
       try {
         localStorage.removeItem('fridge.onboarding.hide')
         localStorage.removeItem('fridge.install.hide')
@@ -203,15 +211,11 @@ export default function App() {
   useEffect(() => {
     if (!onboarded) return
     if (authEnabled && (authLoading || !session)) return
-    try {
-      if (localStorage.getItem('fridge.install.hide') === '1') return
-    } catch {
-      /* private mode — fine, it just may show again next time */
-    }
+    if (firstrun.seen('fridge.install.hide', userId)) return
     if (!isMobile() || isStandalone()) return
     const t = setTimeout(() => setInstallGuide(true), 1200)
     return () => clearTimeout(t)
-  }, [onboarded, authEnabled, authLoading, session])
+  }, [onboarded, authEnabled, authLoading, session, userId])
 
   // Loss-framed "trial ends tomorrow" nudge: on the last day of the trial, once,
   // remind them exactly what's about to lock (fridge, list, saved meals) so they
@@ -262,11 +266,7 @@ export default function App() {
   }, [authEnabled, authLoading, session?.user?.id, onboarded])
 
   function dismissInstall() {
-    try {
-      localStorage.setItem('fridge.install.hide', '1')
-    } catch {
-      /* private mode */
-    }
+    firstrun.markSeen('fridge.install.hide', userId)
     setInstallGuide(false)
   }
 
@@ -286,10 +286,7 @@ export default function App() {
   // alongside it below — so the guide can overlay ANY screen (including the
   // sign-in screen), which is what makes ?install=1 previewable everywhere.
   let content
-  if (!onboarded) {
-    // Walkthrough — shown before anything else each time you open the app.
-    content = <Onboarding onDone={finishOnboarding} onNeverShow={finishOnboarding} />
-  } else if (authEnabled && authLoading) {
+  if (authEnabled && authLoading) {
     // While the session is still resolving, hold a blank screen rather than
     // flashing the app to someone who may not be signed in.
     content = <div className="app" />
@@ -297,11 +294,21 @@ export default function App() {
     // Account gate: when accounts are switched on and nobody is signed in, the
     // login screen stands in for the whole app. (Open mode skips this entirely.)
     content = <AuthScreen />
+  } else if (!onboarded) {
+    // Walkthrough — shown once per account, right after sign-in, before the app.
+    content = <Onboarding onDone={finishOnboarding} onNeverShow={finishOnboarding} />
   } else {
     content = (
     <div className="app">
       {/* Tonight — the photo → dinner lead. Free + the hero of the app. */}
-      {tab === 'dinner' && <DinnerSnap onAccount={authEnabled ? () => setAccount(true) : null} />}
+      {tab === 'dinner' && (
+        <DinnerSnap
+          userId={userId}
+          plus={plus}
+          onAccount={authEnabled ? () => setAccount(true) : null}
+          onGoChat={() => setTab('chat')}
+        />
+      )}
 
       {/* My food — Plus. Free users see the upsell instead. */}
       {tab === 'inventory' &&

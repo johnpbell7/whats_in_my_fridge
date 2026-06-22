@@ -162,7 +162,7 @@ export default function ScanScreen({ onDone, onAddManual }) {
             <div className="empty-art">
               {mode === 'receipt' ? <IconReceipt size={32} /> : <IconCamera size={32} />}
             </div>
-            <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 18 }}>
+            <h3 className="drop-h">
               {mode === 'receipt' ? 'Snap your shopping receipt' : 'Photograph your shopping'}
             </h3>
             <p style={{ margin: 0, color: 'var(--ink-soft)', fontSize: 14, maxWidth: '34ch' }}>

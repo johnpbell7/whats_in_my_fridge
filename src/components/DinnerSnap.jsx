@@ -1,13 +1,17 @@
 import { useRef, useState, useSyncExternalStore } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { detectFromImage, suggestMeals, aiErrorMessage } from '../lib/api.js'
 import { downscaleImage } from '../lib/image.js'
 import { upgrade } from '../lib/upgrade.js'
 import { staplePrefs } from '../lib/staples.js'
 import { hasDiet, DIET_OPTIONS, AVOID_OPTIONS } from '../lib/diet.js'
 import { savedMeals } from '../lib/meals.js'
-import { useIsPlus } from '../lib/me.js'
+import { dinnerLast, useDinnerLast } from '../lib/dinnerLast.js'
+import { toast } from '../lib/toast.js'
+import * as firstrun from '../lib/firstrun.js'
+import CoachTip from './CoachTip.jsx'
 import MealBuy from './MealBuy.jsx'
+import SavedMeals from './SavedMeals.jsx'
 import { IconCamera, IconSparkle, IconChevron, IconClose, IconWarning, IconBookmark, IconCheck, IconUser } from '../icons.jsx'
 
 // PROTOTYPE — the proposed new lead flow. Snap the food that's about to go off →
@@ -34,15 +38,34 @@ function dietSummary() {
   return parts.join(' · ') || null
 }
 
-export default function DinnerSnap({ onExit, onAccount }) {
+export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
   const [phase, setPhase] = useState('idle') // idle | reading | pick | cooking | results | error
   const [preview, setPreview] = useState(null)
   const [items, setItems] = useState([])
   const [meals, setMeals] = useState([])
   const [error, setError] = useState(null)
   const [cuisine, setCuisine] = useState('Any')
+  // First-use nudge on the Tonight screen — shown once per account until they
+  // take their first photo (or dismiss it).
+  const [showCoach, setShowCoach] = useState(() => !firstrun.seen('fridge.dinnercoach', userId))
+  const [showSaved, setShowSaved] = useState(false)
+  const last = useDinnerLast() // their last dinner result, remembered across tab switches
+  const saved = useSyncExternalStore(savedMeals.subscribe, savedMeals.getAll, savedMeals.getAll)
   const fileRef = useRef(null)
   const diet = dietSummary()
+
+  function dismissCoach() {
+    firstrun.markSeen('fridge.dinnercoach', userId)
+    setShowCoach(false)
+  }
+  // Re-open the last remembered dinner so it survives leaving the tab.
+  function openLast() {
+    if (!last) return
+    setItems((last.items || []).map((name, i) => ({ name, _id: `${i}-${name}`, include: true })))
+    setMeals(last.meals || [])
+    setCuisine(last.cuisine || 'Any')
+    setPhase('results')
+  }
 
   // Build the meal request from the base ask + chosen cuisine + any refine tap.
   function buildRequest(extra) {
@@ -54,6 +77,7 @@ export default function DinnerSnap({ onExit, onAccount }) {
 
   async function handleFile(file) {
     if (!file) return
+    dismissCoach() // they're off — the first-use nudge has done its job
     setError(null)
     setPhase('reading')
     try {
@@ -88,6 +112,8 @@ export default function DinnerSnap({ onExit, onAccount }) {
       const result = await suggestMeals(inventory, buildRequest(extra))
       setMeals(result)
       setPhase('results')
+      // Remember this result so it's still here when they come back to Tonight.
+      dinnerLast.save({ items: chosen.map((i) => i.name.trim()), meals: result, cuisine })
     } catch (err) {
       if (err.code === 'quota_exceeded' || err.code === 'rate_limited') {
         upgrade.show(err.code === 'rate_limited' ? 'rate' : 'chat')
@@ -147,19 +173,58 @@ export default function DinnerSnap({ onExit, onAccount }) {
       />
 
       {phase === 'idle' && (
-        <div className="scan-drop">
-          <div className="empty-art">
-            <IconSparkle size={32} />
+        <>
+          <AnimatePresence>
+            {showCoach && (
+              <CoachTip icon="📸" title="Start here" onDismiss={dismissCoach}>
+                Snap whatever you fancy cooking with — the veg, the meat, the bits in the fridge — and I’ll turn it
+                into tonight’s dinner. Free, no setup.
+              </CoachTip>
+            )}
+          </AnimatePresence>
+
+          <div className="scan-drop">
+            <div className="empty-art">
+              <IconSparkle size={32} />
+            </div>
+            <h3 className="drop-h">What do you want to use tonight?</h3>
+            <p style={{ margin: 0, color: 'var(--ink-soft)', fontSize: 14, maxWidth: '34ch' }}>
+              Snap whatever you fancy cooking with — the veg, the meat, the bits in the fridge — and I’ll turn it
+              into dinner, plus the few things you still need.
+            </p>
+            <button className="btn btn-primary" onClick={() => fileRef.current?.click()}>
+              <IconCamera size={19} /> Snap your ingredients
+            </button>
           </div>
-          <h3 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 19 }}>What do you want to use tonight?</h3>
-          <p style={{ margin: 0, color: 'var(--ink-soft)', fontSize: 14, maxWidth: '34ch' }}>
-            Snap whatever you fancy cooking with — the veg, the meat, the bits in the fridge — and I’ll turn it
-            into dinner, plus the few things you still need.
-          </p>
-          <button className="btn btn-primary" onClick={() => fileRef.current?.click()}>
-            <IconCamera size={19} /> Snap your ingredients
-          </button>
-        </div>
+
+          {last && last.meals?.length > 0 && (
+            <button className="dinner-last" onClick={openLast}>
+              <div className="dinner-last-top">
+                <span className="dinner-last-label">🍽️ Your last dinner</span>
+                <span className="dinner-last-view">View →</span>
+              </div>
+              <span className="dinner-last-meals">{last.meals.map((m) => m.name).join(' · ')}</span>
+            </button>
+          )}
+
+          {saved.length > 0 && (
+            <button className="dinner-saved-link" onClick={() => setShowSaved(true)}>
+              <IconBookmark size={16} />
+              <span>Your saved meals ({saved.length})</span>
+              <IconChevron size={16} />
+            </button>
+          )}
+        </>
+      )}
+
+      {showSaved && (
+        <SavedSheet
+          onClose={() => setShowSaved(false)}
+          onGoChat={() => {
+            setShowSaved(false)
+            onGoChat?.()
+          }}
+        />
       )}
 
       {(phase === 'reading' || phase === 'cooking') && (
@@ -281,13 +346,22 @@ export default function DinnerSnap({ onExit, onAccount }) {
 }
 
 function ResultCard({ meal }) {
-  const isPlus = useIsPlus()
   const saved = useSyncExternalStore(
     savedMeals.subscribe,
     () => savedMeals.has(meal.name),
     () => savedMeals.has(meal.name)
   )
-  const onSave = () => (isPlus ? savedMeals.add(meal) : upgrade.show('list'))
+  // Saving is free — it's just local storage. The first time, explain where
+  // saved meals live (the Tonight screen) so they know how to find them.
+  function onSave() {
+    const firstEver = savedMeals.getAll().length === 0
+    const added = savedMeals.add(meal)
+    if (!added) return
+    toast.show(
+      firstEver ? 'Saved 💚 Find your saved meals on the Tonight screen.' : 'Saved to your meals 💚',
+      firstEver ? 3800 : 1800
+    )
+  }
   return (
     <div className="meal-card">
       <div className="meal-head">
@@ -305,6 +379,35 @@ function ResultCard({ meal }) {
       {meal.description && <p className="meal-desc">{meal.description}</p>}
       {meal.uses?.length > 0 && <p className="meal-uses">Uses: {meal.uses.join(', ')}</p>}
       <MealBuy items={meal.buy} />
+    </div>
+  )
+}
+
+// Saved meals, reachable straight from Tonight (so they don't live only behind
+// the Plus fridge). Reuses the same MealRow UI as the fridge's Meals tab.
+function SavedSheet({ onClose, onGoChat }) {
+  return (
+    <div className="scrim" onClick={onClose}>
+      <motion.div
+        className="sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Your saved meals"
+        onClick={(e) => e.stopPropagation()}
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring', stiffness: 360, damping: 36 }}
+      >
+        <div className="sheet-grip" />
+        <div className="sheet-header">
+          <h2>Your saved meals</h2>
+          <button type="button" className="icon-btn" onClick={onClose} aria-label="Close">
+            <IconClose size={20} />
+          </button>
+        </div>
+        <SavedMeals onGoChat={onGoChat} />
+      </motion.div>
     </div>
   )
 }

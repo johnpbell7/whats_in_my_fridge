@@ -742,6 +742,22 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   gap: 12px;
 }
 .scan-drop .empty-art { margin-bottom: 0; }
+/* Shared heading for the "drop / snap" empty screens — matches .empty h3 so the
+   Tonight, Scan and empty-fridge titles all sit at the same weight. */
+.drop-h { margin: 0; font-size: 18px; font-family: var(--font-display); font-weight: 600; }
+
+/* Tonight: "your last dinner" memory + saved-meals shortcut */
+.dinner-last { display: block; width: 100%; text-align: left; margin-top: 18px; padding: 14px 16px;
+  background: var(--accent-soft); border: 1px solid #cfe2d5; border-radius: var(--r-md); cursor: pointer; }
+.dinner-last:active { transform: scale(0.99); }
+.dinner-last-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.dinner-last-label { font-weight: 700; font-size: 13.5px; color: var(--accent-press); }
+.dinner-last-view { font-weight: 700; font-size: 13px; color: var(--accent); }
+.dinner-last-meals { display: block; margin-top: 5px; font-size: 13px; color: var(--ink-soft); line-height: 1.45; }
+.dinner-saved-link { display: flex; align-items: center; gap: 10px; width: 100%; margin-top: 10px; padding: 13px 16px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); font-weight: 600; font-size: 14px; color: var(--ink); cursor: pointer; }
+.dinner-saved-link span { flex: 1; text-align: left; }
+.dinner-saved-link:active { transform: scale(0.99); }
 .scan-preview { position: relative; border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-md); }
 .scan-preview img { width: 100%; display: block; }
 .scan-busy {
