@@ -131,15 +131,15 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 /* ----- Standard top bar (AppHeader) — on the dashboard + every feature screen ----- */
 .std-header {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding-top: 14px; margin-bottom: 16px; min-height: 40px;
+  padding: calc(env(safe-area-inset-top) + 12px) 22px 0; margin-bottom: 14px; min-height: 40px;
 }
-.header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .std-brand { display: flex; flex-direction: column; line-height: 1; text-align: left; }
 .std-brand-sm { font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 12px; color: var(--ink-soft); }
 .std-brand-lg { font-family: var(--font-display); font-weight: 600; font-size: 21px; letter-spacing: -0.02em; color: var(--accent); display: inline-flex; align-items: baseline; }
 .std-brand-lg .leaf { color: var(--leaf); width: 0.46em; height: auto; margin-left: 0.06em; transform: translateY(0.02em) rotate(-14deg); }
 
 /* ----- Home dashboard ----- */
+.dashboard { padding-top: 0; } /* the AppHeader inside handles the safe-area top */
 .dash-banner {
   display: flex; align-items: center; gap: 13px;
   background: linear-gradient(120deg, var(--accent), var(--accent-press));

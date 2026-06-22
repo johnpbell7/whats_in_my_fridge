@@ -7,28 +7,26 @@ import { IconInfo, IconUser, IconHome } from '../icons.jsx'
 export default function AppHeader({ onHome, onHelp, helpBadge, onAccount, count }) {
   return (
     <header className="std-header">
-      <div className="header-left">
-        {onHome && (
-          <button type="button" className="account-btn" onClick={onHome} aria-label="Home">
-            <IconHome size={18} />
-          </button>
-        )}
-        <span className="std-brand">
-          <span className="std-brand-sm">What's in my</span>
-          <span className="std-brand-lg">
-            Fridge
-            <svg className="leaf" viewBox="0 0 100 52" aria-hidden="true">
-              <path d="M2 26 C 18 2, 64 2, 94 22 C 64 50, 18 50, 2 26 Z" fill="currentColor" />
-            </svg>
-          </span>
+      <span className="std-brand">
+        <span className="std-brand-sm">What's in my</span>
+        <span className="std-brand-lg">
+          Fridge
+          <svg className="leaf" viewBox="0 0 100 52" aria-hidden="true">
+            <path d="M2 26 C 18 2, 64 2, 94 22 C 64 50, 18 50, 2 26 Z" fill="currentColor" />
+          </svg>
         </span>
-      </div>
+      </span>
 
       <div className="header-right">
         {count != null && (
           <span className="count-pill">
             {count} {count === 1 ? 'item' : 'items'}
           </span>
+        )}
+        {onHome && (
+          <button type="button" className="account-btn" onClick={onHome} aria-label="Home">
+            <IconHome size={18} />
+          </button>
         )}
         {onHelp && (
           <button
