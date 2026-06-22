@@ -106,31 +106,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
 
   return (
     <div className="screen">
-      <header className="app-header">
-        <h1 className="brand">
-          <span className="brand-small">What's in my</span>
-          <span className="brand-big">
-            Fridge<svg className="leaf" viewBox="0 0 100 52" aria-hidden="true"><path d="M2 26 C 18 2, 64 2, 94 22 C 64 50, 18 50, 2 26 Z" fill="currentColor" /></svg>
-          </span>
-        </h1>
-        <div className="header-right">
-          <span className="count-pill">
-            {active.length} {active.length === 1 ? 'item' : 'items'}
-          </span>
-          {onHelp && (
-            <button className="account-btn" onClick={onHelp} aria-label={helpBadge ? "How it works & what's new (new update)" : "How it works & what's new"}>
-              <IconInfo size={18} />
-              {helpBadge && <span className="badge-dot" aria-hidden="true" />}
-            </button>
-          )}
-          {onAccount && (
-            <button className="account-btn" onClick={onAccount} aria-label="Your account">
-              <IconUser size={18} />
-            </button>
-          )}
-        </div>
-      </header>
-
+      {/* The brand / help / account live in the app-wide AppHeader now. */}
       {showSeed && (
         <button
           className="dev-seed"

@@ -110,6 +110,13 @@ export const IconInfo = (p) => (
   </Svg>
 )
 
+export const IconHome = (p) => (
+  <Svg {...p}>
+    <path d="M3 11.5 12 4l9 7.5" />
+    <path d="M5 10v9.5h14V10" />
+  </Svg>
+)
+
 export const IconCart = (p) => (
   <Svg {...p}>
     <path d="M3 4h2l2.2 11.2a1.5 1.5 0 0 0 1.5 1.2h8.1a1.5 1.5 0 0 0 1.47-1.18L20.5 7.5H6" />

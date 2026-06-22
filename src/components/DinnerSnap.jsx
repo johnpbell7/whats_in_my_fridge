@@ -11,7 +11,7 @@ import { toast } from '../lib/toast.js'
 import * as firstrun from '../lib/firstrun.js'
 import CoachTip from './CoachTip.jsx'
 import MealBuy from './MealBuy.jsx'
-import SavedMeals from './SavedMeals.jsx'
+import SavedSheet from './SavedSheet.jsx'
 import { IconCamera, IconSparkle, IconChevron, IconClose, IconWarning, IconBookmark, IconCheck, IconUser } from '../icons.jsx'
 
 // PROTOTYPE — the proposed new lead flow. Snap the food that's about to go off →
@@ -141,11 +141,6 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
   return (
     <div className="screen">
       <header className="app-header">
-        {onExit && (
-          <button className="account-btn" onClick={onExit} aria-label="Back to the app">
-            <IconChevron size={18} style={{ transform: 'rotate(180deg)' }} />
-          </button>
-        )}
         <div style={{ flex: 1 }}>
           <h1 className="app-title">What's for dinner?</h1>
           <p className="app-subtitle">
@@ -156,11 +151,6 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
                 : 'Snap what you fancy cooking with.'}
           </p>
         </div>
-        {onAccount && (
-          <button className="account-btn" onClick={onAccount} aria-label="Your account">
-            <IconUser size={18} />
-          </button>
-        )}
       </header>
 
       <input
@@ -379,35 +369,6 @@ function ResultCard({ meal }) {
       {meal.description && <p className="meal-desc">{meal.description}</p>}
       {meal.uses?.length > 0 && <p className="meal-uses">Uses: {meal.uses.join(', ')}</p>}
       <MealBuy items={meal.buy} />
-    </div>
-  )
-}
-
-// Saved meals, reachable straight from Tonight (so they don't live only behind
-// the Plus fridge). Reuses the same MealRow UI as the fridge's Meals tab.
-function SavedSheet({ onClose, onGoChat }) {
-  return (
-    <div className="scrim" onClick={onClose}>
-      <motion.div
-        className="sheet"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Your saved meals"
-        onClick={(e) => e.stopPropagation()}
-        initial={{ y: '100%' }}
-        animate={{ y: 0 }}
-        exit={{ y: '100%' }}
-        transition={{ type: 'spring', stiffness: 360, damping: 36 }}
-      >
-        <div className="sheet-grip" />
-        <div className="sheet-header">
-          <h2>Your saved meals</h2>
-          <button type="button" className="icon-btn" onClick={onClose} aria-label="Close">
-            <IconClose size={20} />
-          </button>
-        </div>
-        <SavedMeals onGoChat={onGoChat} />
-      </motion.div>
     </div>
   )
 }

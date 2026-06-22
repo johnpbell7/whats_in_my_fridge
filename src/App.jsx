@@ -31,6 +31,9 @@ import Toast from './components/Toast.jsx'
 import UpgradeGate from './components/UpgradeGate.jsx'
 import Showreel from './components/Showreel.jsx'
 import DinnerSnap from './components/DinnerSnap.jsx'
+import Dashboard from './components/Dashboard.jsx'
+import AppHeader from './components/AppHeader.jsx'
+import SavedSheet from './components/SavedSheet.jsx'
 import LockedFeature from './components/LockedFeature.jsx'
 import Nav from './components/Nav.jsx'
 import Splash from './components/Splash.jsx'
@@ -47,8 +50,8 @@ export default function App() {
   // account gets the walkthrough/prompts again, even on a browser that's seen
   // them), or 'local' in open mode.
   const userId = authEnabled ? session?.user?.id || null : 'local'
-  // "Tonight" (the photo → dinner lead) is the front door now.
-  const [tab, setTab] = useState('dinner')
+  // The Home dashboard is the front door; it launches into each feature.
+  const [tab, setTab] = useState('home')
   // Pulse the Shopping tab when an item is added from elsewhere, so the user
   // knows where it went. We bump our own counter only for adds that happen
   // while another tab is showing (no point pulsing the tab you're looking at).
@@ -82,6 +85,7 @@ export default function App() {
   // null = closed; 'new' = blank add form; object = editing that item
   const [editing, setEditing] = useState(null)
   const [account, setAccount] = useState(false)
+  const [savedSheet, setSavedSheet] = useState(false)
   const [installGuide, setInstallGuide] = useState(false)
   const [help, setHelp] = useState(false)
   const [report, setReport] = useState(false)
@@ -298,70 +302,111 @@ export default function App() {
     // Walkthrough — shown once per account, right after sign-in, before the app.
     content = <Onboarding onDone={finishOnboarding} onNeverShow={finishOnboarding} />
   } else {
+    const activeCountNow = items.filter((i) => i.status === 'active').length
+    const lockedKeys = plus ? [] : ['scan', 'inventory', 'shopping']
+    const openFeature = (key) => {
+      if (key === 'saved') setSavedSheet(true)
+      else setTab(key)
+    }
     content = (
     <div className="app">
-      {/* Tonight — the photo → dinner lead. Free + the hero of the app. */}
-      {tab === 'dinner' && (
-        <DinnerSnap
-          userId={userId}
-          plus={plus}
+      {/* Home dashboard — the front door. No footer nav shows here. */}
+      {tab === 'home' && (
+        <Dashboard
+          onOpen={openFeature}
+          lockedKeys={lockedKeys}
+          onHelp={openHelp}
+          helpBadge={helpUnseen}
           onAccount={authEnabled ? () => setAccount(true) : null}
-          onGoChat={() => setTab('chat')}
+          plus={plus}
+          trialDaysLeft={meState.trial ? meState.trialDaysLeft : null}
         />
       )}
 
-      {/* My food — Plus. Free users see the upsell instead. */}
-      {tab === 'inventory' &&
-        (plus ? (
-          <InventoryScreen
-            items={items}
-            onEdit={(item) => setEditing(item)}
-            onAddManual={() => setEditing('new')}
-            onGoScan={() => setTab('scan')}
-            onGoChat={() => setTab('chat')}
-            onAccount={authEnabled ? () => setAccount(true) : null}
+      {/* Every feature screen gets the standard header (home + brand + help +
+          account) and the footer nav. */}
+      {tab !== 'home' && (
+        <>
+          <AppHeader
+            onHome={() => setTab('home')}
             onHelp={openHelp}
             helpBadge={helpUnseen}
+            onAccount={authEnabled ? () => setAccount(true) : null}
+            count={tab === 'inventory' && plus ? activeCountNow : null}
           />
-        ) : (
-          <LockedFeature kind="fridge" headerTitle="My food" />
-        ))}
 
-      {/* Scan feeds the tracked fridge, so it's Plus too. */}
-      {tab === 'scan' &&
-        (plus ? (
-          <ScanScreen onDone={() => setTab('inventory')} onAddManual={() => setEditing('new')} />
-        ) : (
-          <LockedFeature kind="fridge" headerTitle="Scan" />
-        ))}
+          {/* Tonight — the photo → dinner lead. Free + the hero of the app. */}
+          {tab === 'dinner' && (
+            <DinnerSnap
+              userId={userId}
+              onAccount={authEnabled ? () => setAccount(true) : null}
+              onGoChat={() => setTab('chat')}
+            />
+          )}
 
-      {/* Ask — free (it's the same meal magic as Tonight). */}
-      {tab === 'chat' && (
-        <ChatScreen
-          items={items}
-          onGoScan={() => setTab('scan')}
-          onAddManual={() => setEditing('new')}
-          onAccount={authEnabled ? () => setAccount(true) : null}
-        />
+          {/* My food — Plus. Free users see the upsell instead. */}
+          {tab === 'inventory' &&
+            (plus ? (
+              <InventoryScreen
+                items={items}
+                onEdit={(item) => setEditing(item)}
+                onAddManual={() => setEditing('new')}
+                onGoScan={() => setTab('scan')}
+                onGoChat={() => setTab('chat')}
+              />
+            ) : (
+              <LockedFeature kind="fridge" headerTitle="My food" />
+            ))}
+
+          {/* Scan feeds the tracked fridge, so it's Plus too. */}
+          {tab === 'scan' &&
+            (plus ? (
+              <ScanScreen onDone={() => setTab('inventory')} onAddManual={() => setEditing('new')} />
+            ) : (
+              <LockedFeature kind="fridge" headerTitle="Scan" />
+            ))}
+
+          {/* Ask — free (it's the same meal magic as Tonight). */}
+          {tab === 'chat' && (
+            <ChatScreen
+              items={items}
+              onGoScan={() => setTab('scan')}
+              onAddManual={() => setEditing('new')}
+              onAccount={authEnabled ? () => setAccount(true) : null}
+            />
+          )}
+
+          {/* My list — Plus. */}
+          {tab === 'shopping' &&
+            (plus ? <ShoppingScreen list={list} items={items} /> : <LockedFeature kind="list" headerTitle="My list" />)}
+
+          {tab === 'inventory' && plus && (
+            <button className="fab" onClick={() => setEditing('new')} aria-label="Add an item by hand">
+              <IconPlus size={26} />
+            </button>
+          )}
+
+          <Nav
+            tab={tab}
+            onChange={setTab}
+            pulseTab={pulse.tab}
+            pulseAt={pulse.n}
+            lockedKeys={lockedKeys}
+          />
+        </>
       )}
 
-      {/* My list — Plus. */}
-      {tab === 'shopping' &&
-        (plus ? <ShoppingScreen list={list} items={items} /> : <LockedFeature kind="list" headerTitle="My list" />)}
-
-      {tab === 'inventory' && plus && (
-        <button className="fab" onClick={() => setEditing('new')} aria-label="Add an item by hand">
-          <IconPlus size={26} />
-        </button>
-      )}
-
-      <Nav
-        tab={tab}
-        onChange={setTab}
-        pulseTab={pulse.tab}
-        pulseAt={pulse.n}
-        lockedKeys={plus ? [] : ['scan', 'inventory', 'shopping']}
-      />
+      <AnimatePresence>
+        {savedSheet && (
+          <SavedSheet
+            onClose={() => setSavedSheet(false)}
+            onGoChat={() => {
+              setSavedSheet(false)
+              setTab('chat')
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {editing && (

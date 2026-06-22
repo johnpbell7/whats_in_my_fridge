@@ -127,6 +127,46 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   color: var(--ink-soft);
   font-size: 14px;
 }
+
+/* ----- Standard top bar (AppHeader) — on the dashboard + every feature screen ----- */
+.std-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding-top: 14px; margin-bottom: 16px; min-height: 40px;
+}
+.header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.std-brand { display: flex; flex-direction: column; line-height: 1; text-align: left; }
+.std-brand-sm { font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 12px; color: var(--ink-soft); }
+.std-brand-lg { font-family: var(--font-display); font-weight: 600; font-size: 21px; letter-spacing: -0.02em; color: var(--accent); display: inline-flex; align-items: baseline; }
+.std-brand-lg .leaf { color: var(--leaf); width: 0.46em; height: auto; margin-left: 0.06em; transform: translateY(0.02em) rotate(-14deg); }
+
+/* ----- Home dashboard ----- */
+.dash-banner {
+  display: flex; align-items: center; gap: 13px;
+  background: linear-gradient(120deg, var(--accent), var(--accent-press));
+  color: var(--on-accent); border-radius: var(--r-lg); padding: 16px 18px; margin-bottom: 22px; min-height: 66px;
+}
+.dash-banner > svg { flex: none; opacity: 0.92; }
+.dash-banner-text { display: flex; flex-direction: column; gap: 3px; }
+.dash-banner-text strong { font-family: var(--font-display); font-weight: 600; font-size: 16.5px; }
+.dash-banner-text span { font-size: 13px; opacity: 0.92; }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.dash-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 5px; text-align: left; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: 17px 16px; min-height: 118px; box-shadow: 0 10px 24px -20px rgba(0,0,0,0.4);
+}
+.dash-card:active { transform: scale(0.98); }
+.dash-card.locked { opacity: 0.7; }
+.dash-ico {
+  position: relative; width: 46px; height: 46px; border-radius: 14px; margin-bottom: 5px;
+  background: var(--accent-soft); color: var(--accent); display: grid; place-items: center;
+}
+.dash-plus {
+  position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--accent); color: var(--on-accent); display: grid; place-items: center; box-shadow: 0 0 0 2px var(--surface);
+}
+.dash-label { font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+.dash-sub { font-size: 12.5px; color: var(--ink-soft); }
 .count-pill {
   font-size: 13px;
   font-weight: 600;
