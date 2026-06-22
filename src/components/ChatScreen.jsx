@@ -62,6 +62,9 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
   // Once they've done that (refined=true), the normal refine chips take over.
   const [picked, setPicked] = useState([])
   const [refined, setRefined] = useState(false)
+  // Tapping the "use up soon" nudge opens this picker FIRST (no AI call) so you
+  // can choose which expiring items to cook with before spending a credit.
+  const [picking, setPicking] = useState(false)
   const logRef = useRef(null)
   const coachStep = useCoachStep()
 
@@ -177,6 +180,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
     setDinnerMode(true)
     setRefined(true)
     setPicked([])
+    setPicking(false)
     setBusy(true)
     try {
       const req = `Suggest meals that use up these items that are going off soon: ${label}. Prioritise using all of them together where possible.`
@@ -286,17 +290,55 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
       )}
 
       <div className="chat">
-        {urgent.length > 0 && !busy && !dinnerMode && (
+        {urgent.length > 0 && !busy && !dinnerMode && !picking && (
           <button
             className="chat-nudge"
-            onClick={() => askDinner('What can I make using the things expiring soonest?')}
+            onClick={() => {
+              setPicked([])
+              setPicking(true)
+            }}
           >
             <IconWarning size={17} />
             <span>
-              <strong>{urgent.length} {urgent.length === 1 ? 'item' : 'items'}</strong> to use up soon — get meal ideas
+              <strong>{urgent.length} {urgent.length === 1 ? 'item' : 'items'}</strong> to use up soon — pick what to cook with
             </span>
             <IconChevron size={16} />
           </button>
+        )}
+
+        {/* Pick which expiring items to cook with BEFORE the AI runs, so you can
+            refine the request first rather than spending a credit blind. */}
+        {picking && !busy && (
+          <div className="suggest-row refine-row expiring-pick">
+            <span className="expiring-pick-label">Going off soon — pick what you want to cook with:</span>
+            <div className="expiring-chips">
+              {urgentPick.map((it) => {
+                const on = picked.includes(it.name)
+                return (
+                  <button
+                    key={it.id}
+                    type="button"
+                    className={`exp-chip ${on ? 'on' : ''}`}
+                    aria-pressed={on}
+                    onClick={() => togglePick(it.name)}
+                  >
+                    {on && <IconCheck size={12} />} {it.name}
+                  </button>
+                )
+              })}
+            </div>
+            <div className="expiring-actions">
+              <button className="exp-go" disabled={!picked.length} onClick={() => askDinnerWithItems(picked)}>
+                {picked.length ? `Use ${picked.length} → get recipes` : 'Pick items, then get recipes'}
+              </button>
+              <button className="refine-exit" onClick={() => askDinnerWithItems(urgentPick.map((i) => i.name))}>
+                Use them all
+              </button>
+              <button className="refine-exit" onClick={() => setPicking(false)}>
+                <IconClose size={13} /> Cancel
+              </button>
+            </div>
+          </div>
         )}
 
         <div className="chat-log" ref={logRef}>
@@ -353,7 +395,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
           )}
         </div>
 
-        {messages.length === 0 && (
+        {messages.length === 0 && !picking && (
           <div className="suggest-row">
             {SUGGESTIONS.map((s) => (
               <button key={s.label} onClick={() => (s.dish ? startDish() : startDinner(s.prompt || undefined))}>
