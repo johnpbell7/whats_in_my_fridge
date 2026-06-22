@@ -136,8 +136,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .std-brand { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; text-align: left;
   background: none; border: 0; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .std-brand:active { opacity: 0.7; }
-.std-brand-sm { font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 11.5px; color: var(--ink-soft); margin-bottom: -2px; }
-.std-brand-lg { font-family: var(--font-display); font-weight: 600; font-size: 25px; letter-spacing: -0.02em; color: var(--accent); display: inline-flex; align-items: baseline; }
+.std-brand-sm { font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 11px; color: var(--ink-soft); margin-bottom: -3px; }
+.std-brand-lg { font-family: var(--font-display); font-weight: 600; font-size: 30px; letter-spacing: -0.02em; color: var(--accent); display: inline-flex; align-items: baseline; }
 .std-brand-lg .leaf { color: var(--leaf); width: 0.46em; height: auto; margin-left: 0.06em; transform: translateY(0.02em) rotate(-14deg); }
 
 /* ----- Home dashboard ----- */
