@@ -1118,13 +1118,16 @@
         gsap.set(hp, { opacity: 0 }); gsap.set(dinner, { opacity: 1 }); gsap.set(dCam, { opacity: 1 });
         gsap.set(freeFlag, { opacity: 1 }); gsap.set(plusFlag, { opacity: 0 });
 
+        // immediateRender:false is essential — without it the fromTo "from"
+        // states (opacity:0) render at timeline-creation time and clobber the
+        // initial gsap.set above, leaving the lead panel/flag invisible (blank).
         const swap = (tl, from, to) => tl
           .to(from, { opacity: 0, duration: .45, ease: 'power2.in' })
-          .fromTo(to, { opacity: 0 }, { opacity: 1, duration: .45 }, '<.12');
+          .fromTo(to, { opacity: 0 }, { opacity: 1, duration: .45, immediateRender: false }, '<.12');
         // swap which feature flag is showing, with a little pop on the way in
         const flag = (tl, out, into, pop) => {
           tl.to(out, { opacity: 0, y: -6, duration: .3 })
-            .fromTo(into, { opacity: 0, y: 8, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: .42, ease: 'back.out(2)' }, '<.04');
+            .fromTo(into, { opacity: 0, y: 8, scale: .9 }, { opacity: 1, y: 0, scale: 1, duration: .42, ease: 'back.out(2)', immediateRender: false }, '<.04');
           if (pop) tl.to(into, { scale: 1.09, yoyo: true, repeat: 1, duration: .3, ease: 'sine.inOut' });
           return tl;
         };
