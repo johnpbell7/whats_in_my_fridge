@@ -290,12 +290,19 @@ export default function App() {
     // PROTOTYPE: the new lead flow, reached via ?dinner. Exiting strips the flag
     // and the query param, dropping back into the normal app.
     content = (
-      <DinnerSnap
-        onExit={() => {
-          setDinnerLab(false)
-          window.history.replaceState({}, document.title, window.location.pathname)
-        }}
-      />
+      <div className="app">
+        <DinnerSnap
+          onExit={() => {
+            setDinnerLab(false)
+            window.history.replaceState({}, document.title, window.location.pathname)
+          }}
+        />
+        {/* Same paywall + toast the rest of the app uses — without these mounted,
+            hitting the AI cap calls upgrade.show() with nothing to render it, so
+            the screen silently bounced back. */}
+        <Toast />
+        <UpgradeGate />
+      </div>
     )
   } else {
     content = (
