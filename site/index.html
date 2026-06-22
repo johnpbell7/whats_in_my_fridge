@@ -1040,22 +1040,6 @@
     document.addEventListener('DOMContentLoaded', () => {
       if (!window.gsap) return;
 
-      // Reduced motion (incl. Android battery-saver, which can force it): skip
-      // the looping animation, but POSE a clean static hero so the phone screen
-      // is never left blank — show the dinner panel with its meal ideas.
-      if (reduce) {
-        const hpr = gsap.utils.toArray('#heroScreen .hpanel');
-        if (hpr.length) {
-          gsap.set(hpr, { opacity: 0 });
-          gsap.set(hpr[0], { opacity: 1 });
-          gsap.set(hpr[0].querySelector('[data-camd]'), { opacity: 0 });
-          gsap.set(hpr[0].querySelectorAll('.meal'), { opacity: 1, y: 0 });
-        }
-        gsap.set('[data-ff-free]', { opacity: 1 });
-        gsap.set('[data-ff-plus]', { opacity: 0 });
-        return;
-      }
-
       gsap.registerPlugin(ScrollTrigger);
       // a timeline that plays in and rewinds when it leaves the viewport
       const live = (trigger, start = 'top 72%') => gsap.timeline({
