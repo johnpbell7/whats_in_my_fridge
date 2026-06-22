@@ -30,6 +30,18 @@ export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, 
               ? `${trialDaysLeft} ${trialDaysLeft === 1 ? 'day' : 'days'} left on your trial`
               : 'Track your fridge, scan your shopping & more'}
           </span>
+          {onTrial && (
+            <div
+              className="dash-trial-bar"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={14}
+              aria-valuenow={trialDaysLeft}
+              aria-label="Days left on your free trial"
+            >
+              <span style={{ width: `${Math.max(5, Math.min(100, (trialDaysLeft / 14) * 100))}%` }} />
+            </div>
+          )}
         </div>
       </div>
 
