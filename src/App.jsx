@@ -29,6 +29,7 @@ import { hasUnseen, markSeen } from './lib/whatsnew.js'
 import Toast from './components/Toast.jsx'
 import UpgradeGate from './components/UpgradeGate.jsx'
 import Showreel from './components/Showreel.jsx'
+import DinnerSnap from './components/DinnerSnap.jsx'
 import Nav from './components/Nav.jsx'
 import Splash from './components/Splash.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
@@ -69,6 +70,16 @@ export default function App() {
   const [report, setReport] = useState(false)
   const [helpUnseen, setHelpUnseen] = useState(() => hasUnseen())
   const [booting, setBooting] = useState(true)
+  // PROTOTYPE flag: ?dinner opens the proposed new "What's for dinner?" lead
+  // flow in place of the normal app (still behind the auth gate, so the AI
+  // works). Isolated — nothing else in the app is changed by it yet.
+  const [dinnerLab, setDinnerLab] = useState(() => {
+    try {
+      return new URLSearchParams(window.location.search).has('dinner')
+    } catch {
+      return false
+    }
+  })
 
   function openHelp() {
     markSeen()
@@ -109,13 +120,14 @@ export default function App() {
   const routedToScan = useRef(false)
   useEffect(() => {
     if (routedToScan.current) return
+    if (dinnerLab) return
     if (!onboarded) return
     if (authEnabled && (authLoading || !session)) return
     if (coachStep === 'scan' && activeCount === 0) {
       routedToScan.current = true
       setTab('scan')
     }
-  }, [onboarded, authEnabled, authLoading, session, coachStep, activeCount])
+  }, [onboarded, authEnabled, authLoading, session, coachStep, activeCount, dinnerLab])
 
   // Auto-advance past "scan" the instant they've actually added something — the
   // rest of the tips key off their real items, so this hands over to "organise".
@@ -274,6 +286,17 @@ export default function App() {
     // Account gate: when accounts are switched on and nobody is signed in, the
     // login screen stands in for the whole app. (Open mode skips this entirely.)
     content = <AuthScreen />
+  } else if (dinnerLab) {
+    // PROTOTYPE: the new lead flow, reached via ?dinner. Exiting strips the flag
+    // and the query param, dropping back into the normal app.
+    content = (
+      <DinnerSnap
+        onExit={() => {
+          setDinnerLab(false)
+          window.history.replaceState({}, document.title, window.location.pathname)
+        }}
+      />
+    )
   } else {
     content = (
     <div className="app">
