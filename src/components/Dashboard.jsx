@@ -14,7 +14,7 @@ const FEATURES = [
   { key: 'shopping', label: 'List', sub: 'Smart shopping list', Icon: IconCart }
 ]
 
-export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, onAccount, plus, trial, trialDaysLeft }) {
+export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, onAccount, onReplay, plus, trial, trialDaysLeft }) {
   const locked = new Set(lockedKeys)
   // Three banner states: on trial (countdown), paying (thanks), or free (upsell).
   const onTrial = trial && typeof trialDaysLeft === 'number'
@@ -85,6 +85,12 @@ export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, 
           )
         })}
       </div>
+
+      {onReplay && (
+        <button type="button" className="dash-replay" onClick={onReplay}>
+          <IconSparkle size={14} /> Replay the walkthrough
+        </button>
+      )}
       </div>
     </div>
   )

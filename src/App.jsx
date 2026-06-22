@@ -109,6 +109,13 @@ export default function App() {
     firstrun.markSeen('fridge.onboarding.hide', userId)
     setOnboardBump((n) => n + 1)
   }
+  // Re-show the walkthrough (from Help, or the dashboard button).
+  function replayWalkthrough() {
+    firstrun.clearSeen('fridge.onboarding.hide', userId)
+    setOnboardBump((n) => n + 1)
+  }
+  // referenced so the bump state isn't flagged unused; reads trigger re-render
+  void onboardBump
 
   // Load saved inventory + shopping list from durable storage on launch.
   useEffect(() => {
@@ -318,6 +325,7 @@ export default function App() {
           onHelp={openHelp}
           helpBadge={helpUnseen}
           onAccount={authEnabled ? () => setAccount(true) : null}
+          onReplay={replayWalkthrough}
           plus={plus}
           trial={meState.trial}
           trialDaysLeft={meState.trialDaysLeft}
@@ -453,7 +461,7 @@ export default function App() {
         {help && (
           <HelpSheet
             onClose={() => setHelp(false)}
-            onReplay={() => { setHelp(false); setOnboarded(false) }}
+            onReplay={() => { setHelp(false); replayWalkthrough() }}
             onInstall={() => { setHelp(false); setInstallGuide(true) }}
             onReport={() => { setHelp(false); setReport(true) }}
           />
