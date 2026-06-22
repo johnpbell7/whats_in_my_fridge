@@ -13,11 +13,12 @@ const BENEFITS = [
 ]
 
 const REASON_HEAD = {
-  scans: "You've used this month's free scans",
-  chat: "You've used this month's free chat",
+  scans: "That's your free dinners for this month — go unlimited with Plus",
+  chat: "That's this month's free questions — unlimited with Plus",
   rate: "Whoa, speedy — that's today's limit",
-  trial_ended: 'Your free trial has ended — keep your Plus',
-  list: 'Save it to your shopping list with Plus',
+  trial_ending: 'Your trial ends tomorrow — keep your fridge, list & saved meals',
+  trial_ended: 'Your fridge, list & saved meals are locked — pick up where you left off',
+  list: 'Keep your shopping list with Plus',
   fridge: 'Track your fridge with Plus',
   account: ''
 }
@@ -82,7 +83,7 @@ export default function UpgradeSheet({ onClose, reason = '' }) {
           <IconSparkle size={22} />
         </div>
         {contextHead && <p className="upgrade-context">{contextHead}</p>}
-        <p className="upgrade-tagline">Unlock the full app and keep scanning, chatting and tracking with room to spare.</p>
+        <p className="upgrade-tagline">Unlock the full app — your fridge, your list, unlimited dinners and more.</p>
 
         <ul className="upgrade-benefits">
           {BENEFITS.map((b) => (

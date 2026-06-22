@@ -6,7 +6,7 @@ import { shopping } from './lib/shopping.js'
 import { useAuth } from './lib/useAuth.js'
 import { store, initStore } from './lib/store.js'
 import { coach, useCoachStep } from './lib/coach.js'
-import { me, useIsPlus } from './lib/me.js'
+import { me, useIsPlus, useMe } from './lib/me.js'
 import { initShopping } from './lib/shopping.js'
 import { initStaplePrefs } from './lib/staples.js'
 import { startSync, stopSync } from './lib/cloud.js'
@@ -69,6 +69,7 @@ export default function App() {
   // Staging preview: ?free shows the post-trial free experience, ?plus the full
   // app — so you can see exactly what a user gets in either state without waiting
   // out a real trial.
+  const meState = useMe()
   const plusReal = useIsPlus()
   const previewParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
   const plus = previewParams?.has('free') ? false : previewParams?.has('plus') ? true : plusReal
@@ -211,6 +212,22 @@ export default function App() {
     const t = setTimeout(() => setInstallGuide(true), 1200)
     return () => clearTimeout(t)
   }, [onboarded, authEnabled, authLoading, session])
+
+  // Loss-framed "trial ends tomorrow" nudge: on the last day of the trial, once,
+  // remind them exactly what's about to lock (fridge, list, saved meals) so they
+  // upgrade while they still have it — loss aversion converts harder than "ended".
+  useEffect(() => {
+    if (!meState.loaded || !meState.trial) return
+    if (meState.trialDaysLeft > 1) return
+    try {
+      if (localStorage.getItem('fridge.trialEnding.shown') === '1') return
+      localStorage.setItem('fridge.trialEnding.shown', '1')
+    } catch {
+      return
+    }
+    const t = setTimeout(() => upgrade.show('trial_ending'), 900)
+    return () => clearTimeout(t)
+  }, [meState.loaded, meState.trial, meState.trialDaysLeft])
 
   // One-time "your free trial has ended" nudge: the first time a lapsed user
   // (now on Free, no longer trialling or paying) opens the app, open the Plus
