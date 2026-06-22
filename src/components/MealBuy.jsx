@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { shopping } from '../lib/shopping.js'
+import { useIsPlus } from '../lib/me.js'
+import { upgrade } from '../lib/upgrade.js'
 import { IconPlus, IconCheck, IconCart } from '../icons.jsx'
 
 // The "To buy" row for a meal: tap a single ingredient, or "Add all". Adding
@@ -11,13 +13,18 @@ export default function MealBuy({ items = [] }) {
     .map((it) => (typeof it === 'string' ? { name: it } : it))
     .filter((it) => it && it.name)
   const [added, setAdded] = useState(() => new Set())
+  const isPlus = useIsPlus()
   if (!norm.length) return null
 
+  // Free users can SEE what to buy (it's part of the answer) but saving it to a
+  // managed shopping list is the Plus upsell — fired at this high-intent moment.
   const addOne = (name) => {
+    if (!isPlus) return upgrade.show('list')
     shopping.addUnique(name)
     setAdded((s) => new Set(s).add(name))
   }
   const addAll = () => {
+    if (!isPlus) return upgrade.show('list')
     norm.forEach((b) => shopping.addUnique(b.name))
     setAdded(new Set(norm.map((b) => b.name)))
   }

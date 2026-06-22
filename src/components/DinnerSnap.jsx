@@ -6,8 +6,9 @@ import { upgrade } from '../lib/upgrade.js'
 import { staplePrefs } from '../lib/staples.js'
 import { hasDiet, DIET_OPTIONS, AVOID_OPTIONS } from '../lib/diet.js'
 import { savedMeals } from '../lib/meals.js'
+import { useIsPlus } from '../lib/me.js'
 import MealBuy from './MealBuy.jsx'
-import { IconCamera, IconSparkle, IconChevron, IconClock, IconClose, IconWarning, IconBookmark, IconCheck } from '../icons.jsx'
+import { IconCamera, IconSparkle, IconChevron, IconClock, IconClose, IconWarning, IconBookmark, IconCheck, IconUser } from '../icons.jsx'
 
 // PROTOTYPE — the proposed new lead flow. Snap the food that's about to go off →
 // straight to the meal engine (diet auto-applied via suggestMeals) → "here's
@@ -30,7 +31,7 @@ function dietSummary() {
   return parts.join(' · ') || null
 }
 
-export default function DinnerSnap({ onExit }) {
+export default function DinnerSnap({ onExit, onAccount }) {
   const [phase, setPhase] = useState('idle') // idle | reading | pick | cooking | results | error
   const [preview, setPreview] = useState(null)
   const [items, setItems] = useState([])
@@ -106,9 +107,11 @@ export default function DinnerSnap({ onExit }) {
   return (
     <div className="screen">
       <header className="app-header">
-        <button className="account-btn" onClick={onExit} aria-label="Back to the app">
-          <IconChevron size={18} style={{ transform: 'rotate(180deg)' }} />
-        </button>
+        {onExit && (
+          <button className="account-btn" onClick={onExit} aria-label="Back to the app">
+            <IconChevron size={18} style={{ transform: 'rotate(180deg)' }} />
+          </button>
+        )}
         <div style={{ flex: 1 }}>
           <h1 className="app-title">What's for dinner?</h1>
           <p className="app-subtitle">
@@ -119,6 +122,11 @@ export default function DinnerSnap({ onExit }) {
                 : 'Snap what’s going off — I’ll do the thinking.'}
           </p>
         </div>
+        {onAccount && (
+          <button className="account-btn" onClick={onAccount} aria-label="Your account">
+            <IconUser size={18} />
+          </button>
+        )}
       </header>
 
       <input
@@ -244,18 +252,20 @@ export default function DinnerSnap({ onExit }) {
 }
 
 function ResultCard({ meal }) {
+  const isPlus = useIsPlus()
   const saved = useSyncExternalStore(
     savedMeals.subscribe,
     () => savedMeals.has(meal.name),
     () => savedMeals.has(meal.name)
   )
+  const onSave = () => (isPlus ? savedMeals.add(meal) : upgrade.show('list'))
   return (
     <div className="meal-card">
       <div className="meal-head">
         <h4>{meal.name}</h4>
         <button
           className={`meal-save ${saved ? 'on' : ''}`}
-          onClick={() => savedMeals.add(meal)}
+          onClick={onSave}
           disabled={saved}
           aria-pressed={saved}
         >

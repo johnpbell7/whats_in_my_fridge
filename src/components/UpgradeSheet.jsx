@@ -6,11 +6,10 @@ import { track } from '../lib/analytics.js'
 import { IconClose, IconCheck, IconSparkle } from '../icons.jsx'
 
 const BENEFITS = [
-  // Keep these in sync with TIERS in server/auth.js
-  'Photo & receipt scans — 60 a month (Free gives 10)',
-  'Chat questions — 200 a month (Free gives 30)',
-  'Sharper AI recognition for trickier photos',
-  'Everything else stays, with no limits to think about'
+  'Your shopping list — save it, tick it off, restock your fridge in a tap',
+  'Track your whole fridge — never double-buy or bin food again',
+  'Unlimited dinners from a photo + sharper AI recognition',
+  'Save your favourite meals and your essentials'
 ]
 
 const REASON_HEAD = {
@@ -18,6 +17,8 @@ const REASON_HEAD = {
   chat: "You've used this month's free chat",
   rate: "Whoa, speedy — that's today's limit",
   trial_ended: 'Your free trial has ended — keep your Plus',
+  list: 'Save it to your shopping list with Plus',
+  fridge: 'Track your fridge with Plus',
   account: ''
 }
 

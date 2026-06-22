@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { IconFridge, IconCamera, IconChat, IconCart } from '../icons.jsx'
+import { IconFridge, IconCamera, IconChat, IconCart, IconSparkle } from '../icons.jsx'
 
 const TABS = [
-  { key: 'inventory', label: 'My food', Icon: IconFridge },
-  { key: 'shopping', label: 'My list', Icon: IconCart },
+  { key: 'dinner', label: 'Tonight', Icon: IconSparkle },
+  { key: 'chat', label: 'Ask', Icon: IconChat },
   { key: 'scan', label: 'Scan', Icon: IconCamera },
-  { key: 'chat', label: 'Chat', Icon: IconChat }
+  { key: 'inventory', label: 'My food', Icon: IconFridge },
+  { key: 'shopping', label: 'My list', Icon: IconCart }
 ]
 
 export default function Nav({ tab, onChange, pulseTab, pulseAt }) {

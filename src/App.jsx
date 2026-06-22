@@ -6,6 +6,7 @@ import { shopping } from './lib/shopping.js'
 import { useAuth } from './lib/useAuth.js'
 import { store, initStore } from './lib/store.js'
 import { coach, useCoachStep } from './lib/coach.js'
+import { me, useIsPlus } from './lib/me.js'
 import { initShopping } from './lib/shopping.js'
 import { initStaplePrefs } from './lib/staples.js'
 import { startSync, stopSync } from './lib/cloud.js'
@@ -30,6 +31,7 @@ import Toast from './components/Toast.jsx'
 import UpgradeGate from './components/UpgradeGate.jsx'
 import Showreel from './components/Showreel.jsx'
 import DinnerSnap from './components/DinnerSnap.jsx'
+import LockedFeature from './components/LockedFeature.jsx'
 import Nav from './components/Nav.jsx'
 import Splash from './components/Splash.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
@@ -39,7 +41,8 @@ export default function App() {
   const items = useItems()
   const list = useShopping()
   const { enabled: authEnabled, loading: authLoading, session } = useAuth()
-  const [tab, setTab] = useState('inventory')
+  // "Tonight" (the photo → dinner lead) is the front door now.
+  const [tab, setTab] = useState('dinner')
   // Pulse the Shopping tab when an item is added from elsewhere, so the user
   // knows where it went. We bump our own counter only for adds that happen
   // while another tab is showing (no point pulsing the tab you're looking at).
@@ -62,6 +65,8 @@ export default function App() {
   // slideshow). The current step drives which contextual tip a screen shows.
   const coachStep = useCoachStep()
   const activeCount = items.filter((i) => i.status === 'active').length
+  // Plus entitlement gate (shopping list + fridge tracking are paid).
+  const plus = useIsPlus()
   // null = closed; 'new' = blank add form; object = editing that item
   const [editing, setEditing] = useState(null)
   const [account, setAccount] = useState(false)
@@ -70,16 +75,6 @@ export default function App() {
   const [report, setReport] = useState(false)
   const [helpUnseen, setHelpUnseen] = useState(() => hasUnseen())
   const [booting, setBooting] = useState(true)
-  // PROTOTYPE flag: ?dinner opens the proposed new "What's for dinner?" lead
-  // flow in place of the normal app (still behind the auth gate, so the AI
-  // works). Isolated — nothing else in the app is changed by it yet.
-  const [dinnerLab, setDinnerLab] = useState(() => {
-    try {
-      return new URLSearchParams(window.location.search).has('dinner')
-    } catch {
-      return false
-    }
-  })
 
   function openHelp() {
     markSeen()
@@ -114,20 +109,16 @@ export default function App() {
     initStaplePrefs()
   }, [])
 
-  // Coach step 1 ("scan"): the moment a brand-new, empty fridge is ready, land
-  // them on the Scan screen so the very first thing they do is snap their own
-  // food. Once only — never yank them back if they navigate away themselves.
-  const routedToScan = useRef(false)
+  // Load Plus entitlements when the session is ready (and in open mode); clear
+  // them on sign-out. This is the source of truth for the paywall gates.
   useEffect(() => {
-    if (routedToScan.current) return
-    if (dinnerLab) return
-    if (!onboarded) return
-    if (authEnabled && (authLoading || !session)) return
-    if (coachStep === 'scan' && activeCount === 0) {
-      routedToScan.current = true
-      setTab('scan')
+    if (authEnabled && authLoading) return
+    if (authEnabled && !session) {
+      me.clear()
+      return
     }
-  }, [onboarded, authEnabled, authLoading, session, coachStep, activeCount, dinnerLab])
+    me.load()
+  }, [authEnabled, authLoading, session?.user?.id])
 
   // Auto-advance past "scan" the instant they've actually added something — the
   // rest of the tips key off their real items, so this hands over to "organise".
@@ -181,6 +172,7 @@ export default function App() {
       confirmCheckout(params.get('session_id'))
         .then(() => {
           track('subscribed') // conversion: a paid Plus subscription completed
+          me.load() // unlock the list + fridge tabs straight away
           toast.show('Welcome to Plus — thank you! 💚', 3000)
         })
         .catch(() => toast.show('Payment received — it may take a moment to show.', 3000))
@@ -205,9 +197,6 @@ export default function App() {
   useEffect(() => {
     if (!onboarded) return
     if (authEnabled && (authLoading || !session)) return
-    // Hold the install nudge until the first-run coach has finished, so a new
-    // user isn't hit with two prompts at once.
-    if (coachStep) return
     try {
       if (localStorage.getItem('fridge.install.hide') === '1') return
     } catch {
@@ -216,7 +205,7 @@ export default function App() {
     if (!isMobile() || isStandalone()) return
     const t = setTimeout(() => setInstallGuide(true), 1200)
     return () => clearTimeout(t)
-  }, [onboarded, authEnabled, authLoading, session, coachStep])
+  }, [onboarded, authEnabled, authLoading, session])
 
   // One-time "your free trial has ended" nudge: the first time a lapsed user
   // (now on Free, no longer trialling or paying) opens the app, open the Plus
@@ -286,45 +275,38 @@ export default function App() {
     // Account gate: when accounts are switched on and nobody is signed in, the
     // login screen stands in for the whole app. (Open mode skips this entirely.)
     content = <AuthScreen />
-  } else if (dinnerLab) {
-    // PROTOTYPE: the new lead flow, reached via ?dinner. Exiting strips the flag
-    // and the query param, dropping back into the normal app.
-    content = (
-      <div className="app">
-        <DinnerSnap
-          onExit={() => {
-            setDinnerLab(false)
-            window.history.replaceState({}, document.title, window.location.pathname)
-          }}
-        />
-        {/* Same paywall + toast the rest of the app uses — without these mounted,
-            hitting the AI cap calls upgrade.show() with nothing to render it, so
-            the screen silently bounced back. */}
-        <Toast />
-        <UpgradeGate />
-      </div>
-    )
   } else {
     content = (
     <div className="app">
-      {tab === 'inventory' && (
-        <InventoryScreen
-          items={items}
-          onEdit={(item) => setEditing(item)}
-          onAddManual={() => setEditing('new')}
-          onGoScan={() => setTab('scan')}
-          onGoChat={() => setTab('chat')}
-          onAccount={authEnabled ? () => setAccount(true) : null}
-          onHelp={openHelp}
-          helpBadge={helpUnseen}
-        />
-      )}
-      {tab === 'scan' && (
-        <ScanScreen
-          onDone={() => setTab('inventory')}
-          onAddManual={() => setEditing('new')}
-        />
-      )}
+      {/* Tonight — the photo → dinner lead. Free + the hero of the app. */}
+      {tab === 'dinner' && <DinnerSnap onAccount={authEnabled ? () => setAccount(true) : null} />}
+
+      {/* My food — Plus. Free users see the upsell instead. */}
+      {tab === 'inventory' &&
+        (plus ? (
+          <InventoryScreen
+            items={items}
+            onEdit={(item) => setEditing(item)}
+            onAddManual={() => setEditing('new')}
+            onGoScan={() => setTab('scan')}
+            onGoChat={() => setTab('chat')}
+            onAccount={authEnabled ? () => setAccount(true) : null}
+            onHelp={openHelp}
+            helpBadge={helpUnseen}
+          />
+        ) : (
+          <LockedFeature kind="fridge" headerTitle="My food" />
+        ))}
+
+      {/* Scan feeds the tracked fridge, so it's Plus too. */}
+      {tab === 'scan' &&
+        (plus ? (
+          <ScanScreen onDone={() => setTab('inventory')} onAddManual={() => setEditing('new')} />
+        ) : (
+          <LockedFeature kind="fridge" headerTitle="Scan" />
+        ))}
+
+      {/* Ask — free (it's the same meal magic as Tonight). */}
       {tab === 'chat' && (
         <ChatScreen
           items={items}
@@ -333,9 +315,12 @@ export default function App() {
           onAccount={authEnabled ? () => setAccount(true) : null}
         />
       )}
-      {tab === 'shopping' && <ShoppingScreen list={list} items={items} />}
 
-      {tab === 'inventory' && (
+      {/* My list — Plus. */}
+      {tab === 'shopping' &&
+        (plus ? <ShoppingScreen list={list} items={items} /> : <LockedFeature kind="list" headerTitle="My list" />)}
+
+      {tab === 'inventory' && plus && (
         <button className="fab" onClick={() => setEditing('new')} aria-label="Add an item by hand">
           <IconPlus size={26} />
         </button>
