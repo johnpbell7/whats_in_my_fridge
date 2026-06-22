@@ -17,9 +17,10 @@ export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, 
   const locked = new Set(lockedKeys)
   const onTrial = plus && typeof trialDaysLeft === 'number'
   return (
-    <div className="screen dashboard">
+    <div className="dashboard">
       <AppHeader onHelp={onHelp} helpBadge={helpBadge} onAccount={onAccount} />
 
+      <div className="dash-body">
       {/* Slim banner slot — a promo image can be dropped in via .dash-banner. */}
       <div className="dash-banner" role="note">
         <IconSparkle size={20} />
@@ -68,6 +69,7 @@ export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, 
             </button>
           )
         })}
+      </div>
       </div>
     </div>
   )

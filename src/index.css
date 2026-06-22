@@ -139,7 +139,10 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .std-brand-lg .leaf { color: var(--leaf); width: 0.46em; height: auto; margin-left: 0.06em; transform: translateY(0.02em) rotate(-14deg); }
 
 /* ----- Home dashboard ----- */
-.dashboard { padding-top: 0; } /* the AppHeader inside handles the safe-area top */
+/* No .screen padding here: the AppHeader spans full width (its own side padding
+   matches the feature screens), and .dash-body pads the banner + grid. */
+.dashboard { flex: 1; display: flex; flex-direction: column; }
+.dash-body { padding: 6px 18px calc(env(safe-area-inset-bottom) + 28px); }
 .dash-banner {
   display: flex; align-items: center; gap: 13px;
   background: linear-gradient(120deg, var(--accent), var(--accent-press));
