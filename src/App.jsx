@@ -66,7 +66,12 @@ export default function App() {
   const coachStep = useCoachStep()
   const activeCount = items.filter((i) => i.status === 'active').length
   // Plus entitlement gate (shopping list + fridge tracking are paid).
-  const plus = useIsPlus()
+  // Staging preview: ?free shows the post-trial free experience, ?plus the full
+  // app — so you can see exactly what a user gets in either state without waiting
+  // out a real trial.
+  const plusReal = useIsPlus()
+  const previewParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
+  const plus = previewParams?.has('free') ? false : previewParams?.has('plus') ? true : plusReal
   // null = closed; 'new' = blank add form; object = editing that item
   const [editing, setEditing] = useState(null)
   const [account, setAccount] = useState(false)

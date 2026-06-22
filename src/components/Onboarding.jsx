@@ -10,51 +10,47 @@ import {
 
 const SLIDES = [
   {
-    key: 'know',
-    Icon: IconFridge,
-    title: "Never wonder what's in your fridge",
-    body:
-      "Your fridge, freezer and pantry — all in one place, always up to date. No more standing in the shop trying to remember if you've already got eggs.",
-    visual: <KnowVisual />
-  },
-  {
-    key: 'add',
+    key: 'dinner',
     Icon: IconCamera,
-    title: 'Just back from the shop?',
+    tag: 'Always free',
+    title: "Tonight's dinner, sorted",
     body:
-      'Lay your shopping out and snap it — or photograph the receipt — and it lists everything for you in seconds. Your fridge shelves work too, or add by hand.',
-    visual: <AddVisual />
+      'Snap whatever you fancy cooking with — the veg, the meat, the bits in the fridge — and the AI turns it into real meal ideas, plus the few things you still need. This bit’s free, always.',
+    visual: <DinnerVisual />
   },
   {
-    key: 'fresh',
-    Icon: IconClock,
-    title: 'Use it before you lose it',
+    key: 'fridge',
+    Icon: IconFridge,
+    tag: 'Plus · free to try',
+    title: 'Track your whole fridge',
     body:
-      'Every item gets a use-by date, and whatever’s about to go off floats to the top — so good food stops ending up in the bin.',
+      'Keep a running list of what you’ve got so you never double-buy — and whatever’s about to go off floats to the top, so good food stops ending up in the bin.',
     visual: <FreshVisual />
+  },
+  {
+    key: 'list',
+    Icon: IconCart,
+    tag: 'Plus · free to try',
+    title: 'A list that refills your fridge',
+    body:
+      'Save what you need, tick it off at the shops, and watch it file straight back into your fridge — no re-typing.',
+    visual: <ShopVisual />
   },
   {
     key: 'staples',
     Icon: IconSparkle,
-    title: 'Never run out of the essentials',
+    tag: 'Plus · free to try',
+    title: 'Never run out of the usuals',
     body:
-      'It learns the essentials you always keep — milk, bread, butter — and flags them the moment you run low. Or pin your own.',
+      'It learns the essentials you always keep — milk, bread, butter — and flags them the moment you’re running low.',
     visual: <StaplesVisual />
-  },
-  {
-    key: 'shop',
-    Icon: IconCart,
-    title: 'List it, shop it, restock it',
-    body:
-      'Send what’s missing to your shopping list, tick it off as you buy, then pop it straight back in your fridge. Stuck for dinner? Ask what you can make.',
-    visual: <ShopVisual />
   },
   {
     key: 'trial',
     Icon: IconSparkle,
-    title: 'Your first week’s on us',
+    title: 'Try the whole app free for 14 days',
     body:
-      'Every new account gets 7 days of full Plus access — 60 photo scans and 200 chat questions a month. After that you stay on Free with 10 scans and 30 questions a month, unless you upgrade. Tap your account icon up top any time to see how many you’ve got left.',
+      'Everything’s on us for two weeks. After that, dinner-from-a-photo stays free — keep the fridge, the list and the rest with Plus for £3.99/month. No card needed to start.',
     visual: <TrialVisual />
   }
 ]
@@ -116,6 +112,7 @@ export default function Onboarding({ onDone, onNeverShow }) {
             <div className="onboard-badge">
               <slide.Icon size={20} />
             </div>
+            {slide.tag && <span className={`ob-tag ${slide.tag === 'Always free' ? 'free' : 'plus'}`}>{slide.tag}</span>}
             <h1 className="onboard-title">{slide.title}</h1>
             <p className="onboard-body">{slide.body}</p>
           </motion.div>
@@ -162,6 +159,23 @@ export function KnowVisual() {
           <span className="ob-line-meta">{r.where}</span>
         </div>
       ))}
+    </div>
+  )
+}
+
+function DinnerVisual() {
+  return (
+    <div className="ob-card">
+      <div className="ob-line">
+        <span className="ob-line-name">Tomato &amp; basil pasta</span>
+        <span className="ob-pill ob-pill-accent ob-pill-sm"><IconSparkle size={12} /> AI</span>
+      </div>
+      <div className="ob-line">
+        <span className="ob-line-meta">Uses your pasta, tomatoes &amp; garlic</span>
+      </div>
+      <div className="ob-line">
+        <span className="ob-line-name"><IconCart size={13} /> To buy: parmesan</span>
+      </div>
     </div>
   )
 }
@@ -223,15 +237,15 @@ function TrialVisual() {
   return (
     <div className="ob-card ob-staple">
       <div className="ob-staple-head">
-        <IconSparkle size={15} /> Plus trial — 7 days left
+        <IconSparkle size={15} /> Full app free — 14 days
       </div>
       <div className="ob-line">
-        <span className="ob-line-name">Photo scans</span>
-        <span className="ob-line-meta">60 a month</span>
+        <span className="ob-line-name">Dinner from a photo</span>
+        <span className="ob-line-meta">Free forever</span>
       </div>
       <div className="ob-line">
-        <span className="ob-line-name">Chat questions</span>
-        <span className="ob-line-meta">200 a month</span>
+        <span className="ob-line-name">Fridge, list &amp; more</span>
+        <span className="ob-line-meta">Plus · £3.99/mo</span>
       </div>
     </div>
   )

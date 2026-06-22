@@ -104,9 +104,11 @@ export function overQuotaResponse(kind, decision) {
   }
 }
 
-// Every new account gets a free taste of Plus for this many days, then drops to
-// Free — the trial is what makes losing it (back to manual entry) feel real.
-export const TRIAL_DAYS = 7
+// Every new account gets the FULL app free for this many days (treated as Plus
+// — all features unlocked), then drops to Free: the photo→dinner feature stays
+// free, the rest (fridge tracking, shopping list, scan) become Plus. Two weeks
+// ≈ two grocery cycles, long enough for the paid features to prove themselves.
+export const TRIAL_DAYS = 14
 
 // Within the trial, the first couple of days run photo scans on the sharper
 // (pricier) Sonnet model — that's when people actively try the app and form
