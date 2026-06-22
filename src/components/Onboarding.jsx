@@ -28,6 +28,15 @@ const SLIDES = [
     visual: <FreshVisual />
   },
   {
+    key: 'add',
+    Icon: IconReceipt,
+    tag: 'Plus · free to try',
+    title: 'Fill your fridge in seconds',
+    body:
+      'Just back from the shop? Lay it out and snap it — or photograph the receipt — and it lists everything in seconds, no typing. This is a paid Plus feature — yours free during the trial.',
+    visual: <AddVisual />
+  },
+  {
     key: 'list',
     Icon: IconCart,
     tag: 'Plus · free to try',
