@@ -24,19 +24,19 @@ const DotsGlyph = ({ size = 18 }) => (
 
 const GUIDE = {
   ios: {
-    label: 'iPhone / iPad',
-    note: 'Make sure you’re in Safari — not a browser inside another app.',
+    label: 'iPhone — Safari',
+    note: 'On iPhone & iPad this only works in Safari (Apple’s rule) — but only this once. After it’s on your home screen you open it from there, never from Safari again.',
     steps: [
-      <>Tap the <b>Share</b> button <span className="ig-inline"><ShareGlyph size={14} /></span> at the bottom of Safari.</>,
+      <>In <b>Safari</b>, tap the <b>Share</b> button <span className="ig-inline"><ShareGlyph size={14} /></span> at the bottom.</>,
       <>Scroll down and tap <b>Add to Home Screen</b>.</>,
       <>Tap <b>Add</b> — done. Open it from your home screen like any app.</>
     ]
   },
   android: {
-    label: 'Android',
-    note: 'Works in Chrome. Some phones say “Install app” instead.',
+    label: 'Android — Chrome',
+    note: 'For Google / Chrome on Android. Some phones say “Install app” instead.',
     steps: [
-      <>Tap the <b>⋮ menu</b> <span className="ig-inline"><DotsGlyph size={14} /></span> at the top-right of Chrome.</>,
+      <>In <b>Chrome</b>, tap the <b>⋮ menu</b> <span className="ig-inline"><DotsGlyph size={14} /></span> at the top-right.</>,
       <>Tap <b>Add to Home screen</b> (or <b>Install app</b>).</>,
       <>Tap <b>Add</b> — done. It lands on your home screen like any app.</>
     ]
@@ -212,8 +212,9 @@ export default function InstallGuide({ onClose }) {
           <div className="ig-safari" role="note">
             <IconWarning size={18} />
             <div>
-              <strong>You’re not in Safari.</strong> On iPhone, “Add to Home Screen” only works in <b>Safari</b>.
-              Copy the link, open <b>Safari</b>, paste it in, then follow the steps below.
+              <strong>Adding to your home screen needs Safari — just this once.</strong> Apple only lets you add web
+              apps from Safari, not Chrome. Copy the link, open it in <b>Safari</b> and follow the steps below.
+              You’ll never need Safari again — after that you open the app from your home screen.
               <button type="button" className="ig-copy" onClick={copyLink}>
                 {copied ? '✓ Link copied — now open Safari' : 'Copy link'}
               </button>
