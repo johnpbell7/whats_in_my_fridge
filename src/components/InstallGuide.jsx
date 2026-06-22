@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSheet } from '../lib/useSheet.js'
-import { platform, canPrompt, promptInstall, iosNeedsSafari } from '../lib/install.js'
-import { IconClose, IconCheck, IconFridge, IconWarning } from '../icons.jsx'
+import { platform, canPrompt, promptInstall, iosNonSafari } from '../lib/install.js'
+import { IconClose, IconCheck, IconFridge } from '../icons.jsx'
 
 // "Add to your home screen" guide. People reach the app by scanning the QR on
 // the marketing site, so most arrive in a mobile browser and don't know a PWA
@@ -24,11 +24,22 @@ const DotsGlyph = ({ size = 18 }) => (
 
 const GUIDE = {
   ios: {
-    label: 'iPhone — Safari',
-    note: 'On iPhone & iPad this only works in Safari (Apple’s rule) — but only this once. After it’s on your home screen you open it from there, never from Safari again.',
+    label: 'iPhone / iPad',
+    note: 'Works in Safari or Chrome on iPhone & iPad.',
     steps: [
       <>In <b>Safari</b>, tap the <b>Share</b> button <span className="ig-inline"><ShareGlyph size={14} /></span> at the bottom.</>,
       <>Scroll down and tap <b>Add to Home Screen</b>.</>,
+      <>Tap <b>Add</b> — done. Open it from your home screen like any app.</>
+    ]
+  },
+  // iPhone/iPad but in Chrome (or another browser) — the Share button lives in
+  // the toolbar/menu rather than Safari's bottom bar, but it works the same.
+  iosChrome: {
+    label: 'iPhone / iPad',
+    note: 'Works in Chrome on iPhone too — the Share button is in the toolbar or the ⋯ menu.',
+    steps: [
+      <>In <b>Chrome</b>, tap the <b>Share</b> button <span className="ig-inline"><ShareGlyph size={14} /></span> (in the toolbar, or the <b>⋯</b> menu).</>,
+      <>Tap <b>Add to Home Screen</b>.</>,
       <>Tap <b>Add</b> — done. Open it from your home screen like any app.</>
     ]
   },
@@ -147,22 +158,11 @@ export default function InstallGuide({ onClose }) {
   const [os, setOs] = useState(() => (platform() === 'android' ? 'android' : 'ios'))
   const [phase, setPhase] = useState(0)
   const [installing, setInstalling] = useState(false)
-  const [copied, setCopied] = useState(false)
   const reduce = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   const showInstallBtn = os === 'android' && canPrompt()
-  // iPhone users in Chrome/Firefox/etc can't "Add to Home Screen" — only Safari
-  // can. Show them how to switch to Safari first.
-  const needSafari = os === 'ios' && iosNeedsSafari()
-
-  async function copyLink() {
-    try {
-      await navigator.clipboard.writeText(window.location.origin)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      /* clipboard blocked — they can still type the address into Safari */
-    }
-  }
+  // On iPhone in Chrome/Firefox/etc the Share button is in the toolbar/menu, so
+  // show browser-specific steps (it still adds to the home screen).
+  const isIosChrome = os === 'ios' && iosNonSafari()
 
   // Loop the demo through its three phases (skip the motion if reduced).
   useEffect(() => {
@@ -181,7 +181,7 @@ export default function InstallGuide({ onClose }) {
     if (outcome === 'accepted') onClose()
   }
 
-  const g = GUIDE[os]
+  const g = isIosChrome ? GUIDE.iosChrome : GUIDE[os]
 
   return (
     <div className="scrim" onClick={onClose}>
@@ -207,20 +207,6 @@ export default function InstallGuide({ onClose }) {
         </div>
 
         <p className="ig-lede">Add <b>What’s in my Fridge</b> to your home screen so it opens full-screen, like a normal app — no app store needed.</p>
-
-        {needSafari && (
-          <div className="ig-safari" role="note">
-            <IconWarning size={18} />
-            <div>
-              <strong>Adding to your home screen needs Safari — just this once.</strong> Apple only lets you add web
-              apps from Safari, not Chrome. Copy the link, open it in <b>Safari</b> and follow the steps below.
-              You’ll never need Safari again — after that you open the app from your home screen.
-              <button type="button" className="ig-copy" onClick={copyLink}>
-                {copied ? '✓ Link copied — now open Safari' : 'Copy link'}
-              </button>
-            </div>
-          </div>
-        )}
 
         <div className="ig-toggle" role="tablist" aria-label="Choose your phone">
           {['ios', 'android'].map((key) => (

@@ -133,7 +133,9 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: calc(env(safe-area-inset-top) + 12px) 22px 0; margin-bottom: 14px; min-height: 40px;
 }
-.std-brand { display: flex; flex-direction: column; line-height: 1; text-align: left; }
+.std-brand { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; text-align: left;
+  background: none; border: 0; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.std-brand:active { opacity: 0.7; }
 .std-brand-sm { font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 12px; color: var(--ink-soft); }
 .std-brand-lg { font-family: var(--font-display); font-weight: 600; font-size: 21px; letter-spacing: -0.02em; color: var(--accent); display: inline-flex; align-items: baseline; }
 .std-brand-lg .leaf { color: var(--leaf); width: 0.46em; height: auto; margin-left: 0.06em; transform: translateY(0.02em) rotate(-14deg); }
@@ -163,9 +165,9 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   padding: 17px 16px; min-height: 118px; box-shadow: 0 10px 24px -20px rgba(0,0,0,0.4);
 }
 .dash-card:active { transform: scale(0.98); }
-.dash-card.locked { opacity: 0.7; }
-/* Force every card's contents hard-left, whatever the tier/locked state. */
-.dash-card > * { align-self: flex-start; text-align: left; }
+/* Own modifier (not the global .locked, which centres + repads) so the cards
+   keep their left-aligned layout. */
+.dash-card.dash-locked { opacity: 0.7; }
 .dash-ico {
   position: relative; width: 46px; height: 46px; border-radius: 14px; margin-bottom: 5px;
   background: var(--accent-soft); color: var(--accent); display: grid; place-items: center;

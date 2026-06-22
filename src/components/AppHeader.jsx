@@ -5,9 +5,14 @@ import { IconInfo, IconUser, IconHome } from '../icons.jsx'
 // account live on the right, so guidance and settings are reachable from
 // anywhere — not just the fridge. `count` shows an optional context pill.
 export default function AppHeader({ onHome, onHelp, helpBadge, onAccount, count }) {
+  // The brand doubles as a "home" button on feature screens (where onHome is
+  // set); on the dashboard itself it's just the wordmark.
+  const Brand = onHome ? 'button' : 'span'
+  const brandProps = onHome ? { type: 'button', onClick: onHome, 'aria-label': 'Home' } : {}
+
   return (
     <header className="std-header">
-      <span className="std-brand">
+      <Brand className="std-brand" {...brandProps}>
         <span className="std-brand-sm">What's in my</span>
         <span className="std-brand-lg">
           Fridge
@@ -15,7 +20,7 @@ export default function AppHeader({ onHome, onHelp, helpBadge, onAccount, count 
             <path d="M2 26 C 18 2, 64 2, 94 22 C 64 50, 18 50, 2 26 Z" fill="currentColor" />
           </svg>
         </span>
-      </span>
+      </Brand>
 
       <div className="header-right">
         {count != null && (

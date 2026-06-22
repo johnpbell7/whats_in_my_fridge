@@ -68,7 +68,7 @@ export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, 
             <button
               key={key}
               type="button"
-              className={`dash-card ${isLocked ? 'locked' : ''}`}
+              className={`dash-card ${isLocked ? 'dash-locked' : ''}`}
               onClick={() => onOpen(key)}
             >
               <span className="dash-ico">

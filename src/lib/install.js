@@ -39,15 +39,14 @@ export function platform() {
   return 'other'
 }
 
-// On iOS, "Add to Home Screen" ONLY exists in Safari — Chrome, Firefox, Edge,
-// the Google app, etc. on iPhone can't install a PWA (an Apple restriction). So
-// detect a non-Safari iOS browser, so the guide can tell them to switch first.
-export function iosNeedsSafari() {
+// Detect a non-Safari browser on iOS (Chrome, Firefox, Edge, etc). These can
+// also "Add to Home Screen" now, but the Share button lives in the toolbar/menu
+// rather than Safari's bottom bar — so the guide shows browser-specific steps.
+export function iosNonSafari() {
   if (platform() !== 'ios') return false
   const ua = navigator.userAgent || ''
-  // CriOS=Chrome, FxiOS=Firefox, EdgiOS=Edge, OPiOS/OPT=Opera, GSA=Google app,
-  // DuckDuckGo/Brave and in-app webviews also lack Add to Home Screen.
-  return /CriOS|FxiOS|EdgiOS|OPiOS|OPT\/|GSA\/|DuckDuckGo|Brave/i.test(ua)
+  // CriOS=Chrome, FxiOS=Firefox, EdgiOS=Edge, OPiOS/OPT=Opera, GSA=Google app.
+  return /CriOS|FxiOS|EdgiOS|OPiOS|OPT\/|GSA\//i.test(ua)
 }
 
 // Treat real phones/tablets as mobile; this is what gates the auto-popup.
