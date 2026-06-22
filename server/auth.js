@@ -17,16 +17,25 @@ const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 const SONNET = process.env.VISION_MODEL || 'claude-sonnet-4-6'
 const HAIKU = process.env.CHAT_MODEL || 'claude-haiku-4-5-20251001'
 
+// On preview/staging deployments (VERCEL_ENV !== 'production'), or when
+// AI_TEST_UNLIMITED=1 is set, raise every cap far above normal so the app can be
+// tested without burning a real month's allowance. Production keeps the true
+// limits below — this multiplier is 1 there, so live users are unaffected.
+const GENEROUS =
+  process.env.AI_TEST_UNLIMITED === '1' ||
+  Boolean(process.env.VERCEL_ENV && process.env.VERCEL_ENV !== 'production')
+const M = GENEROUS ? 500 : 1
+
 // Per-tier monthly limits and which vision model they get. Chat always uses the
 // cheap model. Tune these to your unit economics — see SETUP_ACCOUNTS.md.
 export const TIERS = {
-  free: { label: 'Free', visionModel: HAIKU, scansPerMonth: 10, chatsPerMonth: 30 },
-  plus: { label: 'Plus', visionModel: SONNET, scansPerMonth: 60, chatsPerMonth: 200 }
+  free: { label: 'Free', visionModel: HAIKU, scansPerMonth: 10 * M, chatsPerMonth: 30 * M },
+  plus: { label: 'Plus', visionModel: SONNET, scansPerMonth: 60 * M, chatsPerMonth: 200 * M }
 }
 
 // Daily rate-limit applied to every signed-in user (anti-abuse: stops a script
 // burning the whole month's allowance in one burst). Normal use never hits it.
-export const DAILY = { vision: 20, chat: 40 }
+export const DAILY = GENEROUS ? { vision: 5000, chat: 5000 } : { vision: 20, chat: 40 }
 
 export const tierConfig = (tier) => TIERS[tier] || TIERS.free
 
