@@ -176,13 +176,13 @@
     }
     .hero-hint { padding: 0 18px; color: var(--ink-faint); font-size: 12px; margin: -2px 0 10px; }
     /* camera / shutter moment for the scan demo */
-    /* feature flag floating above the phone — flips Free → Plus in the loop */
-    .feat-flag { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); z-index: 5; height: 0; pointer-events: none; }
-    .ff { position: absolute; top: 0; left: 50%; transform: translateX(-50%); white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; padding: 8px 16px; border-radius: 999px; box-shadow: 0 14px 26px -12px rgba(38,104,75,.45); }
+    /* feature flag floating at the phone's bottom-left — flips Free → Plus */
+    .feat-flag { position: absolute; left: -22px; bottom: 74px; z-index: 5; pointer-events: none; }
+    .ff { position: absolute; left: 0; bottom: 0; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; padding: 8px 16px; border-radius: 999px; box-shadow: 0 14px 26px -12px rgba(38,104,75,.45); }
     .ff .d { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
     .ff-free { background: var(--accent); color: var(--on-accent); }
     .ff-plus { background: var(--surface); color: var(--accent-press); border: 1.6px solid var(--accent); }
-    @media (max-width: 760px) { .ff { font-size: 11.5px; padding: 7px 13px; } }
+    @media (max-width: 760px) { .ff { font-size: 11.5px; padding: 7px 13px; } .feat-flag { left: 4px; bottom: 40px; } }
 
     .cam { position: absolute; inset: 0; z-index: 6; background: radial-gradient(120% 90% at 50% 40%, #1c2a22, #0e120f); display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .cam-scene { font-size: 40px; line-height: 1.5; text-align: center; letter-spacing: 8px; filter: saturate(1.15); opacity: .92; }
@@ -1130,12 +1130,14 @@
 
         const m = gsap.timeline({ repeat: -1, repeatDelay: 0.6, defaults: { ease: 'power2.out' } });
 
-        // ░ FREE ░ snap your ingredients → tonight's dinner ideas
+        // ░ FREE ░ snap your ingredients → tonight's dinner ideas. Hold on the
+        // camera first so you clearly see the fruit & veg being photographed.
         m.set(dFlash, { opacity: 0 }).set(dMeals, { opacity: 0, y: 14 });
-        m.to(dShut, { scale: .82, duration: .16, yoyo: true, repeat: 1, ease: 'power1.inOut' }, '+=.5')
+        m.to(dCam, { scale: 1.05, duration: 1.2, ease: 'sine.inOut' }, 0);  // ~1.2s lining up the shot
+        m.to(dShut, { scale: .82, duration: .16, yoyo: true, repeat: 1, ease: 'power1.inOut' })  // then snap
          .to(dFlash, { opacity: .92, duration: .08 })
          .to(dFlash, { opacity: 0, duration: .42 })
-         .to(dCam, { opacity: 0, duration: .35 }, '<')
+         .to(dCam, { opacity: 0, scale: 1, duration: .35 }, '<')
          .to(dMeals, { opacity: 1, y: 0, stagger: .18, duration: .42, ease: 'back.out(1.6)' }, '-=.2')
          .to({}, { duration: 1.5 });
 
