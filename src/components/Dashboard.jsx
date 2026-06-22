@@ -1,4 +1,5 @@
 import AppHeader from './AppHeader.jsx'
+import { upgrade } from '../lib/upgrade.js'
 import { IconSparkle, IconChat, IconCamera, IconFridge, IconCart, IconBookmark } from '../icons.jsx'
 
 // Home dashboard — the app's front door. A slim banner slot (for a promo image)
@@ -13,25 +14,31 @@ const FEATURES = [
   { key: 'shopping', label: 'List', sub: 'Smart shopping list', Icon: IconCart }
 ]
 
-export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, onAccount, plus, trialDaysLeft }) {
+export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, onAccount, plus, trial, trialDaysLeft }) {
   const locked = new Set(lockedKeys)
-  const onTrial = plus && typeof trialDaysLeft === 'number'
+  // Three banner states: on trial (countdown), paying (thanks), or free (upsell).
+  const onTrial = trial && typeof trialDaysLeft === 'number'
+  const paid = plus && !onTrial
   return (
     <div className="dashboard">
       <AppHeader onHelp={onHelp} helpBadge={helpBadge} onAccount={onAccount} />
 
       <div className="dash-body">
       {/* Slim banner slot — a promo image can be dropped in via .dash-banner. */}
-      <div className="dash-banner" role="note">
-        <IconSparkle size={20} />
-        <div className="dash-banner-text">
-          <strong>The whole app, free for 14 days</strong>
-          <span>
-            {onTrial
-              ? `${trialDaysLeft} ${trialDaysLeft === 1 ? 'day' : 'days'} left on your trial`
-              : 'Track your fridge, scan your shopping & more'}
-          </span>
-          {onTrial && (
+      {paid ? (
+        <div className="dash-banner" role="note">
+          <IconSparkle size={20} />
+          <div className="dash-banner-text">
+            <strong>You’re on Plus 💚</strong>
+            <span>Your whole kitchen, unlocked — thanks for the support.</span>
+          </div>
+        </div>
+      ) : onTrial ? (
+        <div className="dash-banner" role="note">
+          <IconSparkle size={20} />
+          <div className="dash-banner-text">
+            <strong>The whole app, free for 14 days</strong>
+            <span>{trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left on your trial</span>
             <div
               className="dash-trial-bar"
               role="progressbar"
@@ -42,9 +49,17 @@ export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, 
             >
               <span style={{ width: `${Math.max(5, Math.min(100, (trialDaysLeft / 14) * 100))}%` }} />
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      ) : (
+        <button className="dash-banner dash-banner-cta" onClick={() => upgrade.show('fridge')}>
+          <IconSparkle size={20} />
+          <div className="dash-banner-text">
+            <strong>Unlock your whole kitchen</strong>
+            <span>Track your fridge, scan your shopping & build a smart list with Plus</span>
+          </div>
+        </button>
+      )}
 
       <div className="dash-grid">
         {FEATURES.map(({ key, label, sub, Icon }) => {

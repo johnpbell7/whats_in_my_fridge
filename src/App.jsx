@@ -319,7 +319,8 @@ export default function App() {
           helpBadge={helpUnseen}
           onAccount={authEnabled ? () => setAccount(true) : null}
           plus={plus}
-          trialDaysLeft={meState.trial ? meState.trialDaysLeft : null}
+          trial={meState.trial}
+          trialDaysLeft={meState.trialDaysLeft}
         />
       )}
 

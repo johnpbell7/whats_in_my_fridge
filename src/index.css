@@ -149,6 +149,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   color: var(--on-accent); border-radius: var(--r-lg); padding: 16px 18px; margin-bottom: 22px; min-height: 66px;
 }
 .dash-banner > svg { flex: none; opacity: 0.92; }
+.dash-banner-cta { width: 100%; text-align: left; cursor: pointer; }
+.dash-banner-cta:active { transform: scale(0.99); }
 .dash-banner-text { display: flex; flex-direction: column; gap: 3px; }
 .dash-banner-text strong { font-family: var(--font-display); font-weight: 600; font-size: 16.5px; }
 .dash-banner-text span { font-size: 13px; opacity: 0.92; }
