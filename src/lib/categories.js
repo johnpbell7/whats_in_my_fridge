@@ -89,8 +89,17 @@ const CATEGORY_KEYWORDS = [
     'cauliflower', 'aubergine', 'melon', 'strawberr', 'raspberr', 'blueberr', 'spring onion',
     // herbs & more veg
     'thyme', 'rosemary', 'tarragon', 'oregano', 'sage', 'bay leaf', 'bay leaves', 'ginger', 'chilli', 'chili',
-    'shallot', 'fennel', 'sweetcorn', 'sweet corn', 'asparagus', 'green bean', 'runner bean', 'peas',
-    'beetroot', 'radish', 'squash', 'pumpkin', 'parsnip', 'swede', 'turnip', 'sprout']],
+    'shallot', 'fennel', 'sweetcorn', 'sweet corn', 'corn on the cob', 'asparagus', 'green bean', 'runner bean', 'peas',
+    'beetroot', 'radish', 'squash', 'pumpkin', 'parsnip', 'swede', 'turnip', 'sprout',
+    // more fruit
+    'mango', 'pomegranate', 'pineapple', 'kiwi', 'peach', 'nectarine', 'plum', 'apricot', 'cherry', 'cherries',
+    'papaya', 'guava', 'lychee', 'fig', 'date', 'dates', 'persimmon', 'rhubarb', 'coconut', 'plantain', 'quince',
+    'clementine', 'satsuma', 'mandarin', 'tangerine', 'grapefruit', 'cantaloupe', 'honeydew', 'passionfruit',
+    'cranberr', 'blackberr', 'gooseberr', 'redcurrant', 'blackcurrant', 'currant',
+    // more veg & leaves
+    'sweet potato', 'butternut', 'chard', 'pak choi', 'pak-choi', 'bok choy', 'okra', 'artichoke', 'kohlrabi',
+    'watercress', 'mangetout', 'sugar snap', 'edamame', 'yam', 'cassava', 'samphire', 'marrow', 'gourd',
+    'romaine', 'endive', 'chicory', 'pak choy', 'sweetheart cabbage', 'tenderstem']],
   ['condiments', ['sauce', 'ketchup', 'mustard', 'mayo', 'mayonnaise', 'jam', 'honey', 'oil', 'vinegar',
     'dressing', 'spread', 'marmalade', 'chutney', 'pickle']]
 ]
