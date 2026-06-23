@@ -168,7 +168,11 @@ export async function authenticate(token) {
   const user = data.user
 
   const { data: profile } = await db.from('profiles').select('tier, created_at').eq('id', user.id).single()
-  const plan = effectivePlan(profile)
+  // Anchor the trial to the real signup moment: the auth user's created_at is
+  // set the instant they register, so the countdown always starts at sign-up
+  // (the profile row's timestamp can lag if it's created later). Fall back to
+  // the profile date only if the auth one is somehow missing.
+  const plan = effectivePlan({ tier: profile?.tier, created_at: user.created_at || profile?.created_at })
   return { user, tier: plan.tier, plan }
 }
 
