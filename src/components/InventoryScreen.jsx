@@ -14,17 +14,25 @@ import SavedMeals from './SavedMeals.jsx'
 import CategorySections from './CategorySections.jsx'
 import CoachTip from './CoachTip.jsx'
 import { coach, useCoachStep } from '../lib/coach.js'
+import * as firstrun from '../lib/firstrun.js'
 import { IconSearch, IconFridge, IconPlus, IconCamera, IconWarning, IconSparkle, IconUser, IconClose, IconInfo } from '../icons.jsx'
 
 // `readOnly` is the post-trial state: a free user who tracked a fridge during
 // the trial can still SEE it, but every action (add, edit, scan, use) becomes an
 // upgrade prompt rather than a wall — so they don't lose sight of their data.
-export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onGoChat, readOnly = false }) {
+export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, onGoChat, readOnly = false, userId }) {
   const [query, setQuery] = useState('')
   const [view, setView] = useState('active') // 'active' | 'archive' | 'staples' | 'meals'
   const [place, setPlace] = useState('all') // 'all' | 'fridge' | 'freezer' | 'pantry'
   const [confirmClear, setConfirmClear] = useState(false)
   const [soonDismissed, setSoonDismissed] = useState(false)
+  // One-time "log more for smarter AI" nudge (per account). Encourages logging
+  // cupboard staples — spices, oils, tins — which sharpen the meal suggestions.
+  const [pantryTipSeen, setPantryTipSeen] = useState(() => firstrun.seen('fridge.pantrytip.hide', userId))
+  const dismissPantryTip = () => {
+    firstrun.markSeen('fridge.pantrytip.hide', userId)
+    setPantryTipSeen(true)
+  }
   const coachStep = useCoachStep()
 
   // Reset the "tap again to clear" confirm whenever you leave the archive.
@@ -164,6 +172,13 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
         <CoachTip icon="✅" title="Used something up?" onDismiss={() => coach.next()}>
           Tap <strong>Used</strong> on any item when you finish it — it moves to your
           <strong> Used</strong> list, ready to pop straight back on your shopping list.
+        </CoachTip>
+      )}
+
+      {!readOnly && view === 'active' && active.length > 0 && active.length < 12 && !pantryTipSeen && (
+        <CoachTip icon="🌶️" title="The more you log, the smarter it gets" onDismiss={dismissPantryTip}>
+          Add everything you keep — even cupboard staples like <strong>spices, paprika, curry powder, oils and
+          tins</strong>. The fuller your kitchen, the better your meal ideas and “what can I make?” answers.
         </CoachTip>
       )}
 
@@ -322,7 +337,10 @@ function EmptyInventory({ view, place, hasQuery, onAddManual, onGoScan }) {
         <IconFridge size={32} />
       </div>
       <h3>Your fridge is empty</h3>
-      <p>Snap a photo to add a few things at once, or add one by hand.</p>
+      <p>
+        Snap a photo to add a few things at once, or add one by hand. The more you log — even cupboard
+        staples like spices, paprika and curry powder — the smarter your meal ideas get.
+      </p>
       <div className="empty-actions">
         <button className="btn btn-primary" onClick={onGoScan}>
           <IconCamera size={19} /> Scan a photo

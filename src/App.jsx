@@ -380,13 +380,14 @@ export default function App() {
             (plus ? (
               <InventoryScreen
                 items={items}
+                userId={userId}
                 onEdit={(item) => setEditing(item)}
                 onAddManual={() => setEditing('new')}
                 onGoScan={() => setTab('scan')}
                 onGoChat={() => setTab('chat')}
               />
             ) : items.length > 0 ? (
-              <InventoryScreen items={items} readOnly onGoChat={() => setTab('chat')} />
+              <InventoryScreen items={items} userId={userId} readOnly onGoChat={() => setTab('chat')} />
             ) : (
               <LockedFeature kind="fridge" headerTitle="My food" />
             ))}
