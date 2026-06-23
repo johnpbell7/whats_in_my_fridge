@@ -129,6 +129,15 @@ export const TRIAL_PREMIUM_HOURS = Number(process.env.TRIAL_PREMIUM_HOURS) || 48
 // testing lots of accounts isn't blocked. Tune with TRIAL_DEVICE_LIMIT.
 export const TRIAL_DEVICE_LIMIT = Number(process.env.TRIAL_DEVICE_LIMIT) || 2
 
+// Emails that are NEVER trial-blocked, however many accounts share their device
+// — for the owner's own test accounts. Comma-separated, set in TRIAL_BYPASS_EMAILS.
+const TRIAL_BYPASS = new Set(
+  (process.env.TRIAL_BYPASS_EMAILS || '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean)
+)
+
 // Work out a user's effective plan: paid Plus, a Plus trial (first 7 days), or
 // Free. Trial is derived from when their profile was created, so no extra state
 // to manage. `trialPremium` marks the early-trial window that gets the sharper
@@ -207,7 +216,8 @@ export async function authenticate(token, ctx = {}) {
   // and including this one. Past the limit, this account doesn't get the premium
   // trial (it starts on Free). Off on staging/preview, and fails open on error.
   let trialBlocked = false
-  if (!GENEROUS && deviceId) {
+  const bypass = TRIAL_BYPASS.has((user.email || '').toLowerCase())
+  if (!GENEROUS && deviceId && !bypass) {
     try {
       const windowStart = new Date(Date.now() - 90 * 86400000).toISOString()
       const { count } = await db
