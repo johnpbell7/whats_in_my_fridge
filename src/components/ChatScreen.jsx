@@ -30,6 +30,10 @@ const SUGGESTIONS = [
   { label: 'Plan a few dinners', prompt: 'Plan a few different dinners I could make over the next few days.' }
 ]
 const REFINE = ['More adventurous', 'Vegetarian', 'Quick & easy', 'Use up what’s expiring']
+// Cuisine moods, picked BEFORE the first ask so the credit is spent on what they
+// actually want (mirrors the Tonight screen). 'Any' leaves it open. Whatever's
+// selected is folded into every meal request below — no extra AI call to refine.
+const CUISINES = ['Any', 'Italian', 'Asian', 'Indian', 'Mexican', 'Mediterranean', 'Comfort food', 'Healthy & light']
 
 // Were the most recent suggestions a set of dinner ideas? If so, follow-ups
 // should refine them rather than start a plain chat.
@@ -64,6 +68,9 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
   // Once they've done that (refined=true), the normal refine chips take over.
   const [picked, setPicked] = useState([])
   const [refined, setRefined] = useState(false)
+  // Cuisine mood, chosen before the first dinner ask so the credit lands on what
+  // they want. Sticky for the session; folded into every meal request.
+  const [cuisine, setCuisine] = useState('Any')
   // Tapping the "use up soon" nudge opens this picker FIRST (no AI call) so you
   // can choose which expiring items to cook with before spending a credit.
   const [picking, setPicking] = useState(false)
@@ -143,18 +150,28 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
     }
   }
 
+  // The chosen cuisine as an instruction, or null for "Any". Folded into meal
+  // requests so the AI gets it in the same call — refining the request costs no
+  // extra credit.
+  const cuisineReq = cuisine && cuisine !== 'Any' ? `Make them ${cuisine} style.` : null
+  // Combine a base request with the cuisine for the AI (either may be absent).
+  const withCuisine = (base) => [base, cuisineReq].filter(Boolean).join(' ') || undefined
+
   // Dinner ideas: one chat-model request that returns structured meals so we can
   // show cards with "to buy" items you can tap straight onto the shopping list.
   // Same credit cost as any chat message. An optional `refine` (typed follow-up
-  // or a refine chip) tailors the next set of ideas.
+  // or a refine chip) tailors the next set of ideas; the chosen cuisine rides
+  // along in the same call.
   async function askDinner(refine) {
     if (busy) return
     const refineText = typeof refine === 'string' && refine.trim() ? refine.trim() : null
-    setMessages((m) => [...m, { role: 'me', text: refineText || DINNER_PROMPT }])
+    // Visible message reads naturally — e.g. "Italian dinner ideas".
+    const label = refineText || (cuisineReq ? `${cuisine} dinner ideas` : DINNER_PROMPT)
+    setMessages((m) => [...m, { role: 'me', text: label }])
     setDinnerMode(true)
     setBusy(true)
     try {
-      const meals = await suggestMeals(buildInventory(), refineText || undefined)
+      const meals = await suggestMeals(buildInventory(), withCuisine(refineText))
       setMessages((m) => [...m, { role: 'meals', meals }])
     } catch (err) {
       handleError(err)
@@ -186,7 +203,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
     setBusy(true)
     try {
       const req = `Suggest meals that use up these items that are going off soon: ${label}. Prioritise using all of them together where possible.`
-      const meals = await suggestMeals(buildInventory(), req)
+      const meals = await suggestMeals(buildInventory(), withCuisine(req))
       setMessages((m) => [...m, { role: 'meals', meals }])
     } catch (err) {
       handleError(err)
@@ -378,13 +395,33 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
         </div>
 
         {messages.length === 0 && !picking && (
-          <div className="suggest-row">
-            {SUGGESTIONS.filter((s) => !(noFridge && s.needsFridge)).map((s) => (
-              <button key={s.label} onClick={() => (s.dish ? startDish() : startDinner(s.prompt || undefined))}>
-                {s.label}
-              </button>
-            ))}
-          </div>
+          <>
+            {/* Pick a cuisine mood first — it rides along in the same request, so
+                you steer the ideas before a single credit is spent. */}
+            <div className="cuisine-pick">
+              <span className="cuisine-pick-label">In the mood for something?</span>
+              <div className="chips">
+                {CUISINES.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    className="chip"
+                    aria-pressed={cuisine === c}
+                    onClick={() => setCuisine(c)}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="suggest-row">
+              {SUGGESTIONS.filter((s) => !(noFridge && s.needsFridge)).map((s) => (
+                <button key={s.label} onClick={() => (s.dish ? startDish() : startDinner(s.prompt || undefined))}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </>
         )}
 
         {dinnerMode && messages.length > 0 && !busy &&
