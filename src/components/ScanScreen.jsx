@@ -6,7 +6,7 @@ import { downscaleImage } from '../lib/image.js'
 import { store } from '../lib/store.js'
 import { sameItem } from '../lib/staples.js'
 import { CATEGORIES, LOCATIONS } from '../lib/categories.js'
-import { suggestLocation } from '../lib/location.js'
+import { suggestLocation, freezerFromScan } from '../lib/location.js'
 import { coach, useCoachStep } from '../lib/coach.js'
 import CoachTip from './CoachTip.jsx'
 import { IconCamera, IconReceipt, IconPlus, IconCheck, IconClose, IconSparkle, IconWarning, IconClock } from '../icons.jsx'
@@ -77,7 +77,7 @@ export default function ScanScreen({ onDone, onAddManual }) {
           // name/category guess.
           const loc =
             location === 'auto'
-              ? d.frozen
+              ? freezerFromScan(d.name, d.frozen)
                 ? 'freezer'
                 : d.location || suggestLocation(d.name, d.category)
               : location

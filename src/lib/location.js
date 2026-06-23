@@ -74,3 +74,25 @@ export function suggestLocation(name = '', category = 'other') {
   if (category === 'condiments' || category === 'seasoning' || category === 'bakery' || category === 'snacks') return 'pantry'
   return 'pantry' // "other" tends to be ambient (tins, packets, household staples)
 }
+
+// Fresh items that are essentially never sold frozen — used to veto a stray
+// "frozen" flag from the photo scanner so a fresh lemon/cucumber/herb isn't
+// auto-filed into the freezer. Things genuinely sold frozen (peas, berries,
+// sweetcorn, mango, fish, chips) are deliberately NOT listed here.
+const NEVER_FROZEN = [
+  'lemon', 'lime', 'orange', 'grapefruit', 'clementine', 'satsuma', 'mandarin', 'tangerine',
+  'banana', 'apple', 'pear', 'cucumber', 'lettuce', 'salad', 'celery', 'tomato', 'avocado',
+  'grape', 'onion', 'garlic', 'potato', 'herb', 'coriander', 'parsley', 'basil', 'mint', 'dill'
+]
+
+// Whether a scanned item should actually be filed to the freezer. Trusts the
+// scanner's `frozen` flag, but vetoes it for clearly-fresh items whose name
+// carries no freezer cue — so a fresh lemon misread as "frozen" stays put
+// rather than being sent to the freezer.
+export function freezerFromScan(name = '', aiFrozen = false) {
+  if (!aiFrozen) return false
+  const n = String(name).toLowerCase()
+  if (FREEZER.some((k) => n.includes(k))) return true
+  if (NEVER_FROZEN.some((k) => n.includes(k))) return false
+  return true
+}

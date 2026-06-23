@@ -20,7 +20,11 @@ import { IconClose, IconSparkle, IconCheck, IconWarning } from '../icons.jsx'
 export default function MethodSheet({ meal, servings = 2, onClose, onMethod }) {
   const isPlus = useIsPlus()
   const sheetRef = useSheet(onClose)
-  const savedMethod = meal?.method && meal.method.steps?.length ? meal.method : null
+  // Reuse a walkthrough we already hold for this dish — the meal's own method,
+  // or one generated before for the same name (saved or not). Stops a second
+  // credit being spent on a recipe you've already been given.
+  const ownMethod = meal?.method && meal.method.steps?.length ? meal.method : null
+  const savedMethod = ownMethod || savedMeals.methodFor(meal?.name)
   const [serves, setServes] = useState(savedMethod?.serves || servings || 2)
   const [method, setMethod] = useState(savedMethod)
   const [busy, setBusy] = useState(false)
@@ -39,6 +43,9 @@ export default function MethodSheet({ meal, servings = 2, onClose, onMethod }) {
       fetchedFor.current = forServes
       // Persist onto the saved meal so it survives and locks correctly later.
       if (meal.id) savedMeals.setMethod(meal.id, m)
+      // Always cache by name too, so re-opening this dish's how-to (even if it
+      // wasn't saved, or was saved before now) reuses it — no second credit.
+      savedMeals.rememberMethod(meal.name, m)
       // Let the card capture it, so saving the meal pulls the walkthrough through.
       onMethod?.(m)
     } catch (err) {
