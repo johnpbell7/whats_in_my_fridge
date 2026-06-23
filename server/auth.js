@@ -17,13 +17,18 @@ const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 const SONNET = process.env.VISION_MODEL || 'claude-sonnet-4-6'
 const HAIKU = process.env.CHAT_MODEL || 'claude-haiku-4-5-20251001'
 
-// On preview/staging deployments (VERCEL_ENV !== 'production'), or when
-// AI_TEST_UNLIMITED=1 is set, raise every cap far above normal so the app can be
-// tested without burning a real month's allowance. Production keeps the true
-// limits below — this multiplier is 1 there, so live users are unaffected.
-const GENEROUS =
-  process.env.AI_TEST_UNLIMITED === '1' ||
-  Boolean(process.env.VERCEL_ENV && process.env.VERCEL_ENV !== 'production')
+// "Generous" test mode raises every AI usage cap 500× (and lifts the daily
+// safety cap) so the app can be tested without burning a real month's
+// allowance. It must be turned on EXPLICITLY with AI_TEST_UNLIMITED=1 — set
+// that ONLY on a genuine staging/preview environment.
+//
+// It used to also auto-enable on any non-production Vercel deploy
+// (VERCEL_ENV !== 'production'). That was a footgun: if the live domain ever
+// landed on a preview deployment, every cost guardrail silently vanished
+// (500× limits, daily cap to 5000, anti-abuse off, trial effectively forever).
+// Now nothing turns it on by accident — production always keeps the true
+// limits, and a stray preview deploy can't reopen them.
+const GENEROUS = process.env.AI_TEST_UNLIMITED === '1'
 const M = GENEROUS ? 500 : 1
 
 // Per-tier monthly limits and which vision model they get. Chat always uses the
