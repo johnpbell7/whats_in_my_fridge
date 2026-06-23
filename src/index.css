@@ -300,6 +300,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 
 /* soft category-colour bars (no stroke) — light tint + matching text/icon */
 .cat-header.cat-new { background: var(--accent); color: var(--on-accent); }
+.cat-header.cat-freezer { background: #e8f1f8; color: #2f6c9e; }
 .cat-header.cat-dairy { background: #eef2fa; color: #46618c; }
 .cat-header.cat-produce { background: #eaf3e8; color: #4a7a43; }
 .cat-header.cat-meat { background: #f7ebe9; color: #9c5249; }

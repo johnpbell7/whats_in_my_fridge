@@ -261,7 +261,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
           onGoScan={gScan}
         />
       ) : view === 'active' ? (
-        <CategorySections items={visible} onEdit={gEdit} onFileNew={gFile} onUse={gUse} onFreeze={gFreeze} />
+        <CategorySections items={visible} onEdit={gEdit} onFileNew={gFile} onUse={gUse} onFreeze={gFreeze} groupFrozen={place === 'all'} />
       ) : (
         <>
           <p className="staples-intro">

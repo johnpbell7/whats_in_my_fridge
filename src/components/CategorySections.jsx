@@ -5,11 +5,12 @@ import { CATEGORIES } from '../lib/categories.js'
 import ItemRow from './ItemRow.jsx'
 import {
   IconChevron, IconLeaf, IconMilk, IconFish, IconBowl, IconBottle, IconCup, IconBox, IconSparkle,
-  IconBread, IconSnack, IconSpray
+  IconBread, IconSnack, IconSpray, IconSnow
 } from '../icons.jsx'
 
 const CAT_ICON = {
   new: IconSparkle,
+  freezer: IconSnow,
   dairy: IconMilk,
   produce: IconLeaf,
   meat: IconFish,
@@ -26,7 +27,7 @@ export { CAT_ICON }
 // Groups the (already filtered + sorted) inventory into collapsible sections by
 // category — each a colour-tinted titled block with a line icon. All open by
 // default; tap a block to close/open it.
-export default function CategorySections({ items, onEdit, onFileNew, onUse, onFreeze }) {
+export default function CategorySections({ items, onEdit, onFileNew, onUse, onFreeze, groupFrozen = false }) {
   // Fall back to the plain store action if a handler wasn't passed (keeps the
   // component usable on its own), but the screen passes guarded versions so
   // read-only mode is respected.
@@ -38,13 +39,22 @@ export default function CategorySections({ items, onEdit, onFileNew, onUse, onFr
     // held out of their category folders while they're there.
     const newItems = items.filter((i) => i.filed === false)
     const newIds = new Set(newItems.map((i) => i.id))
+    // In the "All" view, gather everything in the freezer into its own section
+    // (pulled out of its category) so frozen food is grouped together — and a
+    // newly-frozen item visibly moves down into it. Not done when the list is
+    // already a single location (e.g. the Freezer filter), which groups by
+    // category as normal.
+    const frozen = groupFrozen ? items.filter((i) => i.location === 'freezer' && !newIds.has(i.id)) : []
+    const frozenIds = new Set(frozen.map((i) => i.id))
     const cats = CATEGORIES.map((c) => ({
       key: c.key,
       label: c.label,
-      items: items.filter((i) => i.category === c.key && !newIds.has(i.id))
+      items: items.filter((i) => i.category === c.key && !newIds.has(i.id) && !frozenIds.has(i.id))
     })).filter((g) => g.items.length > 0)
-    return newItems.length ? [{ key: 'new', label: 'New', items: newItems }, ...cats] : cats
-  }, [items])
+    const result = newItems.length ? [{ key: 'new', label: 'New', items: newItems }, ...cats] : cats
+    if (frozen.length) result.push({ key: 'freezer', label: 'Freezer', items: frozen })
+    return result
+  }, [items, groupFrozen])
 
   const toggle = (key) => setCollapsed((c) => ({ ...c, [key]: !c[key] }))
 
