@@ -44,8 +44,8 @@ export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, 
         <div className="dash-banner" role="note">
           <IconSparkle size={20} />
           <div className="dash-banner-text">
-            <strong>The whole app, free for 14 days</strong>
-            <span>{trialDaysLeft} {trialDaysLeft === 1 ? 'day' : 'days'} left on your trial</span>
+            <strong>Your free Plus trial</strong>
+            <span><strong>{trialDaysLeft}</strong> {trialDaysLeft === 1 ? 'day' : 'days'} left — the whole app, unlocked</span>
             <div
               className="dash-trial-bar"
               role="progressbar"
