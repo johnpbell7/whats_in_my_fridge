@@ -112,7 +112,7 @@ export function checkDish(dish, inventory) {
 // get a 402 'plus_required' so the caller can open the upgrade sheet. Same
 // quota/credit as a chat message.
 export function getMethod({ name, uses, buy, servings }) {
-  return post('/api/method', { name, uses, buy, servings, diet: diet(), staples: staples() }).then((d) => d.method || null)
+  return post('/api/meals', { kind: 'method', name, uses, buy, servings, diet: diet(), staples: staples() }).then((d) => d.method || null)
 }
 
 // Send a photo for recognition. Returns { items, receiptDate } to confirm.

@@ -38,9 +38,12 @@ app.get('/api/health', (_req, res) => send(res, healthHandler()))
 app.get('/api/me', async (req, res) => send(res, await meHandler(bearer(req))))
 app.post('/api/vision', async (req, res) => send(res, await visionHandler(req.body, bearer(req))))
 app.post('/api/chat', async (req, res) => send(res, await chatHandler(req.body, bearer(req))))
-app.post('/api/meals', async (req, res) => send(res, await mealsHandler(req.body, bearer(req))))
+// /api/meals doubles as the walkthrough endpoint (kind:'method') so production
+// stays under the Hobby plan's 12-function limit — mirror that here.
+app.post('/api/meals', async (req, res) =>
+  send(res, await (req.body?.kind === 'method' ? methodHandler(req.body, bearer(req)) : mealsHandler(req.body, bearer(req))))
+)
 app.post('/api/dish', async (req, res) => send(res, await dishHandler(req.body, bearer(req))))
-app.post('/api/method', async (req, res) => send(res, await methodHandler(req.body, bearer(req))))
 app.post('/api/report', async (req, res) => send(res, await reportHandler(req.body, bearer(req), req.ip)))
 app.post('/api/delete-account', async (req, res) => send(res, await deleteAccountHandler(bearer(req))))
 app.post('/api/checkout', async (req, res) => send(res, await checkoutHandler(bearer(req))))
