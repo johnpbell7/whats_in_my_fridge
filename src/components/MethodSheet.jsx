@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { getMethod, aiErrorMessage } from '../lib/api.js'
 import { savedMeals } from '../lib/meals.js'
@@ -8,13 +8,15 @@ import { useSheet } from '../lib/useSheet.js'
 import { IconClose, IconSparkle, IconCheck, IconWarning } from '../icons.jsx'
 
 // Step-by-step cooking walkthrough — a Plus feature. Opened from the "How to"
-// button on any meal card. Three states:
-//   • Plus/trial: generates (or shows the saved) method, scaled to servings.
-//   • Free, meal has a saved method: the recipe is LOCKED behind an upsell —
-//     the meal idea stays, but the how-to greys out once the trial ends.
-//   • Free, no saved method: a straight "Plus feature" upsell.
-// When a Plus user generates a method for a meal that's already saved, it's
-// attached to that saved meal so it persists (and can be revisited offline).
+// button on any meal card. The number of people is ALWAYS chosen before the AI
+// runs (and the recipe only regenerates on an explicit tap), so a credit is
+// spent once, on the right portion size — never on stepper fiddling.
+//   • Plus/trial, no recipe yet: pick servings → "Show me the recipe" (one call).
+//   • Plus/trial, saved recipe: shows instantly; changing servings offers a
+//     one-tap regenerate.
+//   • Free: the recipe is locked behind an upsell (the meal idea stays free).
+// A generated method is attached to the saved meal so it persists and locks
+// correctly later.
 export default function MethodSheet({ meal, servings = 2, onClose, onMethod }) {
   const isPlus = useIsPlus()
   const sheetRef = useSheet(onClose)
@@ -56,19 +58,12 @@ export default function MethodSheet({ meal, servings = 2, onClose, onMethod }) {
     }
   }
 
-  // Plus users with no saved method: fetch on open for the current servings.
-  useEffect(() => {
-    if (isPlus && !savedMethod && fetchedFor.current === null) load(serves)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  function changeServes(next) {
-    const n = Math.min(12, Math.max(1, next))
-    setServes(n)
-    if (isPlus) load(n)
-  }
+  // Pick servings only — no AI call. Generating is always an explicit tap.
+  const setServesOnly = (next) => setServes(Math.min(12, Math.max(1, next)))
 
   const locked = !isPlus
+  // Has the servings been changed since the shown recipe was generated?
+  const staleServes = method && method.serves !== serves
 
   return (
     <div className="scrim" onClick={onClose}>
@@ -114,12 +109,26 @@ export default function MethodSheet({ meal, servings = 2, onClose, onMethod }) {
             <div className="method-serves">
               <span>Cooking for</span>
               <div className="serves-stepper">
-                <button type="button" onClick={() => changeServes(serves - 1)} disabled={busy || serves <= 1} aria-label="Fewer people">−</button>
+                <button type="button" onClick={() => setServesOnly(serves - 1)} disabled={busy || serves <= 1} aria-label="Fewer people">−</button>
                 <strong>{serves}</strong>
-                <button type="button" onClick={() => changeServes(serves + 1)} disabled={busy || serves >= 12} aria-label="More people">+</button>
+                <button type="button" onClick={() => setServesOnly(serves + 1)} disabled={busy || serves >= 12} aria-label="More people">+</button>
               </div>
               <span className="method-serves-unit">{serves === 1 ? 'person' : 'people'}</span>
             </div>
+
+            {/* No recipe yet → confirm the portion, THEN spend one credit. */}
+            {!method && !busy && !error && (
+              <button className="btn btn-primary btn-block" onClick={() => load(serves)}>
+                <IconSparkle size={17} /> Show me the recipe for {serves}
+              </button>
+            )}
+
+            {/* Recipe already shown but the count was changed → one-tap regenerate. */}
+            {method && staleServes && !busy && (
+              <button className="btn btn-primary btn-block" onClick={() => load(serves)}>
+                <IconSparkle size={17} /> Update recipe for {serves} {serves === 1 ? 'person' : 'people'}
+              </button>
+            )}
 
             {busy && (
               <div className="method-loading" role="status">
