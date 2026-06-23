@@ -11,6 +11,7 @@
 
 import { supabase } from './supabase.js'
 import { toast } from './toast.js'
+import { syncStatus } from './syncState.js'
 import { store, initStore } from './store.js'
 import { shopping, initShopping } from './shopping.js'
 import { staplePrefs, initStaplePrefs } from './staples.js'
@@ -26,8 +27,17 @@ const MEAL_COLS = ['id', 'name', 'description', 'uses', 'buy', 'cooked_count', '
 
 let userId = null
 
+// Every write-through reports its outcome to the sync indicator: a failed write
+// flips the app to "not synced", a clean one clears it. Supabase resolves with
+// an { error } object on failure rather than rejecting, but we guard the reject
+// path too in case of a hard network error.
 const logErr = (label) => (res) => {
-  if (res?.error) console.error(`cloud ${label}:`, res.error.message)
+  if (res?.error) {
+    console.error(`cloud ${label}:`, res.error.message)
+    syncStatus.fail()
+  } else {
+    syncStatus.ok()
+  }
 }
 
 function pick(obj, cols, extra = {}) {
@@ -164,9 +174,11 @@ async function pullAndWire(lastUser) {
     await supabase.from('staple_prefs').upsert({ user_id: userId, data: mergedPrefs, updated_at: new Date().toISOString() })
 
     ok = true
+    syncStatus.ok()
   } catch (err) {
     console.error('cloud pull failed (staying local):', err?.message || err)
     const online = typeof navigator === 'undefined' || navigator.onLine
+    syncStatus.fail()
     // On a FAILED switch, the previous account's data must not remain visible —
     // clear it (it's safe in the cloud and will sync next time). Tell the user
     // so an empty-looking app doesn't read as data loss.
@@ -220,6 +232,11 @@ export async function startSync(user) {
   }
   userId = user.id
 
+  // Let the sync indicator re-run a full pull when the user taps "Retry" (or the
+  // browser comes back online) — it reconciles local + cloud and re-arms
+  // write-through, which is exactly what's needed to recover from a blip.
+  syncStatus.setRetry(() => startSync(user))
+
   // Make sure local stores have finished loading before we merge.
   await Promise.all([initStore(), initShopping(), initStaplePrefs()])
 
@@ -252,4 +269,7 @@ export function stopSync() {
   chat.clear()
   savedMeals.clear()
   userId = null
+  // Not signed in → nothing to sync, so the indicator should read clean.
+  syncStatus.setRetry(null)
+  syncStatus.ok()
 }

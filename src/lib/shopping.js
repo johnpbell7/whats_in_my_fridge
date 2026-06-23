@@ -2,6 +2,8 @@
 // kept deliberately separate (its own record key) so it can't disturb the
 // verified inventory persistence. Mirrors to localStorage as a backup.
 
+import { sameItem } from './staples.js'
+
 const DB_NAME = 'fridge'
 const STORE_NAME = 'kv'
 const RECORD_KEY = 'shopping'
@@ -122,10 +124,13 @@ export const shopping = {
     return record
   },
 
-  // True if something by this name is already on the list (case-insensitive).
+  // True if something like this is already on the list. Uses the same loose
+  // grocery match as scanning (sameItem), so "Eggs" / "egg" / "free range eggs"
+  // are treated as the one thing rather than piling up as separate lines.
   has(name) {
-    const clean = String(name).trim().toLowerCase()
-    return cache.some((it) => it.name.trim().toLowerCase() === clean)
+    const clean = String(name).trim()
+    if (!clean) return false
+    return cache.some((it) => sameItem(it.name, clean))
   },
 
   // Add only if it isn't already there — used by the staple suggestions so

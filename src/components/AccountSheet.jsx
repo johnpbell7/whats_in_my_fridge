@@ -13,7 +13,7 @@ import { IconClose, IconUser, IconSparkle } from '../icons.jsx'
 
 // Bottom-sheet account panel: who you are, your plan, this month's usage
 // against your limits, and sign out.
-export default function AccountSheet({ onClose }) {
+export default function AccountSheet({ onClose, onReport }) {
   const [me, setMe] = useState(null)
   const [err, setErr] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -152,9 +152,17 @@ export default function AccountSheet({ onClose }) {
 
         <DietSection />
 
+        <CredentialsSection currentEmail={me?.email} />
+
         <button className="btn btn-ghost btn-block" onClick={() => supabase.auth.signOut()}>
           Sign out
         </button>
+
+        {onReport && (
+          <button className="btn-text account-report" onClick={onReport}>
+            Report a problem
+          </button>
+        )}
 
         <div className="account-data">
           <button className="btn-text" onClick={exportData}>
@@ -183,6 +191,108 @@ export default function AccountSheet({ onClose }) {
   )
 }
 
+// Manage sign-in credentials: change email (Supabase emails a confirmation to
+// the new address) and change password (applied straight away — the live
+// session authorises it, no re-entry of the old one needed).
+function CredentialsSection({ currentEmail }) {
+  const [open, setOpen] = useState(null) // null | 'email' | 'password'
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState(null) // { ok, text }
+
+  function start(which) {
+    setMsg(null)
+    setEmail('')
+    setPassword('')
+    setOpen(open === which ? null : which)
+  }
+
+  async function changeEmail(e) {
+    e.preventDefault()
+    const next = email.trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next)) return setMsg({ ok: false, text: 'That doesn’t look like an email address.' })
+    if (next.toLowerCase() === String(currentEmail || '').toLowerCase()) return setMsg({ ok: false, text: 'That’s already your email.' })
+    setBusy(true)
+    setMsg(null)
+    try {
+      const { error } = await supabase.auth.updateUser({ email: next })
+      if (error) throw error
+      setMsg({ ok: true, text: `Check ${next} for a link to confirm the change.` })
+      setOpen(null)
+    } catch (err) {
+      setMsg({ ok: false, text: err?.message || 'Couldn’t change your email. Please try again.' })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function changePassword(e) {
+    e.preventDefault()
+    if (password.length < 6) return setMsg({ ok: false, text: 'Use at least 6 characters.' })
+    setBusy(true)
+    setMsg(null)
+    try {
+      const { error } = await supabase.auth.updateUser({ password })
+      if (error) throw error
+      setMsg({ ok: true, text: 'Password updated.' })
+      setOpen(null)
+    } catch (err) {
+      setMsg({ ok: false, text: err?.message || 'Couldn’t change your password. Please try again.' })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="account-section">
+      <p className="account-section-head">Email &amp; password</p>
+      <div className="account-cred-actions">
+        <button type="button" className="btn-text" onClick={() => start('email')}>Change email</button>
+        <span aria-hidden="true" className="account-data-sep"> · </span>
+        <button type="button" className="btn-text" onClick={() => start('password')}>Change password</button>
+      </div>
+
+      {open === 'email' && (
+        <form className="account-cred-form" onSubmit={changeEmail}>
+          <input
+            className="input"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            placeholder="New email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            aria-label="New email address"
+          />
+          <button type="submit" className="btn btn-ghost btn-block" disabled={busy}>
+            {busy ? 'Saving…' : 'Send confirmation'}
+          </button>
+        </form>
+      )}
+
+      {open === 'password' && (
+        <form className="account-cred-form" onSubmit={changePassword}>
+          <input
+            className="input"
+            type="password"
+            autoComplete="new-password"
+            placeholder="New password (6+ characters)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            aria-label="New password"
+          />
+          <button type="submit" className="btn btn-ghost btn-block" disabled={busy}>
+            {busy ? 'Saving…' : 'Update password'}
+          </button>
+        </form>
+      )}
+
+      {msg && <p className={`account-note ${msg.ok ? '' : 'account-note-err'}`}>{msg.text}</p>}
+    </div>
+  )
+}
+
 // Dietary preferences: diets + allergies, saved straight to the synced prefs.
 // The AI reads these on every meal/chat/dish request.
 function DietSection() {
@@ -193,6 +303,12 @@ function DietSection() {
   }
   const toggle = (group, key) =>
     update({ ...diet, [group]: { ...(diet[group] || {}), [key]: !diet[group]?.[key] } })
+
+  // Has the user marked anything as an allergy / must-avoid? If so we require an
+  // explicit acknowledgement that the AI can get it wrong before they lean on
+  // the diet filter — allergies are a safety matter, not just a preference.
+  const hasAvoid = AVOID_OPTIONS.some((o) => diet.avoid?.[o.key]) || !!String(diet.note || '').trim()
+  const acknowledged = !!diet.allergyAck
 
   return (
     <div className="account-section">
@@ -237,10 +353,27 @@ function DietSection() {
         maxLength={200}
         aria-label="Anything else to avoid"
       />
-      <p className="diet-safety">
-        We pass these to the AI for every suggestion, but it can make mistakes — always check labels
-        yourself, especially for allergies.
-      </p>
+      {hasAvoid && !acknowledged ? (
+        <div className="diet-ack">
+          <p>
+            <strong>Important:</strong> we pass your allergies to the AI, but it can make mistakes and must
+            not be relied on to keep an allergen out. Always read the label on every product yourself before
+            eating. Please confirm you understand.
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary btn-block"
+            onClick={() => update({ ...diet, allergyAck: true })}
+          >
+            I understand
+          </button>
+        </div>
+      ) : (
+        <p className="diet-safety">
+          We pass these to the AI for every suggestion, but it can make mistakes — always check labels
+          yourself, especially for allergies.
+        </p>
+      )}
     </div>
   )
 }

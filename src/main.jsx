@@ -26,6 +26,28 @@ registerSW({
   }
 })
 
+// Reload the page once a NEW service worker takes control, so a tab that was
+// opened on an old cached build actually swaps to the new code (and its new
+// chunks) instead of running stale JS until the user happens to refresh. This
+// is what gets new features onto phones that have the app cached.
+//
+// `controllerchange` also fires the first time a SW claims a previously
+// uncontrolled page (the very first visit) — that isn't an update, so we skip
+// that one. After that, every controller change is a real deploy → reload.
+if ('serviceWorker' in navigator) {
+  let pendingFirstClaim = !navigator.serviceWorker.controller
+  let reloading = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (pendingFirstClaim) {
+      pendingFirstClaim = false
+      return
+    }
+    if (reloading) return
+    reloading = true
+    window.location.reload()
+  })
+}
+
 // If anything in the app throws, show a simple reload screen rather than a
 // blank page — and never get stuck on a stale state.
 function Fallback() {

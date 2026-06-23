@@ -46,7 +46,7 @@ const HOWTO = [
   {
     Icon: IconUser,
     title: 'Your free trial & credits',
-    body: 'New accounts get 7 days of full Plus access — 60 photo scans and 200 chat questions a month. After that, Free gives you 10 scans and 30 questions a month. Tap your account icon at the top to check how many you’ve got left; it resets at the start of each month.'
+    body: 'New accounts get 14 days of full Plus access — 60 photo scans and 200 chat questions a month. After that, Free gives you 10 scans and 30 questions a month. Tap your account icon at the top to check how many you’ve got left; it resets at the start of each month.'
   }
 ]
 

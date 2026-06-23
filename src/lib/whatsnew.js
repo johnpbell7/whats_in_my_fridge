@@ -4,6 +4,11 @@
 
 export const WHATS_NEW = [
   {
+    id: '2026-06-account',
+    date: 'Jun 2026',
+    text: 'Account & sign-in upgrades — reset a forgotten password, change your email or password in Account, and an “offline / not synced” marker so you always know your changes are safe.'
+  },
+  {
     id: '2026-06-dinner',
     date: 'Jun 2026',
     text: 'Dinner from a photo — snap whatever you’ve got and AI turns it into real meal ideas for tonight, with the few extras to buy. Pick a cuisine, cook for your diet, no typing or setup.'

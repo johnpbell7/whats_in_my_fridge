@@ -20,6 +20,7 @@ import ChatScreen from './components/ChatScreen.jsx'
 import ShoppingScreen from './components/ShoppingScreen.jsx'
 import ItemForm from './components/ItemForm.jsx'
 import AuthScreen from './components/AuthScreen.jsx'
+import ResetPassword from './components/ResetPassword.jsx'
 import AccountSheet from './components/AccountSheet.jsx'
 import Onboarding from './components/Onboarding.jsx'
 import InstallGuide from './components/InstallGuide.jsx'
@@ -28,6 +29,7 @@ import ReportSheet from './components/ReportSheet.jsx'
 import { isMobile, isStandalone } from './lib/install.js'
 import { hasUnseen, markSeen } from './lib/whatsnew.js'
 import Toast from './components/Toast.jsx'
+import SyncBanner from './components/SyncBanner.jsx'
 import UpgradeGate from './components/UpgradeGate.jsx'
 import Showreel from './components/Showreel.jsx'
 import DinnerSnap from './components/DinnerSnap.jsx'
@@ -45,7 +47,7 @@ import { dinnerLast } from './lib/dinnerLast.js'
 export default function App() {
   const items = useItems()
   const list = useShopping()
-  const { enabled: authEnabled, loading: authLoading, session } = useAuth()
+  const { enabled: authEnabled, loading: authLoading, session, recovery, clearRecovery } = useAuth()
   // Who first-run guidance is keyed to: the signed-in account (so a brand-new
   // account gets the walkthrough/prompts again, even on a browser that's seen
   // them), or 'local' in open mode.
@@ -311,7 +313,12 @@ export default function App() {
   // alongside it below — so the guide can overlay ANY screen (including the
   // sign-in screen), which is what makes ?install=1 previewable everywhere.
   let content
-  if (authEnabled && authLoading) {
+  if (authEnabled && recovery) {
+    // Password-reset landing: the user clicked the email link and is in a
+    // temporary recovery session — show the "set a new password" screen until
+    // they finish, ahead of everything else.
+    content = <ResetPassword onDone={clearRecovery} />
+  } else if (authEnabled && authLoading) {
     // While the session is still resolving, hold a blank screen rather than
     // flashing the app to someone who may not be signed in.
     content = <div className="app" />
@@ -450,10 +457,14 @@ export default function App() {
 
       <AnimatePresence>
         {account && (
-          <AccountSheet onClose={() => setAccount(false)} />
+          <AccountSheet
+            onClose={() => setAccount(false)}
+            onReport={() => { setAccount(false); setReport(true) }}
+          />
         )}
       </AnimatePresence>
 
+      {authEnabled && <SyncBanner />}
       <Toast />
       <UpgradeGate />
 

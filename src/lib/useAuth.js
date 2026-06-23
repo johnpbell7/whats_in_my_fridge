@@ -6,6 +6,9 @@ import { supabase, supabaseEnabled } from './supabase.js'
 export function useAuth() {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(supabaseEnabled)
+  // True after the user follows a password-reset link — the app shows the
+  // "set a new password" screen until they finish (or it's cleared).
+  const [recovery, setRecovery] = useState(false)
 
   useEffect(() => {
     if (!supabaseEnabled) return
@@ -16,12 +19,20 @@ export function useAuth() {
       .then(({ data }) => setSession(data.session))
       .catch(() => setSession(null))
       .finally(() => setLoading(false))
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
+      if (event === 'PASSWORD_RECOVERY') setRecovery(true)
       setSession(s)
       setLoading(false)
     })
     return () => sub.subscription.unsubscribe()
   }, [])
 
-  return { enabled: supabaseEnabled, loading, session, user: session?.user || null }
+  return {
+    enabled: supabaseEnabled,
+    loading,
+    session,
+    user: session?.user || null,
+    recovery,
+    clearRecovery: () => setRecovery(false)
+  }
 }
