@@ -89,7 +89,7 @@ in `server/auth.js`.
   Sonnet → Haiku (≈3× cheaper on vision) and reserve Sonnet for harder photos.
 - **Want more margin?** Raise the price, or add a higher tier.
 - **Free tier too expensive at scale?** Trim free scans/chats, or shorten the
-  7-day Plus trial.
+  14-day Plus trial.
 - **Cut chat cost specifically:** the inventory sent with each question is the
   big input cost — trimming what's sent (e.g. names + categories only) helps.
 

@@ -3,7 +3,7 @@
 Your app sends two **automatic** emails:
 
 - **Welcome** — to anyone who's signed up but not yet been welcomed.
-- **Trial-ending reminder** — ~2 days before a new account's 7-day Plus trial
+- **Trial-ending reminder** — ~2 days before a new account's 14-day Plus trial
   ends, nudging them to subscribe. (This is the one that converts trials to
   paying customers, so it's worth turning on.)
 

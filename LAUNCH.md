@@ -3,7 +3,7 @@
 A practical, low-budget plan to get the first real users. The app is live at
 **https://app.whatsinmyfridge.co.uk** (marketing site: https://www.whatsinmyfridge.co.uk).
 Positioning: *snap your fridge or a receipt, AI logs it, you waste less food and
-always know what to cook.* Free to use; Plus is £3.99/mo with a 7-day trial.
+always know what to cook.* Free to use; Plus is £3.99/mo with a 14-day trial.
 
 > Measure everything: Vercel Web Analytics is wired with `signup`,
 > `upgrade_started` and `subscribed` events — enable Web Analytics in the Vercel

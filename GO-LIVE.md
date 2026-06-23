@@ -72,7 +72,7 @@ Operated as: **John Bell (sole trader), trading as "What's in my Fridge".**
 
 - App + backend: scan, freshness (with long-life/perishable handling), chat, dish-check,
   shopping by aisle, staples, saved meals, "what's new".
-- Payments code, billing portal, webhook handling, 7-day trial, per-user metering.
+- Payments code, billing portal, webhook handling, 14-day trial, per-user metering.
 - Privacy/Terms (subscription terms + `support@` contact), GDPR export/delete.
 - Marketing site + SEO + share image, PWA auto-update.
 - `APP_URL` fallback fixed; Sentry wired (dormant).

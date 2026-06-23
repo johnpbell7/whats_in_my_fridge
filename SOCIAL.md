@@ -62,7 +62,7 @@ Pairs with `LAUNCH.md`. App: https://app.whatsinmyfridge.co.uk
 
 ### 9 — Direct CTA / offer · clean, simple
 - **Hook:** "It's free. Here's how to start in 10 seconds."
-- **Show:** open app → add to home screen → first scan. Mention the 7-day Plus
+- **Show:** open app → add to home screen → first scan. Mention the 14-day Plus
   trial, no card.
 - **Ask:** "Try it free — link in bio."
 
