@@ -108,11 +108,20 @@ export function overQuotaResponse(kind, decision) {
 // — all features unlocked), then drops to Free: the photo→dinner feature stays
 // free, the rest (fridge tracking, shopping list, scan) become Plus. Two weeks
 // ≈ two grocery cycles, long enough for the paid features to prove themselves.
-// On staging/preview, the window is effectively forever so any test account is
-// always "in trial" (the full app) regardless of how long ago it signed up —
-// use ?free in the app to preview the post-trial locked experience. Production
-// keeps the real 14 days.
-export const TRIAL_DAYS = GENEROUS ? 3650 : 14
+// The countdown is anchored to each account's creation date (see effectivePlan),
+// so it always reflects how long ago THAT account signed up.
+//
+// Kept independent of GENEROUS on purpose: real users must get a true 14-day
+// trial that actually expires, even on a non-production (preview) deployment —
+// otherwise the trial silently never ends. Override only when you explicitly
+// want a long test window: set TRIAL_DAYS (e.g. 3650), or AI_TEST_UNLIMITED=1
+// for the old "test account stays in trial forever" behaviour.
+export const TRIAL_DAYS =
+  Number(process.env.TRIAL_DAYS) > 0
+    ? Number(process.env.TRIAL_DAYS)
+    : process.env.AI_TEST_UNLIMITED === '1'
+      ? 3650
+      : 14
 
 // Within the trial, the first couple of days run photo scans on the sharper
 // (pricier) Sonnet model — that's when people actively try the app and form
