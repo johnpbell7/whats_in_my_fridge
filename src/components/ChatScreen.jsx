@@ -439,12 +439,16 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
                 ))}
               </div>
             </div>
-            <div className="suggest-row">
-              {SUGGESTIONS.filter((s) => !(noFridge && s.needsFridge)).map((s) => (
-                <button key={s.label} onClick={() => (s.dish ? startDish() : startDinner(s.prompt || undefined))}>
-                  {s.label}
-                </button>
-              ))}
+            <div className="cuisine-pick">
+              <span className="cuisine-pick-label">Cook a specific dish, or tap an idea</span>
+              {/* One scrollable row so the prompts don't run the screen long. */}
+              <div className="suggest-row suggest-scroll">
+                {SUGGESTIONS.filter((s) => !(noFridge && s.needsFridge)).map((s) => (
+                  <button key={s.label} onClick={() => (s.dish ? startDish() : startDinner(s.prompt || undefined))}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
             </div>
             {!noFridge && <StaplesButton />}
           </>

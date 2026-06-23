@@ -1063,6 +1063,15 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   border-radius: 999px;
 }
 .suggest-row button:active { transform: scale(0.96); }
+/* Single horizontal-scrolling row for the quick prompts, so a long list of
+   ideas stays one line tall instead of wrapping down the screen. */
+.suggest-scroll {
+  flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+.suggest-scroll::-webkit-scrollbar { display: none; }
+.suggest-scroll button { flex: 0 0 auto; white-space: nowrap; scroll-snap-align: start; }
 /* refine chips shown while planning dinner */
 .refine-row .refine-exit {
   border-color: transparent; background: none; color: var(--ink-faint);
