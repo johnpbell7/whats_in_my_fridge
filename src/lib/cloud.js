@@ -156,7 +156,9 @@ async function pullAndWire(lastUser) {
       ignored: { ...remotePrefs.ignored, ...localPrefs.ignored },
       // Dietary prefs are a single object — keep this device's if it's set,
       // otherwise take the cloud's (last-write-wins on a per-device basis).
-      diet: localPrefs.diet && Object.keys(localPrefs.diet).length ? localPrefs.diet : remotePrefs.diet || {}
+      diet: localPrefs.diet && Object.keys(localPrefs.diet).length ? localPrefs.diet : remotePrefs.diet || {},
+      // Kitchen staples — same single-object, this-device-wins rule as diet.
+      pantry: localPrefs.pantry != null ? localPrefs.pantry : remotePrefs.pantry ?? null
     }
     staplePrefs.replaceData(mergedPrefs)
     await supabase.from('staple_prefs').upsert({ user_id: userId, data: mergedPrefs, updated_at: new Date().toISOString() })
@@ -189,7 +191,14 @@ async function pullAndWire(lastUser) {
     if (res.error) throw new Error(res.error.message)
     const localMeals = base(savedMeals.getAll()) || []
     const { merged, toPush } = mergeItems(localMeals, (res.data || []).map((r) => pick(r, MEAL_COLS)))
-    savedMeals.replaceAll(merged)
+    // The how-to walkthrough (meal.method) is a Plus feature kept on-device only
+    // (no DB column), so re-attach it from the local copy after the merge —
+    // otherwise a pull whose remote row wins would strip a method this device made.
+    const localById = new Map(localMeals.map((m) => [m.id, m]))
+    const mergedWithMethod = merged.map((m) =>
+      !m.method && localById.get(m.id)?.method ? { ...m, method: localById.get(m.id).method } : m
+    )
+    savedMeals.replaceAll(mergedWithMethod)
     if (toPush.length) await supabase.from('saved_meals').upsert(toPush.map((r) => pick(r, MEAL_COLS, { user_id: userId })))
     savedMeals.setRemote(mealsRemote)
   } catch (err) {

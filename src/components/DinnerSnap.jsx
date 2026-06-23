@@ -13,6 +13,8 @@ import * as firstrun from '../lib/firstrun.js'
 import CoachTip from './CoachTip.jsx'
 import MealBuy from './MealBuy.jsx'
 import SavedSheet from './SavedSheet.jsx'
+import HowToButton from './HowToButton.jsx'
+import StaplesButton from './StaplesButton.jsx'
 import { IconCamera, IconSparkle, IconChevron, IconClose, IconWarning, IconBookmark, IconCheck, IconUser } from '../icons.jsx'
 
 // PROTOTYPE — the proposed new lead flow. Snap the food that's about to go off →
@@ -27,6 +29,9 @@ const BASE_REQUEST =
 
 // Cuisine moods for the confirm screen. 'Any' leaves it open.
 const CUISINES = ['Any', 'Italian', 'Asian', 'Indian', 'Mexican', 'Mediterranean', 'Comfort food', 'Healthy & light']
+// How many people we're cooking for — folded into the request so the buy
+// amounts (and any walkthrough) scale. Free for everyone.
+const SERVES = [1, 2, 3, 4, 5, 6]
 
 // A short, friendly summary of the user's diet for the reassurance chip.
 function dietSummary() {
@@ -46,6 +51,7 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
   const [meals, setMeals] = useState([])
   const [error, setError] = useState(null)
   const [cuisine, setCuisine] = useState('Any')
+  const [servings, setServings] = useState(2)
   // Names of tracked-fridge items we offered to the meal engine alongside the
   // photo — so the result cards can show "using X from your fridge".
   const [fridgeUsed, setFridgeUsed] = useState([])
@@ -68,6 +74,7 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
     setItems((last.items || []).map((name, i) => ({ name, _id: `${i}-${name}`, include: true })))
     setMeals(last.meals || [])
     setCuisine(last.cuisine || 'Any')
+    if (last.servings) setServings(last.servings)
     setPhase('results')
   }
 
@@ -77,6 +84,7 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
   function buildRequest(extra, photoNames, hasFridge) {
     let r = BASE_REQUEST
     if (cuisine && cuisine !== 'Any') r += `\n\nMake them ${cuisine} style.`
+    r += `\n\nWe're cooking for ${servings} ${servings === 1 ? 'person' : 'people'} — size the "to buy" amounts for that many.`
     if (hasFridge && photoNames?.length) {
       r += `\n\nBuild the dishes around the ingredients I just photographed (${photoNames.join(', ')}). Use other things I already have where they genuinely help, and only list as "to buy" what I have in neither.`
     }
@@ -136,7 +144,7 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
       setMeals(result)
       setPhase('results')
       // Remember this result so it's still here when they come back to Tonight.
-      dinnerLast.save({ items: photoNames, meals: result, cuisine })
+      dinnerLast.save({ items: photoNames, meals: result, cuisine, servings })
     } catch (err) {
       if (err.code === 'quota_exceeded' || err.code === 'rate_limited') {
         upgrade.show(err.code === 'rate_limited' ? 'rate' : 'chat')
@@ -303,6 +311,14 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
 
           {items.length > 0 && (
             <div className="field" style={{ marginTop: 2 }}>
+              <label>How many are you cooking for?</label>
+              <div className="chips" style={{ marginBottom: 14 }}>
+                {SERVES.map((n) => (
+                  <button key={n} type="button" className="chip" aria-pressed={servings === n} onClick={() => setServings(n)}>
+                    {n === 6 ? '6+' : n}
+                  </button>
+                ))}
+              </div>
               <label>What are you in the mood for?</label>
               <div className="chips">
                 {CUISINES.map((c) => (
@@ -330,6 +346,8 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
             </div>
           )}
 
+          {items.length > 0 && <StaplesButton />}
+
           <div className="form-actions">
             <button className="btn btn-ghost" onClick={reset} aria-label="Start over">
               <IconClose size={18} />
@@ -350,7 +368,7 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
               <>
                 <p className="meals-intro">From what you snapped, you could make:</p>
                 {meals.map((m, i) => (
-                  <ResultCard key={i} meal={m} fridgeNames={fridgeUsed} />
+                  <ResultCard key={i} meal={m} fridgeNames={fridgeUsed} servings={servings} />
                 ))}
               </>
             )}
@@ -387,12 +405,15 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
   )
 }
 
-function ResultCard({ meal, fridgeNames = [] }) {
+function ResultCard({ meal, fridgeNames = [], servings = 2 }) {
   const saved = useSyncExternalStore(
     savedMeals.subscribe,
     () => savedMeals.has(meal.name),
     () => savedMeals.has(meal.name)
   )
+  // If the user opens the how-to (Plus), keep the generated recipe so saving the
+  // meal pulls the walkthrough through with it.
+  const [method, setMethod] = useState(null)
   // Which of this meal's ingredients came from the tracked fridge (not the
   // photo) — so we can show off that we used what they already had.
   const fromFridge = (meal.uses || []).filter((u) => fridgeNames.some((f) => sameItem(u, f)))
@@ -400,7 +421,7 @@ function ResultCard({ meal, fridgeNames = [] }) {
   // saved meals live (the Tonight screen) so they know how to find them.
   function onSave() {
     const firstEver = savedMeals.getAll().length === 0
-    const added = savedMeals.add(meal)
+    const added = savedMeals.add({ ...meal, method })
     if (!added) return
     toast.show(
       firstEver ? 'Saved 💚 Find your saved meals on the Tonight screen.' : 'Saved to your meals 💚',
@@ -411,15 +432,18 @@ function ResultCard({ meal, fridgeNames = [] }) {
     <div className="meal-card">
       <div className="meal-head">
         <h4>{meal.name}</h4>
-        <button
-          className={`meal-save ${saved ? 'on' : ''}`}
-          onClick={onSave}
-          disabled={saved}
-          aria-pressed={saved}
-        >
-          {saved ? <IconCheck size={13} /> : <IconBookmark size={13} />}
-          {saved ? 'Saved' : 'Save'}
-        </button>
+        <div className="meal-actions">
+          <HowToButton meal={{ ...meal, method }} servings={servings} onMethod={setMethod} />
+          <button
+            className={`meal-save ${saved ? 'on' : ''}`}
+            onClick={onSave}
+            disabled={saved}
+            aria-pressed={saved}
+          >
+            {saved ? <IconCheck size={13} /> : <IconBookmark size={13} />}
+            {saved ? 'Saved' : 'Save'}
+          </button>
+        </div>
       </div>
       {meal.description && <p className="meal-desc">{meal.description}</p>}
       {meal.uses?.length > 0 && <p className="meal-uses">Uses: {meal.uses.join(', ')}</p>}

@@ -55,6 +55,9 @@ export const savedMeals = {
       description: String(meal.description || '').trim(),
       uses: Array.isArray(meal.uses) ? meal.uses : [],
       buy: Array.isArray(meal.buy) ? meal.buy : [],
+      // The how-to walkthrough is a Plus feature: only persisted when one was
+      // generated (i.e. by a Plus/trial user). Free saves carry just the idea.
+      method: meal.method && Array.isArray(meal.method.steps) && meal.method.steps.length ? meal.method : null,
       cooked_count: 0,
       last_cooked: null,
       saved_date: now,
@@ -65,6 +68,21 @@ export const savedMeals = {
     notify()
     remote?.upsert([rec])
     return rec
+  },
+
+  // Attach (or replace) the how-to walkthrough on an already-saved meal — used
+  // when a Plus user opens the walkthrough on a meal they'd saved earlier.
+  setMethod(id, method) {
+    let updated = null
+    cache = cache.map((m) => {
+      if (m.id !== id) return m
+      updated = { ...m, method: method || null, updated_at: new Date().toISOString() }
+      return updated
+    })
+    if (!updated) return
+    persist()
+    notify()
+    remote?.upsert([updated])
   },
 
   // Record that the user cooked this meal — bumps the count and the date.

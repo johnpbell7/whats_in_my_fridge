@@ -16,6 +16,18 @@
 // Seen on this many separate days → treated as a staple automatically.
 export const STAPLE_THRESHOLD = 3
 
+// Everyday store-cupboard staples a photo of the fridge/shopping won't capture
+// (spices, condiments, oils). The user confirms which they keep once, after
+// their first scan, so the AI never tells them to "buy salt". Pre-ticked with
+// the common UK ones; they can untick anything they don't actually have.
+export const PANTRY_STAPLES = [
+  'Salt', 'Black pepper', 'Cooking oil', 'Olive oil', 'Butter', 'Garlic', 'Onions',
+  'Stock cubes', 'Plain flour', 'Sugar', 'Dried herbs & spices', 'Chilli flakes',
+  'Soy sauce', 'Vinegar', 'Tomato purée', 'Mustard', 'Honey', 'Tinned tomatoes'
+]
+// Sensible defaults — most kitchens have these; the user prunes the rest.
+export const PANTRY_DEFAULTS = ['Salt', 'Black pepper', 'Cooking oil', 'Olive oil', 'Butter', 'Garlic', 'Onions', 'Stock cubes', 'Plain flour', 'Sugar', 'Dried herbs & spices']
+
 // Fold a name down to a comparison key so "Eggs", "egg" and "  EGGS "
 // all count as the same staple. Light singularisation only — we keep the
 // most recent original spelling for display.
@@ -138,7 +150,7 @@ const RECORD_KEY = 'staple-prefs'
 const LS_KEY = 'fridge.staples.v1'
 
 const listeners = new Set()
-let cache = { pinned: {}, ignored: {}, diet: {} }
+let cache = { pinned: {}, ignored: {}, diet: {}, pantry: null }
 let ready = null
 
 function notify() {
@@ -179,7 +191,9 @@ async function idbSet(value) {
 
 function clean(value) {
   if (!value || typeof value !== 'object') return null
-  return { pinned: value.pinned || {}, ignored: value.ignored || {}, diet: value.diet || {} }
+  // pantry: null = never asked; an object map (label→true) once they've confirmed.
+  const pantry = value.pantry && typeof value.pantry === 'object' ? value.pantry : null
+  return { pinned: value.pinned || {}, ignored: value.ignored || {}, diet: value.diet || {}, pantry }
 }
 
 function readLocal() {
@@ -202,10 +216,10 @@ export function initStaplePrefs() {
           await idbSet(legacy)
         }
       }
-      cache = data || { pinned: {}, ignored: {}, diet: {} }
+      cache = data || { pinned: {}, ignored: {}, diet: {}, pantry: null }
     } catch (err) {
       console.error('Staple prefs IndexedDB unavailable, using localStorage:', err)
-      cache = readLocal() || { pinned: {}, ignored: {}, diet: {} }
+      cache = readLocal() || { pinned: {}, ignored: {}, diet: {}, pantry: null }
     }
     notify()
   })()
@@ -243,7 +257,8 @@ export const staplePrefs = {
     commit({
       pinned: { ...cache.pinned, [key]: { name: meta.name || key, location: meta.location, category: meta.category } },
       ignored,
-      diet: cache.diet
+      diet: cache.diet,
+      pantry: cache.pantry
     })
     remote?.save(cache)
   },
@@ -252,14 +267,23 @@ export const staplePrefs = {
     if (!cache.pinned[key]) return
     const pinned = { ...cache.pinned }
     delete pinned[key]
-    commit({ pinned, ignored: cache.ignored, diet: cache.diet })
+    commit({ pinned, ignored: cache.ignored, diet: cache.diet, pantry: cache.pantry })
     remote?.save(cache)
   },
 
   // The user's dietary requirements (diets + allergies + a free-text note).
   getDiet: () => cache.diet || {},
   setDiet(diet) {
-    commit({ pinned: cache.pinned, ignored: cache.ignored, diet: diet || {} })
+    commit({ pinned: cache.pinned, ignored: cache.ignored, diet: diet || {}, pantry: cache.pantry })
+    remote?.save(cache)
+  },
+
+  // Kitchen staples the user keeps but a photo won't show (spices, oils,
+  // condiments). null until they've been asked; an object map once set.
+  getPantry: () => cache.pantry,
+  hasSetPantry: () => cache.pantry != null,
+  setPantry(map) {
+    commit({ pinned: cache.pinned, ignored: cache.ignored, diet: cache.diet, pantry: map || {} })
     remote?.save(cache)
   },
 
@@ -268,18 +292,18 @@ export const staplePrefs = {
     if (!key) return
     const pinned = { ...cache.pinned }
     delete pinned[key]
-    commit({ pinned, ignored: { ...cache.ignored, [key]: true }, diet: cache.diet })
+    commit({ pinned, ignored: { ...cache.ignored, [key]: true }, diet: cache.diet, pantry: cache.pantry })
     remote?.save(cache)
   },
 
   // Wipe pins/dismissals locally (account change). Cloud untouched.
   clear() {
-    commit({ pinned: {}, ignored: {}, diet: {} })
+    commit({ pinned: {}, ignored: {}, diet: {}, pantry: null })
   },
 
   // Replace prefs from a pull. Local-only.
   replaceData(data) {
-    commit(clean(data) || { pinned: {}, ignored: {}, diet: {} })
+    commit(clean(data) || { pinned: {}, ignored: {}, diet: {}, pantry: null })
   },
 
   setRemote(r) {

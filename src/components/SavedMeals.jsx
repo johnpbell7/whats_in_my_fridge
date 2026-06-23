@@ -5,6 +5,7 @@ import { savedMeals } from '../lib/meals.js'
 import { store } from '../lib/store.js'
 import { toast } from '../lib/toast.js'
 import MealBuy from './MealBuy.jsx'
+import HowToButton from './HowToButton.jsx'
 import { IconSparkle, IconTrash, IconChat, IconCheck, IconFridge, IconClose } from '../icons.jsx'
 
 const fmtDate = (iso) => {
@@ -79,13 +80,16 @@ function MealRow({ m }) {
     >
       <div className="meal-head">
         <h4>{m.name}</h4>
-        <button
-          className="icon-btn toss"
-          onClick={() => savedMeals.remove(m.id)}
-          aria-label={`Remove ${m.name} from saved meals`}
-        >
-          <IconTrash size={17} />
-        </button>
+        <div className="meal-actions">
+          <HowToButton meal={m} servings={m.method?.serves || 2} />
+          <button
+            className="icon-btn toss"
+            onClick={() => savedMeals.remove(m.id)}
+            aria-label={`Remove ${m.name} from saved meals`}
+          >
+            <IconTrash size={17} />
+          </button>
+        </div>
       </div>
       {m.description && <p className="meal-desc">{m.description}</p>}
       {m.uses?.length > 0 && <p className="meal-uses">Uses: {m.uses.join(', ')}</p>}

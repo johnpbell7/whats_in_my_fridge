@@ -236,7 +236,7 @@ export async function guard(token, kind) {
   if (auth.error) return auth
   if (auth.skipped) {
     // Open mode: original behaviour, Sonnet vision, no metering.
-    return { user: null, tier: 'open', visionModel: SONNET, meter: false }
+    return { user: null, tier: 'open', visionModel: SONNET, meter: false, plan: { tier: 'open', paid: true, trial: false, trialDaysLeft: 0, trialPremium: true } }
   }
   const monthlyLimit = quotaDecision(auth.tier, kind, 0).limit
   const dailyLimit = DAILY[kind] ?? Infinity
@@ -257,7 +257,9 @@ export async function guard(token, kind) {
   }
   // The slot is already recorded; the handler refunds usageId if the call fails.
   // Vision model depends on the plan (trial premium window vs. not), not just tier.
-  return { user: auth.user, tier: auth.tier, visionModel: visionModelFor(auth.plan), meter: true, usageId }
+  // `plan` rides along so Plus-only handlers (e.g. the how-to walkthrough) can
+  // gate without a second authenticate() round-trip.
+  return { user: auth.user, tier: auth.tier, visionModel: visionModelFor(auth.plan), meter: true, usageId, plan: auth.plan }
 }
 
 // Account summary for the client (tier + this month's usage vs limits).

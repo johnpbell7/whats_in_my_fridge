@@ -152,6 +152,14 @@ function dietBlock(diet) {
   return s ? `\n\n${s.slice(0, 600)}` : ''
 }
 
+// The user's confirmed kitchen staples (oils, spices, condiments a photo won't
+// show). Woven into the per-request block so the model never lists them as
+// "to buy". Same caching rationale as dietBlock — per-user, so not cached.
+function stapleBlock(staples) {
+  const s = String(staples || '').trim()
+  return s ? `\n\n${s.slice(0, 600)}` : ''
+}
+
 export function healthHandler() {
   return {
     status: 200,
@@ -327,7 +335,7 @@ Rules:
       max_tokens: 1000,
       system: [
         { type: 'text', text: instructions, cache_control: { type: 'ephemeral' } },
-        { type: 'text', text: `Today's date: ${today || 'unknown'}${dietBlock(body.diet)}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}` }
+        { type: 'text', text: `Today's date: ${today || 'unknown'}${dietBlock(body.diet)}${stapleBlock(body.staples)}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}` }
       ],
       tools: [
         {
@@ -374,6 +382,96 @@ Rules:
   }
 }
 
+// Step-by-step cooking walkthrough for a saved/suggested dish — a PLUS feature.
+// Scales to the number of people and respects the user's diet. One cheap chat-model
+// call, metered against the 'chat' bucket. Free (non-trial) users are refused with
+// a 402 so the client can show the upgrade sheet; the meal idea itself stays free.
+export async function methodHandler(body = {}, token) {
+  const client = getClient()
+  if (!client) return NO_KEY
+
+  const gate = await guard(token, 'chat')
+  if (gate.error) return gate.error
+  const reject = async (status, error, message) => {
+    if (gate.meter) await refundUsage(gate.usageId)
+    return { status, body: { error, message } }
+  }
+
+  // Plus gate: paying, on trial, or open mode. Free users get the upsell.
+  const plan = gate.plan || {}
+  const isPlus = gate.tier === 'open' || plan.paid || plan.trial
+  if (!isPlus) {
+    return reject(402, 'plus_required', 'Step-by-step cooking walkthroughs are a Plus feature.')
+  }
+
+  const name = String(body.name || '').trim()
+  if (!name) return reject(400, 'bad_request', 'No dish given.')
+  if (name.length > 200) return reject(400, 'bad_request', 'That dish name is too long.')
+  const serves = Math.min(12, Math.max(1, Number(body.servings) || 2))
+  const uses = Array.isArray(body.uses) ? body.uses.map((s) => String(s).trim()).filter(Boolean).slice(0, 40) : []
+  const buy = Array.isArray(body.buy) ? body.buy.map((s) => String(s).trim()).filter(Boolean).slice(0, 40) : []
+
+  const instructions = `You are a friendly home-cooking coach writing a clear, confident method for ONE dish.
+Rules:
+- Write the recipe for exactly the number of people given. Scale ALL ingredient quantities to that many servings and state real amounts (grams, ml, tablespoons, numbers of items) — this is the whole point.
+- Assume everyday store-cupboard basics are on hand (salt, pepper, cooking oil, butter, common dried herbs/spices, stock) unless the dish clearly needs a specific one called out.
+- Give an ingredients list (with scaled quantities) and then numbered steps. Keep steps practical and in order — prep, cook, finish. 6-10 steps is ideal; never pad.
+- Include a realistic total time and any one genuinely useful tip. Keep the tone warm and plain — no fluff, no emoji.`
+
+  try {
+    const message = await client.messages.create({
+      model: CHAT_MODEL,
+      max_tokens: 1200,
+      system: [
+        { type: 'text', text: instructions, cache_control: { type: 'ephemeral' } },
+        { type: 'text', text: `Cooking for: ${serves} ${serves === 1 ? 'person' : 'people'}.${dietBlock(body.diet)}${stapleBlock(body.staples)}` }
+      ],
+      tools: [
+        {
+          name: 'write_method',
+          description: 'Return a clear, scaled recipe method for the dish.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              serves: { type: 'number', description: 'Number of people this recipe serves' },
+              time: { type: 'string', description: 'Realistic total time, e.g. "about 35 minutes"' },
+              ingredients: { type: 'array', items: { type: 'string' }, description: 'Ingredients with quantities scaled to the servings' },
+              steps: { type: 'array', items: { type: 'string' }, description: 'Numbered cooking steps, in order' },
+              tip: { type: 'string', description: 'One short, genuinely useful tip (optional)' }
+            },
+            required: ['serves', 'time', 'ingredients', 'steps']
+          }
+        }
+      ],
+      tool_choice: { type: 'tool', name: 'write_method' },
+      messages: [
+        {
+          role: 'user',
+          content:
+            `Write the method for: ${name}.` +
+            (uses.length ? `\nIngredients I already have: ${uses.join(', ')}.` : '') +
+            (buy.length ? `\nIngredients I'm buying for it: ${buy.join(', ')}.` : '') +
+            `\nCook it for ${serves} ${serves === 1 ? 'person' : 'people'}.`
+        }
+      ]
+    })
+    const toolUse = message.content.find((b) => b.type === 'tool_use')
+    const m = toolUse?.input || {}
+    const method = {
+      serves: Math.min(12, Math.max(1, Number(m.serves) || serves)),
+      time: String(m.time || '').trim(),
+      ingredients: Array.isArray(m.ingredients) ? m.ingredients.map((s) => String(s).trim()).filter(Boolean).slice(0, 40) : [],
+      steps: Array.isArray(m.steps) ? m.steps.map((s) => String(s).trim()).filter(Boolean).slice(0, 20) : [],
+      tip: String(m.tip || '').trim()
+    }
+    if (!method.steps.length) return reject(502, 'method_failed', 'Could not write that recipe. Please try again.')
+    return { status: 200, body: { method } }
+  } catch (err) {
+    if (gate.meter) await refundUsage(gate.usageId)
+    return mapClaudeError(err, 'chat')
+  }
+}
+
 // "I want to make X" — work out which of the dish's ingredients the user already
 // has and which they still need to buy. Same cheap model + 'chat' quota bucket as
 // a normal question; returns a structured result the app renders as a card with
@@ -414,7 +512,7 @@ Rules:
       max_tokens: 700,
       system: [
         { type: 'text', text: instructions, cache_control: { type: 'ephemeral' } },
-        { type: 'text', text: `Today's date: ${today || 'unknown'}${dietBlock(body.diet)}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}` }
+        { type: 'text', text: `Today's date: ${today || 'unknown'}${dietBlock(body.diet)}${stapleBlock(body.staples)}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}` }
       ],
       tools: [
         {
@@ -588,7 +686,7 @@ Off-topic guard: if a question isn't about food, cooking or their kitchen, do NO
         { type: 'text', text: instructions, cache_control: { type: 'ephemeral' } },
         {
           type: 'text',
-          text: `Today's date: ${today || 'unknown'}${dietBlock(body.diet)}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}`
+          text: `Today's date: ${today || 'unknown'}${dietBlock(body.diet)}${stapleBlock(body.staples)}\nCurrent inventory (JSON):\n${JSON.stringify(inv)}`
         }
       ],
       tools,

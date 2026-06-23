@@ -20,6 +20,7 @@ const REASON_HEAD = {
   trial_ended: 'Your fridge, list & saved meals are locked — pick up where you left off',
   list: 'Keep your shopping list with Plus',
   fridge: 'Track your fridge with Plus',
+  method: 'Step-by-step recipes — cook any idea with Plus',
   account: ''
 }
 

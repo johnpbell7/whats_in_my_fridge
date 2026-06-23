@@ -4,7 +4,7 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
-import { healthHandler, meHandler, visionHandler, chatHandler, mealsHandler, dishHandler } from './core.js'
+import { healthHandler, meHandler, visionHandler, chatHandler, mealsHandler, dishHandler, methodHandler } from './core.js'
 import { reportHandler } from './notify.js'
 import { deleteAccountHandler } from './auth.js'
 import { checkoutHandler, confirmCheckoutHandler, billingPortalHandler, webhookHandler } from './stripe.js'
@@ -40,6 +40,7 @@ app.post('/api/vision', async (req, res) => send(res, await visionHandler(req.bo
 app.post('/api/chat', async (req, res) => send(res, await chatHandler(req.body, bearer(req))))
 app.post('/api/meals', async (req, res) => send(res, await mealsHandler(req.body, bearer(req))))
 app.post('/api/dish', async (req, res) => send(res, await dishHandler(req.body, bearer(req))))
+app.post('/api/method', async (req, res) => send(res, await methodHandler(req.body, bearer(req))))
 app.post('/api/report', async (req, res) => send(res, await reportHandler(req.body, bearer(req), req.ip)))
 app.post('/api/delete-account', async (req, res) => send(res, await deleteAccountHandler(bearer(req))))
 app.post('/api/checkout', async (req, res) => send(res, await checkoutHandler(bearer(req))))

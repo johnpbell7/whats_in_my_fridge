@@ -10,6 +10,17 @@ import { dietInstruction } from './diet.js'
 // when nothing is set, so it costs zero tokens for users who haven't picked any.
 const diet = () => dietInstruction(staplePrefs.getDiet())
 
+// The user's confirmed kitchen staples (oils, spices, condiments a photo won't
+// capture). Empty string until they've set them, so it costs nothing for users
+// who skip it. Keeps the AI from telling people to buy salt they already have.
+const staples = () => {
+  const p = staplePrefs.getPantry()
+  if (!p) return ''
+  const have = Object.keys(p).filter((k) => p[k])
+  if (!have.length) return ''
+  return `The user keeps these everyday staples on hand — assume they have them and NEVER put them in the "to buy" / "need" lists: ${have.join(', ')}.`
+}
+
 // Owner/infrastructure failures (no Anthropic credit, bad/missing API key, bad
 // model) come back with developer-facing messages meant for the server logs and
 // the owner — never show those to a customer. Map them to a calm, generic line;
@@ -66,7 +77,7 @@ export function askChat(question, inventory) {
     month: 'long',
     day: 'numeric'
   })
-  return post('/api/chat', { question, inventory, today, diet: diet() })
+  return post('/api/chat', { question, inventory, today, diet: diet(), staples: staples() })
 }
 
 // Ask for dinner ideas from the current inventory. Returns a list of meals,
@@ -80,7 +91,7 @@ export function suggestMeals(inventory, request) {
     month: 'long',
     day: 'numeric'
   })
-  return post('/api/meals', { inventory, today, request, diet: diet() }).then((d) => d.meals || [])
+  return post('/api/meals', { inventory, today, request, diet: diet(), staples: staples() }).then((d) => d.meals || [])
 }
 
 // "I want to make X" — returns { dish, have, need, note }: which of the dish's
@@ -93,7 +104,15 @@ export function checkDish(dish, inventory) {
     month: 'long',
     day: 'numeric'
   })
-  return post('/api/dish', { dish, inventory, today, diet: diet() }).then((d) => d.result || null)
+  return post('/api/dish', { dish, inventory, today, diet: diet(), staples: staples() }).then((d) => d.result || null)
+}
+
+// Step-by-step cooking walkthrough for a dish — a Plus feature. Returns
+// { method: { serves, time, ingredients, steps, tip } }. Free (non-trial) users
+// get a 402 'plus_required' so the caller can open the upgrade sheet. Same
+// quota/credit as a chat message.
+export function getMethod({ name, uses, buy, servings }) {
+  return post('/api/method', { name, uses, buy, servings, diet: diet(), staples: staples() }).then((d) => d.method || null)
 }
 
 // Send a photo for recognition. Returns { items, receiptDate } to confirm.

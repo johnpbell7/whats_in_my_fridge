@@ -8,6 +8,8 @@ import { expiryState, isLongLife } from '../lib/expiry.js'
 import { staplePrefs } from '../lib/staples.js'
 import { hasDiet } from '../lib/diet.js'
 import MealBuy from './MealBuy.jsx'
+import HowToButton from './HowToButton.jsx'
+import StaplesButton from './StaplesButton.jsx'
 import CoachTip from './CoachTip.jsx'
 import { coach, useCoachStep } from '../lib/coach.js'
 import { IconSend, IconSparkle, IconCamera, IconPlus, IconCheck, IconClose, IconBookmark, IconWarning, IconChevron } from '../icons.jsx'
@@ -34,6 +36,9 @@ const REFINE = ['More adventurous', 'Vegetarian', 'Quick & easy', 'Use up what�
 // actually want (mirrors the Tonight screen). 'Any' leaves it open. Whatever's
 // selected is folded into every meal request below — no extra AI call to refine.
 const CUISINES = ['Any', 'Italian', 'Asian', 'Indian', 'Mexican', 'Mediterranean', 'Comfort food', 'Healthy & light']
+// How many people we're cooking for — folded into the request so amounts (and
+// any walkthrough) scale. Free for everyone.
+const SERVES = [1, 2, 3, 4, 5, 6]
 
 // Were the most recent suggestions a set of dinner ideas? If so, follow-ups
 // should refine them rather than start a plain chat.
@@ -71,6 +76,8 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
   // Cuisine mood, chosen before the first dinner ask so the credit lands on what
   // they want. Sticky for the session; folded into every meal request.
   const [cuisine, setCuisine] = useState('Any')
+  // How many people we're cooking for — also folded into the request (free).
+  const [servings, setServings] = useState(2)
   // Tapping the "use up soon" nudge opens this picker FIRST (no AI call) so you
   // can choose which expiring items to cook with before spending a credit.
   const [picking, setPicking] = useState(false)
@@ -154,8 +161,9 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
   // requests so the AI gets it in the same call — refining the request costs no
   // extra credit.
   const cuisineReq = cuisine && cuisine !== 'Any' ? `Make them ${cuisine} style.` : null
-  // Combine a base request with the cuisine for the AI (either may be absent).
-  const withCuisine = (base) => [base, cuisineReq].filter(Boolean).join(' ') || undefined
+  const servesReq = `Cooking for ${servings} ${servings === 1 ? 'person' : 'people'} — size the amounts for that many.`
+  // Combine a base request with the cuisine + servings for the AI (base optional).
+  const withCuisine = (base) => [base, cuisineReq, servesReq].filter(Boolean).join(' ') || undefined
 
   // Dinner ideas: one chat-model request that returns structured meals so we can
   // show cards with "to buy" items you can tap straight onto the shopping list.
@@ -370,9 +378,9 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
                 role={m.role === 'error' ? 'alert' : undefined}
               >
                 {m.role === 'meals' ? (
-                  <MealList meals={m.meals} />
+                  <MealList meals={m.meals} servings={servings} />
                 ) : m.role === 'dish' ? (
-                  <DishCard res={m.result} />
+                  <DishCard res={m.result} servings={servings} />
                 ) : m.role === 'list' ? (
                   <ListCard data={m.list} />
                 ) : (
@@ -396,8 +404,24 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
 
         {messages.length === 0 && !picking && (
           <>
-            {/* Pick a cuisine mood first — it rides along in the same request, so
-                you steer the ideas before a single credit is spent. */}
+            {/* Pick servings + a cuisine mood first — both ride along in the same
+                request, so you steer the ideas before a single credit is spent. */}
+            <div className="cuisine-pick">
+              <span className="cuisine-pick-label">How many are you cooking for?</span>
+              <div className="chips">
+                {SERVES.map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    className="chip"
+                    aria-pressed={servings === n}
+                    onClick={() => setServings(n)}
+                  >
+                    {n === 6 ? '6+' : n}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div className="cuisine-pick">
               <span className="cuisine-pick-label">In the mood for something?</span>
               <div className="chips">
@@ -421,6 +445,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
                 </button>
               ))}
             </div>
+            {!noFridge && <StaplesButton />}
           </>
         )}
 
@@ -501,7 +526,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
 }
 
 // Renders the structured meal suggestions as cards you can save.
-function MealList({ meals }) {
+function MealList({ meals, servings }) {
   if (!meals || meals.length === 0) {
     return (
       <p className="meals-empty">
@@ -513,7 +538,7 @@ function MealList({ meals }) {
     <div className="meals">
       <p className="meals-intro">Here’s what you could make:</p>
       {meals.map((meal, i) => (
-        <MealCard key={i} meal={meal} />
+        <MealCard key={i} meal={meal} servings={servings} />
       ))}
     </div>
   )
@@ -522,37 +547,48 @@ function MealList({ meals }) {
 // "I want to make X" result: what you've already got (with quantities) vs. what
 // you still need (tappable straight onto the shopping list). Save it as a meal
 // to keep it. Tolerates older history where have/need were plain strings.
-function DishCard({ res }) {
+function DishCard({ res, servings = 2 }) {
   const have = (res?.have || []).map((h) => (typeof h === 'string' ? { name: h } : h)).filter((h) => h && h.name)
   const need = (res?.need || []).map((n) => (typeof n === 'string' ? { name: n } : n)).filter((n) => n && n.name)
   const dishName = res?.dish || ''
+  const [method, setMethod] = useState(null)
   const saved = useSyncExternalStore(
     savedMeals.subscribe,
     () => savedMeals.has(dishName),
     () => savedMeals.has(dishName)
   )
   if (!res) return null
+  const mealForHowTo = {
+    name: dishName,
+    uses: have.map((h) => h.name),
+    buy: need.map((n) => n.name),
+    method
+  }
   const save = () =>
     savedMeals.add({
       name: dishName,
       description: res.note || '',
       uses: have.map((h) => h.name),
-      buy: need.map((n) => n.name)
+      buy: need.map((n) => n.name),
+      method
     })
 
   return (
     <div className="meal-card dish-card">
       <div className="meal-head">
         <h4>{dishName}</h4>
-        <button
-          className={`meal-save ${saved ? 'on' : ''}`}
-          onClick={save}
-          disabled={saved}
-          aria-pressed={saved}
-        >
-          {saved ? <IconCheck size={13} /> : <IconBookmark size={13} />}
-          {saved ? 'Saved' : 'Save'}
-        </button>
+        <div className="meal-actions">
+          <HowToButton meal={mealForHowTo} servings={servings} onMethod={setMethod} />
+          <button
+            className={`meal-save ${saved ? 'on' : ''}`}
+            onClick={save}
+            disabled={saved}
+            aria-pressed={saved}
+          >
+            {saved ? <IconCheck size={13} /> : <IconBookmark size={13} />}
+            {saved ? 'Saved' : 'Save'}
+          </button>
+        </div>
       </div>
       {res.note && <p className="meal-desc">{res.note}</p>}
       {have.length > 0 && (
@@ -601,7 +637,8 @@ function ListCard({ data }) {
   )
 }
 
-function MealCard({ meal }) {
+function MealCard({ meal, servings = 2 }) {
+  const [method, setMethod] = useState(null)
   const saved = useSyncExternalStore(
     savedMeals.subscribe,
     () => savedMeals.has(meal.name),
@@ -611,15 +648,18 @@ function MealCard({ meal }) {
     <div className="meal-card">
       <div className="meal-head">
         <h4>{meal.name}</h4>
-        <button
-          className={`meal-save ${saved ? 'on' : ''}`}
-          onClick={() => savedMeals.add(meal)}
-          disabled={saved}
-          aria-pressed={saved}
-        >
-          {saved ? <IconCheck size={13} /> : <IconBookmark size={13} />}
-          {saved ? 'Saved' : 'Save'}
-        </button>
+        <div className="meal-actions">
+          <HowToButton meal={{ ...meal, method }} servings={servings} onMethod={setMethod} />
+          <button
+            className={`meal-save ${saved ? 'on' : ''}`}
+            onClick={() => savedMeals.add({ ...meal, method })}
+            disabled={saved}
+            aria-pressed={saved}
+          >
+            {saved ? <IconCheck size={13} /> : <IconBookmark size={13} />}
+            {saved ? 'Saved' : 'Save'}
+          </button>
+        </div>
       </div>
       {meal.description && <p className="meal-desc">{meal.description}</p>}
       {meal.uses?.length > 0 && <p className="meal-uses">Uses: {meal.uses.join(', ')}</p>}
