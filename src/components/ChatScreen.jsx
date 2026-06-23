@@ -24,6 +24,7 @@ const SUGGESTIONS = [
   { label: '🍳 Cook a specific dish', dish: true }, // asks for a dish, then checks have/need
   { label: 'Dinner ideas', prompt: null }, // null → the plain DINNER_PROMPT
   { label: 'Use what’s expiring', prompt: 'What can I make using the things expiring soonest?', needsFridge: true },
+  { label: '❄️ Cook from frozen', prompt: 'What can I make mostly from my freezer? Build the meals around the frozen and freezer items I have, rather than fresh ones.', needsFridge: true },
   { label: 'No extra shopping', prompt: 'What can I make using only what I already have — nothing to buy?', needsFridge: true },
   { label: 'Quick lunch', prompt: 'Quick lunch ideas?' },
   { label: 'Breakfast ideas', prompt: 'Breakfast ideas?' },
@@ -31,7 +32,7 @@ const SUGGESTIONS = [
   { label: 'Freezer-friendly', prompt: 'Meals I could batch-cook and freeze?' },
   { label: 'Plan a few dinners', prompt: 'Plan a few different dinners I could make over the next few days.' }
 ]
-const REFINE = ['More adventurous', 'Vegetarian', 'Quick & easy', 'Use up what’s expiring']
+const REFINE = ['More adventurous', 'Vegetarian', 'Quick & easy', 'From the freezer', 'Use up what’s expiring']
 // Cuisine moods, picked BEFORE the first ask so the credit is spent on what they
 // actually want (mirrors the Tonight screen). 'Any' leaves it open. Whatever's
 // selected is folded into every meal request below — no extra AI call to refine.

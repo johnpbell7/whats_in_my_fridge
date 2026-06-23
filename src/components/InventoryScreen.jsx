@@ -6,6 +6,7 @@ import { LOCATIONS, guessCategory } from '../lib/categories.js'
 import { suggestLocation } from '../lib/location.js'
 import { sortByExpiry, expiryState } from '../lib/expiry.js'
 import { upgrade } from '../lib/upgrade.js'
+import { toast } from '../lib/toast.js'
 import ItemRow from './ItemRow.jsx'
 import StaplesBanner from './StaplesBanner.jsx'
 import StaplesList from './StaplesList.jsx'
@@ -115,6 +116,15 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
   const gScan = readOnly ? lock : onGoScan
   const gFile = readOnly ? lock : autoFile
   const gUse = readOnly ? lock : (it) => store.useOne(it.id)
+  // One-tap move to the freezer (corrects a mis-scanned location, or freezes
+  // fresh food to keep it). Marks `frozen` so freshness flagging treats it as
+  // long-keeping, and files it so it's not flagged as "to sort".
+  const gFreeze = readOnly
+    ? lock
+    : (it) => {
+        store.update(it.id, { location: 'freezer', frozen: true, filed: true })
+        toast.show(`Moved “${it.name}” to the freezer ❄️`)
+      }
   const gReadd = readOnly
     ? lock
     : (it) => {
@@ -251,7 +261,7 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
           onGoScan={gScan}
         />
       ) : view === 'active' ? (
-        <CategorySections items={visible} onEdit={gEdit} onFileNew={gFile} />
+        <CategorySections items={visible} onEdit={gEdit} onFileNew={gFile} onUse={gUse} onFreeze={gFreeze} />
       ) : (
         <>
           <p className="staples-intro">

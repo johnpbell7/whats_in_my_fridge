@@ -25,6 +25,16 @@ export const IconFridge = (p) => (
   </Svg>
 )
 
+export const IconSnow = (p) => (
+  <Svg {...p}>
+    <path d="M12 2.5v19" />
+    <path d="M3.8 7.25l16.4 9.5" />
+    <path d="M20.2 7.25L3.8 16.75" />
+    <path d="M9.6 4.4L12 5.8l2.4-1.4" />
+    <path d="M9.6 19.6L12 18.2l2.4 1.4" />
+  </Svg>
+)
+
 export const IconPlus = (p) => (
   <Svg {...p}>
     <path d="M12 5v14M5 12h14" />

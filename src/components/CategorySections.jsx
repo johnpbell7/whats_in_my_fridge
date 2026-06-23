@@ -26,7 +26,11 @@ export { CAT_ICON }
 // Groups the (already filtered + sorted) inventory into collapsible sections by
 // category — each a colour-tinted titled block with a line icon. All open by
 // default; tap a block to close/open it.
-export default function CategorySections({ items, onEdit, onFileNew }) {
+export default function CategorySections({ items, onEdit, onFileNew, onUse, onFreeze }) {
+  // Fall back to the plain store action if a handler wasn't passed (keeps the
+  // component usable on its own), but the screen passes guarded versions so
+  // read-only mode is respected.
+  const use = onUse || ((it) => store.useOne(it.id))
   const [collapsed, setCollapsed] = useState({})
 
   const groups = useMemo(() => {
@@ -84,7 +88,8 @@ export default function CategorySections({ items, onEdit, onFileNew }) {
                       key={item.id}
                       item={item}
                       onEdit={onEdit}
-                      onUse={(it) => store.useOne(it.id)}
+                      onUse={use}
+                      onFreeze={onFreeze}
                     />
                   ))}
                 </AnimatePresence>

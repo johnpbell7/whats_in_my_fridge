@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { categoryLabel, locationLabel } from '../lib/categories.js'
 import { expiryState, expiryLabel, effectiveExpiry, isEstimated, isLongLife, daysOld, daysUntil } from '../lib/expiry.js'
-import { IconCheck, IconCircle, IconClock, IconWarning, IconPlus } from '../icons.jsx'
+import { IconCheck, IconCircle, IconClock, IconWarning, IconPlus, IconSnow } from '../icons.jsx'
 
-export default function ItemRow({ item, onEdit, onUse, onToss, onReadd }) {
+export default function ItemRow({ item, onEdit, onUse, onToss, onReadd, onFreeze }) {
   const state = expiryState(item)
   const eff = effectiveExpiry(item)
   const estimated = isEstimated(item)
@@ -37,6 +37,19 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onReadd }) {
     if (readded) return
     setReadded(true)
     setTimeout(() => onReadd?.(item), 300)
+  }
+
+  // One-tap "move to the freezer" — works wherever the item currently lives, so
+  // anything the scan logged in the wrong place (or fresh food you want to keep)
+  // is a single tap from frozen. Brief tick, then it moves. Only shown for active
+  // items not already in the freezer; it sits in the actions column so it never
+  // crowds a long item name.
+  const [froze, setFroze] = useState(false)
+  const canFreeze = !archived && item.location !== 'freezer' && typeof onFreeze === 'function'
+  function freeze() {
+    if (froze) return
+    setFroze(true)
+    setTimeout(() => onFreeze(item), 300)
   }
 
   // By default an item just STATES ITS AGE ("Added today", "3 days old") —
@@ -127,16 +140,28 @@ export default function ItemRow({ item, onEdit, onUse, onToss, onReadd }) {
             {readded ? <IconCheck size={19} /> : <IconPlus size={19} />}
           </button>
         ) : (
-          <button
-            className={`item-done ${checking ? 'on' : ''}`}
-            onClick={markUsed}
-            aria-pressed={checking}
-            aria-label={multi ? `Use one ${item.name}` : `Mark ${item.name} as used`}
-            title={multi ? 'Tap to use one' : "Tap when you've used or finished this"}
-          >
-            {checking ? <IconCheck size={17} /> : <IconCircle size={17} />}
-            <span>{multi ? 'Use 1' : 'Used'}</span>
-          </button>
+          <>
+            {canFreeze && (
+              <button
+                className={`icon-btn freeze ${froze ? 'on' : ''}`}
+                onClick={freeze}
+                aria-label={`Move ${item.name} to the freezer`}
+                title="Move to the freezer"
+              >
+                {froze ? <IconCheck size={18} /> : <IconSnow size={18} />}
+              </button>
+            )}
+            <button
+              className={`item-done ${checking ? 'on' : ''}`}
+              onClick={markUsed}
+              aria-pressed={checking}
+              aria-label={multi ? `Use one ${item.name}` : `Mark ${item.name} as used`}
+              title={multi ? 'Tap to use one' : "Tap when you've used or finished this"}
+            >
+              {checking ? <IconCheck size={17} /> : <IconCircle size={17} />}
+              <span>{multi ? 'Use 1' : 'Used'}</span>
+            </button>
+          </>
         )}
       </div>
     </motion.li>

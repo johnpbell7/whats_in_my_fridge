@@ -440,6 +440,12 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 /* Re-add-to-shopping button on the archive: plus that flips to a green tick. */
 .icon-btn.readd:hover { background: var(--accent-soft); color: var(--accent); border-color: #bcdcc8; }
 .icon-btn.readd.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+/* "Move to freezer" snowflake on in-stock items — cool blue tint, flips to a
+   green tick on tap. Sits in the actions column so it never crowds the name. */
+.icon-btn.freeze { color: #4a86b8; }
+.icon-btn.freeze:hover { background: #e8f1f8; color: #2f6c9e; border-color: #bcd6ea; }
+.icon-btn.freeze.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.icon-btn.freeze.on svg { animation: tick-pop 240ms ease; }
 
 /* a low-confidence flag for photo-added items */
 .confidence-flag {
