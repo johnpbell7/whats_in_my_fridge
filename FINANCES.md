@@ -1,123 +1,111 @@
 # Finances — cost, profit & tax model (owner: employed on £44k)
 
-A full back-of-envelope of what the app **costs to run**, the **profit** at each
-scale, the **deductions** that lower the tax bill, and the **tax owed** given the
-owner keeps a **£44,000 salaried job** and runs this as a sole trader on the side.
+What the app **costs to run**, the **profit** at each scale, and the **tax owed**,
+modelled by **total users with 5% subscribing** — and counting the cost of your
+free users plus paid Supabase/Vercel.
 
 Companion to `BUSINESS.md` (per-user unit economics). Figures use **2025/26 UK
 thresholds** (frozen into 2026/27) and the token-cost estimates in `BUSINESS.md`.
 
-_Last updated: 2026-06-23. These are estimates — confirm tax specifics with an
-accountant, and refine AI costs from the real Anthropic Usage figures._
+_Last updated: 2026-06-23. Estimates — confirm tax with an accountant, and refine
+AI costs from the real Anthropic Usage figures._
 
 ---
 
-## 1. Fixed costs (paid regardless of user count)
+## 1. Fixed costs — the "paid bracket" (Supabase etc.)
 
-| Service | Free tier | Paid plan | Need paid when… |
+| Service | Free tier | Paid plan | Annual (paid) |
 |---|---|---|---|
-| **Vercel** (hosting) | Hobby — free | Pro ~$20/mo (£16) | Commercial use / more bandwidth |
-| **Supabase** (db/auth) | Free: 50k users, 500MB | Pro ~$25/mo (£20) | >500MB data or >50k monthly users |
-| **Resend** (emails) | 3,000/mo free | ~$20/mo (£16) | >3k emails/month |
-| **Domain** | — | ~£12/yr | Always |
-| **Anthropic** (AI) | Pay-as-you-go | Variable | Per scan/chat (§2) |
-| **Stripe** (payments) | — | 1.5% + 20p/charge | Per payment |
+| **Supabase** | 50k users, 500MB | Pro ~$25/mo | **£240** |
+| **Vercel** | Hobby | Pro ~$20/mo | **£192** |
+| **Domain** | — | ~£12/yr | **£12** |
+| **Resend** | 3,000 emails/mo | ~$20/mo (over 3k) | **£192** (≥~5k users) |
+| **Total paid infra** | | | **~£444/yr** (≥5k users ~£636) |
 
-**Practical fixed cost:** ~£0–200/yr on free tiers (under ~100 subs), rising to
-~£900–1,200/yr on Vercel Pro + Supabase Pro at scale.
+> Note: the free tiers actually cover you to ~50k users — at small scale you
+> could pay nothing here. This model assumes you pay for them anyway.
 
-## 2. Variable costs (per action)
+## 2. Per-user variable costs
 
 | Operation | Model | Cost |
 |---|---|---|
 | Fridge scan (Plus) | Sonnet 4.6 | ~1.1p |
 | Fridge scan (Free) | Haiku 4.5 | ~0.35p |
-| Receipt scan | Haiku 4.5 | ~0.4p |
 | Chat / meal idea | Haiku 4.5 | ~0.6p |
 
-**Per paying subscriber, per year:**
+- **Per paying subscriber:** £47.88 charged − £3.12 Stripe − £2.40 AI = **~£42/yr** gross profit
+- **Per free user:** **~£0.50/yr** in AI (the big swing factor — dormant users £0, heavy users up to the £2.58 cap)
 
-- Revenue: £3.99 × 12 = **£47.88**
-- − Stripe fees (~26p/mo): −£3.12 → **£44.76 net**
-- − AI cost (typical user ~20p/mo): −£2.40
-- − Free-user "drag" (~3 engaged free/trial users behind each paid one, ~£1.44 each): −£4.32
-- = **≈ £38 net contribution per subscriber/year**
+## 3. Your question — 1,000 users at 5%
 
-## 3. Revenue → profit at each scale
+**1,000 users → 50 paying:**
 
-| Paying subs | Gross revenue/yr | All costs/yr | **Net profit/yr (pre-tax)** |
-|---|---|---|---|
-| 50 | £2,394 | ~£692 | **£1,702** |
-| 100 | £4,788 | ~£1,184 | **£3,604** |
-| 250 | £11,970 | ~£2,960 | **£9,010** |
-| 500 | £23,940 | ~£5,820 | **£18,120** |
-| 1,000 | £47,880 | ~£11,040 | **£36,840** |
-| 2,000 | £95,760 | ~£21,480 | **£74,280** |
+| Line | Amount |
+|---|---|
+| Revenue (50 × £47.88) | **£2,394** |
+| − Free-user AI (950 × £0.50) | −£475 |
+| − Paid-user AI (50 × £2.40) | −£120 |
+| − Stripe fees | −£156 |
+| − Infra (Supabase + Vercel + domain) | −£444 |
+| **= Net profit** | **£1,199** |
+| − Income tax (20%) | −£240 |
+| **= Take-home** | **≈ £960/yr (~£80/mo)** |
 
-## 4. Deductions (lower taxable profit)
+At this scale, your **950 free users (£475) and paid infra (£444)** eat most of
+the revenue. That's the reality of 5% conversion — it gets much better at scale.
 
-Everything in §1–§2 is an allowable expense (already netted above). On top:
+## 4. Take-home as you grow (5% subscribe)
 
-- **Use of home as office** — simplified £6/week (£312/yr), or a % of bills
-- **Equipment** — laptop, phone (Annual Investment Allowance)
-- **Phone & internet** — business-use proportion
-- **Software** — design tools / subscriptions used for the app
-- **Marketing / ads** — anything spent on growth
-- **Accountant's fees** — fully deductible
+| Total users | Paying (5%) | Net profit/yr | Tax + NI | **Take-home/yr** |
+|---|---|---|---|---|
+| 1,000 | 50 | £1,199 | £240 | **£960** |
+| 2,000 | 100 | £2,842 | £568 | **£2,275** |
+| 5,000 | 250 | £7,579 | £1,778 | **£5,800** |
+| 10,000 | 500 | £15,794 | £5,257 | **£10,540** |
+| 20,000 | 1,000 | £32,224 | £12,815 | **£19,410** |
+| 40,000 | 2,000 | £65,084 | ~£29,200\* | **~£35,900\*** |
 
-Treat the tax below as a **ceiling** — these reduce it further.
+\* At 40k users, total income (~£109k) crosses **£100k**, where the personal
+allowance tapers — an effective **60% band**. Pension contributions are the lever.
 
-## 5. Tax — on a £44k salary
+## 5. Tax — on your £44k salary
 
-Salary already uses the **£12,570 personal allowance** and leaves only
-**£6,270 headroom** before the 40% band (£50,270 − £44,000):
+Salary uses your £12,570 personal allowance and leaves **£6,270 headroom** before
+40%:
 
 - First **£6,270** of app profit → **20%**
 - Above £6,270 → **40%**
 - **Class 4 NI (6%)** only on app profit **above £12,570** (2% above £50,270)
-- **Class 2 NI** — effectively £0 (not required since April 2024)
+- **Class 2 NI** — effectively £0 since April 2024
 
-| Paying subs | Profit | Income tax | Class 4 NI | Total tax | **Take-home/yr** | /mo |
-|---|---|---|---|---|---|---|
-| 50 | £1,702 | £340 | £0 | £340 | **£1,362** | £114 |
-| 100 | £3,604 | £721 | £0 | £721 | **£2,883** | £240 |
-| 250 | £9,010 | £2,350 | £0 | £2,350 | **£6,660** | £555 |
-| 500 | £18,120 | £5,994 | £333 | £6,327 | **£11,793** | £983 |
-| 1,000 | £36,840 | £13,482 | £1,456 | £14,938 | **£21,902** | £1,825 |
-| 2,000 | £74,280 | ~£32,000\* | £2,742 | ~£34,700\* | **~£39,500\*** | ~£3,290 |
+After ~£6,270 of profit (~150 paying / ~3,000 users), every extra £1 is taxed at
+**46%** (40% + 6% NI).
 
-\* At 2,000 subs, total income (~£118k) crosses **£100k**, where the personal
-allowance tapers — an effective **60% band** between £100k–£125k. Pension
-contributions are the main lever to avoid it; get an accountant for this tier.
+## 6. The key insight
 
-## 6. Key insight for a £44k earner
+At 5% conversion **95% of your users are free**, and their AI usage + your paid
+infra are your biggest costs — not the paying users. The two levers that move
+everything:
 
-You exhaust the 20% headroom after just **~£6,270 of profit (~165 subscribers)**.
-After that HMRC takes **46p of every extra £1** (40% tax + 6% NI):
+1. **Conversion rate** — 5% → 8% roughly doubles profit with the same costs.
+2. **Free-tier limits / cost** — trimming free scans/chats, or how much each free
+   user can burn, drops the dominant cost line.
 
-- Each subscriber **under ~165 total** → you keep ~**£30/yr** of their £47.88
-- Each subscriber **above ~165** → you keep ~**£20/yr**
+## 7. Realistic "keep your job" target
 
-Still very profitable — just know the second half of every milestone is taxed
-hard, and pensions / staying-basic-rate maths are the levers to keep more.
-
-## 7. The "keep your job" sweet spot
-
-**250–500 paying subscribers ≈ £6,600–£11,800/yr take-home** (~£550–£980/mo
-extra), costs well controlled, admin still a once-a-year Self Assessment. The
-band where it's meaningful side income without the £100k-trap headaches.
+**10,000 users (500 paying) ≈ £10,500/yr take-home (~£880/mo)** — meaningful side
+income, admin still a once-a-year Self Assessment.
 
 ## Admin checklist
 
-- **Register for Self Assessment** once profit tops **£1,000/yr** (the trading
-  allowance covers you below that).
-- **Set aside ~30%** of profit for the tax bill — paid in a lump at Self
-  Assessment, not at source like PAYE.
-- Keep receipts for every expense in §1, §2 and §4.
-- Day-job PAYE and NI are entirely separate and unaffected.
+- **Register for Self Assessment** once profit tops **£1,000/yr**.
+- **Set aside ~30%** of profit for the tax bill (paid in a lump, not at source).
+- Keep receipts — infra, AI spend, Stripe fees and home-office costs are all
+  deductible.
+- Day-job PAYE and NI are separate and unaffected.
 
 ---
 
-⚠️ Estimates only. AI token costs are modelled, not measured; the free-user drag
-line is the most uncertain and can swing profit either way. Confirm UK tax
-specifics with an accountant before relying on them.
+⚠️ Estimates only. The **free-user AI cost (~£0.50/yr each)** is the most
+uncertain line and swings the whole model — refine it from real Anthropic Usage.
+Confirm UK tax specifics with an accountant.
