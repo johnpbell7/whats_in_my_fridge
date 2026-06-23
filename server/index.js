@@ -35,7 +35,9 @@ app.post('/api/stripe-webhook', express.raw({ type: '*/*' }), async (req, res) =
 app.use(express.json({ limit: '12mb' })) // base64 photos can be a couple of MB
 
 app.get('/api/health', (_req, res) => send(res, healthHandler()))
-app.get('/api/me', async (req, res) => send(res, await meHandler(bearer(req))))
+app.get('/api/me', async (req, res) =>
+  send(res, await meHandler(bearer(req), { deviceId: req.headers['x-device-id'] || null, ip: req.ip }))
+)
 app.post('/api/vision', async (req, res) => send(res, await visionHandler(req.body, bearer(req))))
 app.post('/api/chat', async (req, res) => send(res, await chatHandler(req.body, bearer(req))))
 // /api/meals doubles as the walkthrough endpoint (kind:'method') so production

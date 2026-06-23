@@ -122,18 +122,27 @@ export const TRIAL_DAYS = GENEROUS ? 3650 : 14
 // with TRIAL_PREMIUM_HOURS (default 48 = 2 days).
 export const TRIAL_PREMIUM_HOURS = Number(process.env.TRIAL_PREMIUM_HOURS) || 48
 
+// Anti-farm: how many trial accounts ONE device may start (within a recent
+// window) before further new accounts on that device begin on the free tier
+// instead of getting another 14-day trial. A couple is allowed so a shared
+// household device isn't punished. Disabled on staging/preview (GENEROUS) so
+// testing lots of accounts isn't blocked. Tune with TRIAL_DEVICE_LIMIT.
+export const TRIAL_DEVICE_LIMIT = Number(process.env.TRIAL_DEVICE_LIMIT) || 2
+
 // Work out a user's effective plan: paid Plus, a Plus trial (first 7 days), or
 // Free. Trial is derived from when their profile was created, so no extra state
 // to manage. `trialPremium` marks the early-trial window that gets the sharper
 // vision model. Returns { tier, paid, trial, trialDaysLeft, trialPremium }.
-export function effectivePlan(profile) {
+export function effectivePlan(profile, opts = {}) {
   const tier = profile?.tier || 'free'
   if (tier === 'plus') return { tier: 'plus', paid: true, trial: false, trialDaysLeft: 0, trialPremium: false }
   const created = profile?.created_at ? Date.parse(profile.created_at) : NaN
   if (!Number.isNaN(created)) {
     const ageMs = Date.now() - created
     const msLeft = created + TRIAL_DAYS * 86400000 - Date.now()
-    if (msLeft > 0) {
+    // `trialBlocked` = this device already used its trial allowance, so a fresh
+    // email here doesn't earn another trial — the account just starts on Free.
+    if (msLeft > 0 && !opts.trialBlocked) {
       return {
         tier: 'plus',
         paid: false,
@@ -158,7 +167,7 @@ export function visionModelFor(plan) {
 
 // Verify the bearer token and load the user's plan. Returns
 // { user, tier, plan } on success, or { error: {status, body} } to forward.
-export async function authenticate(token) {
+export async function authenticate(token, ctx = {}) {
   if (!authEnabled()) return { user: null, tier: 'free', skipped: true }
   if (!token) return { error: UNAUTHENTICATED }
 
@@ -167,12 +176,53 @@ export async function authenticate(token) {
   if (error || !data?.user) return { error: UNAUTHENTICATED }
   const user = data.user
 
-  const { data: profile } = await db.from('profiles').select('tier, created_at').eq('id', user.id).single()
+  let profile = null
+  try {
+    const r = await db.from('profiles').select('tier, created_at, device_id').eq('id', user.id).single()
+    profile = r.data
+  } catch {
+    /* profile row may not exist yet — treat as a fresh free account */
+  }
   // Anchor the trial to the real signup moment: the auth user's created_at is
-  // set the instant they register, so the countdown always starts at sign-up
-  // (the profile row's timestamp can lag if it's created later). Fall back to
-  // the profile date only if the auth one is somehow missing.
-  const plan = effectivePlan({ tier: profile?.tier, created_at: user.created_at || profile?.created_at })
+  // set the instant they register, so the countdown always starts at sign-up.
+  const signupDate = user.created_at || profile?.created_at
+
+  // Stamp the device fingerprint + signup IP onto the profile the first time we
+  // see them (only /api/me passes ctx). Best-effort: if the columns aren't there
+  // yet the anti-abuse simply stays off — nothing breaks.
+  let deviceId = profile?.device_id || null
+  if (!deviceId && ctx.deviceId) {
+    deviceId = String(ctx.deviceId).slice(0, 120)
+    try {
+      await db
+        .from('profiles')
+        .update({ device_id: deviceId, signup_ip: ctx.ip ? String(ctx.ip).slice(0, 100) : null })
+        .eq('id', user.id)
+    } catch {
+      /* columns missing — leave anti-abuse off */
+    }
+  }
+
+  // Light anti-farm: count this device's accounts from the last 90 days, up to
+  // and including this one. Past the limit, this account doesn't get the premium
+  // trial (it starts on Free). Off on staging/preview, and fails open on error.
+  let trialBlocked = false
+  if (!GENEROUS && deviceId) {
+    try {
+      const windowStart = new Date(Date.now() - 90 * 86400000).toISOString()
+      const { count } = await db
+        .from('profiles')
+        .select('id', { count: 'exact', head: true })
+        .eq('device_id', deviceId)
+        .gte('created_at', windowStart)
+        .lte('created_at', profile?.created_at || signupDate)
+      if (typeof count === 'number' && count > TRIAL_DEVICE_LIMIT) trialBlocked = true
+    } catch {
+      /* fail open — never lock a real user out over an anti-abuse query */
+    }
+  }
+
+  const plan = effectivePlan({ tier: profile?.tier, created_at: signupDate }, { trialBlocked })
   return { user, tier: plan.tier, plan }
 }
 
@@ -267,8 +317,8 @@ export async function guard(token, kind) {
 }
 
 // Account summary for the client (tier + this month's usage vs limits).
-export async function accountSummary(token) {
-  const auth = await authenticate(token)
+export async function accountSummary(token, ctx) {
+  const auth = await authenticate(token, ctx)
   if (auth.error) return auth
   if (auth.skipped) {
     return { status: 200, body: { authEnabled: false } }

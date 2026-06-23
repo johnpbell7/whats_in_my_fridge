@@ -175,8 +175,8 @@ export function healthHandler() {
 
 // GET /api/me — the signed-in user's tier + this month's usage (or
 // { authEnabled: false } in open mode).
-export function meHandler(token) {
-  return accountSummary(token)
+export function meHandler(token, ctx) {
+  return accountSummary(token, ctx)
 }
 
 export async function visionHandler(body = {}, token) {
