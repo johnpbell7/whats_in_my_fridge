@@ -152,7 +152,7 @@ const TRIAL_BYPASS = new Set(
     .filter(Boolean)
 )
 
-// Work out a user's effective plan: paid Plus, a Plus trial (first 7 days), or
+// Work out a user's effective plan: paid Plus, a Plus trial (first TRIAL_DAYS), or
 // Free. Trial is derived from when their profile was created, so no extra state
 // to manage. `trialPremium` marks the early-trial window that gets the sharper
 // vision model. Returns { tier, paid, trial, trialDaysLeft, trialPremium }.

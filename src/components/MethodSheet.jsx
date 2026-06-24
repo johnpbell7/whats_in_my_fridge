@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { getMethod, aiErrorMessage } from '../lib/api.js'
 import { savedMeals } from '../lib/meals.js'
+import SafetyNote from './SafetyNote.jsx'
 import { useIsPlus } from '../lib/me.js'
 import { upgrade } from '../lib/upgrade.js'
 import { useSheet } from '../lib/useSheet.js'
@@ -176,6 +177,7 @@ export default function MethodSheet({ meal, servings = 2, onClose, onMethod }) {
                     <IconCheck size={13} className="inline-ico" /> {method.tip}
                   </p>
                 )}
+                <SafetyNote />
               </>
             )}
           </div>

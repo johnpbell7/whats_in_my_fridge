@@ -14,6 +14,7 @@ import CoachTip from './CoachTip.jsx'
 import MealBuy from './MealBuy.jsx'
 import SavedSheet from './SavedSheet.jsx'
 import HowToButton from './HowToButton.jsx'
+import SafetyNote from './SafetyNote.jsx'
 import StaplesButton from './StaplesButton.jsx'
 import { IconCamera, IconSparkle, IconChevron, IconClose, IconWarning, IconBookmark, IconCheck, IconUser } from '../icons.jsx'
 
@@ -373,6 +374,7 @@ export default function DinnerSnap({ userId, onExit, onAccount, onGoChat }) {
               </>
             )}
           </div>
+          {meals.length > 0 && <SafetyNote />}
           {meals.length > 0 && (
             <div className="suggest-row refine-row" style={{ marginTop: 4 }}>
               {['More adventurous', 'Quick & easy', 'Vegetarian', 'Use it all up'].map((r) => (

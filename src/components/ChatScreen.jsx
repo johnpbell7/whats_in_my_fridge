@@ -9,6 +9,7 @@ import { staplePrefs } from '../lib/staples.js'
 import { hasDiet } from '../lib/diet.js'
 import MealBuy from './MealBuy.jsx'
 import HowToButton from './HowToButton.jsx'
+import SafetyNote from './SafetyNote.jsx'
 import StaplesButton from './StaplesButton.jsx'
 import CoachTip from './CoachTip.jsx'
 import { coach, useCoachStep } from '../lib/coach.js'
@@ -402,6 +403,8 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
             </div>
           )}
         </div>
+
+        {messages.length > 0 && <SafetyNote style={{ padding: '0 4px' }} />}
 
         {messages.length === 0 && !picking && (
           <>
