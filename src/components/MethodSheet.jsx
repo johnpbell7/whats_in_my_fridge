@@ -158,7 +158,7 @@ export default function MethodSheet({ meal, servings = 2, onClose, onMethod }) {
                 {method.time && <p className="method-time">⏱ {method.time} · serves {method.serves}</p>}
                 {method.caloriesPerServing > 0 && (
                   <p className="method-calories">
-                    🔥 ~{method.caloriesPerServing} kcal per serving
+                    ~{method.caloriesPerServing} kcal per serving
                     <span className="method-calories-est"> · estimate</span>
                   </p>
                 )}
