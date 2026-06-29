@@ -146,7 +146,7 @@ function estTax(profit) {
 // Build + send the owner-only daily founder snapshot. Estimates revenue/profit
 // from the FINANCES model; Stripe remains the source of truth for exact money.
 // Wrapped so a failure here never breaks the welcome/reminder jobs around it.
-async function sendFounderSnapshot(db) {
+async function sendFounderSnapshot(db, { force = false } = {}) {
   try {
     const today = dayStart()
     const trialCutoff = new Date(Date.now() - TRIAL_DAYS * 86400000).toISOString()
@@ -157,7 +157,9 @@ async function sendFounderSnapshot(db) {
       // Active trials: not paying, signed up within the trial window.
       countProfiles(db, (q) => q.neq('tier', 'plus').gte('created_at', trialCutoff))
     ])
-    if (total === 0) return false // pre-launch: nothing to report, stay quiet
+    // Pre-launch (no users) the daily run stays quiet — but a manual ?preview=1
+    // test forces it through so you can confirm the email works.
+    if (total === 0 && !force) return false
 
     const free = Math.max(0, total - paying)
     const mrrNum = paying * 3.99
@@ -321,5 +323,8 @@ export async function previewEmailsHandler(authHeader = '') {
     const r = await sendEmail({ to: OWNER_EMAIL, subject: `[Preview] ${s.subject}`, html: s.html })
     if (r.ok) sent++
   }
-  return { status: 200, body: { ok: true, sent } }
+  // Also fire a real founder snapshot (forced through even with no users yet) so
+  // ?preview=1 doubles as the "did the daily numbers email work?" test.
+  const snapshot = await sendFounderSnapshot(admin(), { force: true })
+  return { status: 200, body: { ok: true, sent, snapshot } }
 }
