@@ -188,7 +188,14 @@ export const shopping = {
     addListeners.add(fn)
     return () => addListeners.delete(fn)
   },
-  getAddCount: () => addCount
+  getAddCount: () => addCount,
+
+  // Fire the add-pulse without inserting a row — used when an item was already
+  // on the list (a no-op add), but we still want the List nav icon to confirm
+  // it's there.
+  pulse() {
+    notifyAdd()
+  }
 }
 
 if (typeof window !== 'undefined') {

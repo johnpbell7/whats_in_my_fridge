@@ -137,6 +137,9 @@ export default function InventoryScreen({ items, onEdit, onAddManual, onGoScan, 
     ? lock
     : (it) => {
         shopping.addUnique(it.name, it.quantity || 1)
+        // Always confirm on the List icon — even if it was already on the list
+        // (addUnique no-ops on a duplicate and wouldn't otherwise pulse).
+        shopping.pulse()
         store.remove(it.id)
       }
 
