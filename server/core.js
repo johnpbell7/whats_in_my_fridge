@@ -3,7 +3,7 @@
 // { status, body } so the two thin wrappers can just forward it.
 
 import Anthropic from '@anthropic-ai/sdk'
-import { guard, accountSummary, authEnabled, refundUsage } from './auth.js'
+import { guard, accountSummary, authEnabled, refundUsage, admin } from './auth.js'
 
 // Input bounds for the AI endpoints (abuse / runaway-cost guards). Downscaled
 // photos are far under the image cap; normal questions/inventories are tiny.
@@ -160,7 +160,24 @@ function stapleBlock(staples) {
   return s ? `\n\n${s.slice(0, 600)}` : ''
 }
 
-export function healthHandler() {
+export async function healthHandler({ ping = false } = {}) {
+  // Optional Supabase keep-alive: a Vercel cron hits /api/health?ping=1 daily so
+  // the free-tier project registers activity and never auto-pauses. The query is
+  // the cheapest possible (HEAD, no rows returned) and any failure is swallowed —
+  // the health check must always report ok so the cron is happy and nothing is
+  // gated on the DB being reachable.
+  let dbOk = null
+  if (ping) {
+    const db = admin()
+    if (db) {
+      try {
+        await db.from('profiles').select('id', { head: true, count: 'exact' }).limit(1)
+        dbOk = true
+      } catch {
+        dbOk = false
+      }
+    }
+  }
   return {
     status: 200,
     body: {
@@ -168,7 +185,8 @@ export function healthHandler() {
       hasKey: Boolean(getClient()),
       authRequired: authEnabled(),
       visionModel: VISION_MODEL,
-      chatModel: CHAT_MODEL
+      chatModel: CHAT_MODEL,
+      ...(ping ? { dbOk } : {})
     }
   }
 }

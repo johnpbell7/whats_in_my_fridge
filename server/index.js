@@ -34,7 +34,7 @@ app.post('/api/stripe-webhook', express.raw({ type: '*/*' }), async (req, res) =
 
 app.use(express.json({ limit: '12mb' })) // base64 photos can be a couple of MB
 
-app.get('/api/health', (_req, res) => send(res, healthHandler()))
+app.get('/api/health', async (req, res) => send(res, await healthHandler({ ping: req.query?.ping === '1' || req.query?.ping === 'true' })))
 app.get('/api/me', async (req, res) =>
   send(res, await meHandler(bearer(req), { deviceId: req.headers['x-device-id'] || null, ip: req.ip }))
 )
