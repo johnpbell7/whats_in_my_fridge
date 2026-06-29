@@ -8,9 +8,15 @@
   </url>
   <url>
     <loc>https://www.whatsinmyfridge.co.uk/blog/</loc>
-    <lastmod>2026-06-09</lastmod>
+    <lastmod>2026-06-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.whatsinmyfridge.co.uk/blog/dont-know-what-to-cook/</loc>
+    <lastmod>2026-06-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.whatsinmyfridge.co.uk/blog/how-long-does-food-last-in-the-fridge/</loc>
