@@ -23,6 +23,17 @@ function notify() {
   listeners.forEach((fn) => fn())
 }
 
+// Separate "item added" channel (mirrors shopping.js) so the bottom nav can
+// pulse the Fridge tab when something new lands in the inventory — even from
+// another screen (a scan, a meal's "buy", etc.). Only fired on real user adds,
+// never on a cloud pull / replaceAll, so a sync doesn't trigger a phantom pulse.
+const addListeners = new Set()
+let addCount = 0
+function notifyAdd() {
+  addCount += 1
+  addListeners.forEach((fn) => fn())
+}
+
 // --- tiny IndexedDB helpers (no dependency) --------------------------------
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -144,10 +155,19 @@ export const store = {
     return () => listeners.delete(fn)
   },
 
+  // Subscribe to "item added" pulses (returns an unsubscribe). getAddCount is
+  // the snapshot for useSyncExternalStore — bumps once per user add/batch.
+  subscribeAdds(fn) {
+    addListeners.add(fn)
+    return () => addListeners.delete(fn)
+  },
+  getAddCount: () => addCount,
+
   add(input) {
     const record = normalize(input)
     commit([record, ...cache])
     remote?.upsert([record])
+    notifyAdd()
     return record
   },
 
@@ -155,6 +175,7 @@ export const store = {
     const records = inputs.map(normalize)
     commit([...records, ...cache])
     remote?.upsert(records)
+    if (records.length) notifyAdd()
     return records
   },
 

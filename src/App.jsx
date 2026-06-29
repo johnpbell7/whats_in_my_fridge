@@ -58,9 +58,11 @@ export default function App() {
   // knows where it went. We bump our own counter only for adds that happen
   // while another tab is showing (no point pulsing the tab you're looking at).
   const addCount = useSyncExternalStore(shopping.subscribeAdds, shopping.getAddCount, shopping.getAddCount)
+  const itemAddCount = useSyncExternalStore(store.subscribeAdds, store.getAddCount, store.getAddCount)
   const tabRef = useRef(tab)
   tabRef.current = tab
   const prevAddCount = useRef(addCount)
+  const prevItemAddCount = useRef(itemAddCount)
   // One pulse channel for the bottom nav, driven by two sources: a new item
   // landing on the shopping list from another screen, and the coach wanting to
   // draw you to the tab where the next tip lives.
@@ -71,6 +73,15 @@ export default function App() {
       if (tabRef.current !== 'shopping') setPulse((p) => ({ tab: 'shopping', n: p.n + 1 }))
     }
   }, [addCount])
+
+  // Pulse the Fridge tab when an item lands in the inventory from another screen
+  // (a scan, a meal's "buy → add to fridge", etc.) so you can see where it went.
+  useEffect(() => {
+    if (itemAddCount !== prevItemAddCount.current) {
+      prevItemAddCount.current = itemAddCount
+      if (tabRef.current !== 'inventory') setPulse((p) => ({ tab: 'inventory', n: p.n + 1 }))
+    }
+  }, [itemAddCount])
 
   // First-run coach (hands-on onboarding — separate from the Onboarding
   // slideshow). The current step drives which contextual tip a screen shows.
