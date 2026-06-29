@@ -436,7 +436,8 @@ Rules:
 - Assume everyday store-cupboard basics are on hand (salt, pepper, cooking oil, butter, common dried herbs/spices, stock) unless the dish clearly needs a specific one called out.
 - Food safety: for higher-risk foods, put safe endpoints IN the steps — cook poultry, pork, mince, burgers and sausages until piping hot all the way through with no pink meat and the juices running clear (around 75°C in the centre); cook fish until it flakes; cook eggs until set when serving anyone vulnerable. Cooked rice must be cooled quickly, kept chilled and reheated only once until piping hot. NEVER describe the dish as safe for an allergy or "free from" an allergen — if relevant, remind the cook to check every product's label themselves.
 - Give an ingredients list (with scaled quantities) and then numbered steps. Keep steps practical and in order — prep, cook, finish. 6-10 steps is ideal; never pad.
-- Include a realistic total time and any one genuinely useful tip. Keep the tone warm and plain — no fluff, no emoji.`
+- Include a realistic total time and any one genuinely useful tip. Keep the tone warm and plain — no fluff, no emoji.
+- Estimate the approximate calories PER SERVING and return it as a whole number (caloriesPerServing). Base it on the actual scaled ingredients, and DO include the cooking oils, butter and fats the steps use — these are easy to forget and swing the total. This is a rough guide only, so round sensibly to the nearest ~10 kcal; never imply false precision.`
 
   try {
     const message = await client.messages.create({
@@ -457,7 +458,8 @@ Rules:
               time: { type: 'string', description: 'Realistic total time, e.g. "about 35 minutes"' },
               ingredients: { type: 'array', items: { type: 'string' }, description: 'Ingredients with quantities scaled to the servings' },
               steps: { type: 'array', items: { type: 'string' }, description: 'Numbered cooking steps, in order' },
-              tip: { type: 'string', description: 'One short, genuinely useful tip (optional)' }
+              tip: { type: 'string', description: 'One short, genuinely useful tip (optional)' },
+              caloriesPerServing: { type: 'number', description: 'Approximate calories per serving (whole number, rough estimate, includes cooking fats)' }
             },
             required: ['serves', 'time', 'ingredients', 'steps']
           }
@@ -482,7 +484,14 @@ Rules:
       time: String(m.time || '').trim(),
       ingredients: Array.isArray(m.ingredients) ? m.ingredients.map((s) => String(s).trim()).filter(Boolean).slice(0, 40) : [],
       steps: Array.isArray(m.steps) ? m.steps.map((s) => String(s).trim()).filter(Boolean).slice(0, 20) : [],
-      tip: String(m.tip || '').trim()
+      tip: String(m.tip || '').trim(),
+      // Rough per-serving estimate. Bounded to a sane range and rounded to the
+      // nearest 10 so we never show false precision; 0/invalid → omitted.
+      caloriesPerServing: (() => {
+        const n = Number(m.caloriesPerServing)
+        if (!Number.isFinite(n) || n <= 0) return null
+        return Math.round(Math.min(5000, Math.max(20, n)) / 10) * 10
+      })()
     }
     if (!method.steps.length) return reject(502, 'method_failed', 'Could not write that recipe. Please try again.')
     return { status: 200, body: { method } }

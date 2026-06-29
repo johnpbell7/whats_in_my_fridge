@@ -156,6 +156,12 @@ export default function MethodSheet({ meal, servings = 2, onClose, onMethod }) {
             {method && !busy && (
               <>
                 {method.time && <p className="method-time">⏱ {method.time} · serves {method.serves}</p>}
+                {method.caloriesPerServing > 0 && (
+                  <p className="method-calories">
+                    🔥 ~{method.caloriesPerServing} kcal per serving
+                    <span className="method-calories-est"> · estimate</span>
+                  </p>
+                )}
                 {method.ingredients?.length > 0 && (
                   <div className="method-section">
                     <h4>Ingredients</h4>
@@ -177,7 +183,7 @@ export default function MethodSheet({ meal, servings = 2, onClose, onMethod }) {
                     <IconCheck size={13} className="inline-ico" /> {method.tip}
                   </p>
                 )}
-                <SafetyNote />
+                <SafetyNote calories={method.caloriesPerServing > 0} />
               </>
             )}
           </div>

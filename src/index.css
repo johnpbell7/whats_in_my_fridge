@@ -1022,7 +1022,9 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .serves-stepper button:disabled { color: var(--ink-faint); opacity: 0.5; }
 .serves-stepper strong { font-size: 17px; min-width: 16px; text-align: center; font-variant-numeric: tabular-nums; }
 .method-loading { display: flex; align-items: center; gap: 10px; color: var(--ink-soft); font-size: 14px; padding: 10px 0; }
-.method-time { font-size: 13px; color: var(--ink-faint); margin: 0 0 8px; }
+.method-time { font-size: 13px; color: var(--ink-faint); margin: 0 0 4px; }
+.method-calories { font-size: 13px; color: var(--ink-faint); margin: 0 0 8px; }
+.method-calories-est { opacity: 0.7; }
 .method-section { margin: 6px 0 14px; }
 .method-section h4 { font-family: var(--font-display); font-weight: 600; font-size: 16px; margin: 0 0 7px; }
 .method-ingredients { margin: 0; padding-left: 18px; }
