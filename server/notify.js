@@ -3,8 +3,8 @@
 // no-ops cleanly until RESEND_API_KEY (and, for the cron, CRON_SECRET) are set.
 
 import { timingSafeEqual } from 'node:crypto'
-import { authenticate, admin, TRIAL_DAYS } from './auth.js'
-import { sendEmail, welcomeEmail, trialReminderEmail, reengagementEmail, newSubscriberEmail, reportEmail, OWNER_EMAIL, unsubscribeUrl, unsubscribeToken } from './email.js'
+import { authenticate, admin, TRIAL_DAYS, dayStart } from './auth.js'
+import { sendEmail, welcomeEmail, trialReminderEmail, reengagementEmail, newSubscriberEmail, reportEmail, founderSnapshotEmail, OWNER_EMAIL, unsubscribeUrl, unsubscribeToken } from './email.js'
 
 const MAX_MSG = 4000
 
@@ -120,6 +120,75 @@ async function emailFor(db, userId) {
   }
 }
 
+// Cheap exact-count query against profiles (HEAD, no rows returned). Returns 0
+// on any error so the snapshot degrades gracefully rather than throwing.
+async function countProfiles(db, build) {
+  try {
+    const q = build(db.from('profiles').select('id', { count: 'exact', head: true }))
+    const { count } = await q
+    return count || 0
+  } catch {
+    return 0
+  }
+}
+
+// Estimated UK tax on app profit for someone whose salary already used their
+// personal allowance (~£6,270 headroom left in the 20% band). Mirrors FINANCES.md:
+// 20% then 40%, plus Class 4 NI (6% to £50,270, 2% above) on profit over £12,570.
+function estTax(profit) {
+  if (profit <= 0) return 0
+  const headroom = 6270
+  const incomeTax = Math.min(profit, headroom) * 0.2 + Math.max(0, profit - headroom) * 0.4
+  const niBand = Math.max(0, Math.min(profit, 50270) - 12570) * 0.06 + Math.max(0, profit - 50270) * 0.02
+  return incomeTax + niBand
+}
+
+// Build + send the owner-only daily founder snapshot. Estimates revenue/profit
+// from the FINANCES model; Stripe remains the source of truth for exact money.
+// Wrapped so a failure here never breaks the welcome/reminder jobs around it.
+async function sendFounderSnapshot(db) {
+  try {
+    const today = dayStart()
+    const trialCutoff = new Date(Date.now() - TRIAL_DAYS * 86400000).toISOString()
+    const [total, paying, newToday, trials] = await Promise.all([
+      countProfiles(db, (q) => q),
+      countProfiles(db, (q) => q.eq('tier', 'plus')),
+      countProfiles(db, (q) => q.gte('created_at', today)),
+      // Active trials: not paying, signed up within the trial window.
+      countProfiles(db, (q) => q.neq('tier', 'plus').gte('created_at', trialCutoff))
+    ])
+    if (total === 0) return false // pre-launch: nothing to report, stay quiet
+
+    const free = Math.max(0, total - paying)
+    const mrrNum = paying * 3.99
+    const arrNum = paying * 47.88
+    // Annual cost lines from FINANCES.md.
+    const stripeFees = arrNum * 0.065
+    const paidAI = paying * 2.4
+    const freeAI = free * 0.5
+    const infra = total >= 5000 ? 636 : 444
+    const netProfit = arrNum - stripeFees - paidAI - freeAI - infra
+    const takeHomeYr = netProfit - estTax(netProfit)
+
+    const stats = {
+      total,
+      paying,
+      newToday,
+      trials,
+      convPct: total ? Math.round((paying / total) * 1000) / 10 : 0,
+      mrr: Math.round(mrrNum),
+      arr: Math.round(arrNum),
+      takeHomeMo: Math.round(Math.max(0, takeHomeYr) / 12)
+    }
+    const { subject, html } = founderSnapshotEmail(stats)
+    const r = await sendEmail({ to: OWNER_EMAIL, subject, html })
+    return Boolean(r.ok)
+  } catch (err) {
+    console.warn('Founder snapshot skipped:', err?.message || err)
+    return false
+  }
+}
+
 // Welcome new users + remind trials ending soon. Kept here (and wired into the
 // dev server) so it's ready to re-home: the Vercel function was dropped to stay
 // under the Hobby plan's 12-function limit, so trigger this from an external
@@ -225,7 +294,10 @@ export async function scheduledEmailsHandler(authHeader = '') {
     console.warn('Re-engagement skipped (add a `reengaged_at` column to profiles to enable):', err?.message || err)
   }
 
-  return { status: 200, body: { ok: true, welcomed, reminded, reengaged } }
+  // 4) Owner-only daily founder snapshot (users / paying / revenue estimate).
+  const snapshot = await sendFounderSnapshot(db)
+
+  return { status: 200, body: { ok: true, welcomed, reminded, reengaged, snapshot } }
 }
 
 // Send one of every email to the owner so the designs can be checked in a real

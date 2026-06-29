@@ -137,6 +137,35 @@ export function newSubscriberEmail({ email, amount }) {
   }
 }
 
+// Daily founder snapshot — owner-only. A single glance at the numbers that
+// matter (users, trials, paying, conversion) plus a revenue/take-home estimate
+// from the FINANCES model, so you never have to log into two dashboards and do
+// the maths by hand. All figures are estimates; Stripe is the source of truth
+// for exact revenue.
+export function founderSnapshotEmail(s) {
+  const row = (emoji, label, value, sub = '') =>
+    `<tr>
+      <td style="padding:9px 0;border-bottom:1px solid #f0ebde;font-size:14px;color:#5d5648">${emoji}&nbsp; ${label}</td>
+      <td style="padding:9px 0;border-bottom:1px solid #f0ebde;font-size:15px;color:#1f1b16;font-weight:600;text-align:right">${value}${sub ? `<span style="font-weight:400;color:#8a8170;font-size:12px"> ${sub}</span>` : ''}</td>
+    </tr>`
+  return {
+    subject: `📊 Fridge daily — ${s.total} users · ${s.paying} paying · ~£${s.mrr}/mo`,
+    html: shell(
+      "Today's numbers",
+      `
+      <table style="width:100%;border-collapse:collapse;margin:4px 0 6px">
+        ${row('👥', 'Total users', s.total.toLocaleString('en-GB'), s.newToday ? `(+${s.newToday} today)` : '')}
+        ${row('🧪', 'On trial', s.trials.toLocaleString('en-GB'))}
+        ${row('💳', 'Paying (Plus)', s.paying.toLocaleString('en-GB'), `· ${s.convPct}% of users`)}
+        ${row('💷', 'Est. revenue', `£${s.mrr}/mo`, `· ~£${s.arr}/yr`)}
+        ${row('📈', 'Est. take-home', `~£${s.takeHomeMo}/mo`, '· after costs & tax')}
+      </table>
+      <p style="font-size:12px;color:#8a8170;line-height:1.5;margin:14px 0 0">Estimates from your finance model (paying × £3.99, minus AI/infra/Stripe/~tax). Stripe is the source of truth for exact revenue. Sweet spot: ~10,000 users.</p>
+    `
+    )
+  }
+}
+
 export function reportEmail({ type, message, userEmail, meta }) {
   return {
     subject: `🐞 Issue report: ${esc(type)}`,
