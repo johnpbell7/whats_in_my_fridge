@@ -842,6 +842,12 @@
       .polaroid:nth-child(even){transform:rotate(3deg)}
       .polaroid.pola-extra{display:none}
     }
+    .polaroid{cursor:zoom-in}
+    /* tap-to-enlarge lightbox */
+    .pola-box{position:fixed;inset:0;background:rgba(20,24,20,.84);display:none;align-items:center;justify-content:center;z-index:9999;padding:24px;cursor:zoom-out;-webkit-tap-highlight-color:transparent}
+    .pola-box.open{display:flex}
+    .pola-box img{max-width:92vw;max-height:88vh;border-radius:8px;background:#fffdf8;padding:12px 12px 28px;box-shadow:0 24px 70px rgba(0,0,0,.5)}
+    .pola-box .pola-x{position:absolute;top:14px;right:20px;font-size:34px;line-height:1;color:#fff;background:none;border:0;cursor:pointer;opacity:.92}
   </style>
   <section class="polaroids" aria-label="The app in real kitchens">
     <div class="pola-strip" id="polaStrip">
@@ -857,22 +863,39 @@
       <figure class="polaroid pola-extra"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
     </div>
   </section>
+  <div class="pola-box" id="polaBox" role="dialog" aria-modal="true" aria-label="Enlarged photo">
+    <button class="pola-x" id="polaX" aria-label="Close">&times;</button>
+    <img alt="">
+  </div>
   <script>
    (function(){
      // Drop your lifestyle photos in /polaroids/01.jpg ... 10.jpg (4:5 portrait).
      // Desktop fans all available ones out as overlapping polaroids; mobile shows
-     // 4 slots that cycle through the whole set.
+     // 4 slots that cycle through the WHOLE set. Tap any one to enlarge it.
      var COUNT=10, pool=[];
      for(var i=1;i<=COUNT;i++){pool.push('/polaroids/'+(i<10?'0':'')+i+'.jpg');}
      var imgs=[].slice.call(document.querySelectorAll('#polaStrip .ph img'));
      imgs.forEach(function(im,idx){ im.src=pool[idx%pool.length]; });
-     function mobile(){return window.matchMedia('(max-width:760px)').matches;}
-     var off=0;
+
+     // Tap-to-enlarge lightbox (mobile + desktop)
+     var box=document.getElementById('polaBox'), boxImg=box.querySelector('img'), paused=false;
+     function openBox(src){ if(!src)return; boxImg.src=src; box.classList.add('open'); paused=true; }
+     function closeBox(){ box.classList.remove('open'); paused=false; }
+     imgs.forEach(function(im){
+       im.parentNode.parentNode.addEventListener('click', function(){ openBox(im.src); });
+     });
+     box.addEventListener('click', closeBox);
+     document.getElementById('polaX').addEventListener('click', closeBox);
+     document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeBox(); });
+
+     // Mobile: rotate the 4 visible slots through every image (paused while enlarged)
+     function mobile(){ return window.matchMedia('(max-width:760px)').matches; }
+     var spread=Math.max(1,Math.ceil(pool.length/4)), off=0;
      setInterval(function(){
-       if(!mobile())return;
-       off=(off+4)%pool.length;
-       for(var s=0;s<4;s++){ if(imgs[s]){ imgs[s].style.display=''; imgs[s].src=pool[(off+s)%pool.length]; } }
-     },3500);
+       if(!mobile()||paused) return;
+       off=(off+1)%pool.length;
+       for(var s=0;s<4;s++){ if(imgs[s]){ imgs[s].style.display=''; imgs[s].src=pool[(off+s*spread)%pool.length]; } }
+     },3000);
    })();
   </script>
 
