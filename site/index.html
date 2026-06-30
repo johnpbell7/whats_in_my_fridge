@@ -896,19 +896,9 @@
     .pola-marquee .polaroid:nth-child(even){--r:3deg}
     @media(max-width:760px){.pola-marquee .polaroid{width:126px;margin-left:-16px}}
   </style>
-  <section class="polaroids" aria-label="The app in real kitchens">
-    <div class="pola-strip" id="polaStrip">
-      <figure class="polaroid"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
-      <figure class="polaroid"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
-      <figure class="polaroid"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
-      <figure class="polaroid"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
-      <figure class="polaroid pola-extra"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
-      <figure class="polaroid pola-extra"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
-      <figure class="polaroid pola-extra"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
-      <figure class="polaroid pola-extra"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
-      <figure class="polaroid pola-extra"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
-      <figure class="polaroid pola-extra"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
-    </div>
+  <!-- lower auto-scrolling marquee (same behaviour as the top one) -->
+  <section class="pola-marquee-sec" aria-label="What's in my Fridge in real kitchens">
+    <div class="pola-marquee"><div class="pola-track" id="polaTrack2"></div></div>
   </section>
   <div class="pola-box" id="polaBox" role="dialog" aria-modal="true" aria-label="Enlarged photo">
     <button class="pola-x" id="polaX" aria-label="Close">&times;</button>
@@ -916,63 +906,42 @@
   </div>
   <script>
    (function(){
-     // Drop your lifestyle photos in /polaroids/01.jpg ... 48.jpg (4:5 portrait).
-     // Desktop fans all available ones out as overlapping polaroids; mobile shows
-     // 4 slots that cycle through the WHOLE set. Tap any one to enlarge it.
-     var COUNT=48, pool=[];
-     for(var i=1;i<=COUNT;i++){pool.push('/polaroids/'+(i<10?'0':'')+i+'.jpg');}
-     var imgs=[].slice.call(document.querySelectorAll('#polaStrip .ph img'));
-     imgs.forEach(function(im,idx){ im.src=pool[idx%pool.length]; });
-
-     // Tap-to-enlarge lightbox (mobile + desktop)
-     var box=document.getElementById('polaBox'), boxImg=box.querySelector('img'), paused=false;
-     function openBox(src){ if(!src)return; boxImg.src=src; box.classList.add('open'); paused=true; }
-     function closeBox(){ box.classList.remove('open'); paused=false; }
-     imgs.forEach(function(im){
-       im.parentNode.parentNode.addEventListener('click', function(){ openBox(im.src); });
-     });
+     // Tap-to-enlarge lightbox, shared by both photo marquees
+     var box=document.getElementById('polaBox'), boxImg=box.querySelector('img');
+     function openBox(src){ if(!src)return; boxImg.src=src; box.classList.add('open'); }
+     function closeBox(){ box.classList.remove('open'); }
      box.addEventListener('click', closeBox);
      document.getElementById('polaX').addEventListener('click', closeBox);
      document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeBox(); });
 
-     // Mobile: rotate the 4 visible slots through every image (paused while enlarged)
-     function mobile(){ return window.matchMedia('(max-width:760px)').matches; }
-     var spread=Math.max(1,Math.ceil(pool.length/4)), off=0;
-     setInterval(function(){
-       if(!mobile()||paused) return;
-       off=(off+1)%pool.length;
-       for(var s=0;s<4;s++){ if(imgs[s]){ imgs[s].style.display=''; imgs[s].src=pool[(off+s*spread)%pool.length]; } }
-     },3000);
-
-     // Top auto-scrolling marquee — probes /polaroids/01..48.jpg, shows every one
-     // it finds (so dropping in new numbered photos just works), clickable to enlarge.
-     var track=document.getElementById('polaTrack');
-     if(track){
-       var MAX=48, found=[], pendingM=MAX;
+     // Auto-scrolling photo marquee — probes /polaroids/01..48.jpg and shows every
+     // one it finds (drop in new numbered photos and they just appear). It drifts
+     // on its own, you can swipe to scrub through faster, and tapping one enlarges
+     // it. Per-frame work pauses while it's off-screen so it never janks the rest
+     // of the page. Reused for both the top strip and the lower one.
+     function buildMarquee(track, startFrac){
+       if(!track) return;
+       var MAX=48, found=[], pendingM=MAX, marquee=track.parentNode;
        for(var k=1;k<=MAX;k++){(function(k){
          var src='/polaroids/'+(k<10?'0':'')+k+'.jpg', probe=new Image();
          probe.onload=function(){ found.push([k,src]); finM(); };
          probe.onerror=finM; probe.src=src;
        })(k);}
-       var marquee=track.parentNode; // .pola-marquee (the scroll container)
        function finM(){
          if(--pendingM>0) return;
          found.sort(function(a,b){ return a[0]-b[0]; });
-         if(!found.length){ track.parentNode.parentNode.style.display='none'; return; }
+         if(!found.length){ marquee.parentNode.style.display='none'; return; }
          var fig=function(s){ return '<figure class="polaroid"><span class="ph"><img alt="" src="'+s+'"></span></figure>'; };
          var once=found.map(function(f){ return fig(f[1]); }).join('');
          track.innerHTML=once+once; // duplicate for a seamless loop
          [].slice.call(track.querySelectorAll('.ph img')).forEach(function(im){
            im.parentNode.parentNode.addEventListener('click', function(){ openBox(im.src); });
          });
-         drive(); // auto-drift + swipe-to-scrub, with centre focus
+         drive();
        }
-       // The marquee auto-drifts by nudging scrollLeft each frame; because it's a
-       // real scroll container you can also swipe/drag to scrub through faster.
-       // Auto pauses while you interact (or hover) and resumes shortly after.
        function drive(){
          var items=[].slice.call(track.querySelectorAll('.polaroid'));
-         var SPEED=0.5, hovering=false, dragging=false, lastTouch=-1e9, pos=1;
+         var SPEED=0.5, hovering=false, dragging=false, lastTouch=-1e9, pos=1, t0=performance.now(), visible=true, tick=0;
          marquee.addEventListener('mouseenter', function(){ hovering=true; });
          marquee.addEventListener('mouseleave', function(){ hovering=false; });
          marquee.addEventListener('pointerdown', function(){ dragging=true; });
@@ -980,33 +949,47 @@
          marquee.addEventListener('touchstart', function(){ dragging=true; }, {passive:true});
          window.addEventListener('touchend', function(){ dragging=false; lastTouch=performance.now(); }, {passive:true});
          marquee.addEventListener('wheel', function(){ lastTouch=performance.now(); }, {passive:true});
+         // pause everything when the strip is off-screen — stops constant layout
+         // thrash that was making other on-page animations stutter — and fire the
+         // quick-start burst the first time it actually comes into view.
+         var bursted=false;
+         if('IntersectionObserver' in window){
+           new IntersectionObserver(function(es){
+             visible=es[0].isIntersecting;
+             if(visible && !bursted){ bursted=true; t0=performance.now(); }
+           }, {rootMargin:'150px 0px'}).observe(marquee);
+         }
+         pos=Math.max(1, (track.scrollWidth/2)*(startFrac||0)); // offset the two strips
          marquee.scrollLeft=pos;
-         // float accumulator: scrollLeft can't carry sub-pixel steps, so we keep
-         // our own position and write it each frame (and follow the user when they swipe).
          (function frame(){
+           requestAnimationFrame(frame);
+           if(!visible) return;                          // off-screen → skip all work
            var half=track.scrollWidth/2||1;
            var idle=!hovering && !dragging && (performance.now()-lastTouch>800);
            if(idle){
-             pos+=SPEED;
+             var spd=SPEED + 5*Math.exp(-(performance.now()-t0)/650); // quick start, eases off
+             pos+=spd;
              if(pos>=half) pos-=half; else if(pos<=0) pos+=half;   // seamless loop
              marquee.scrollLeft=pos;
            } else {
-             // user is driving — keep our accumulator in sync, and wrap their scroll too
-             if(marquee.scrollLeft>=half) marquee.scrollLeft-=half;
+             if(marquee.scrollLeft>=half) marquee.scrollLeft-=half; // follow the user's swipe
              else if(marquee.scrollLeft<=0) marquee.scrollLeft+=half;
              pos=marquee.scrollLeft;
            }
-           var vw=window.innerWidth, cx=vw/2, hw=vw/2;
-           for(var i=0;i<items.length;i++){
-             var el=items[i], r=el.getBoundingClientRect();
-             if(r.right<-40||r.left>vw+40){ el.style.setProperty('--s','1'); continue; }
-             var d=Math.min(1, Math.abs((r.left+r.width/2)-cx)/hw);
-             el.style.setProperty('--s', (1 + (1-d)*(1-d)*0.09).toFixed(3));
+           if((tick++ & 1)===0){ // centre-focus scale, every other frame to halve cost
+             var vw=window.innerWidth, cx=vw/2, hw=vw/2;
+             for(var i=0;i<items.length;i++){
+               var el=items[i], r=el.getBoundingClientRect();
+               if(r.right<-40||r.left>vw+40){ el.style.setProperty('--s','1'); continue; }
+               var d=Math.min(1, Math.abs((r.left+r.width/2)-cx)/hw);
+               el.style.setProperty('--s', (1 + (1-d)*(1-d)*0.09).toFixed(3));
+             }
            }
-           requestAnimationFrame(frame);
          })();
        }
      }
+     buildMarquee(document.getElementById('polaTrack'), 0);
+     buildMarquee(document.getElementById('polaTrack2'), 0.5);
    })();
   </script>
 
