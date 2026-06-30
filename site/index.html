@@ -152,10 +152,13 @@
         background: radial-gradient(closest-side, rgba(47,125,90,.24), rgba(194,96,58,.17) 54%, transparent 76%); }
       /* shrink the wrap to the phone so the corner pieces anchor to it, not the screen */
       .phone-wrap { align-self: center; width: max-content; max-width: 100%; }
-      .hero-veg { width: 168%; max-width: 460px; opacity: .12; }
-      .hero-pola { width: 108px; padding: 6px 6px 14px; }
-      .hp-tr { top: -20px; right: -20px; }
-      .hp-bl { bottom: -16px; left: -20px; }
+      /* .phone-wrap prefix raises specificity above the base rules that come
+         later in the file, so these mobile values actually win */
+      .phone-wrap .hero-veg { width: 240%; max-width: 700px; opacity: .13; }
+      .phone-wrap .hero-pola { width: 104px; padding: 6px 6px 14px; }
+      /* push the corner polaroids out to the sides, off the phone (bleed is fine) */
+      .phone-wrap .hp-tr { top: -16px; right: -90px; }
+      .phone-wrap .hp-bl { bottom: -12px; left: -90px; }
     }
 
     /* phone mockup */
