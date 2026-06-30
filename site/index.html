@@ -107,7 +107,11 @@
 
     /* hero — headline + the rest stack in the left column, phone on the right.
        On mobile this reorders to headline → phone → the rest (see media query). */
-    .hero { padding: 64px 0 40px; }
+    .hero { padding: 64px 0 40px; position: relative; isolation: isolate;
+      background:
+        radial-gradient(60% 55% at 82% 26%, rgba(194,96,58,.14), transparent 70%),
+        radial-gradient(58% 60% at 12% 88%, rgba(47,125,90,.12), transparent 72%),
+        radial-gradient(90% 70% at 50% 8%, rgba(246,237,220,.55), transparent 75%); }
     .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; column-gap: 48px; row-gap: 0; align-items: center; }
     .hero-head { grid-column: 1; grid-row: 1; align-self: end; }
     .hero-tail { grid-column: 1; grid-row: 2; align-self: start; }
@@ -143,10 +147,18 @@
       .hero-ctas { justify-content: center; }
       .hero-trust { justify-content: center; }
       .qr-card { display: none; } /* on a phone you just tap — no QR needed */
+      /* warmer, fuller glow behind the phone on mobile */
+      .phone-wrap::before { width: 142%; height: 82%;
+        background: radial-gradient(closest-side, rgba(47,125,90,.24), rgba(194,96,58,.17) 54%, transparent 76%); }
     }
 
     /* phone mockup */
     .phone-wrap { display: flex; justify-content: center; position: relative; }
+    /* warm glow behind the phone so it doesn't sit on flat cream (less clinical) */
+    .phone-wrap::before { content: ''; position: absolute; z-index: 0; width: 124%; height: 88%;
+      top: 50%; left: 50%; transform: translate(-50%, -48%);
+      background: radial-gradient(closest-side, rgba(47,125,90,.20), rgba(194,96,58,.12) 58%, transparent 78%);
+      filter: blur(8px); pointer-events: none; }
     .phone { width: 282px; flex: none; background: #14110d; border-radius: 42px; padding: 11px; box-shadow: 0 30px 60px -24px rgba(38,104,75,.45); position: relative; z-index: 2; }
     .phone::before { content: ''; position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 110px; height: 22px; background: #14110d; border-radius: 0 0 14px 14px; z-index: 3; }
     .screen { background: var(--bg); border-radius: 32px; overflow: hidden; height: 506px; position: relative; }
@@ -828,7 +840,7 @@
 
   <!-- ============ POLAROID STRIP (lifestyle break) ============ -->
   <style>
-    .polaroids{padding:46px 0 30px;overflow:hidden}
+    .polaroids{padding:34px 0 52px;overflow-x:clip;overflow-y:visible}
     .pola-strip{display:flex;justify-content:center;align-items:center;flex-wrap:nowrap;max-width:1200px;margin:0 auto;padding:30px 16px}
     .polaroid{flex:0 0 auto;width:176px;background:#fffdf8;padding:11px 11px 26px;border-radius:6px;
       box-shadow:0 12px 30px rgba(31,27,22,.17);margin-left:-30px;transition:transform .25s ease,box-shadow .25s ease}
@@ -854,14 +866,14 @@
     .pola-box img{max-width:92vw;max-height:88vh;border-radius:8px;background:#fffdf8;padding:12px 12px 28px;box-shadow:0 24px 70px rgba(0,0,0,.5)}
     .pola-box .pola-x{position:absolute;top:14px;right:20px;font-size:34px;line-height:1;color:#fff;background:none;border:0;cursor:pointer;opacity:.92}
     /* top auto-scrolling marquee (lifestyle + app shots mixed) */
-    .pola-marquee-sec{padding:36px 0 8px;overflow:hidden}
-    .pola-marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
-    .pola-track{display:flex;width:max-content;animation:pola-scroll 90s linear infinite}
+    .pola-marquee-sec{padding:26px 0 30px;overflow-x:clip;overflow-y:visible}
+    .pola-marquee{overflow-x:clip;overflow-y:visible;padding:24px 0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+    .pola-track{display:flex;width:max-content;align-items:center;animation:pola-scroll 90s linear infinite}
     .pola-track:hover{animation-play-state:paused}
-    .pola-marquee .polaroid{width:152px;margin-left:-20px}
+    .pola-marquee .polaroid{width:152px;margin-left:-20px;transform:rotate(var(--r,0deg)) scale(var(--s,1));transform-origin:center center;will-change:transform}
     .pola-marquee .polaroid:first-child{margin-left:0}
-    .pola-marquee .polaroid:nth-child(odd){transform:rotate(-3deg)}
-    .pola-marquee .polaroid:nth-child(even){transform:rotate(3deg)}
+    .pola-marquee .polaroid:nth-child(odd){--r:-3deg}
+    .pola-marquee .polaroid:nth-child(even){--r:3deg}
     @keyframes pola-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
     @media(max-width:760px){.pola-marquee .polaroid{width:126px;margin-left:-16px}.pola-track{animation-duration:60s}}
   </style>
@@ -885,10 +897,10 @@
   </div>
   <script>
    (function(){
-     // Drop your lifestyle photos in /polaroids/01.jpg ... 10.jpg (4:5 portrait).
+     // Drop your lifestyle photos in /polaroids/01.jpg ... 48.jpg (4:5 portrait).
      // Desktop fans all available ones out as overlapping polaroids; mobile shows
      // 4 slots that cycle through the WHOLE set. Tap any one to enlarge it.
-     var COUNT=10, pool=[];
+     var COUNT=48, pool=[];
      for(var i=1;i<=COUNT;i++){pool.push('/polaroids/'+(i<10?'0':'')+i+'.jpg');}
      var imgs=[].slice.call(document.querySelectorAll('#polaStrip .ph img'));
      imgs.forEach(function(im,idx){ im.src=pool[idx%pool.length]; });
@@ -913,11 +925,11 @@
        for(var s=0;s<4;s++){ if(imgs[s]){ imgs[s].style.display=''; imgs[s].src=pool[(off+s*spread)%pool.length]; } }
      },3000);
 
-     // Top auto-scrolling marquee — probes /polaroids/01..40.jpg, shows every one
+     // Top auto-scrolling marquee — probes /polaroids/01..48.jpg, shows every one
      // it finds (so dropping in new numbered photos just works), clickable to enlarge.
      var track=document.getElementById('polaTrack');
      if(track){
-       var MAX=40, found=[], pendingM=MAX;
+       var MAX=48, found=[], pendingM=MAX;
        for(var k=1;k<=MAX;k++){(function(k){
          var src='/polaroids/'+(k<10?'0':'')+k+'.jpg', probe=new Image();
          probe.onload=function(){ found.push([k,src]); finM(); };
@@ -934,6 +946,22 @@
            im.parentNode.parentNode.addEventListener('click', function(){ openBox(im.src); });
          });
          track.style.animationDuration=Math.max(45, found.length*6)+'s';
+         centreScale(); // gently enlarge whichever polaroids are nearest the middle
+       }
+       // Each frame, scale the marquee's polaroids up a touch as they pass the
+       // centre of the screen (peak ~+9%), easing back to normal toward the edges.
+       function centreScale(){
+         var items=[].slice.call(track.querySelectorAll('.polaroid'));
+         (function frame(){
+           var vw=window.innerWidth, cx=vw/2, half=vw/2;
+           for(var i=0;i<items.length;i++){
+             var el=items[i], r=el.getBoundingClientRect();
+             if(r.right<-40||r.left>vw+40){ el.style.setProperty('--s','1'); continue; }
+             var d=Math.min(1, Math.abs((r.left+r.width/2)-cx)/half);
+             el.style.setProperty('--s', (1 + (1-d)*(1-d)*0.09).toFixed(3));
+           }
+           requestAnimationFrame(frame);
+         })();
        }
      }
    })();
