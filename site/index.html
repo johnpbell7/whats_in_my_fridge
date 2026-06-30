@@ -3,6 +3,23 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Meta (Facebook/Instagram) Pixel — DORMANT until you paste your Pixel ID
+       below (same ID as the app). Until then nothing loads and no cookies are
+       set. The Pixel uses cookies, so add a cookie-consent banner before
+       enabling it for UK/EU traffic. -->
+  <script>
+    window.FB_PIXEL_ID = 'REPLACE_WITH_PIXEL_ID';
+    (function () {
+      var id = window.FB_PIXEL_ID;
+      if (!id || id === 'REPLACE_WITH_PIXEL_ID') return; // not configured → no-op
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+      document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', id); fbq('track', 'PageView');
+    })();
+  </script>
   <title>What's in my Fridge — Dinner Ideas From a Photo, Track Your Fridge &amp; Waste Less</title>
   <meta name="description" content="Snap whatever's in your fridge and AI tells you what to cook tonight — plus what to buy. Track your food, cut waste with use-by reminders, and keep a smart shopping list. Free to start." />
   <meta name="theme-color" content="#2f7d5a" />
