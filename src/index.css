@@ -136,7 +136,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .std-brand { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; text-align: left;
   background: none; border: 0; padding: 0; margin: 0; font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .std-brand:active { opacity: 0.7; }
-.std-brand-sm { font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 11px; color: var(--ink-soft); margin-bottom: -3px; }
+.std-brand-sm { font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 11px; color: #5a8a72; margin-bottom: -3px; }
 .std-brand-lg { font-family: var(--font-display); font-weight: 600; font-size: 30px; letter-spacing: -0.02em; color: var(--accent); display: inline-flex; align-items: baseline; }
 .std-brand-lg .leaf { color: var(--leaf); width: 0.46em; height: auto; margin-left: 0.06em; transform: translateY(0.02em) rotate(-14deg); }
 
@@ -1211,8 +1211,10 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   margin: 0 auto;
 }
 .onboard-top { display: flex; align-items: center; justify-content: space-between; }
-.onboard-brand { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--ink); }
-.onboard-brand .leaf { color: var(--accent); }
+.onboard-brand { font-family: var(--font-display); display: flex; flex-direction: column; align-items: center; line-height: 1; }
+.onboard-brand-sm { font-style: italic; font-weight: 500; font-size: 11px; color: #5a8a72; margin-bottom: -2px; }
+.onboard-brand-lg { font-weight: 600; font-size: 22px; letter-spacing: -0.02em; color: var(--accent); display: inline-flex; align-items: baseline; }
+.onboard-brand-lg .leaf { color: var(--leaf); width: 0.46em; height: auto; margin-left: 0.06em; transform: translateY(0.02em) rotate(-12deg); }
 .onboard-skip { background: none; border: 0; color: var(--ink-soft); font-weight: 600; font-size: 14px; padding: 6px 4px; }
 
 .onboard-stage { flex: 1; position: relative; overflow: hidden; display: flex; }
@@ -1910,7 +1912,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   font-size: 20px;
   letter-spacing: 0;
   margin-bottom: 8px;
-  color: var(--ink-soft);
+  color: #5a8a72;
 }
 .splash-big {
   font-family: var(--font-display);

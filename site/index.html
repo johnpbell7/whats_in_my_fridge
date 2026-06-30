@@ -77,7 +77,7 @@
       background: rgba(250,247,242,.78); border-bottom: 1px solid var(--line); }
     .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 66px; }
     .brand { display: inline-flex; align-items: baseline; gap: 0; font-family: var(--display); font-weight: 600; font-size: 20px; letter-spacing: -0.02em; }
-    .brand .b-sec { color: var(--ink-soft); font-weight: 500; font-size: 0.92em; margin-right: 0.16em; }
+    .brand .b-sec { color: #5a8a72; font-style: italic; font-weight: 500; font-size: 0.92em; margin-right: 0.16em; }
     .brand .b-main { color: var(--accent); font-size: 1.28em; }
     .brand .leaf { color: #7bb497; width: 0.82em; height: auto; margin-left: 0.03em; align-self: center; transform: rotate(-16deg); flex: none; }
     .nav-links { display: flex; align-items: center; gap: 30px; }
@@ -469,7 +469,7 @@
   <!-- ============ NAV ============ -->
   <header class="nav">
     <div class="wrap nav-inner">
-      <a class="brand" href="/" aria-label="What's in my Fridge — home"><span class="b-sec">What's in my</span><span class="b-main">Fridge</span><svg class="leaf" viewBox="0 0 100 52" aria-hidden="true"><path d="M2 26 C 18 2, 64 2, 94 22 C 64 50, 18 50, 2 26 Z" fill="currentColor"/></svg></a>
+      <a class="brand" href="/" aria-label="What's in my Fridge — home"><span class="b-sec">What's in my</span><span class="b-main">Fridge</span><svg class="leaf" viewBox="0 0 100 52" aria-hidden="true"><path d="M4 33 C 25 6, 70 1, 97 17 C 73 41, 27 47, 4 33 Z" fill="currentColor"/><path d="M16 30 C 40 16, 66 14, 89 20" fill="none" stroke="#ffffff" stroke-opacity="0.65" stroke-width="4.5" stroke-linecap="round"/></svg></a>
       <nav class="nav-links" id="navlinks">
         <a href="#features">Features</a>
         <a href="#how">How it works</a>
@@ -821,6 +821,61 @@
     </div>
   </section>
 
+  <!-- ============ POLAROID STRIP (lifestyle break) ============ -->
+  <style>
+    .polaroids{padding:46px 0 30px;overflow:hidden}
+    .pola-strip{display:flex;justify-content:center;align-items:center;flex-wrap:nowrap;max-width:1200px;margin:0 auto;padding:30px 16px}
+    .polaroid{flex:0 0 auto;width:176px;background:#fffdf8;padding:11px 11px 26px;border-radius:6px;
+      box-shadow:0 12px 30px rgba(31,27,22,.17);margin-left:-30px;transition:transform .25s ease,box-shadow .25s ease}
+    .polaroid:first-child{margin-left:0}
+    .polaroid .ph{display:block;width:100%;aspect-ratio:4/5;border-radius:3px;background:#e6efe8;overflow:hidden}
+    .polaroid .ph img{width:100%;height:100%;object-fit:cover;display:block}
+    .polaroid:nth-child(odd){transform:rotate(-4deg)}
+    .polaroid:nth-child(even){transform:rotate(3deg)}
+    .polaroid:nth-child(3n){transform:rotate(-2deg) translateY(10px)}
+    .polaroid:nth-child(4n){transform:rotate(5deg) translateY(-8px)}
+    .polaroid:hover{transform:rotate(0) translateY(-6px) scale(1.05);box-shadow:0 18px 40px rgba(31,27,22,.22);z-index:5}
+    @media(max-width:760px){
+      .pola-strip{flex-wrap:wrap;justify-content:center;gap:16px;max-width:360px;padding:14px 0}
+      .polaroid{width:150px;margin-left:0}
+      .polaroid:nth-child(odd){transform:rotate(-3deg)}
+      .polaroid:nth-child(even){transform:rotate(3deg)}
+      .polaroid.pola-extra{display:none}
+    }
+  </style>
+  <section class="polaroids" aria-label="The app in real kitchens">
+    <div class="pola-strip" id="polaStrip">
+      <figure class="polaroid"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
+      <figure class="polaroid"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
+      <figure class="polaroid"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
+      <figure class="polaroid"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
+      <figure class="polaroid pola-extra"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
+      <figure class="polaroid pola-extra"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
+      <figure class="polaroid pola-extra"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
+      <figure class="polaroid pola-extra"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
+      <figure class="polaroid pola-extra"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
+      <figure class="polaroid pola-extra"><span class="ph"><img alt="" onerror="this.style.display='none'"></span></figure>
+    </div>
+  </section>
+  <script>
+   (function(){
+     // Drop your lifestyle photos in /polaroids/01.jpg ... 10.jpg (4:5 portrait).
+     // Desktop fans all available ones out as overlapping polaroids; mobile shows
+     // 4 slots that cycle through the whole set.
+     var COUNT=10, pool=[];
+     for(var i=1;i<=COUNT;i++){pool.push('/polaroids/'+(i<10?'0':'')+i+'.jpg');}
+     var imgs=[].slice.call(document.querySelectorAll('#polaStrip .ph img'));
+     imgs.forEach(function(im,idx){ im.src=pool[idx%pool.length]; });
+     function mobile(){return window.matchMedia('(max-width:760px)').matches;}
+     var off=0;
+     setInterval(function(){
+       if(!mobile())return;
+       off=(off+4)%pool.length;
+       for(var s=0;s<4;s++){ if(imgs[s]){ imgs[s].style.display=''; imgs[s].src=pool[(off+s)%pool.length]; } }
+     },3500);
+   })();
+  </script>
+
   <!-- ============ HOW IT WORKS ============ -->
   <section id="how" style="background:var(--surface-2);">
     <div class="wrap">
@@ -981,7 +1036,7 @@
     <div class="wrap">
       <div class="ft-grid">
         <div>
-          <a class="brand" href="/" aria-label="What's in my Fridge — home"><span class="b-sec">What's in my</span><span class="b-main">Fridge</span><svg class="leaf" viewBox="0 0 100 52" aria-hidden="true"><path d="M2 26 C 18 2, 64 2, 94 22 C 64 50, 18 50, 2 26 Z" fill="currentColor"/></svg></a>
+          <a class="brand" href="/" aria-label="What's in my Fridge — home"><span class="b-sec">What's in my</span><span class="b-main">Fridge</span><svg class="leaf" viewBox="0 0 100 52" aria-hidden="true"><path d="M4 33 C 25 6, 70 1, 97 17 C 73 41, 27 47, 4 33 Z" fill="currentColor"/><path d="M16 30 C 40 16, 66 14, 89 20" fill="none" stroke="#ffffff" stroke-opacity="0.65" stroke-width="4.5" stroke-linecap="round"/></svg></a>
           <p class="tag">Know what you've got, waste less, and always have a good answer to "what's for dinner?"</p>
         </div>
         <div>

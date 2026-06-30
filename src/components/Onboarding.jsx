@@ -89,7 +89,14 @@ export default function Onboarding({ onDone, onNeverShow }) {
     <div className="onboard">
       <div className="onboard-top">
         <span className="onboard-brand">
-          What's in my Fridge<span className="leaf">.</span>
+          <span className="onboard-brand-sm">What's in my</span>
+          <span className="onboard-brand-lg">
+            Fridge
+            <svg className="leaf" viewBox="0 0 100 52" aria-hidden="true">
+              <path d="M4 33 C 25 6, 70 1, 97 17 C 73 41, 27 47, 4 33 Z" fill="currentColor" />
+              <path d="M16 30 C 40 16, 66 14, 89 20" fill="none" stroke="#ffffff" strokeOpacity="0.65" strokeWidth="4.5" strokeLinecap="round" />
+            </svg>
+          </span>
         </span>
         {!last && (
           <button className="onboard-skip" onClick={onDone}>

@@ -17,7 +17,7 @@ export default function AppHeader({ onHome, onHelp, helpBadge, onAccount, count 
         <span className="std-brand-lg">
           Fridge
           <svg className="leaf" viewBox="0 0 100 52" aria-hidden="true">
-            <path d="M2 26 C 18 2, 64 2, 94 22 C 64 50, 18 50, 2 26 Z" fill="currentColor" />
+            <path d="M4 33 C 25 6, 70 1, 97 17 C 73 41, 27 47, 4 33 Z" fill="currentColor" /><path d="M16 30 C 40 16, 66 14, 89 20" fill="none" stroke="#ffffff" strokeOpacity="0.65" strokeWidth="4.5" strokeLinecap="round" />
           </svg>
         </span>
       </Brand>

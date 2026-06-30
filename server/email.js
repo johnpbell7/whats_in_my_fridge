@@ -70,7 +70,7 @@ const esc = (s) => String(s || '').replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<'
 // line (used for the marketing-email unsubscribe link).
 const shell = (title, inner, footerExtra = '') => `<!doctype html><html><body style="margin:0;background:#faf7f2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1f1b16">
   <div style="max-width:520px;margin:0 auto;padding:28px 22px">
-    <div style="font-family:Georgia,'Times New Roman',serif;font-weight:600;font-size:22px;margin-bottom:16px">What's in my Fridge<span style="color:#2f7d5a">.</span></div>
+    <img src="${APP_BASE}/email-logo.png" alt="What's in my Fridge" width="188" style="display:block;width:188px;max-width:62%;height:auto;border:0;margin-bottom:16px" />
     <div style="background:#fffdf9;border:1px solid #ebe5d8;border-radius:16px;padding:24px">
       <h1 style="margin:0 0 12px;font-size:19px;font-family:Georgia,serif;font-weight:600">${title}</h1>
       ${inner}
