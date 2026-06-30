@@ -107,7 +107,7 @@
 
     /* hero — headline + the rest stack in the left column, phone on the right.
        On mobile this reorders to headline → phone → the rest (see media query). */
-    .hero { padding: 64px 0 40px; position: relative; isolation: isolate;
+    .hero { padding: 64px 0 40px; position: relative; isolation: isolate; overflow-x: clip;
       background:
         radial-gradient(60% 55% at 82% 26%, rgba(194,96,58,.14), transparent 70%),
         radial-gradient(58% 60% at 12% 88%, rgba(47,125,90,.12), transparent 72%),
@@ -150,6 +150,12 @@
       /* warmer, fuller glow behind the phone on mobile */
       .phone-wrap::before { width: 142%; height: 82%;
         background: radial-gradient(closest-side, rgba(47,125,90,.24), rgba(194,96,58,.17) 54%, transparent 76%); }
+      /* shrink the wrap to the phone so the corner pieces anchor to it, not the screen */
+      .phone-wrap { align-self: center; width: max-content; max-width: 100%; }
+      .hero-veg { width: 168%; max-width: 460px; opacity: .12; }
+      .hero-pola { width: 108px; padding: 6px 6px 14px; }
+      .hp-tr { top: -20px; right: -20px; }
+      .hp-bl { bottom: -16px; left: -20px; }
     }
 
     /* phone mockup */
@@ -159,7 +165,17 @@
       top: 50%; left: 50%; transform: translate(-50%, -48%);
       background: radial-gradient(closest-side, rgba(47,125,90,.20), rgba(194,96,58,.12) 58%, transparent 78%);
       filter: blur(8px); pointer-events: none; }
-    .phone { width: 282px; flex: none; background: #14110d; border-radius: 42px; padding: 11px; box-shadow: 0 30px 60px -24px rgba(38,104,75,.45); position: relative; z-index: 2; }
+    /* subtle hand-drawn grocery line art behind the phone, for warmth/texture */
+    .hero-veg { position: absolute; z-index: 0; width: 138%; max-width: 520px; left: 50%; top: 54%;
+      transform: translate(-50%, -50%); opacity: .13; pointer-events: none; mix-blend-mode: multiply; }
+    /* two lifestyle 'polaroids' tucked at the corners to soften the vibe */
+    .hero-pola { position: absolute; z-index: 6; width: 132px; margin: 0; background: #fffdf8;
+      padding: 8px 8px 18px; border-radius: 6px; box-shadow: 0 16px 32px -6px rgba(31,27,22,.28); }
+    .hero-pola .ph { display: block; width: 100%; aspect-ratio: 4/5; border-radius: 3px; overflow: hidden; background: #e6efe8; }
+    .hero-pola .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hp-tr { top: -26px; right: -14px; transform: rotate(4deg); }
+    .hp-bl { bottom: -22px; left: -14px; transform: rotate(-5deg); }
+    .phone { width: 256px; flex: none; background: #14110d; border-radius: 42px; padding: 11px; box-shadow: 0 30px 60px -24px rgba(38,104,75,.45); position: relative; z-index: 2; }
     .phone::before { content: ''; position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 110px; height: 22px; background: #14110d; border-radius: 0 0 14px 14px; z-index: 3; }
     .screen { background: var(--bg); border-radius: 32px; overflow: hidden; height: 506px; position: relative; }
     /* stacked app screens that cycle in the hero */
@@ -171,8 +187,9 @@
       border-radius: 14px; padding: 10px 14px; font-size: 13.5px; font-weight: 600; white-space: nowrap; }
     .float .fi { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; font-size: 15px; }
     .fc1 { top: 78px; left: -28px; }
-    .fc2 { top: 250px; right: -34px; }
-    .fc3 { bottom: 196px; left: -36px; }
+    .fc2 { top: 270px; right: -36px; }
+    /* Dinner ideas sits on the left, just under "Snap to add" */
+    .fc3 { top: 156px; left: -28px; right: auto; bottom: auto; z-index: 4; }
     .fc4 { bottom: 70px; right: -26px; }
     /* Desktop floats all four around the phone. On smaller screens there's no
        room, so we keep just two compact chips overlapping the phone's corners. */
@@ -183,18 +200,19 @@
       .fc1 .fi, .fc3 .fi { width: 20px; height: 20px; font-size: 12px; }
       /* sit at the phone's top-left / bottom-right corners, pulled outward so
          most of each chip is off the screen rather than covering content */
-      .fc1 { top: 6px; left: -16px; right: auto; bottom: auto; }
-      .fc3 { bottom: 16px; right: -16px; left: auto; top: auto; }
+      .fc1 { top: 8px; left: -12px; right: auto; bottom: auto; }
+      /* dinner ideas sits just under "Snap to add" on the left */
+      .fc3 { top: 64px; left: -12px; right: auto; bottom: auto; }
     }
     .hero-hint { padding: 0 18px; color: var(--ink-faint); font-size: 12px; margin: -2px 0 10px; }
     /* camera / shutter moment for the scan demo */
     /* feature flag floating at the phone's bottom-left — flips Free → Plus */
-    .feat-flag { position: absolute; left: -22px; bottom: 74px; z-index: 5; pointer-events: none; }
-    .ff { position: absolute; left: 0; bottom: 0; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; padding: 8px 16px; border-radius: 999px; box-shadow: 0 14px 26px -12px rgba(38,104,75,.45); }
+    .feat-flag { position: absolute; right: -10px; left: auto; top: 180px; z-index: 5; pointer-events: none; }
+    .ff { position: absolute; right: 0; left: auto; bottom: 0; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700; padding: 8px 16px; border-radius: 999px; box-shadow: 0 14px 26px -12px rgba(38,104,75,.45); }
     .ff .d { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
     .ff-free { background: var(--accent); color: var(--on-accent); }
     .ff-plus { background: var(--surface); color: var(--accent-press); border: 1.6px solid var(--accent); }
-    @media (max-width: 760px) { .ff { font-size: 11.5px; padding: 7px 13px; } .feat-flag { left: 4px; bottom: 40px; } }
+    @media (max-width: 760px) { .ff { font-size: 11.5px; padding: 7px 13px; } .feat-flag { left: auto; right: -4px; top: 188px; bottom: auto; } }
 
     .cam { position: absolute; inset: 0; z-index: 6; background: radial-gradient(120% 90% at 50% 40%, #1c2a22, #0e120f); display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .cam-scene { font-size: 40px; line-height: 1.5; text-align: center; letter-spacing: 8px; filter: saturate(1.15); opacity: .92; }
@@ -524,6 +542,9 @@
         <div class="hero-trust"><span class="stars">★★★★★</span> Free to start · No card needed</div>
       </div>
       <div class="phone-wrap">
+        <img class="hero-veg" src="/hero-veg-lines.webp" alt="" aria-hidden="true" loading="lazy">
+        <figure class="hero-pola hp-tr"><span class="ph"><img alt="" src="/hero-pola-1.jpg" loading="lazy"></span></figure>
+        <figure class="hero-pola hp-bl"><span class="ph"><img alt="" src="/hero-pola-2.jpg" loading="lazy"></span></figure>
         <div class="float fc1"><span class="fi">📸</span> Snap to add</div>
         <div class="float fc2"><span class="fi">⏱️</span> Freshness tracked</div>
         <div class="float fc3"><span class="fi">🍝</span> Dinner ideas</div>
@@ -1124,23 +1145,33 @@
 
   <!-- ============ FROM THE BLOG (internal links — helps indexing & SEO) ============ -->
   <style>
-    .blog-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:10px}
-    .blog-links a{display:block;background:#fffdf8;border:1px solid var(--line);border-radius:14px;padding:17px 19px;text-decoration:none;color:var(--ink);transition:border-color .2s,transform .2s,box-shadow .2s}
-    .blog-links a:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 10px 26px rgba(31,27,22,.08)}
-    .blog-links b{display:block;font-family:var(--display);font-weight:600;font-size:16px;margin-bottom:4px}
-    .blog-links span{font-size:13.5px;color:var(--ink-soft);line-height:1.45}
+    .blog-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:10px}
+    .blog-cards a{display:block;background:#fffdf8;border:1px solid var(--line);border-radius:16px;overflow:hidden;text-decoration:none;color:var(--ink);transition:border-color .2s,transform .2s,box-shadow .2s}
+    .blog-cards a:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 14px 30px rgba(31,27,22,.10)}
+    .blog-cards img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;object-position:50% 38%;display:block;background:#e6efe8}
+    .blog-cards .bc-body{padding:14px 16px 17px}
+    .blog-cards b{display:block;font-family:var(--display);font-weight:600;font-size:16.5px;line-height:1.2;margin-bottom:6px}
+    .blog-cards span{font-size:13px;color:var(--ink-soft);line-height:1.45}
+    .blog-more{text-align:center;margin-top:30px}
+    @media(max-width:860px){
+      /* swipe sideways through the cards on mobile */
+      .blog-cards{display:flex;overflow-x:auto;gap:14px;margin:10px -20px 0;padding:4px 20px 14px;
+        scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+      .blog-cards::-webkit-scrollbar{display:none}
+      .blog-cards a{flex:0 0 76%;max-width:300px;scroll-snap-align:start}
+      .blog-cards img{aspect-ratio:16/10}
+    }
   </style>
   <section id="blog">
     <div class="wrap">
       <div class="sec-head"><span class="eyebrow">From the blog</span><h2 class="display">Cook smarter, waste less</h2><p>Quick, practical guides for getting more out of your fridge.</p></div>
-      <div class="blog-links">
-        <a href="/blog/what-can-i-make-for-dinner/"><b>What can I make for dinner?</b><span>Turn whatever's in your fridge into a proper dinner — fast.</span></a>
-        <a href="/blog/dont-know-what-to-cook/"><b>Don't know what to cook?</b><span>A simple way to decide dinner without the 6pm panic.</span></a>
-        <a href="/blog/how-to-stop-wasting-food/"><b>How to stop wasting food</b><span>Cut the ~£60 a month the average UK home bins.</span></a>
-        <a href="/blog/how-long-does-food-last-in-the-fridge/"><b>How long does food last in the fridge?</b><span>A handy guide to what keeps, and for how long.</span></a>
-        <a href="/blog/how-to-organise-your-fridge/"><b>How to organise your fridge</b><span>Where everything goes, so nothing gets lost at the back.</span></a>
+      <div class="blog-cards">
+        <a href="/blog/dinner-from-a-photo/"><img src="/blog/img/dinner-from-a-photo-hero.jpg" alt="Dinner from a photo" width="1122" height="1402" loading="lazy"><span class="bc-body"><b>Dinner from a photo</b><span>Stop staring into the fridge at 6pm — snap what you've got and get real ideas.</span></span></a>
+        <a href="/blog/track-whats-in-your-fridge-app/"><img src="/blog/img/track-whats-in-your-fridge-app-hero.jpg" alt="Track what's in your fridge" width="1122" height="1402" loading="lazy"><span class="bc-body"><b>Track your fridge in one photo</b><span>Snap your shopping and it logs everything — no typing.</span></span></a>
+        <a href="/blog/never-forget-food-at-the-back-of-the-fridge/"><img src="/blog/img/never-forget-food-at-the-back-of-the-fridge-hero.jpg" alt="Never forget food at the back of the fridge" width="1122" height="1402" loading="lazy"><span class="bc-body"><b>Stop forgetting food at the back</b><span>What's going off floats to the top, so you cook it in time.</span></span></a>
+        <a href="/blog/save-60-pounds-a-month-on-food-waste/"><img src="/blog/img/save-60-pounds-a-month-on-food-waste-hero.jpg" alt="Save £60 a month on food waste" width="1122" height="1402" loading="lazy"><span class="bc-body"><b>Save £60 a month</b><span>Cut the food the average UK home bins — keep the cash.</span></span></a>
       </div>
-      <p style="text-align:center;margin-top:24px"><a href="/blog/" style="color:var(--accent);font-weight:600;text-decoration:none">Read all posts →</a></p>
+      <div class="blog-more"><a class="btn btn-ghost" href="/blog/">See all posts →</a></div>
     </div>
   </section>
 
@@ -1198,10 +1229,14 @@
         b.setAttribute('aria-expanded', b.parentElement.classList.toggle('open'))));
     document.getElementById('yr').textContent = new Date().getFullYear();
 
-    // floating mobile CTA appears once you've scrolled past the hero
+    // floating mobile CTA: visible from the off on mobile (so "free" lands
+    // instantly); on the off-chance it's a narrow desktop, keep the scroll trigger.
     const sticky = document.getElementById('stickyCta');
-    const onScroll = () => sticky.classList.toggle('show', window.scrollY > 560);
-    window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+    const isMobile = () => matchMedia('(max-width: 860px)').matches;
+    const onScroll = () => sticky.classList.toggle('show', isMobile() || window.scrollY > 560);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    onScroll();
 
     // --- motion (GSAP is deferred, so wait for load) ---
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
