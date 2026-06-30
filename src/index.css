@@ -621,6 +621,18 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   font-size: 12px; color: var(--ink-soft);
 }
 .shop-hint svg { color: var(--ink-faint); flex-shrink: 0; }
+/* The list-page tip reads as a soft note (like the cues on other screens). */
+.shop-tip {
+  align-items: flex-start;
+  background: var(--accent-soft);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin: -2px 0 16px;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+.shop-tip svg { color: var(--accent); margin-top: 1px; }
+.shop-tip strong { color: var(--accent-press); font-weight: 600; }
 
 /* ----- Buttons ----- */
 .btn {

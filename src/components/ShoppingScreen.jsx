@@ -9,7 +9,7 @@ import { suggestLocation } from '../lib/location.js'
 import { CAT_ICON } from './CategorySections.jsx'
 import CoachTip from './CoachTip.jsx'
 import { coach, useCoachStep } from '../lib/coach.js'
-import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge, IconPin, IconChevron, IconBox, IconSend } from '../icons.jsx'
+import { IconPlus, IconCheck, IconTrash, IconCart, IconFridge, IconPin, IconChevron, IconBox, IconSend, IconSparkle } from '../icons.jsx'
 
 export default function ShoppingScreen({ list, items = [] }) {
   const [draft, setDraft] = useState('')
@@ -265,6 +265,14 @@ export default function ShoppingScreen({ list, items = [] }) {
           </button>
         )}
       </form>
+
+      <p className="shop-hint shop-tip">
+        <IconSparkle size={13} />
+        <span>
+          No need to type it all — add in a tap from what you’ve just used up, or your essentials on the{' '}
+          <strong>Fridge</strong> tab.
+        </span>
+      </p>
 
       {(usedUp.length > 0 || suggestions.length > 0) && (
         <div className="suggest-block">
