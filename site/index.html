@@ -612,6 +612,11 @@
     </div>
   </section>
 
+  <!-- ============ POLAROID MARQUEE (top, auto-scrolling) ============ -->
+  <section class="pola-marquee-sec" aria-label="What's in my Fridge in real kitchens">
+    <div class="pola-marquee"><div class="pola-track" id="polaTrack"></div></div>
+  </section>
+
   <!-- ============ FEATURES ============ -->
   <section id="features">
     <div class="wrap">
@@ -848,6 +853,17 @@
     .pola-box.open{display:flex}
     .pola-box img{max-width:92vw;max-height:88vh;border-radius:8px;background:#fffdf8;padding:12px 12px 28px;box-shadow:0 24px 70px rgba(0,0,0,.5)}
     .pola-box .pola-x{position:absolute;top:14px;right:20px;font-size:34px;line-height:1;color:#fff;background:none;border:0;cursor:pointer;opacity:.92}
+    /* top auto-scrolling marquee (lifestyle + app shots mixed) */
+    .pola-marquee-sec{padding:36px 0 8px;overflow:hidden}
+    .pola-marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+    .pola-track{display:flex;width:max-content;animation:pola-scroll 90s linear infinite}
+    .pola-track:hover{animation-play-state:paused}
+    .pola-marquee .polaroid{width:152px;margin-left:-20px}
+    .pola-marquee .polaroid:first-child{margin-left:0}
+    .pola-marquee .polaroid:nth-child(odd){transform:rotate(-3deg)}
+    .pola-marquee .polaroid:nth-child(even){transform:rotate(3deg)}
+    @keyframes pola-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    @media(max-width:760px){.pola-marquee .polaroid{width:126px;margin-left:-16px}.pola-track{animation-duration:60s}}
   </style>
   <section class="polaroids" aria-label="The app in real kitchens">
     <div class="pola-strip" id="polaStrip">
@@ -896,6 +912,30 @@
        off=(off+1)%pool.length;
        for(var s=0;s<4;s++){ if(imgs[s]){ imgs[s].style.display=''; imgs[s].src=pool[(off+s*spread)%pool.length]; } }
      },3000);
+
+     // Top auto-scrolling marquee — probes /polaroids/01..40.jpg, shows every one
+     // it finds (so dropping in new numbered photos just works), clickable to enlarge.
+     var track=document.getElementById('polaTrack');
+     if(track){
+       var MAX=40, found=[], pendingM=MAX;
+       for(var k=1;k<=MAX;k++){(function(k){
+         var src='/polaroids/'+(k<10?'0':'')+k+'.jpg', probe=new Image();
+         probe.onload=function(){ found.push([k,src]); finM(); };
+         probe.onerror=finM; probe.src=src;
+       })(k);}
+       function finM(){
+         if(--pendingM>0) return;
+         found.sort(function(a,b){ return a[0]-b[0]; });
+         if(!found.length){ track.parentNode.parentNode.style.display='none'; return; }
+         var fig=function(s){ return '<figure class="polaroid"><span class="ph"><img alt="" src="'+s+'"></span></figure>'; };
+         var once=found.map(function(f){ return fig(f[1]); }).join('');
+         track.innerHTML=once+once; // duplicate for a seamless loop
+         [].slice.call(track.querySelectorAll('.ph img')).forEach(function(im){
+           im.parentNode.parentNode.addEventListener('click', function(){ openBox(im.src); });
+         });
+         track.style.animationDuration=Math.max(45, found.length*6)+'s';
+       }
+     }
    })();
   </script>
 
@@ -1051,6 +1091,28 @@
         <p>Start tracking what you've got in under a minute. Free to begin, no card needed.</p>
         <a class="btn btn-primary btn-lg" href="https://app.whatsinmyfridge.co.uk">Open the app — it's free</a>
       </div>
+    </div>
+  </section>
+
+  <!-- ============ FROM THE BLOG (internal links — helps indexing & SEO) ============ -->
+  <style>
+    .blog-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:10px}
+    .blog-links a{display:block;background:#fffdf8;border:1px solid var(--line);border-radius:14px;padding:17px 19px;text-decoration:none;color:var(--ink);transition:border-color .2s,transform .2s,box-shadow .2s}
+    .blog-links a:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 10px 26px rgba(31,27,22,.08)}
+    .blog-links b{display:block;font-family:var(--display);font-weight:600;font-size:16px;margin-bottom:4px}
+    .blog-links span{font-size:13.5px;color:var(--ink-soft);line-height:1.45}
+  </style>
+  <section id="blog">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">From the blog</span><h2 class="display">Cook smarter, waste less</h2><p>Quick, practical guides for getting more out of your fridge.</p></div>
+      <div class="blog-links">
+        <a href="/blog/what-can-i-make-for-dinner/"><b>What can I make for dinner?</b><span>Turn whatever's in your fridge into a proper dinner — fast.</span></a>
+        <a href="/blog/dont-know-what-to-cook/"><b>Don't know what to cook?</b><span>A simple way to decide dinner without the 6pm panic.</span></a>
+        <a href="/blog/how-to-stop-wasting-food/"><b>How to stop wasting food</b><span>Cut the ~£60 a month the average UK home bins.</span></a>
+        <a href="/blog/how-long-does-food-last-in-the-fridge/"><b>How long does food last in the fridge?</b><span>A handy guide to what keeps, and for how long.</span></a>
+        <a href="/blog/how-to-organise-your-fridge/"><b>How to organise your fridge</b><span>Where everything goes, so nothing gets lost at the back.</span></a>
+      </div>
+      <p style="text-align:center;margin-top:24px"><a href="/blog/" style="color:var(--accent);font-weight:600;text-decoration:none">Read all posts →</a></p>
     </div>
   </section>
 
