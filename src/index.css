@@ -144,12 +144,16 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 /* No .screen padding here: the AppHeader spans full width (its own side padding
    matches the feature screens), and .dash-body pads the banner + grid. */
 .dashboard { flex: 1; display: flex; flex-direction: column; }
-.dash-body { padding: 6px 18px calc(env(safe-area-inset-bottom) + 28px); }
-.dash-hero-banner { display: block; width: 100%; height: auto; border-radius: var(--r-lg); margin-bottom: 14px; }
+.dash-body { padding: 6px 18px calc(env(safe-area-inset-bottom) + 20px); }
+/* full-bleed brand banner: flush under the header, edge-to-edge, no rounding */
+.dash-hero-banner {
+  display: block; width: calc(100% + 36px); height: 122px; object-fit: cover; object-position: center;
+  margin: -6px -18px 12px; border-radius: 0;
+}
 .dash-banner {
   display: flex; align-items: center; gap: 13px;
   background: linear-gradient(120deg, var(--accent), var(--accent-press));
-  color: var(--on-accent); border-radius: var(--r-lg); padding: 16px 18px; margin-bottom: 22px; min-height: 66px;
+  color: var(--on-accent); border-radius: var(--r-lg); padding: 13px 18px; margin-bottom: 13px; min-height: 58px;
 }
 .dash-banner > svg { flex: none; opacity: 0.92; }
 .dash-banner-cta { width: 100%; text-align: left; cursor: pointer; }
@@ -159,11 +163,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .dash-banner-text span { font-size: 13px; opacity: 0.92; }
 .dash-trial-bar { margin-top: 8px; height: 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.28); overflow: hidden; }
 .dash-trial-bar span { display: block; height: 100%; border-radius: 999px; background: var(--on-accent); opacity: 1; transition: width 0.4s ease; }
-.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
 .dash-card {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 5px; text-align: left; cursor: pointer;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; cursor: pointer;
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
-  padding: 17px 16px; min-height: 118px; box-shadow: 0 10px 24px -20px rgba(0,0,0,0.4);
+  padding: 13px 14px; min-height: 104px; box-shadow: 0 10px 24px -20px rgba(0,0,0,0.4);
 }
 .dash-card:active { transform: scale(0.98); }
 /* Own modifier (not the global .locked, which centres + repads) so the cards
@@ -178,7 +182,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .dash-card.dash-pulse { animation: dashPulse 1.4s ease-out 2; border-color: var(--accent); }
 @media (prefers-reduced-motion: reduce) { .dash-card.dash-pulse { animation: none; } }
 .dash-ico {
-  position: relative; width: 46px; height: 46px; border-radius: 14px; margin-bottom: 5px;
+  position: relative; width: 40px; height: 40px; border-radius: 12px; margin-bottom: 3px;
   background: var(--accent-soft); color: var(--accent); display: grid; place-items: center;
 }
 .dash-plus {
@@ -189,8 +193,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .dash-sub { font-size: 12.5px; color: var(--ink-soft); }
 /* Long thin "replay the walkthrough" strip under the feature grid */
 .dash-replay {
-  display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; margin-top: 13px;
-  padding: 11px 16px; border-radius: var(--r-md); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; margin-top: 10px;
+  padding: 10px 16px; border-radius: var(--r-md); cursor: pointer;
   background: var(--accent-soft); border: 1px solid #cfe2d5; color: var(--accent-press);
   font-weight: 600; font-size: 13.5px;
 }
