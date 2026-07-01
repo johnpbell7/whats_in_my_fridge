@@ -31,6 +31,14 @@ export default function Dashboard({ onOpen, lockedKeys = [], onHelp, helpBadge, 
       <AppHeader onHelp={onHelp} helpBadge={helpBadge} onAccount={onAccount} />
 
       <div className="dash-body">
+      {/* Fixed brand banner — sits under the header, above the status block. */}
+      <img
+        className="dash-hero-banner"
+        src="/dashboard-banner.webp"
+        alt="Snap your fridge — dinner sorted"
+        width="2400"
+        height="1000"
+      />
       {/* Slim banner slot — a promo image can be dropped in via .dash-banner. */}
       {paid ? (
         <div className="dash-banner" role="note">
