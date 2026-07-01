@@ -147,7 +147,7 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .dash-body { padding: 6px 18px calc(env(safe-area-inset-bottom) + 20px); }
 /* full-bleed brand banner: flush under the header, edge-to-edge, no rounding */
 .dash-hero-banner {
-  display: block; width: calc(100% + 36px); height: 122px; object-fit: cover; object-position: center;
+  display: block; width: calc(100% + 36px); height: 150px; object-fit: cover; object-position: center;
   margin: -6px -18px 12px; border-radius: 0;
 }
 .dash-banner {
