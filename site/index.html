@@ -902,7 +902,7 @@
     .pola-marquee-sec{padding:26px 0 30px;overflow-x:clip;overflow-y:visible}
     /* a real horizontal scroller: it auto-drifts, but you can swipe to scrub
        through faster. Generous vertical padding keeps the drop shadow uncropped. */
-    .pola-marquee{overflow-x:auto;overflow-y:visible;padding:46px 0;
+    .pola-marquee{overflow-x:auto;overflow-y:visible;padding:92px 0;
       -webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);
       scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
     .pola-marquee::-webkit-scrollbar{display:none}
@@ -911,7 +911,7 @@
     .pola-marquee .polaroid:first-child{margin-left:0}
     .pola-marquee .polaroid:nth-child(odd){--r:-3deg}
     .pola-marquee .polaroid:nth-child(even){--r:3deg}
-    @media(max-width:760px){.pola-marquee .polaroid{width:126px;margin-left:-16px}}
+    @media(max-width:760px){.pola-marquee .polaroid{width:126px;margin-left:-16px}.pola-marquee{padding:52px 0}}
   </style>
   <!-- lower auto-scrolling marquee (same behaviour as the top one) -->
   <section class="pola-marquee-sec" aria-label="What's in my Fridge in real kitchens">
@@ -984,7 +984,7 @@
            var half=track.scrollWidth/2||1;
            var idle=!hovering && !dragging && (performance.now()-lastTouch>800);
            if(idle){
-             var spd=SPEED + 5*Math.exp(-(performance.now()-t0)/650); // quick start, eases off
+             var spd=SPEED + 11*Math.exp(-(performance.now()-t0)/750); // quick start, eases off
              pos+=spd;
              if(pos>=half) pos-=half; else if(pos<=0) pos+=half;   // seamless loop
              marquee.scrollLeft=pos;
@@ -995,11 +995,12 @@
            }
            if((tick++ & 1)===0){ // centre-focus scale, every other frame to halve cost
              var vw=window.innerWidth, cx=vw/2, hw=vw/2;
+             var peak=vw>=900?0.42:0.18; // much bigger in the middle on desktop, a bit on mobile
              for(var i=0;i<items.length;i++){
                var el=items[i], r=el.getBoundingClientRect();
                if(r.right<-40||r.left>vw+40){ el.style.setProperty('--s','1'); continue; }
                var d=Math.min(1, Math.abs((r.left+r.width/2)-cx)/hw);
-               el.style.setProperty('--s', (1 + (1-d)*(1-d)*0.09).toFixed(3));
+               el.style.setProperty('--s', (1 + (1-d)*(1-d)*peak).toFixed(3));
              }
            }
          })();
