@@ -948,7 +948,7 @@
          if(--pendingM>0) return;
          found.sort(function(a,b){ return a[0]-b[0]; });
          if(!found.length){ marquee.parentNode.style.display='none'; return; }
-         var fig=function(s){ return '<figure class="polaroid"><span class="ph"><img alt="" src="'+s+'"></span></figure>'; };
+         var fig=function(s){ return '<figure class="polaroid"><span class="ph"><img alt="" loading="lazy" decoding="async" src="'+s+'"></span></figure>'; };
          var once=found.map(function(f){ return fig(f[1]); }).join('');
          track.innerHTML=once+once; // duplicate for a seamless loop
          [].slice.call(track.querySelectorAll('.ph img')).forEach(function(im){
