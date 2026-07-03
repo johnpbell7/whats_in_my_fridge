@@ -7,23 +7,28 @@ free users plus paid Supabase/Vercel.
 Companion to `BUSINESS.md` (per-user unit economics). Figures use **2025/26 UK
 thresholds** (frozen into 2026/27) and the token-cost estimates in `BUSINESS.md`.
 
-_Last updated: 2026-06-23. Estimates — confirm tax with an accountant, and refine
+_Last updated: 2026-07-03. Estimates — confirm tax with an accountant, and refine
 AI costs from the real Anthropic Usage figures._
 
 ---
 
 ## 1. Fixed costs — the "paid bracket" (Supabase etc.)
 
-| Service | Free tier | Paid plan | Annual (paid) |
-|---|---|---|---|
-| **Supabase** | 50k users, 500MB | Pro ~$25/mo | **£240** |
-| **Vercel** | Hobby | Pro ~$20/mo | **£192** |
-| **Domain** | — | ~£12/yr | **£12** |
-| **Resend** | 3,000 emails/mo | ~$20/mo (over 3k) | **£192** (≥~5k users) |
-| **Total paid infra** | | | **~£444/yr** (≥5k users ~£636) |
+| Service | Free tier | Paid plan | Annual (paid) | Status |
+|---|---|---|---|---|
+| **Supabase** | 50k users, 500MB | Pro ~$25/mo | **£240** | ✅ **PAYING (from Jul 2026)** |
+| **Vercel** | Hobby | Pro ~$20/mo | **£192** | Free (Hobby) |
+| **Domain** | — | ~£12/yr | **£12** | Paying |
+| **Resend** | 3,000 emails/mo | ~$20/mo (over 3k) | **£192** (≥~5k users) | Free (under 3k) |
+| **Total paid infra (modelled)** | | | **~£444/yr** (≥5k users ~£636) | |
 
-> Note: the free tiers actually cover you to ~50k users — at small scale you
-> could pay nothing here. This model assumes you pay for them anyway.
+**Actual spend right now (Jul 2026):** Supabase Pro **~$25/mo ≈ £20/mo (£240/yr)**
++ domain **~£12/yr** = **~£21/mo / ~£252/yr**. Vercel and Resend are still on their
+free tiers, so they add £0 until you outgrow them (~50k users / 3k emails a month).
+
+> Note: the free tiers cover you to ~50k users, so Supabase Pro isn't strictly
+> required yet at your scale — but you've chosen to pay for it (headroom / no
+> auto-pause). Treat **~£21/mo** as your current fixed overhead.
 
 ## 2. Per-user variable costs
 
