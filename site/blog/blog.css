@@ -36,6 +36,15 @@ strong{color:var(--ink)}
 blockquote{margin:22px 0;padding:14px 18px;background:var(--accent-soft);border-radius:12px;color:var(--accent-press);font-weight:500}
 .tip{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:20px 0}
 .tip strong{color:var(--accent-press)}
+/* food-storage tables */
+.table-wrap{overflow-x:auto;margin:20px 0;border:1px solid var(--line);border-radius:14px}
+.storage-table{width:100%;border-collapse:collapse;font-size:15px;min-width:440px}
+.storage-table th,.storage-table td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+.storage-table tbody tr:last-child td,.storage-table tr:last-child td{border-bottom:0}
+.storage-table thead th{background:var(--accent-soft);color:var(--accent-press);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.storage-table td{color:var(--ink-soft)}
+.storage-table td:first-child{color:var(--ink);font-weight:600;white-space:nowrap}
+.storage-table tbody tr:nth-child(even) td,.storage-table tr:nth-child(even) td{background:rgba(255,253,249,.6)}
 figure{margin:24px 0}
 figure img{border-radius:14px;border:1px solid var(--line)}
 figcaption{font-size:13px;color:var(--ink-faint);margin-top:7px;text-align:center}
