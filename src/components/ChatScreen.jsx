@@ -193,6 +193,11 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
   const togglePick = (name) =>
     setPicked((p) => (p.includes(name) ? p.filter((x) => x !== name) : [...p, name]))
 
+  // Short, readable list of the picked items for the action button, so the
+  // request you're about to send is spelled out on the button itself.
+  const pickLabel = (names) =>
+    names.length <= 3 ? names.join(', ') : `${names.slice(0, 3).join(', ')} +${names.length - 3} more`
+
   // A fresh dinner session (from a suggestion chip or a typed question) — reset
   // the picker so the expiring-items chips show again before the refine chips.
   function startDinner(prompt) {
@@ -315,7 +320,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
             refine the request first rather than spending a credit blind. */}
         {picking && !busy && (
           <div className="suggest-row refine-row expiring-pick">
-            <span className="expiring-pick-label">Going off soon — pick what you want to cook with:</span>
+            <span className="expiring-pick-label">Tap the items you want to cook with:</span>
             <div className="expiring-chips">
               {urgentPick.map((it) => {
                 const on = picked.includes(it.name)
@@ -333,12 +338,15 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
               })}
             </div>
             <div className="expiring-actions">
-              <button className="exp-go" disabled={!picked.length} onClick={() => askDinnerWithItems(picked)}>
-                {picked.length ? `Use ${picked.length} → get recipes` : 'Pick items, then get recipes'}
-              </button>
-              <button className="refine-exit" onClick={() => askDinnerWithItems(urgentPick.map((i) => i.name))}>
-                Use them all
-              </button>
+              {picked.length > 0 ? (
+                <button className="exp-go primary" onClick={() => askDinnerWithItems(picked)}>
+                  <IconSparkle size={15} /> Get recipes using {pickLabel(picked)}
+                </button>
+              ) : (
+                <button className="exp-go primary" onClick={() => askDinnerWithItems(urgentPick.map((i) => i.name))}>
+                  <IconSparkle size={15} /> Get recipes using everything going off
+                </button>
+              )}
               <button className="refine-exit" onClick={() => setPicking(false)}>
                 <IconClose size={13} /> Cancel
               </button>
@@ -461,7 +469,7 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
           (!refined && urgentPick.length > 0 ? (
             // First round: tap the soonest-expiring items to cook with.
             <div className="suggest-row refine-row expiring-pick">
-              <span className="expiring-pick-label">Going off soon — tap to cook with these:</span>
+              <span className="expiring-pick-label">Going off soon — tap the items to cook with:</span>
               <div className="expiring-chips">
                 {urgentPick.map((it) => {
                   const on = picked.includes(it.name)
@@ -479,9 +487,15 @@ export default function ChatScreen({ items, onGoScan, onAddManual, onAccount }) 
                 })}
               </div>
               <div className="expiring-actions">
-                <button className="exp-go" disabled={!picked.length} onClick={() => askDinnerWithItems(picked)}>
-                  {picked.length ? `Use ${picked.length} → get recipes` : 'Pick items to use'}
-                </button>
+                {picked.length > 0 ? (
+                  <button className="exp-go primary" onClick={() => askDinnerWithItems(picked)}>
+                    <IconSparkle size={15} /> Get recipes using {pickLabel(picked)}
+                  </button>
+                ) : (
+                  <button className="exp-go primary" onClick={() => askDinnerWithItems(urgentPick.map((i) => i.name))}>
+                    <IconSparkle size={15} /> Get recipes using everything going off
+                  </button>
+                )}
                 <button className="refine-exit" onClick={() => setDinnerMode(false)}>
                   <IconClose size={13} /> Ask something else
                 </button>
