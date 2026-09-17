@@ -555,7 +555,7 @@
             <a class="qbrowse" href="https://app.whatsinmyfridge.co.uk">or open in this browser →</a>
           </div>
         </div>
-        <div class="hero-trust"><span class="stars">★★★★★</span> Free to start · No card needed</div>
+        <div class="hero-trust"><span class="stars">★★★★★</span> Free to start · No card · No App Store — adds to your home screen</div>
       </div>
       <div class="phone-wrap">
         <img class="hero-veg" src="/hero-veg-lines.webp" alt="" aria-hidden="true" loading="lazy">
@@ -646,6 +646,75 @@
       </div>
     </div>
   </section>
+
+  <!-- ============ GET IT ON YOUR PHONE (install band) ============ -->
+  <style>
+    .install-band{background:var(--surface-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+    .install-band .wrap{padding:44px 22px}
+    .install-band .sec-head{margin-bottom:22px}
+    .inst-lead{color:var(--ink-soft);max-width:640px;margin:6px auto 0}
+    .inst-lead b{color:var(--ink)}
+    .inst-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:760px;margin:0 auto}
+    .inst-set{display:contents}
+    .inst-set[hidden]{display:none}
+    .inst-step{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 16px;text-align:left;display:flex;gap:12px;align-items:flex-start}
+    .inst-num{flex:none;width:28px;height:28px;border-radius:999px;background:var(--accent);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center}
+    .inst-step p{margin:0;font-size:14.5px;color:var(--ink-soft);line-height:1.45}
+    .inst-step b{color:var(--ink);display:block;font-size:15px;margin-bottom:2px}
+    .inst-cta{margin:24px auto 0;text-align:center}
+    .inst-note{margin:12px 0 0;font-size:13px;color:var(--ink-faint)}
+    .inst-qr{display:flex;gap:16px;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 20px;max-width:440px;margin:0 auto;text-align:left}
+    .inst-qr svg{width:96px;height:96px;flex:none;border-radius:8px}
+    @media(max-width:760px){.inst-steps{grid-template-columns:1fr;max-width:420px}}
+  </style>
+  <section class="install-band" id="get-app">
+    <div class="wrap">
+      <div class="sec-head" style="text-align:center">
+        <span class="eyebrow">Get it on your phone</span>
+        <h2 class="display" style="margin:4px 0 0">No App Store. Add it in <span class="wig">one tap<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1 6 C 20 9, 40 2, 60 5 S 95 8, 99 4" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>.</h2>
+        <p class="inst-lead">What's in my Fridge runs right in your browser and lives on your home screen like any other app — <b>free, no download, no App Store</b>. Here's how to add it.</p>
+      </div>
+
+      <div class="inst-steps" id="instSteps">
+        <!-- iOS -->
+        <div class="inst-set" data-plat="ios" hidden>
+          <div class="inst-step"><span class="inst-num">1</span><p><b>Open in Safari</b>Tap the button below to open the app.</p></div>
+          <div class="inst-step"><span class="inst-num">2</span><p><b>Tap Share</b>The square-with-an-arrow icon in the toolbar.</p></div>
+          <div class="inst-step"><span class="inst-num">3</span><p><b>Add to Home Screen</b>Scroll and tap it. Done — it's on your phone.</p></div>
+        </div>
+        <!-- Android -->
+        <div class="inst-set" data-plat="android" hidden>
+          <div class="inst-step"><span class="inst-num">1</span><p><b>Open the app</b>Tap the button below to open it in Chrome.</p></div>
+          <div class="inst-step"><span class="inst-num">2</span><p><b>Tap the menu</b>The three dots in the top-right.</p></div>
+          <div class="inst-step"><span class="inst-num">3</span><p><b>Install app</b>Tap "Install app" (or "Add to Home screen").</p></div>
+        </div>
+        <!-- Desktop / default -->
+        <div class="inst-set" data-plat="desktop">
+          <div class="inst-step"><span class="inst-num">1</span><p><b>Grab your phone</b>It's built for the kitchen, so it's best on mobile.</p></div>
+          <div class="inst-step"><span class="inst-num">2</span><p><b>Scan the QR up top</b>Point your camera at the code in the hero to open the app.</p></div>
+          <div class="inst-step"><span class="inst-num">3</span><p><b>Add to Home Screen</b>Your phone will offer to add it in one tap.</p></div>
+        </div>
+      </div>
+
+      <div class="inst-cta">
+        <a class="btn btn-primary btn-lg" href="https://app.whatsinmyfridge.co.uk">Open the app — free</a>
+        <p class="inst-note">Free forever plan · No card needed · Works on iPhone &amp; Android</p>
+      </div>
+    </div>
+  </section>
+  <script>
+    (function(){
+      var ua = navigator.userAgent || '';
+      var isIOS = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && (navigator.maxTouchPoints||0) > 1);
+      var isAndroid = /android/i.test(ua);
+      var plat = isIOS ? 'ios' : isAndroid ? 'android' : 'desktop';
+      var sets = document.querySelectorAll('#instSteps .inst-set');
+      sets.forEach(function(s){ s.hidden = (s.getAttribute('data-plat') !== plat); });
+      // Already installed (opened from home screen)? Hide the whole band.
+      var standalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      if (standalone) { var band = document.getElementById('get-app'); if (band) band.style.display = 'none'; }
+    })();
+  </script>
 
   <!-- ============ STATS ============ -->
   <section class="stats" style="padding:40px 0;">
