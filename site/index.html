@@ -647,6 +647,111 @@
     </div>
   </section>
 
+  <!-- ============ TRY IT NOW (interactive, no sign-up) ============ -->
+  <style>
+    .tryit{padding:54px 0}
+    .tryit .wrap{max-width:900px}
+    .tryit .sec-head{text-align:center;margin-bottom:22px}
+    .tryit-sub{color:var(--ink-soft);max-width:560px;margin:6px auto 0}
+    .tryit-fridges{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:760px;margin:0 auto 20px}
+    .tryit-fridge{cursor:pointer;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:16px 14px;text-align:center;transition:border-color .15s,transform .12s,box-shadow .15s;font:inherit;color:inherit}
+    .tryit-fridge:hover{transform:translateY(-2px);box-shadow:0 12px 24px -18px rgba(38,104,75,.5)}
+    .tryit-fridge.on{border-color:var(--accent);background:#e7f0ea}
+    .tryit-fridge .emo{font-size:26px;letter-spacing:3px;line-height:1.4}
+    .tryit-fridge .fl{display:block;margin-top:8px;font-weight:700;font-size:14px;color:var(--ink)}
+    .tryit-panel{background:var(--surface-2);border:1px solid var(--line);border-radius:20px;padding:24px 22px;max-width:760px;margin:0 auto;min-height:150px}
+    .tryit-empty{text-align:center;color:var(--ink-faint);padding:34px 0;font-size:15px}
+    .tryit-reading{text-align:center;color:var(--accent-press);font-weight:700;padding:34px 0;font-size:15.5px}
+    .tryit-reading .dots span{animation:tryitBlink 1.1s infinite both}
+    .tryit-reading .dots span:nth-child(2){animation-delay:.2s}
+    .tryit-reading .dots span:nth-child(3){animation-delay:.4s}
+    @keyframes tryitBlink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+    .tryit-spotted{font-size:13.5px;color:var(--ink-soft);margin:0 0 16px;text-align:center}
+    .tryit-pill{display:inline-block;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 11px;margin:3px;font-size:13px;color:var(--ink)}
+    .tryit-meals{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .tryit-meal{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px 15px;text-align:left}
+    .tryit-meal h4{margin:0 0 6px;font-size:16px}
+    .tryit-meal .uses{font-size:13px;color:var(--ink-soft);margin:0;line-height:1.45}
+    .tryit-meal .tm{display:inline-block;margin-top:10px;font-size:12px;font-weight:700;color:var(--accent-press);background:#e7f0ea;border-radius:999px;padding:3px 10px}
+    .tryit-cta{text-align:center;margin-top:24px}
+    .tryit-cta .inst-note{margin-top:10px}
+    @media(max-width:700px){.tryit-fridges{grid-template-columns:1fr;max-width:420px}.tryit-meals{grid-template-columns:1fr}}
+  </style>
+  <section class="tryit" id="try">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="eyebrow">Try it now</span>
+        <h2 class="display" style="margin:4px 0 0">See your fridge become <span class="wig">dinner<svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path d="M1 6 C 20 9, 40 2, 60 5 S 95 8, 99 4" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>.</h2>
+        <p class="tryit-sub">Pick a fridge below. No sign-up, no download — this is exactly what the app does when you snap yours.</p>
+      </div>
+
+      <div class="tryit-fridges" id="tryitFridges">
+        <button class="tryit-fridge" data-key="midweek" type="button"><span class="emo">🍗🫑🧅🍚🥦🧄</span><span class="fl">A midweek fridge</span></button>
+        <button class="tryit-fridge" data-key="veggie" type="button"><span class="emo">🥚🍅🧀🥬🧅🫘</span><span class="fl">A veggie fridge</span></button>
+        <button class="tryit-fridge" data-key="bare" type="button"><span class="emo">🍝🥫🧄🧅🫒🌶️</span><span class="fl">Bare-cupboard night</span></button>
+      </div>
+
+      <div class="tryit-panel" id="tryitPanel" aria-live="polite">
+        <div class="tryit-empty">👆 Tap a fridge to see tonight's dinner ideas.</div>
+      </div>
+
+      <div class="tryit-cta">
+        <a class="btn btn-primary btn-lg" href="https://app.whatsinmyfridge.co.uk">Try it with your fridge — free</a>
+        <p class="inst-note">Free forever plan · No card needed · Add it to your phone in one tap</p>
+      </div>
+    </div>
+  </section>
+  <script>
+    (function(){
+      var DATA = {
+        midweek: {
+          spotted: ['Chicken breast','Peppers','Onion','Rice','Broccoli','Garlic'],
+          meals: [
+            { name:'Chicken stir-fry', uses:'Chicken, peppers, broccoli, garlic', time:'~20 min' },
+            { name:'Chicken fried rice', uses:'Chicken, rice, onion, egg', time:'~15 min' },
+            { name:'Garlic chicken traybake', uses:'Chicken, peppers, onion', time:'~35 min' }
+          ]
+        },
+        veggie: {
+          spotted: ['Eggs','Tomatoes','Cheese','Spinach','Onion','Tinned beans'],
+          meals: [
+            { name:'Spinach & cheese frittata', uses:'Eggs, spinach, cheese, onion', time:'~15 min' },
+            { name:'Shakshuka', uses:'Eggs, tomatoes, onion', time:'~25 min' },
+            { name:'Cheesy bean toastie', uses:'Beans, cheese, bread', time:'~10 min' }
+          ]
+        },
+        bare: {
+          spotted: ['Pasta','Tinned tomatoes','Garlic','Onion','Olive oil','Parmesan'],
+          meals: [
+            { name:'10-minute tomato pasta', uses:'Pasta, tomatoes, garlic', time:'~12 min' },
+            { name:'Spaghetti aglio e olio', uses:'Pasta, garlic, olive oil', time:'~12 min' },
+            { name:'Store-cupboard arrabbiata', uses:'Pasta, tomatoes, chilli', time:'~15 min' }
+          ]
+        }
+      };
+      var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+      var panel = document.getElementById('tryitPanel');
+      var fridges = document.querySelectorAll('#tryitFridges .tryit-fridge');
+      function render(key){
+        var d = DATA[key]; if(!d) return;
+        var pills = d.spotted.map(function(s){ return '<span class="tryit-pill">'+esc(s)+'</span>'; }).join('');
+        var cards = d.meals.map(function(m){
+          return '<div class="tryit-meal"><h4>'+esc(m.name)+'</h4><p class="uses">Uses: '+esc(m.uses)+'</p><span class="tm">'+esc(m.time)+'</span></div>';
+        }).join('');
+        panel.innerHTML = '<p class="tryit-spotted"><strong>Spotted in your fridge:</strong><br>'+pills+'</p><div class="tryit-meals">'+cards+'</div>';
+      }
+      fridges.forEach(function(btn){
+        btn.addEventListener('click', function(){
+          fridges.forEach(function(f){ f.classList.remove('on'); });
+          btn.classList.add('on');
+          panel.innerHTML = '<div class="tryit-reading">📸 Reading your fridge<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>';
+          var key = btn.getAttribute('data-key');
+          setTimeout(function(){ render(key); }, 850);
+        });
+      });
+    })();
+  </script>
+
   <!-- ============ GET IT ON YOUR PHONE (install band) ============ -->
   <style>
     .install-band{background:var(--surface-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
