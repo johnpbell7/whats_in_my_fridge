@@ -13,12 +13,12 @@ export default function AppHeader({ onHome, onHelp, helpBadge, onAccount, count 
   return (
     <header className="std-header">
       <Brand className="std-brand" {...brandProps}>
-        <span className="std-brand-sm">What's in my</span>
-        <span className="std-brand-lg">
-          Fridge
-          <svg className="leaf" viewBox="0 0 100 52" aria-hidden="true">
-            <path d="M4 33 C 25 6, 70 1, 97 17 C 73 41, 27 47, 4 33 Z" fill="currentColor" /><path d="M16 30 C 40 16, 66 14, 89 20" fill="none" stroke="#ffffff" strokeOpacity="0.65" strokeWidth="4.5" strokeLinecap="round" />
-          </svg>
+        <svg className="std-leaf" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M20 4C11 4 5 9 5 17c0 1 .2 2 .5 3C9 14 14 11 19 10c-4 2-8 5-11 11 1 .3 2 .5 3 .5 8 0 13-6 13-15 0-1 0-2-.2-2.5H20z" />
+        </svg>
+        <span className="std-brand-bt">
+          <span className="std-brand-sm">What's in my</span>
+          <span className="std-brand-lg">Fridge</span>
         </span>
       </Brand>
 

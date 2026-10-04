@@ -184,7 +184,7 @@ export default function InstallGuide({ onClose }) {
   const g = isIosChrome ? GUIDE.iosChrome : GUIDE[os]
 
   return (
-    <div className="scrim" onClick={onClose}>
+    <motion.div className="scrim" onClick={onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
       <motion.div
         className="sheet ig-sheet"
         ref={ref}
@@ -242,6 +242,6 @@ export default function InstallGuide({ onClose }) {
         )}
         <button className="btn btn-ghost btn-block" onClick={onClose}>Got it</button>
       </motion.div>
-    </div>
+    </motion.div>
   )
 }

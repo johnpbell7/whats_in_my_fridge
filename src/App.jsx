@@ -490,9 +490,10 @@ export default function App() {
   return (
     <>
       {content}
-      <AnimatePresence>
-        {installGuide && <InstallGuide onClose={dismissInstall} />}
-      </AnimatePresence>
+      {/* No AnimatePresence here: InstallGuide has its own nested AnimatePresence
+          (the phone demo), which breaks the outer one's exit tracking and leaves
+          an invisible scrim locking the app. Conditional render unmounts cleanly. */}
+      {installGuide && <InstallGuide onClose={dismissInstall} />}
 
       <AnimatePresence>
         {help && (
