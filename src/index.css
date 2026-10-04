@@ -1229,10 +1229,11 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   margin: 0 auto;
 }
 .onboard-top { display: flex; align-items: center; justify-content: space-between; }
-.onboard-brand { font-family: var(--font-display); display: flex; flex-direction: column; align-items: center; line-height: 1; }
-.onboard-brand-sm { font-style: italic; font-weight: 500; font-size: 11px; color: #5a8a72; margin-bottom: -2px; }
-.onboard-brand-lg { font-weight: 600; font-size: 22px; letter-spacing: -0.02em; color: var(--accent); display: inline-flex; align-items: baseline; }
-.onboard-brand-lg .leaf { color: var(--leaf); width: 0.46em; height: auto; margin-left: 0.06em; transform: translateY(0.02em) rotate(-12deg); }
+.onboard-brand { font-family: var(--font-display); display: inline-flex; flex-direction: row; align-items: center; gap: 8px; line-height: 1; }
+.onboard-leaf { width: 23px; height: 23px; color: #2c7a57; flex: none; }
+.onboard-brand-bt { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; }
+.onboard-brand-sm { font-style: italic; font-weight: 500; font-size: 12px; color: #5a8a72; margin-bottom: 1px; }
+.onboard-brand-lg { font-weight: 600; font-size: 23px; letter-spacing: -0.02em; color: var(--accent); display: block; }
 .onboard-skip { background: none; border: 0; color: var(--ink-soft); font-weight: 600; font-size: 14px; padding: 6px 4px; }
 
 .onboard-stage { flex: 1; position: relative; overflow: hidden; display: flex; }
@@ -1922,7 +1923,9 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   gap: 22px;
 }
 .splash-mark { width: 116px; height: 116px; will-change: transform, opacity; }
-.splash-word { display: flex; flex-direction: column; align-items: center; line-height: 1; }
+.splash-word { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 11px; line-height: 1; }
+.splash-leaf { width: 34px; height: 34px; color: #2c7a57; flex: none; }
+.splash-bt { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; }
 .splash-small {
   font-family: var(--font-display);
   font-style: italic;
@@ -1938,12 +1941,8 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
   font-size: 46px;
   letter-spacing: -0.02em;
   color: var(--accent);
-  display: inline-flex;
-  align-items: baseline;
-  /* balance the leaf's width on the right so "Fridge" stays centred under the mark */
-  padding-left: 0.5em;
+  display: block;
 }
-.splash-big .leaf { color: var(--leaf); width: 0.42em; height: auto; margin-left: 0.08em; align-self: center; transform: rotate(-14deg); }
 
 .crash {
   min-height: 100dvh;
