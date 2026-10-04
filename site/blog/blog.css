@@ -66,6 +66,9 @@ h1,h2,h3,h4{font-family:var(--f-disp);font-weight:800;letter-spacing:-.03em;line
 .wrap ol li::before{content:counter(li);position:absolute;left:0;top:0;width:22px;height:22px;border-radius:50%;background:var(--mint);color:var(--green-deep);font-family:var(--f-disp);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
 .wrap strong{color:var(--ink);font-weight:700}
 .wrap p a,.wrap li a{font-weight:600}
+/* in-article images — always fit the column, capped on wide screens */
+.wrap img{display:block;width:100%;max-width:440px!important;height:auto;border-radius:16px;box-shadow:var(--shadow);margin:8px auto 26px}
+.wrap .post-hero{margin-top:0}
 
 /* tables */
 .table-wrap{overflow-x:auto;margin:0 0 26px;border-radius:16px;border:1px solid transparent;
