@@ -6,6 +6,9 @@
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
+/* Crisper, more rectangular floating cards (the 18–20px radius read as oval). */
+.wf .wf-card, .wf .wf-ccard, .wf .wf-mcard { border-radius: 12px; }
+
 /* ---------- Brand lockup (nav + footer) ---------- */
 .wf-navmark { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; line-height: 1; }
 .wf-navmark__leaf { width: 26px; height: 26px; color: #2f7d5a; flex: none; }
@@ -58,7 +61,7 @@ html { scroll-behavior: smooth; }
 .wf-waste__copy h2 { font-size: clamp(32px,4.6vw,58px); line-height: 1.04; }
 .wf-waste__copy .wf-sub { margin-top: 14px; max-width: 42ch; }
 .wf-waste__copy a { color: var(--fa-accent-press); text-decoration: underline; text-underline-offset: 2px; }
-.wf-waste__card .wf-card { background: var(--fa-surface); border: 1px solid var(--fa-line); border-radius: 22px; padding: 18px 18px 16px; box-shadow: 0 30px 55px -34px rgba(60,40,20,0.5); }
+.wf-waste__card .wf-card { background: var(--fa-surface); border: 1px solid var(--fa-line); border-radius: 14px; padding: 18px 18px 16px; box-shadow: 0 30px 55px -34px rgba(60,40,20,0.5); }
 .wf-waste__card .fa-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
 .wf-waste__nudge { display: flex; align-items: center; gap: 8px; margin: 14px 2px 2px; font-size: 13px; color: var(--fa-ink-soft); }
 .wf-waste__nudge svg { color: var(--fa-accent); }
