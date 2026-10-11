@@ -34,6 +34,14 @@ html { scroll-behavior: smooth; }
   .wf .cs-hero__grid { grid-template-columns: minmax(0, 5.6fr) minmax(0, 6.4fr); }
 }
 
+/* ---------- Hero phones: a bit bigger on desktop, and even out the front
+   phone so it doesn't tower (bigger widths, centre lowered + sides raised). ---------- */
+@media (min-width: 901px) {
+  .wf .wf-stage .wf-ph--l { left: 2%;  top: 13%; width: 30%; }
+  .wf .wf-stage .wf-ph--c { left: 33%; top: 8%;  width: 33%; }
+  .wf .wf-stage .wf-ph--r { left: 68%; top: 13%; width: 30%; }
+}
+
 /* ---------- Hero QR (desktop only) — "get it on your phone" ---------- */
 .wf-hero-qr { display: none; }
 @media (min-width: 901px) {
