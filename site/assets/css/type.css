@@ -1,0 +1,38 @@
+/* One type scale for the whole site. Loaded last on every page, so these sizes win.
+   Phones get the low end, desktops the high end, scaling smoothly in between.
+   Designed pieces keep their own sizes: the home hero, the work-card project names,
+   type specimens, mock app/site screens, price figures and pull quotes. */
+:root {
+  --t-h1: clamp(50px, 7.2vw, 104px);
+  --t-h2: clamp(32px, 4.2vw, 60px);
+  --t-h3: clamp(20px, 1.8vw, 26px);
+  --t-body: clamp(16px, 1.25vw, 18px);
+}
+
+/* H1: every page title (not the home hero, which is sized to fill its screen) */
+:root main h1:not(.bt-title) { font-size: var(--t-h1); line-height: 0.98; }
+
+/* H2: section headings */
+:root :is(.chapter-head, .contact__intro, .cp-head, .home-prices__head, .lp-cta, .lp-sec, .pr-feature__text,
+  .section-head, .sv-head, .svc__body, .wf-deep__copy, .wf-deephead, .wf-feat__copy, .wf-get__copy,
+  .wk-print__text, .pf-hero__copy, main > section > .wrap, .sv-sec) > h2,
+:root main h2.pf-hero__title { font-size: var(--t-h2); line-height: 1.04; }
+
+/* H3: card and block titles */
+:root :is(.ab-tile, .ab-way, .ab-ch__copy, .hp-card__top, .lp-svc, .lp-steps li, .pm-svc, .service__text,
+  .step2__card, .who-card__body, .bb-more, .bb-sub, .bb-logos-head, .sc-roll__head, .legal__body) h3,
+:root .legal__body h2 { font-size: var(--t-h3); line-height: 1.2; }
+
+/* Body: intros and running text, all one size */
+:root :is(.cs-hero__lede, .lp-hero__lede, .sv-hero__lede, .wk-hero__lede, .ab-hero__lede, .pf-hero__lede,
+  .bt-who, .ha__story, .legal__lede, .lp-sec__lede, .svc__lede, .wf-sub, .bb-guide__lead, .cs-brief__text,
+  .lp-more, .sv-who-more, .legal__note),
+:root :is(.chapter-head, .contact__intro, .cp-head, .feature__copy, .home-prices__head, .job__about, .lp-cta,
+  .lp-faq__q, .lp-svc, .lp-sec, .lp-steps li, .pm-svc, .pr-feature__text, .service__text, .step2__card, .sv-head,
+  .sv-q, .who-card__body, .wk-print__text, .ab-ch__copy, .ab-tile, .ab-way, .wf-get__copy, .legal__body,
+  .bb-status__copy, .bb-pick__body, .svc__more > div, .qa__inner, .be-faq__list) > p:not([class]) { font-size: var(--t-body); line-height: 1.65; }
+:root .qa__inner p, :root .lp-faq__q p, :root .sv-q p { font-size: var(--t-body); }
+
+/* stragglers with stronger page rules */
+html:root .wf-tl .wf-sub, html:root .wf-sub, html:root .lp-sec > div > p:not([class]) { font-size: var(--t-body); line-height: 1.65; }
+html:root .wf-tl .wf-cook .wf-feat__copy > h2, html:root .wf-feat__copy > h2 { font-size: var(--t-h2); }
