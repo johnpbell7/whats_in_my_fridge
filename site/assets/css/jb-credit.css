@@ -1,0 +1,33 @@
+/* "Designed by JB Design" block, below the footer. In John Bell Design's branding, not the Fridge's. */
+.jb-credit {
+  --jb-ink: #18181a; --jb-white: #fafaf8; --jb-grey: #a3a3a0; --jb-line: rgb(250 250 248 / 0.14); --jb-yellow: #fff04d;
+  background: var(--jb-ink); color: var(--jb-white);
+  font-family: 'Poppins', system-ui, sans-serif; -webkit-font-smoothing: antialiased;
+  padding: clamp(40px, 7vw, 72px) 0 clamp(28px, 4vw, 40px);
+}
+.jb-credit__top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 28px 48px; }
+.jb-credit__by { display: inline-flex; align-items: center; gap: 10px; margin: 0 0 18px; font-size: 13px; font-weight: 500; letter-spacing: 0.02em; color: var(--jb-grey); }
+.jb-credit__by svg { width: 30px; height: 30px; flex: none; }
+.jb-credit__by b { color: var(--jb-white); font-weight: 600; }
+.jb-credit h2 { margin: 0; font-family: inherit; font-size: clamp(30px, 4.6vw, 52px); font-weight: 600; line-height: 1.05; letter-spacing: -0.04em; color: var(--jb-white); }
+.jb-credit h2 mark { background: none; color: var(--jb-ink); padding: 0 0.12em; margin: 0 -0.04em;
+  background-image: linear-gradient(transparent 12%, var(--jb-yellow) 12%, var(--jb-yellow) 92%, transparent 92%); border-radius: 0.12em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.jb-credit__lede { max-width: 560px; margin: 18px 0 0; font-size: 16px; line-height: 1.6; color: #d6d6d4; }
+.jb-credit__ctas { display: flex; flex-wrap: wrap; gap: 10px; }
+.jb-credit__btn { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 22px; border-radius: 999px;
+  font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: translate 0.25s cubic-bezier(.2,.8,.2,1), background-color 0.2s, box-shadow 0.2s; }
+.jb-credit__btn--main { background: var(--jb-yellow); color: var(--jb-ink); }
+.jb-credit__btn--main:hover { translate: 0 -2px; box-shadow: 0 8px 24px rgb(255 240 77 / 0.25); }
+.jb-credit__btn--ghost { color: var(--jb-white); box-shadow: inset 0 0 0 1.5px var(--jb-line); }
+.jb-credit__btn--ghost:hover { box-shadow: inset 0 0 0 1.5px var(--jb-white); }
+.jb-credit__btn svg { width: 16px; height: 16px; }
+.jb-credit__btn:focus-visible { outline: 2px solid var(--jb-yellow); outline-offset: 3px; }
+.jb-credit__base { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 28px; margin-top: clamp(32px, 5vw, 48px); padding-top: 20px; border-top: 1px solid var(--jb-line); font-size: 13.5px; color: var(--jb-grey); }
+.jb-credit__contact { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.jb-credit__contact a { color: var(--jb-white); text-decoration: none; }
+.jb-credit__contact a:hover { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 760px) {
+  .jb-credit__top { grid-template-columns: 1fr; }
+  .jb-credit__btn { flex: 1 1 auto; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) { .jb-credit__btn { transition: none; } }
