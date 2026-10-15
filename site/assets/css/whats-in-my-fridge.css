@@ -24,7 +24,9 @@ body { --project-pen: #b9e4c9; }
 .fa [hidden], .fa[hidden] { display: none !important; }
 :where(.fa) button { border: 0; background: none; font: inherit; color: inherit; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .fa svg { display: block; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.fa h1, .fa h3, .fa h4 { letter-spacing: normal; line-height: 1.2; }
+.fa h1, .fa h3 { letter-spacing: normal; line-height: 1.2; }
+/* mock-app titles were h4; now h3 so the heading order is right: keep text-wrap as it was */
+.fa-meal h3, .wf-m-head h3, .wf-mcard h3, .wf-minilist h3 { text-wrap: inherit; }
 
 /* A full app screen inside a .phone: laid out at 390px wide like the real app and
    scaled to fit (whats-in-my-fridge.js), so the text stays real and sharp */
@@ -190,7 +192,7 @@ body { --project-pen: #b9e4c9; }
 .fa-meals-intro { margin: 2px 0 0; font-size: 13px; color: var(--fa-ink-soft); }
 .fa-meal { padding: 12px 14px; border-radius: 14px; border: 1px solid var(--fa-line); background: var(--fa-surface); }
 .fa-meal__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.fa-meal h4 { flex: 1; min-width: 0; margin: 0 0 3px; font: 600 15px/1.3 var(--fa-display); letter-spacing: -0.01em; }
+.fa-meal h3 { flex: 1; min-width: 0; margin: 0 0 3px; font: 600 15px/1.3 var(--fa-display); letter-spacing: -0.01em; }
 .fa-meal__acts { display: inline-flex; gap: 7px; flex: none; }
 .fa-mini { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--fa-line-strong); background: var(--fa-surface); color: var(--fa-ink-soft); transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.12s; }
 .fa-mini.on { background: var(--fa-accent-soft); color: var(--fa-accent-press); border-color: #cfe5d6; }
@@ -624,13 +626,13 @@ body { --project-pen: #f1d9c7; }
 .wf-method { padding: 6px 22px 0; background: var(--fa-surface); }
 .wf-grip { width: 44px; height: 5px; border-radius: 9px; background: var(--fa-line-strong); margin: 6px auto 14px; }
 .wf-m-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.wf-m-head h4 { margin: 0; font: 600 25px/1.15 var(--fa-display); letter-spacing: -0.02em; }
+.wf-m-head h3 { margin: 0; font: 600 25px/1.15 var(--fa-display); letter-spacing: -0.02em; }
 .wf-serves { display: flex; align-items: center; gap: 10px; margin: 14px 0 6px; font-size: 14px; color: var(--fa-ink-soft); }
 .wf-stepper { display: inline-flex; align-items: center; gap: 12px; }
 .wf-stepper i { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--fa-line-strong); background: var(--fa-surface); color: var(--fa-accent-press); display: grid; place-items: center; font: 400 20px/1 var(--fa-sans); font-style: normal; }
 .wf-stepper b { display: inline-block; min-width: 18px; text-align: center; font-size: 18px; color: var(--fa-ink); font-variant-numeric: tabular-nums; }
 .wf-m-time { margin: 0 0 12px; font-size: 13.5px; color: var(--fa-ink-faint); }
-.wf-method h5 { margin: 0 0 8px; font: 600 18px/1.2 var(--fa-display); }
+.wf-method h4 { margin: 0 0 8px; font: 600 18px/1.2 var(--fa-display); }
 .wf-steps { margin: 0; padding: 0; list-style: none; counter-reset: st; display: grid; gap: 7px; }
 .wf-steps li { counter-increment: st; position: relative; padding: 10px 12px 10px 46px; border-radius: 14px; font-size: 14.5px; line-height: 1.4; color: var(--fa-ink-soft); background: var(--fa-surface-2); transition: background 0.35s, color 0.35s; }
 .wf-steps li::before { content: counter(st); position: absolute; left: 12px; top: 9px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--fa-surface); color: var(--fa-ink-soft); font: 700 12px/1 var(--fa-sans); transition: background 0.35s, color 0.35s; }
@@ -643,7 +645,7 @@ body { --project-pen: #f1d9c7; }
 .wf-mstack { position: relative; margin: 0 18px; height: 290px; }
 .wf-mcard { position: absolute; left: 0; right: 0; top: 0; padding: 14px 15px 12px; border-radius: 18px; background: var(--fa-surface); border: 1px solid var(--fa-line); box-shadow: 0 2px 4px rgb(60 40 10 / 0.05), 0 18px 30px -18px rgb(60 40 10 / 0.35); transform-origin: 50% 0; }
 .wf-mcard__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-.wf-mcard h4 { margin: 0 0 4px; font: 600 17px/1.25 var(--fa-display); }
+.wf-mcard h3 { margin: 0 0 4px; font: 600 17px/1.25 var(--fa-display); }
 .wf-mcard p { margin: 0 0 5px; font-size: 13.5px; line-height: 1.4; }
 .wf-mcard .fa-uses { font-size: 12px; color: var(--fa-ink-faint); }
 .wf-mcard__foot { display: flex; align-items: center; gap: 7px; margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--fa-line); }
@@ -722,7 +724,7 @@ body { --project-pen: #f1d9c7; }
 [data-act="3"] .wf-hrow { grid-template-columns: minmax(0, 1fr) auto; }
 /* You need: the chip and the list it drops onto */
 .wf-minilist { border-radius: 14px; background: var(--fa-surface-2); padding: 12px; display: grid; gap: 7px; }
-.wf-minilist h4 { margin: 0 0 2px; font: 600 17px/1.2 var(--fa-display); }
+.wf-minilist h3 { margin: 0 0 2px; font: 600 17px/1.2 var(--fa-display); }
 .wf-minilist .fa-shop { padding: 8px 10px; gap: 10px; grid-template-columns: auto minmax(0, 1fr); }
 .wf-minilist .fa-shop + .fa-shop { margin-top: 0; }
 .wf-minilist .fa-box { width: 20px; height: 20px; border-radius: 6px; }
@@ -753,11 +755,11 @@ body { --project-pen: #f1d9c7; }
 .wf-leftover { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; background: #e7f0f8; color: #3d6f99; font-size: 13.5px; font-weight: 600; }
 /* Inside the phone: the method sheet slides up over the Ask screen */
 .wf-msheet { position: absolute; left: 0; right: 0; top: 58px; bottom: 0; z-index: 7; padding: 4px 20px 0; border-radius: 26px 26px 0 0; background: var(--fa-surface); box-shadow: 0 -12px 40px rgb(0 0 0 / 0.16); visibility: hidden; }
-.wf-msheet .wf-m-head h4 { font-size: 23px; }
+.wf-msheet .wf-m-head h3 { font-size: 23px; }
 .wf-update, .wf-writing { position: absolute; left: 20px; right: 20px; top: 148px; visibility: hidden; }
 .wf-writing { display: flex; align-items: center; gap: 10px; color: var(--fa-ink-soft); font-size: 14px; }
 .wf-recipe { position: absolute; left: 20px; right: 20px; top: 140px; bottom: 0; overflow: hidden; visibility: hidden; }
-.wf-recipe h5 { margin: 4px 0 6px; font: 600 17px/1.2 var(--fa-display); }
+.wf-recipe h4 { margin: 4px 0 6px; font: 600 17px/1.2 var(--fa-display); }
 .wf-steps--sm { gap: 6px; }
 .wf-steps--sm li { font-size: 13.5px; padding: 9px 10px 9px 42px; }
 .wf-steps--sm li::before { left: 10px; top: 8px; width: 22px; height: 22px; }
@@ -1096,7 +1098,7 @@ body { --project-pen: #f1d9c7; }
   .wf-tl .wf-ccard .fa-buy { font-size: 11px; margin-bottom: 8px !important; }
   .wf-tl .wf-ccard .fa-buy-chip { font-size: 11px; padding: 4px 8px; }
   .wf-tl .wf-minilist { padding: 8px; gap: 5px; }
-  .wf-tl .wf-minilist h4 { font-size: 14px; }
+  .wf-tl .wf-minilist h3 { font-size: 14px; }
   .wf-tl .wf-minilist .fa-shop { padding: 5px 7px; }
   .wf-tl .wf-minilist .fa-shop b { font-size: 12px; }
   .wf-tl .wf-ing { margin: 0; }

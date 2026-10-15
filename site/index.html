@@ -29,7 +29,7 @@
   <link rel="preload" href="assets/fonts/poppins-400-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/poppins-600-latin.woff2" as="font" type="font/woff2" crossorigin>
   <!-- the full styles start downloading straight away; they are applied at the end of <body> -->
-  <link rel="preload" href="assets/css/home.bundle.css?v=1" as="style">
+  <link rel="preload" href="assets/css/home.bundle.css?v=3" as="style">
   <!-- Speed: the first screen's styles are inline below (scripts/speed/critical-css.mjs); the rest of the page is hidden until
        home.bundle.css (scripts/speed/bundle-home-css.mjs, all eight style files in their old order) has loaded at the end of <body>.
        After editing any home page style, run both scripts and bump ?v= in both places. -->
@@ -174,7 +174,8 @@ body { --project-pen: #b9e4c9; }
 .fa [hidden], .fa[hidden] { display: none !important; }
 :where(.fa) button { border: 0px; background: none; font: inherit; color: inherit; padding: 0px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .fa svg { display: block; flex: 0 0 auto; fill: none; stroke: currentcolor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.fa h1, .fa h3, .fa h4 { letter-spacing: normal; line-height: 1.2; }
+.fa h1, .fa h3 { letter-spacing: normal; line-height: 1.2; }
+.fa-meal h3, .wf-m-head h3, .wf-mcard h3, .wf-minilist h3 { text-wrap: inherit; }
 .fa-app { position: absolute; left: 0px; top: 0px; width: 390px; height: 824px; overflow: hidden; transform-origin: 0px 0px; background-position-x: ; background-position-y: ; background-size: ; background-repeat: ; background-attachment: ; background-origin: ; background-clip: ; background-color: ; background-image: radial-gradient(120% 80% at 50% -10%, #fffdf8 0%, var(--fa-bg) 55%); display: flex; flex-direction: column; }
 .wf .phone__display { --status-bg: #fcfaf5; }
 .wf .phone .screen { background: var(--fa-bg); }
@@ -288,7 +289,7 @@ body { --project-pen: #b9e4c9; }
 .fa-nudge strong { color: var(--fa-warn); }
 .fa-meal { padding: 12px 14px; border-radius: 14px; border: 1px solid var(--fa-line); background: var(--fa-surface); }
 .fa-meal__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.fa-meal h4 { flex: 1 1 0%; min-width: 0px; margin: 0px 0px 3px; font: 600 15px/1.3 var(--fa-display); letter-spacing: -0.01em; }
+.fa-meal h3 { flex: 1 1 0%; min-width: 0px; margin: 0px 0px 3px; font: 600 15px/1.3 var(--fa-display); letter-spacing: -0.01em; }
 .fa-meal__acts { display: inline-flex; gap: 7px; flex: 0 0 auto; }
 .fa-mini { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--fa-line-strong); background: var(--fa-surface); color: var(--fa-ink-soft); transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.12s; }
 .fa-meal p { margin: 0px 0px 6px; font-size: 13.5px; line-height: 1.4; }
@@ -452,7 +453,7 @@ body { --project-pen: #f1d9c7; }
 }
 .wf-grip { width: 44px; height: 5px; border-radius: 9px; background: var(--fa-line-strong); margin: 6px auto 14px; }
 .wf-m-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.wf-m-head h4 { margin: 0px; font: 600 25px/1.15 var(--fa-display); letter-spacing: -0.02em; }
+.wf-m-head h3 { margin: 0px; font: 600 25px/1.15 var(--fa-display); letter-spacing: -0.02em; }
 .wf-serves { display: flex; align-items: center; gap: 10px; margin: 14px 0px 6px; font-size: 14px; color: var(--fa-ink-soft); }
 .wf-stepper { display: inline-flex; align-items: center; gap: 12px; }
 .wf-stepper i { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--fa-line-strong); background: var(--fa-surface); color: var(--fa-accent-press); display: grid; place-items: center; font-variant-ligatures: ; font-variant-caps: ; font-variant-numeric: ; font-variant-east-asian: ; font-variant-alternates: ; font-variant-position: ; font-variant-emoji: ; font-weight: ; font-stretch: ; font-size: ; line-height: ; font-family: ; font-optical-sizing: ; font-size-adjust: ; font-kerning: ; font-feature-settings: ; font-variation-settings: ; font-language-override: ; font-style: normal; }
@@ -465,7 +466,7 @@ body { --project-pen: #f1d9c7; }
 .wf-safety svg { flex: 0 0 auto; margin-top: 2px; color: var(--fa-warn); }
 .wf-mcard { position: absolute; left: 0px; right: 0px; top: 0px; padding: 14px 15px 12px; border-radius: 18px; background: var(--fa-surface); border: 1px solid var(--fa-line); box-shadow: rgba(60, 40, 10, 0.05) 0px 2px 4px, rgba(60, 40, 10, 0.35) 0px 18px 30px -18px; transform-origin: 50% 0px; }
 .wf-mcard__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-.wf-mcard h4 { margin: 0px 0px 4px; font: 600 17px/1.25 var(--fa-display); }
+.wf-mcard h3 { margin: 0px 0px 4px; font: 600 17px/1.25 var(--fa-display); }
 .wf-mcard p { margin: 0px 0px 5px; font-size: 13.5px; line-height: 1.4; }
 .wf-mcard .fa-uses { font-size: 12px; color: var(--fa-ink-faint); }
 .wf-mcard__foot { display: flex; align-items: center; gap: 7px; margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--fa-line); }
@@ -504,7 +505,7 @@ body { --project-pen: #f1d9c7; }
 [data-act="1"] .wf-hused, [data-act="3"] .wf-usesup, [data-act="3"] .wf-tickbox { display: none; }
 [data-act="3"] .wf-hrow { grid-template-columns: minmax(0px, 1fr) auto; }
 .wf-minilist { border-radius: 14px; background: var(--fa-surface-2); padding: 12px; display: grid; gap: 7px; }
-.wf-minilist h4 { margin: 0px 0px 2px; font: 600 17px/1.2 var(--fa-display); }
+.wf-minilist h3 { margin: 0px 0px 2px; font: 600 17px/1.2 var(--fa-display); }
 .wf-minilist .fa-shop { padding: 8px 10px; gap: 10px; grid-template-columns: auto minmax(0px, 1fr); }
 .wf-minilist .fa-shop + .fa-shop { margin-top: 0px; }
 .wf-minilist .fa-box { width: 20px; height: 20px; border-radius: 6px; }
@@ -530,11 +531,11 @@ body { --project-pen: #f1d9c7; }
 .wf-done small { font-size: 12.5px; color: var(--fa-ink-faint); }
 .wf-leftover { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; background: rgb(231, 240, 248); color: rgb(61, 111, 153); font-size: 13.5px; font-weight: 600; }
 .wf-msheet { position: absolute; inset: 58px 0px 0px; z-index: 7; padding: 4px 20px 0px; border-radius: 26px 26px 0px 0px; background: var(--fa-surface); box-shadow: rgba(0, 0, 0, 0.16) 0px -12px 40px; visibility: hidden; }
-.wf-msheet .wf-m-head h4 { font-size: 23px; }
+.wf-msheet .wf-m-head h3 { font-size: 23px; }
 .wf-update, .wf-writing { position: absolute; left: 20px; right: 20px; top: 148px; visibility: hidden; }
 .wf-writing { display: flex; align-items: center; gap: 10px; color: var(--fa-ink-soft); font-size: 14px; }
 .wf-recipe { position: absolute; inset: 140px 20px 0px; overflow: hidden; visibility: hidden; }
-.wf-recipe h5 { margin: 4px 0px 6px; font: 600 17px/1.2 var(--fa-display); }
+.wf-recipe h4 { margin: 4px 0px 6px; font: 600 17px/1.2 var(--fa-display); }
 .wf-steps--sm { gap: 6px; }
 .wf-steps--sm li { font-size: 13.5px; padding: 9px 10px 9px 42px; }
 .wf-steps--sm li::before { left: 10px; top: 8px; width: 22px; height: 22px; }
@@ -814,7 +815,7 @@ body { --project-pen: #f1d9c7; }
 .wf-tl .wf-ccard .fa-buy { font-size: 11px; margin-bottom: 8px !important; }
 .wf-tl .wf-ccard .fa-buy-chip { font-size: 11px; padding: 4px 8px; }
 .wf-tl .wf-minilist { padding: 8px; gap: 5px; }
-.wf-tl .wf-minilist h4 { font-size: 14px; }
+.wf-tl .wf-minilist h3 { font-size: 14px; }
 .wf-tl .wf-minilist .fa-shop { padding: 5px 7px; }
 .wf-tl .wf-minilist .fa-shop b { font-size: 12px; }
 .wf-tl .wf-ing { margin: 0px; }
@@ -1298,14 +1299,14 @@ html.css-wait :is(body > :nth-child(1), main > :nth-child(4), #pricing, #faq, #b
                 <div class="fa-nudge" style="margin-top:12px"><svg width="18" height="18"><use href="#fa-warning"/></svg><span><strong>2 items</strong> to use up soon. Pick what to cook with</span></div>
                 <div class="fa-chat" style="margin-top:12px">
                   <div class="fa-bubble me" data-k="q">What can I make for dinner?</div>
-                  <div class="fa-meal" data-k="meal" style="margin-top:4px"><div class="fa-meal__head"><h4 role="presentation">Creamy chicken and spinach</h4><span class="fa-meal__acts"><span class="fa-mini" data-k="howto">How to</span><span class="fa-mini"><svg width="13" height="13"><use href="#fa-bookmark"/></svg>Save</span></span></div><p>Pan-fried thighs in a yoghurt and garlic sauce, with the spinach wilted in at the end.</p><p class="fa-uses">Uses: Chicken thighs, Spinach, Greek yoghurt</p><div class="fa-buy">To buy:<span class="fa-buy-chip" data-k="buy"><svg class="fa-plus" width="13" height="13"><use href="#fa-plus"/></svg><svg class="fa-tick" width="13" height="13"><use href="#fa-check"/></svg><em>Garlic · 1 bulb</em></span></div></div>
-                  <div class="fa-meal" data-k="meal2"><div class="fa-meal__head"><h4 role="presentation">Mushroom and pepper omelette</h4><span class="fa-meal__acts"><span class="fa-mini">How to</span><span class="fa-mini"><svg width="13" height="13"><use href="#fa-bookmark"/></svg>Save</span></span></div><p>A quick one for the mushrooms, with cheddar folded through.</p><p class="fa-uses">Uses: Eggs, Mushrooms, Peppers, Cheddar</p></div>
+                  <div class="fa-meal" data-k="meal" style="margin-top:4px"><div class="fa-meal__head"><h3 role="presentation">Creamy chicken and spinach</h3><span class="fa-meal__acts"><span class="fa-mini" data-k="howto">How to</span><span class="fa-mini"><svg width="13" height="13"><use href="#fa-bookmark"/></svg>Save</span></span></div><p>Pan-fried thighs in a yoghurt and garlic sauce, with the spinach wilted in at the end.</p><p class="fa-uses">Uses: Chicken thighs, Spinach, Greek yoghurt</p><div class="fa-buy">To buy:<span class="fa-buy-chip" data-k="buy"><svg class="fa-plus" width="13" height="13"><use href="#fa-plus"/></svg><svg class="fa-tick" width="13" height="13"><use href="#fa-check"/></svg><em>Garlic · 1 bulb</em></span></div></div>
+                  <div class="fa-meal" data-k="meal2"><div class="fa-meal__head"><h3 role="presentation">Mushroom and pepper omelette</h3><span class="fa-meal__acts"><span class="fa-mini">How to</span><span class="fa-mini"><svg width="13" height="13"><use href="#fa-bookmark"/></svg>Save</span></span></div><p>A quick one for the mushrooms, with cheddar folded through.</p><p class="fa-uses">Uses: Eggs, Mushrooms, Peppers, Cheddar</p></div>
                 </div>
               </div>
               <div data-k="saved" hidden>
                 <p class="fa-title">My food</p>
                 <div class="fa-seg"><span>In stock</span><span>Used</span><span class="on">Meals</span></div>
-                <div class="wf-mcard wf-cook__saved"><div class="wf-mcard__head"><h4 role="presentation">Creamy chicken and spinach</h4><span class="fa-mini">How to</span></div><p>Pan-fried thighs in a yoghurt and garlic sauce, with the spinach wilted in at the end.</p><p class="fa-uses">Uses: Chicken thighs, Spinach, Greek yoghurt</p>
+                <div class="wf-mcard wf-cook__saved"><div class="wf-mcard__head"><h3 role="presentation">Creamy chicken and spinach</h3><span class="fa-mini">How to</span></div><p>Pan-fried thighs in a yoghurt and garlic sauce, with the spinach wilted in at the end.</p><p class="fa-uses">Uses: Chicken thighs, Spinach, Greek yoghurt</p>
                   <div class="wf-mcard__foot" data-k="foot"><span class="wf-cooked" data-k="cooked"><svg width="13" height="13"><use href="#fa-check"/></svg>Cooked</span><span class="wf-cooked" data-k="left"><svg width="13" height="13"><use href="#fa-fridge"/></svg>Leftovers</span><small data-k="made">Saved today</small></div>
                   <div class="wf-mcard__foot" data-k="choose" hidden><small style="margin:0">Save leftovers to…</small><span class="wf-cooked">Fridge</span><span class="wf-cooked" data-k="frz">Freezer</span></div>
                 </div>
@@ -1313,7 +1314,7 @@ html.css-wait :is(body > :nth-child(1), main > :nth-child(4), #pricing, #faq, #b
             </div>
             <div class="wf-msheet" data-k="sheet">
               <div class="wf-grip"></div>
-              <div class="wf-m-head"><h4 role="presentation">Creamy chicken and spinach</h4><span class="fa-round"><svg width="18" height="18"><use href="#fa-close"/></svg></span></div>
+              <div class="wf-m-head"><h3 role="presentation">Creamy chicken and spinach</h3><span class="fa-round"><svg width="18" height="18"><use href="#fa-close"/></svg></span></div>
               <div class="wf-serves">Cooking for <span class="wf-stepper"><i>−</i><b data-k="serves">2</b><i data-k="plus">+</i></span><span>people</span></div>
               <span class="fa-btn fa-btn--primary fa-btn--block wf-update" data-k="update"><svg width="17" height="17"><use href="#fa-sparkle"/></svg>Update recipe for 4 people</span>
               <div class="wf-writing" data-k="writing"><span class="fa-typing"><span></span><span></span><span></span></span>Writing your recipe for 4…</div>
@@ -1321,9 +1322,9 @@ html.css-wait :is(body > :nth-child(1), main > :nth-child(4), #pricing, #faq, #b
                 <div data-k="rscroll">
                   <p class="wf-m-time">⏱ 30 min · serves <span data-k="serves2">2</span></p>
                   <p class="wf-m-time">~520 kcal per serving <span style="opacity:.7">· estimate</span></p>
-                  <h5 role="presentation">Ingredients</h5>
+                  <h4 role="presentation">Ingredients</h4>
                   <ul class="wf-ing"><li data-ing="chicken"><span>Chicken thighs</span><b data-q2="4" data-q4="8">4</b></li><li data-ing="oil"><span>Olive oil</span><b data-q2="1 tbsp" data-q4="2 tbsp">1 tbsp</b></li><li data-ing="garlic"><span>Garlic</span><b data-q2="2 cloves" data-q4="4 cloves">2 cloves</b></li><li data-ing="yoghurt"><span>Greek yoghurt</span><b data-q2="150g" data-q4="300g">150g</b></li><li data-ing="spinach"><span>Spinach</span><b data-q2="120g" data-q4="240g">120g</b></li></ul>
-                  <h5 role="presentation">Method</h5>
+                  <h4 role="presentation">Method</h4>
                   <ol class="wf-steps wf-steps--sm"><li data-uses="chicken oil">Season the chicken thighs and brown them in the olive oil, skin side down.</li><li data-uses="garlic">Turn them over, add the sliced garlic and cook for a minute.</li><li data-uses="yoghurt">Take the pan off the heat and stir in the Greek yoghurt.</li><li data-uses="chicken">Simmer gently until the chicken is cooked through.</li><li data-uses="spinach">Wilt in the spinach and serve.</li></ol>
                   <p class="wf-m-tip"><svg width="13" height="13"><use href="#fa-check"/></svg>Take the pan off the heat first, so the yoghurt doesn’t split.</p>
                   <p class="wf-safety"><svg width="12" height="12"><use href="#fa-warning"/></svg>AI can make mistakes — cook food to safe temperatures, follow use-by dates, and check labels for allergens yourself. Calorie figures are a rough estimate to help you choose — not precise nutritional or dietary advice.</p>
@@ -1342,7 +1343,7 @@ html.css-wait :is(body > :nth-child(1), main > :nth-child(4), #pricing, #faq, #b
           <div class="wf-cook__col wf-cook__col--r">
             <div class="wf-ccard fa" data-act="1"><p class="wf-card__k"><svg width="14" height="14"><use href="#fa-cart"/></svg>You need</p>
               <div class="fa-buy" style="margin:0 0 12px">To buy:<span class="fa-buy-chip" data-k="cbuy"><svg class="fa-plus" width="13" height="13"><use href="#fa-plus"/></svg><svg class="fa-tick" width="13" height="13"><use href="#fa-check"/></svg><em>Garlic · 1 bulb</em></span></div>
-              <div class="wf-minilist"><h4 role="presentation">My list</h4><div class="fa-shop"><span class="fa-box"></span><b>Lemons</b></div><div class="fa-shop" data-k="lgarlic"><span class="fa-box"></span><b>Garlic · 1 bulb</b></div></div>
+              <div class="wf-minilist"><h3 role="presentation">My list</h3><div class="fa-shop"><span class="fa-box"></span><b>Lemons</b></div><div class="fa-shop" data-k="lgarlic"><span class="fa-box"></span><b>Garlic · 1 bulb</b></div></div>
             </div>
             <div class="wf-ccard fa wf-stepcard" data-act="2"><p class="wf-card__k"><svg width="14" height="14"><use href="#fa-sparkle"/></svg>How to make it</p>
               <div class="wf-stepnum"><b data-k="sn">1</b><span>of 5</span><span class="wf-steptime">⏱ 30 min</span></div>
@@ -1484,10 +1485,10 @@ html.css-wait :is(body > :nth-child(1), main > :nth-child(4), #pricing, #faq, #b
         <figure class="wf-break">
           <div class="wf-tile" aria-hidden="true"><div class="fa wf-tile__ui wf-method" data-fit data-tile="method">
             <div class="wf-grip"></div>
-            <div class="wf-m-head"><h4 role="presentation">Creamy chicken and spinach</h4><span class="fa-round"><svg width="18" height="18"><use href="#fa-close"/></svg></span></div>
+            <div class="wf-m-head"><h3 role="presentation">Creamy chicken and spinach</h3><span class="fa-round"><svg width="18" height="18"><use href="#fa-close"/></svg></span></div>
             <div class="wf-serves">Cooking for <span class="wf-stepper"><i>−</i><b data-serves>2</b><i data-plus>+</i></span><span data-people>people</span></div>
             <p class="wf-m-time">⏱ 30 min · serves <span data-serves2>2</span> · <span data-kcal>~520</span> kcal each</p>
-            <h5 role="presentation">Method</h5>
+            <h4 role="presentation">Method</h4>
             <ol class="wf-steps">
               <li>Season the chicken thighs and brown them in a hot pan.</li>
               <li>Add the garlic, then stir in the Greek yoghurt off the heat.</li>
@@ -1504,9 +1505,9 @@ html.css-wait :is(body > :nth-child(1), main > :nth-child(4), #pricing, #faq, #b
             <p class="fa-title">Saved meals</p>
             <div class="fa-seg"><span>In stock</span><span>Used</span><span class="on">Meals</span></div>
             <div class="wf-mstack">
-              <div class="wf-mcard" data-mcard="0"><div class="wf-mcard__head"><h4 role="presentation">Creamy chicken and spinach</h4><span class="fa-mini">How to</span></div><p>Pan-fried thighs in a yoghurt and garlic sauce, with the spinach wilted in at the end.</p><p class="fa-uses">Uses: Chicken thighs, Spinach, Greek yoghurt</p><div class="fa-buy">To buy:<span class="fa-buy-chip"><svg class="fa-plus" width="13" height="13"><use href="#fa-plus"/></svg>Garlic</span></div><div class="wf-mcard__foot"><span class="wf-cooked" data-cooked><svg width="13" height="13"><use href="#fa-check"/></svg>Cooked</span><span class="wf-cooked"><svg width="13" height="13"><use href="#fa-fridge"/></svg>Leftovers</span><small data-made>Made 2× · last 3 Oct</small></div></div>
-              <div class="wf-mcard" data-mcard="1"><div class="wf-mcard__head"><h4 role="presentation">Mushroom and pepper omelette</h4><span class="fa-mini">How to</span></div><p>A quick one for the mushrooms, with cheddar folded through.</p><p class="fa-uses">Uses: Eggs, Mushrooms, Peppers, Cheddar</p><div class="fa-buy">To buy:<span class="fa-buy-chip"><svg class="fa-plus" width="13" height="13"><use href="#fa-plus"/></svg>Chives</span></div><div class="wf-mcard__foot"><span class="wf-cooked" data-cooked><svg width="13" height="13"><use href="#fa-check"/></svg>Cooked</span><span class="wf-cooked"><svg width="13" height="13"><use href="#fa-fridge"/></svg>Leftovers</span><small data-made>Made 4× · last 6 Oct</small></div></div>
-              <div class="wf-mcard" data-mcard="2"><div class="wf-mcard__head"><h4 role="presentation">Chicken and pepper rice</h4><span class="fa-mini">How to</span></div><p>One pan, with the tinned tomatoes and the peas from the freezer.</p><p class="fa-uses">Uses: Chicken thighs, Peppers, Basmati rice</p><div class="fa-buy">To buy:<span class="fa-buy-chip"><svg class="fa-plus" width="13" height="13"><use href="#fa-plus"/></svg>Smoked paprika</span></div><div class="wf-mcard__foot"><span class="wf-cooked" data-cooked><svg width="13" height="13"><use href="#fa-check"/></svg>Cooked</span><span class="wf-cooked"><svg width="13" height="13"><use href="#fa-fridge"/></svg>Leftovers</span><small data-made>Made 1× · last 28 Sep</small></div></div>
+              <div class="wf-mcard" data-mcard="0"><div class="wf-mcard__head"><h3 role="presentation">Creamy chicken and spinach</h3><span class="fa-mini">How to</span></div><p>Pan-fried thighs in a yoghurt and garlic sauce, with the spinach wilted in at the end.</p><p class="fa-uses">Uses: Chicken thighs, Spinach, Greek yoghurt</p><div class="fa-buy">To buy:<span class="fa-buy-chip"><svg class="fa-plus" width="13" height="13"><use href="#fa-plus"/></svg>Garlic</span></div><div class="wf-mcard__foot"><span class="wf-cooked" data-cooked><svg width="13" height="13"><use href="#fa-check"/></svg>Cooked</span><span class="wf-cooked"><svg width="13" height="13"><use href="#fa-fridge"/></svg>Leftovers</span><small data-made>Made 2× · last 3 Oct</small></div></div>
+              <div class="wf-mcard" data-mcard="1"><div class="wf-mcard__head"><h3 role="presentation">Mushroom and pepper omelette</h3><span class="fa-mini">How to</span></div><p>A quick one for the mushrooms, with cheddar folded through.</p><p class="fa-uses">Uses: Eggs, Mushrooms, Peppers, Cheddar</p><div class="fa-buy">To buy:<span class="fa-buy-chip"><svg class="fa-plus" width="13" height="13"><use href="#fa-plus"/></svg>Chives</span></div><div class="wf-mcard__foot"><span class="wf-cooked" data-cooked><svg width="13" height="13"><use href="#fa-check"/></svg>Cooked</span><span class="wf-cooked"><svg width="13" height="13"><use href="#fa-fridge"/></svg>Leftovers</span><small data-made>Made 4× · last 6 Oct</small></div></div>
+              <div class="wf-mcard" data-mcard="2"><div class="wf-mcard__head"><h3 role="presentation">Chicken and pepper rice</h3><span class="fa-mini">How to</span></div><p>One pan, with the tinned tomatoes and the peas from the freezer.</p><p class="fa-uses">Uses: Chicken thighs, Peppers, Basmati rice</p><div class="fa-buy">To buy:<span class="fa-buy-chip"><svg class="fa-plus" width="13" height="13"><use href="#fa-plus"/></svg>Smoked paprika</span></div><div class="wf-mcard__foot"><span class="wf-cooked" data-cooked><svg width="13" height="13"><use href="#fa-check"/></svg>Cooked</span><span class="wf-cooked"><svg width="13" height="13"><use href="#fa-fridge"/></svg>Leftovers</span><small data-made>Made 1× · last 28 Sep</small></div></div>
             </div>
             <div class="fa-nav wf-tnav"><span><i><svg width="22" height="22"><use href="#fa-sparkle"/></svg></i>Tonight</span><span><i><svg width="22" height="22"><use href="#fa-chat"/></svg></i>Ask</span><span><i><svg width="22" height="22"><use href="#fa-camera"/></svg></i>Scan</span><span class="on"><i><svg width="22" height="22"><use href="#fa-fridge"/></svg></i>Fridge</span><span><i><svg width="22" height="22"><use href="#fa-cart"/></svg></i>List</span></div>
           </div></div>
@@ -1687,7 +1688,7 @@ html.css-wait :is(body > :nth-child(1), main > :nth-child(4), #pricing, #faq, #b
     </div>
   </aside>
 
-  <link rel="stylesheet" href="assets/css/home.bundle.css?v=1">
+  <link rel="stylesheet" href="assets/css/home.bundle.css?v=3">
   <script>document.documentElement.classList.remove('css-wait')</script>
   <script src="vendor/gsap.min.js"></script>
   <script src="vendor/ScrollTrigger.min.js"></script>
