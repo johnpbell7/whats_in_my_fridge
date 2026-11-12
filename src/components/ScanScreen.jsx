@@ -6,7 +6,7 @@ import { downscaleImage } from '../lib/image.js'
 import { store } from '../lib/store.js'
 import { sameItem } from '../lib/staples.js'
 import { CATEGORIES, LOCATIONS } from '../lib/categories.js'
-import { suggestLocation, freezerFromScan } from '../lib/location.js'
+import { toStoreItems } from '../lib/scanItems.js'
 import { coach, useCoachStep } from '../lib/coach.js'
 import CoachTip from './CoachTip.jsx'
 import { IconCamera, IconReceipt, IconPlus, IconCheck, IconClose, IconSparkle, IconWarning, IconClock } from '../icons.jsx'
@@ -70,37 +70,7 @@ export default function ScanScreen({ onDone, onAddManual }) {
       // scan a receipt a day or two later); otherwise from now.
       const purchasedAt = receiptDate ? new Date(receiptDate + 'T12:00:00') : new Date()
       const added = purchasedAt.toISOString()
-      store.addMany(
-        chosen.map((d) => {
-          // Auto filing: a frozen product goes straight to the freezer; else
-          // trust the AI's fridge/freezer/pantry call; else fall back to the
-          // name/category guess.
-          const loc =
-            location === 'auto'
-              ? freezerFromScan(d.name, d.frozen)
-                ? 'freezer'
-                : d.location || suggestLocation(d.name, d.category)
-              : location
-          return {
-            name: d.name.trim(),
-            category: d.category,
-            quantity: d.quantity || 1,
-            unit: d.unit || '',
-            location: loc,
-            added_date: added,
-            // No use-by stored — freshness is counted from the added date and
-            // the category's window, so the card shows the item's age, not a
-            // "use by". (A user can still set an exact date later by hand.)
-            source: 'photo',
-            confidence: d.confidence,
-            // The AI's read on whether this keeps for ages (tins/dried) or goes
-            // off (fresh) — drives freshness flagging. Omitted falls back to a
-            // name/category heuristic.
-            ...(typeof d.perishable === 'boolean' ? { perishable: d.perishable } : {}),
-            filed: false
-          }
-        })
-      )
+      store.addMany(toStoreItems(chosen, { location, added }))
     }
     reset()
     onDone()

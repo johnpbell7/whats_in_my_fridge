@@ -4,7 +4,7 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
-import { healthHandler, meHandler, visionHandler, chatHandler, mealsHandler, dishHandler, methodHandler } from './core.js'
+import { healthHandler, meHandler, visionHandler, tryScanHandler, chatHandler, mealsHandler, dishHandler, methodHandler } from './core.js'
 import { reportHandler } from './notify.js'
 import { deleteAccountHandler } from './auth.js'
 import { checkoutHandler, confirmCheckoutHandler, billingPortalHandler, webhookHandler } from './stripe.js'
@@ -39,6 +39,7 @@ app.get('/api/me', async (req, res) =>
   send(res, await meHandler(bearer(req), { deviceId: req.headers['x-device-id'] || null, ip: req.ip }))
 )
 app.post('/api/vision', async (req, res) => send(res, await visionHandler(req.body, bearer(req))))
+app.post('/api/try-scan', async (req, res) => send(res, await tryScanHandler(req.body, req.ip)))
 app.post('/api/chat', async (req, res) => send(res, await chatHandler(req.body, bearer(req))))
 // /api/meals doubles as the walkthrough endpoint (kind:'method') so production
 // stays under the Hobby plan's 12-function limit — mirror that here.

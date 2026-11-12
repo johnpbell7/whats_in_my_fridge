@@ -14,6 +14,8 @@ import { confirmCheckout, getMe } from './lib/api.js'
 import { upgrade } from './lib/upgrade.js'
 import { track } from './lib/analytics.js'
 import { toast } from './lib/toast.js'
+import { takePending, markSignedIn } from './lib/tryFirst.js'
+import { toStoreItems } from './lib/scanItems.js'
 import InventoryScreen from './components/InventoryScreen.jsx'
 import ScanScreen from './components/ScanScreen.jsx'
 import ChatScreen from './components/ChatScreen.jsx'
@@ -24,6 +26,7 @@ import ResetPassword from './components/ResetPassword.jsx'
 import AccountSheet from './components/AccountSheet.jsx'
 import Onboarding from './components/Onboarding.jsx'
 import InstallGuide from './components/InstallGuide.jsx'
+import PhoneSheet from './components/PhoneSheet.jsx'
 import HelpSheet from './components/HelpSheet.jsx'
 import ReportSheet from './components/ReportSheet.jsx'
 import { isMobile, isStandalone } from './lib/install.js'
@@ -100,10 +103,12 @@ export default function App() {
   const [account, setAccount] = useState(false)
   const [savedSheet, setSavedSheet] = useState(false)
   const [installGuide, setInstallGuide] = useState(false)
+  // "Put it on your phone" QR sheet, once, for people who signed up on a computer.
+  const [phoneSheet, setPhoneSheet] = useState(false)
   // Live value of installGuide for async callbacks (the trial prompts fire
   // after a network round-trip, so their closure would otherwise be stale).
   const installGuideRef = useRef(installGuide)
-  installGuideRef.current = installGuide
+  installGuideRef.current = installGuide || phoneSheet
   const [help, setHelp] = useState(false)
   const [report, setReport] = useState(false)
   const [helpUnseen, setHelpUnseen] = useState(() => hasUnseen())
@@ -186,6 +191,9 @@ export default function App() {
       // ones, so ?reset gives a clean first-run on any build.
       firstrun.clearSeen('fridge.onboarding.hide', userId)
       firstrun.clearSeen('fridge.install.hide', userId)
+      firstrun.clearSeen('fridge.install.hide2', userId)
+      firstrun.clearSeen('fridge.install.at', userId)
+      firstrun.clearSeen('fridge.phone.hide', userId)
       firstrun.clearSeen('fridge.dinnercoach', userId)
       try {
         localStorage.removeItem('fridge.onboarding.hide')
@@ -229,24 +237,41 @@ export default function App() {
   // ties data to the account (and keeps it off another account on the device).
   useEffect(() => {
     if (!authEnabled || authLoading) return
-    if (session?.user) startSync(session.user)
-    else stopSync()
+    if (session?.user) {
+      markSignedIn()
+      // Once synced, add any list from a "try it first" photo taken before
+      // they signed up, so it lands in their account (and syncs).
+      startSync(session.user).then(() => {
+        const tried = takePending()
+        if (!tried.length) return
+        store.addMany(toStoreItems(tried))
+        toast.show(`Added ${tried.length} ${tried.length === 1 ? 'item' : 'items'} from your photo`, 3000)
+      })
+    } else stopSync()
   }, [authEnabled, authLoading, session?.user?.id])
 
-  // Nudge mobile web visitors (most arrive by scanning the QR on the site) to
-  // add the app to their home screen — once, after they're past onboarding and
-  // into the app, and never if they're already running it installed.
+  // Get the app onto their phone's home screen — the thing that keeps people
+  // using it. On a phone: the Add-to-Home-Screen guide after onboarding, and
+  // once more two days later if they closed it without adding it. On a
+  // computer: a QR code to open it on their phone, once. Never when they're
+  // already running it installed.
   useEffect(() => {
     if (!onboarded) return
     if (authEnabled && (authLoading || !session)) return
-    if (firstrun.seen('fridge.install.hide', userId)) return
-    if (!isMobile() || isStandalone()) return
+    if (isStandalone()) return
+    let which = null
+    if (isMobile()) {
+      if (!firstrun.seen('fridge.install.hide', userId)) which = 'install'
+      else if (!firstrun.seen('fridge.install.hide2', userId) && firstrun.daysSince('fridge.install.at', userId) >= 2) which = 'install'
+    } else if (!firstrun.seen('fridge.phone.hide', userId)) which = 'phone'
+    if (!which) return
     const t = setTimeout(() => {
       // Never stack on top of the Plus paywall or account sheet — stacked
       // sheets were the first-run freeze. It'll try again next eligible load.
       if (upgrade.get() || account) return
       installGuideRef.current = true // claim it now so a racing trial prompt yields
-      setInstallGuide(true)
+      if (which === 'install') setInstallGuide(true)
+      else setPhoneSheet(true)
     }, 1200)
     return () => clearTimeout(t)
   }, [onboarded, authEnabled, authLoading, session, userId, account])
@@ -304,8 +329,18 @@ export default function App() {
   }, [authEnabled, authLoading, session?.user?.id, onboarded])
 
   function dismissInstall() {
-    firstrun.markSeen('fridge.install.hide', userId)
+    // First close starts the two-day wait for the one reminder; the second ends it.
+    if (firstrun.seen('fridge.install.hide', userId)) firstrun.markSeen('fridge.install.hide2', userId)
+    else {
+      firstrun.markSeen('fridge.install.hide', userId)
+      firstrun.markNow('fridge.install.at', userId)
+    }
     setInstallGuide(false)
+  }
+
+  function dismissPhone() {
+    firstrun.markSeen('fridge.phone.hide', userId)
+    setPhoneSheet(false)
   }
 
   function handleSave(values, id) {
@@ -494,6 +529,7 @@ export default function App() {
           (the phone demo), which breaks the outer one's exit tracking and leaves
           an invisible scrim locking the app. Conditional render unmounts cleanly. */}
       {installGuide && <InstallGuide onClose={dismissInstall} />}
+      {phoneSheet && <PhoneSheet onClose={dismissPhone} />}
 
       <AnimatePresence>
         {help && (

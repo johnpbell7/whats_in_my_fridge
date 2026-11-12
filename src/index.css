@@ -1363,6 +1363,54 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 .auth-legal { text-align: center; margin: 16px 0 0; font-size: 12.5px; color: var(--ink-faint); line-height: 1.5; }
 .auth-legal a { color: var(--ink-soft); font-weight: 600; }
 
+/* "Try it first": one photo before signing up (TryFirst.jsx) */
+.try-card { max-width: 400px; }
+.try-tips {
+  background: var(--accent-soft);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  margin: 0 0 16px;
+}
+.try-tips-h { margin: 0 0 6px; font-size: 12.5px; font-weight: 700; color: var(--accent-press); }
+.try-tips ul { margin: 0; padding-left: 18px; display: grid; gap: 5px; }
+.try-tips li { font-size: 13px; line-height: 1.45; color: var(--ink); }
+.try-divider { height: 1px; background: var(--line); margin: 14px 0; }
+.try-card .btn-ghost.btn-block { margin-top: 0; }
+.try-preview { margin: 0 0 14px; }
+.try-preview img { max-height: 46dvh; object-fit: cover; }
+.try-spin { width: 30px; height: 30px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.35); border-top-color: #fff; }
+.try-wait { text-align: center; color: var(--ink-soft); font-size: 14px; }
+.try-error { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 4px; }
+.try-error svg { flex: none; margin-top: 1px; }
+.try-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 42dvh;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.try-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 12px;
+  font-size: 14px;
+}
+.try-list li + li { border-top: 1px solid var(--line); }
+.try-name { min-width: 0; overflow-wrap: anywhere; }
+.try-cat { flex: none; font-size: 12px; color: var(--ink-faint); }
+
+/* "Put it on your phone": once, for people who sign up on a computer */
+.phone-body { display: flex; align-items: center; gap: 18px; margin: 4px 0 18px; }
+.phone-qr { flex: none; width: 132px; height: 132px; padding: 8px; border-radius: var(--r-md); background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
+.phone-steps { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 14px; line-height: 1.45; color: var(--ink); }
+@media (max-width: 420px) {
+  .phone-body { flex-direction: column; align-items: flex-start; }
+}
+
 .header-right { display: flex; align-items: center; gap: 8px; }
 .account-btn {
   position: relative;

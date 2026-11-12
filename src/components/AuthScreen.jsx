@@ -3,6 +3,9 @@ import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase.js'
 import { track } from '../lib/analytics.js'
 import { IconFridge } from '../icons.jsx'
+import TryFirst from './TryFirst.jsx'
+import { hasSignedInBefore, pendingCount } from '../lib/tryFirst.js'
+import { isStandalone } from '../lib/install.js'
 
 // Loose but sane email shape check — enough to catch a blank/obviously-wrong
 // address before we bother the server, not a full RFC validator.
@@ -13,7 +16,12 @@ export const isEmail = (v) => EMAIL_RE.test(String(v).trim())
 // accounts are enabled and nobody is signed in. Email + password to keep it
 // simple and dependency-free; social sign-in can be layered on later.
 export default function AuthScreen() {
-  const [mode, setMode] = useState('signin') // 'signin' | 'signup' | 'forgot'
+  // First-time visitors start on 'welcome' (try one photo before signing up).
+  // A device that's signed in before, or the installed home-screen app (which
+  // on iPhone keeps its own storage and opens signed out), goes to 'signin'.
+  const [mode, setMode] = useState(() => (hasSignedInBefore() || isStandalone() ? 'signin' : pendingCount() ? 'signup' : 'welcome')) // 'welcome' | 'signin' | 'signup' | 'forgot'
+  // How many items from the try-it photo are waiting to be saved.
+  const [saved, setSaved] = useState(() => pendingCount())
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
@@ -119,10 +127,22 @@ export default function AuthScreen() {
     )
   }
 
+  if (mode === 'welcome') {
+    return (
+      <TryFirst
+        onSave={(n) => { setSaved(n); switchMode('signup') }}
+        onSignIn={() => switchMode('signin')}
+        onSignUp={() => switchMode('signup')}
+      />
+    )
+  }
+
   const title = mode === 'signup' ? 'Create your account' : mode === 'forgot' ? 'Reset your password' : 'Welcome back'
   const sub =
     mode === 'signup'
-      ? 'So your fridge syncs and stays yours.'
+      ? saved
+        ? `Free to make. Your ${saved} ${saved === 1 ? 'item goes' : 'items go'} straight into your fridge.`
+        : 'So your fridge syncs and stays yours.'
       : mode === 'forgot'
         ? 'Enter your email and we’ll send a reset link.'
         : 'Sign in to your fridge.'

@@ -30,3 +30,23 @@ export function clearSeen(base, uid) {
     /* private mode */
   }
 }
+
+// Remember when something happened (e.g. the install guide was first closed),
+// so a reminder can wait a few days.
+export function markNow(base, uid) {
+  try {
+    localStorage.setItem(key(base, uid), String(Date.now()))
+  } catch {
+    /* private mode */
+  }
+}
+
+// Whole days since markNow, or 0 if it never ran.
+export function daysSince(base, uid, now = Date.now()) {
+  try {
+    const t = Number(localStorage.getItem(key(base, uid)))
+    return t > 0 ? Math.floor((now - t) / 86_400_000) : 0
+  } catch {
+    return 0
+  }
+}

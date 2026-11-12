@@ -125,6 +125,12 @@ export function detectFromImage(imageBase64, mediaType, mode = 'groceries') {
   }))
 }
 
+// "Try it first": read one fridge photo before signing up. No account needed;
+// the server limits how often. Returns the items found.
+export function tryScan(imageBase64, mediaType) {
+  return post('/api/try-scan', { imageBase64, mediaType }).then((d) => d.items || [])
+}
+
 // Send a "report a problem" message to support (emails it to the owner).
 export function reportProblem(type, message) {
   let meta = ''

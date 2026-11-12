@@ -25,7 +25,7 @@ describe('QR codes', () => {
 
   it('refuses odd codes but still tidies the address', () => {
     expect(readQr(`${BASE}/qr/%3Cscript%3E`)).toEqual({ code: null, url: '/' })
-    expect(cleanCode('a'.repeat(41))).toBeNull()
+    expect(cleanCode('a'.repeat(61))).toBeNull()
     expect(cleanCode(' Van ')).toBe('van')
   })
 })

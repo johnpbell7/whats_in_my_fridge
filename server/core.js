@@ -212,17 +212,9 @@ export async function visionHandler(body = {}, token) {
   }
 
   const { imageBase64, mediaType = 'image/jpeg', mode = 'groceries' } = body
-  if (typeof imageBase64 !== 'string' || !imageBase64) {
-    return reject(400, 'bad_request', 'imageBase64 is required.')
-  }
-  if (imageBase64.length > MAX_IMAGE_B64) {
-    return reject(413, 'image_too_large', 'That image is too large — try a smaller photo.')
-  }
-  if (!ALLOWED_MEDIA.includes(mediaType)) {
-    return reject(400, 'bad_request', 'Unsupported image type.')
-  }
+  const bad = badImage(imageBase64, mediaType)
+  if (bad) return reject(...bad)
 
-  const prompt = mode === 'receipt' ? RECEIPT_PROMPT : GROCERIES_PROMPT
   // Receipts are printed text, which the cheap chat model reads accurately — so
   // route them to Haiku regardless of tier, and reserve the pricier vision model
   // for fridge/grocery photos, where the harder visual recognition earns its
@@ -230,79 +222,153 @@ export async function visionHandler(body = {}, token) {
   const visionModel =
     mode === 'receipt' ? process.env.RECEIPT_MODEL || CHAT_MODEL : gate.visionModel || VISION_MODEL
   try {
-    const message = await client.messages.create({
-      model: visionModel,
-      max_tokens: 4096, // room for a long list of items without truncating
-      // Force the model to return the list through this tool, so we read a
-      // validated object instead of parsing free text (which proved fragile).
-      tools: [
-        {
-          name: 'record_items',
-          description: 'Record every distinct food or drink item identified in the image.',
-          input_schema: {
-            type: 'object',
-            properties: {
-              items: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    name: { type: 'string', description: 'The product name' },
-                    category: { type: 'string', enum: CATEGORIES },
-                    location: { type: 'string', enum: STORAGE_LOCATIONS, description: "Where it's kept: 'freezer' for frozen; 'fridge' for chilled/fresh items (fresh dairy, eggs, meat, fish, leftovers, fresh juice, fresh refrigerated produce); 'pantry' for ambient cupboard staples (tins, jars, dried goods, pasta, rice, bread, snacks, condiments, seasonings, household, and cupboard produce like onions, potatoes, garlic, bananas)." },
-                    quantity: { type: 'number', description: 'How many of this product, default 1' },
-                    unit: { type: 'string', description: 'Short freeform unit, or empty string' },
-                    confidence: { type: 'number', description: '0 to 1 certainty' },
-                    frozen: { type: 'boolean', description: 'true if this is a frozen product (belongs in the freezer)' },
-                    perishable: { type: 'boolean', description: 'true for fresh/chilled/frozen food that goes off in days–weeks (produce, dairy, meat, bread, leftovers). false for long-life/ambient staples that keep for many months (tins, jars, dried pasta/rice, packaged goods, condiments, seasonings, household).' }
-                  },
-                  required: ['name', 'category', 'location', 'quantity', 'unit', 'confidence', 'frozen', 'perishable']
-                }
-              },
-              receipt_date: {
-                type: 'string',
-                description:
-                  "For a shopping receipt: the transaction/purchase date printed on it, in YYYY-MM-DD. Empty string if not a receipt or no date is legible."
-              }
-            },
-            required: ['items']
-          }
-        }
-      ],
-      tool_choice: { type: 'tool', name: 'record_items' },
-      messages: [
-        {
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: mediaType, data: imageBase64 } },
-            { type: 'text', text: prompt }
-          ]
-        }
-      ]
-    })
-    const toolUse = message.content.find((b) => b.type === 'tool_use')
-    const items = asItemArray(toolUse?.input)
-      .map((it) => ({
-        name: String(it.name || '').trim(),
-        category: CATEGORIES.includes(it.category) ? it.category : 'other',
-        // AI-assigned storage location; null if it returned something unexpected
-        // so the client falls back to its own name/category guess.
-        location: STORAGE_LOCATIONS.includes(it.location) ? it.location : null,
-        quantity: Number.isFinite(it.quantity) ? it.quantity : 1,
-        unit: String(it.unit || '').trim(),
-        confidence: typeof it.confidence === 'number' ? Math.max(0, Math.min(1, it.confidence)) : 0.5,
-        frozen: Boolean(it.frozen),
-        // Default to perishable when unsure — safer to track freshness than miss it.
-        perishable: typeof it.perishable === 'boolean' ? it.perishable : true
-      }))
-      .filter((it) => it.name && !isCarrierBag(it.name))
-    // Only trust a date from receipt scans.
-    const receiptDate = mode === 'receipt' ? validReceiptDate(toolUse?.input?.receipt_date) : null
-    return { status: 200, body: { items, receiptDate } }
+    return { status: 200, body: await recognise(client, { imageBase64, mediaType, mode, model: visionModel }) }
   } catch (err) {
     if (gate.meter) await refundUsage(gate.usageId)
     return mapClaudeError(err, 'vision')
   }
+}
+
+// [status, error, message] when the image can't be sent, else null.
+function badImage(imageBase64, mediaType) {
+  if (typeof imageBase64 !== 'string' || !imageBase64) return [400, 'bad_request', 'imageBase64 is required.']
+  if (imageBase64.length > MAX_IMAGE_B64) return [413, 'image_too_large', 'That image is too large — try a smaller photo.']
+  if (!ALLOWED_MEDIA.includes(mediaType)) return [400, 'bad_request', 'Unsupported image type.']
+  return null
+}
+
+// "Try it first": one fridge photo before signing up, so people see their own
+// food turn into a list before we ask for an email. No account, so it's guarded
+// by an in-memory limit per visitor and per day (same approach as reports),
+// and TRY_SCAN=off switches it off. Nothing is saved on the server; the app
+// keeps the list on the device and adds it to the fridge once they sign up.
+export const TRY_LIMITS = {
+  perVisitor: Number(process.env.TRY_SCAN_PER_VISITOR) || 2,
+  perDay: Number(process.env.TRY_SCAN_PER_DAY) || 150
+}
+const DAY_MS = 24 * 60 * 60 * 1000
+const tryHits = new Map()
+let tryAll = []
+
+export function tryScanLimited(ip, now = Date.now()) {
+  tryAll = tryAll.filter((t) => now - t < DAY_MS)
+  if (tryAll.length >= TRY_LIMITS.perDay) return 'busy'
+  const key = ip || 'unknown'
+  const hits = (tryHits.get(key) || []).filter((t) => now - t < DAY_MS)
+  if (hits.length >= TRY_LIMITS.perVisitor) {
+    tryHits.set(key, hits)
+    return 'used'
+  }
+  hits.push(now)
+  tryHits.set(key, hits)
+  if (tryHits.size > 5000) tryHits.clear() // bound memory
+  tryAll.push(now)
+  return null
+}
+
+export async function tryScanHandler(body = {}, ip = null) {
+  if (process.env.TRY_SCAN === 'off') {
+    return { status: 403, body: { error: 'try_off', message: 'Create a free account to scan your fridge.' } }
+  }
+  const client = getClient()
+  if (!client) return NO_KEY
+  const { imageBase64, mediaType = 'image/jpeg' } = body
+  const bad = badImage(imageBase64, mediaType)
+  if (bad) return { status: bad[0], body: { error: bad[1], message: bad[2] } }
+  const limited = tryScanLimited(ip)
+  if (limited) {
+    return {
+      status: 429,
+      body: {
+        error: 'try_used',
+        message:
+          limited === 'used'
+            ? 'That’s your free try for today. Create a free account to keep scanning.'
+            : 'Lots of people are trying it right now. Create a free account to scan straight away.'
+      }
+    }
+  }
+  try {
+    const { items } = await recognise(client, { imageBase64, mediaType, mode: 'groceries', model: VISION_MODEL })
+    return { status: 200, body: { items } }
+  } catch (err) {
+    return mapClaudeError(err, 'vision')
+  }
+}
+
+// Read a photo into a list of items with Claude. Throws on an API error.
+async function recognise(client, { imageBase64, mediaType, mode, model }) {
+  const prompt = mode === 'receipt' ? RECEIPT_PROMPT : GROCERIES_PROMPT
+  const visionModel = model
+  const message = await client.messages.create({
+    model: visionModel,
+    max_tokens: 4096, // room for a long list of items without truncating
+    // Force the model to return the list through this tool, so we read a
+    // validated object instead of parsing free text (which proved fragile).
+    tools: [
+      {
+        name: 'record_items',
+        description: 'Record every distinct food or drink item identified in the image.',
+        input_schema: {
+          type: 'object',
+          properties: {
+            items: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', description: 'The product name' },
+                  category: { type: 'string', enum: CATEGORIES },
+                  location: { type: 'string', enum: STORAGE_LOCATIONS, description: "Where it's kept: 'freezer' for frozen; 'fridge' for chilled/fresh items (fresh dairy, eggs, meat, fish, leftovers, fresh juice, fresh refrigerated produce); 'pantry' for ambient cupboard staples (tins, jars, dried goods, pasta, rice, bread, snacks, condiments, seasonings, household, and cupboard produce like onions, potatoes, garlic, bananas)." },
+                  quantity: { type: 'number', description: 'How many of this product, default 1' },
+                  unit: { type: 'string', description: 'Short freeform unit, or empty string' },
+                  confidence: { type: 'number', description: '0 to 1 certainty' },
+                  frozen: { type: 'boolean', description: 'true if this is a frozen product (belongs in the freezer)' },
+                  perishable: { type: 'boolean', description: 'true for fresh/chilled/frozen food that goes off in days–weeks (produce, dairy, meat, bread, leftovers). false for long-life/ambient staples that keep for many months (tins, jars, dried pasta/rice, packaged goods, condiments, seasonings, household).' }
+                },
+                required: ['name', 'category', 'location', 'quantity', 'unit', 'confidence', 'frozen', 'perishable']
+              }
+            },
+            receipt_date: {
+              type: 'string',
+              description:
+                "For a shopping receipt: the transaction/purchase date printed on it, in YYYY-MM-DD. Empty string if not a receipt or no date is legible."
+            }
+          },
+          required: ['items']
+        }
+      }
+    ],
+    tool_choice: { type: 'tool', name: 'record_items' },
+    messages: [
+      {
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: mediaType, data: imageBase64 } },
+          { type: 'text', text: prompt }
+        ]
+      }
+    ]
+  })
+  const toolUse = message.content.find((b) => b.type === 'tool_use')
+  const items = asItemArray(toolUse?.input)
+    .map((it) => ({
+      name: String(it.name || '').trim(),
+      category: CATEGORIES.includes(it.category) ? it.category : 'other',
+      // AI-assigned storage location; null if it returned something unexpected
+      // so the client falls back to its own name/category guess.
+      location: STORAGE_LOCATIONS.includes(it.location) ? it.location : null,
+      quantity: Number.isFinite(it.quantity) ? it.quantity : 1,
+      unit: String(it.unit || '').trim(),
+      confidence: typeof it.confidence === 'number' ? Math.max(0, Math.min(1, it.confidence)) : 0.5,
+      frozen: Boolean(it.frozen),
+      // Default to perishable when unsure — safer to track freshness than miss it.
+      perishable: typeof it.perishable === 'boolean' ? it.perishable : true
+    }))
+    .filter((it) => it.name && !isCarrierBag(it.name))
+  // Only trust a date from receipt scans.
+  const receiptDate = mode === 'receipt' ? validReceiptDate(toolUse?.input?.receipt_date) : null
+  return { items, receiptDate }
 }
 
 // Suggest dinners from the inventory. Uses the same cheap chat model and the

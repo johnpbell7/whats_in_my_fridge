@@ -115,3 +115,18 @@ h1,h2,h3,h4{font-family:var(--f-disp);font-weight:800;letter-spacing:-.03em;line
 .foot a{color:#a9cdba;text-decoration:none;font-weight:600}
 .foot a:hover{color:#fff}
 .foot p{margin:0;font-size:13.5px}
+
+/* ===== get-the-app box, halfway down each post ===== */
+.wrap .post-cta{margin:36px 0 8px;padding:24px 26px;border:1px solid rgba(44,122,87,.2);border-radius:20px;background:var(--mint);
+  display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px 24px}
+.wrap .post-cta h3{margin:0 0 6px;font-size:clamp(20px,2.6vw,24px);letter-spacing:-.025em;color:var(--green-deep)}
+.wrap .post-cta p{margin:0;font-size:15.5px;line-height:1.5;color:var(--ink-soft);max-width:48ch}
+.wrap .post-cta .post-cta-btn{display:inline-block;background:var(--green);color:#fdfdfb;font-weight:700;font-size:15px;padding:12px 24px;border-radius:999px;text-decoration:none;white-space:nowrap;text-align:center;
+  box-shadow:0 10px 24px -12px rgba(31,99,68,.6);transition:transform .2s,background .2s}
+.wrap .post-cta .post-cta-btn:hover{background:var(--green-deep);transform:translateY(-1px)}
+.wrap .post-cta .post-cta-btn:focus-visible{outline:3px solid var(--green-deep);outline-offset:3px}
+.wrap .post-cta .post-cta-note{grid-column:1/-1;font-size:13.5px;color:var(--ink-soft);margin:0}
+@media(max-width:560px){
+  .wrap .post-cta{grid-template-columns:1fr;padding:22px 20px}
+  .wrap .post-cta .post-cta-btn{display:block}
+}

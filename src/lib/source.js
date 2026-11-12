@@ -16,7 +16,7 @@ let pending = null
 // Codes are short, lower-case words: anything else is ignored.
 export function cleanCode(raw) {
   const code = String(raw || '').trim().toLowerCase()
-  return /^[a-z0-9][a-z0-9-]{0,39}$/.test(code) ? code : null
+  return /^[a-z0-9][a-z0-9-]{0,59}$/.test(code) ? code : null
 }
 
 // Pull the QR code (if any) out of a URL. Returns { code, url } where url is
