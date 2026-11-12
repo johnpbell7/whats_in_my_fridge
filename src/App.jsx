@@ -27,6 +27,7 @@ import AccountSheet from './components/AccountSheet.jsx'
 import Onboarding from './components/Onboarding.jsx'
 import InstallGuide from './components/InstallGuide.jsx'
 import PhoneSheet from './components/PhoneSheet.jsx'
+import InstallBar from './components/InstallBar.jsx'
 import HelpSheet from './components/HelpSheet.jsx'
 import ReportSheet from './components/ReportSheet.jsx'
 import { isMobile, isStandalone } from './lib/install.js'
@@ -384,6 +385,9 @@ export default function App() {
     }
     content = (
     <div className="app">
+      {/* Open in a browser tab, not from the home screen: nudge, every visit. */}
+      <InstallBar onGuide={() => setInstallGuide(true)} onPhone={() => setPhoneSheet(true)} />
+
       {/* Home dashboard — the front door. No footer nav shows here. */}
       {tab === 'home' && (
         <Dashboard

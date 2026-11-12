@@ -2120,3 +2120,31 @@ input, textarea, select { font-family: inherit; font-size: 16px; }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* Add-to-home-screen bar: whenever the app is open in a browser tab (InstallBar.jsx) */
+.install-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 14px 0;
+  padding: 8px 8px 8px 12px;
+  background: var(--accent-soft);
+  color: var(--accent-press);
+  border: 1px solid #cfe2d5;
+  border-radius: var(--r-md);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.install-bar > svg { flex: none; }
+.install-bar-t { flex: 1; min-width: 0; color: var(--ink); }
+.install-bar-btn {
+  flex: none;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 12.5px;
+}
+.install-bar-x { flex: none; display: inline-flex; padding: 4px; color: var(--ink-faint); }
+.install-bar-x:hover { color: var(--ink); }
