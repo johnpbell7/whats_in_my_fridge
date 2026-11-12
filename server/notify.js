@@ -162,8 +162,8 @@ async function sendFounderSnapshot(db, { force = false } = {}) {
     if (total === 0 && !force) return false
 
     const free = Math.max(0, total - paying)
-    const mrrNum = paying * 3.99
-    const arrNum = paying * 47.88
+    const mrrNum = paying * 2.99
+    const arrNum = paying * 35.88
     // Annual cost lines from FINANCES.md.
     const stripeFees = arrNum * 0.065
     const paidAI = paying * 2.4
@@ -315,7 +315,7 @@ export async function previewEmailsHandler(authHeader = '') {
     welcomeEmail(),
     trialReminderEmail(1),
     reengagementEmail(),
-    newSubscriberEmail({ email: 'newcustomer@example.com', amount: '£3.99' }),
+    newSubscriberEmail({ email: 'newcustomer@example.com', amount: '£2.99' }),
     reportEmail({ type: 'Bug', message: "Scan didn't pick up my milk.", userEmail: 'user@example.com', meta: 'iPhone · preview' })
   ]
   let sent = 0

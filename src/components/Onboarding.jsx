@@ -59,7 +59,7 @@ const SLIDES = [
     Icon: IconSparkle,
     title: 'Try the whole app free for 14 days',
     body:
-      'Everything’s on us for two weeks. After that, dinner-from-a-photo stays free — keep the fridge, the list and the rest with Plus for £3.99/month. No card needed to start.',
+      'Everything’s on us for two weeks. After that, dinner-from-a-photo stays free — keep the fridge, the list and the rest with Plus for £2.99/month. No card needed to start.',
     visual: <TrialVisual />
   }
 ]
@@ -260,7 +260,7 @@ function TrialVisual() {
       </div>
       <div className="ob-line">
         <span className="ob-line-name">Fridge, list &amp; more</span>
-        <span className="ob-line-meta">Plus · £3.99/mo</span>
+        <span className="ob-line-meta">Plus · £2.99/mo</span>
       </div>
     </div>
   )

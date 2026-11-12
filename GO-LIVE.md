@@ -23,7 +23,7 @@ Operated as: **John Bell (sole trader), trading as "What's in my Fridge".**
   - Already referenced in the app + Privacy/Terms — just needs to exist.
 
 - [ ] **4. Stripe → switch to LIVE mode** (currently sandbox/test)
-  - [ ] Product/price: **£3.99/month recurring** → copy `price_…`
+  - [ ] Product/price: **£2.99/month recurring** → copy `price_…`
   - [ ] Secret key: Developers → API keys → `sk_live_…`
   - [ ] Webhook: Developers → Webhooks → endpoint `https://app.whatsinmyfridge.co.uk/api/stripe-webhook`
         with events `checkout.session.completed`, `customer.subscription.updated`,

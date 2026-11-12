@@ -4,11 +4,24 @@ import { registerSW } from 'virtual:pwa-register'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { initMonitoring } from './lib/monitoring.js'
-import { Analytics } from './lib/analytics.js'
+import { Analytics, track } from './lib/analytics.js'
+import { captureSource, takePendingScan } from './lib/source.js'
 import './index.css'
 
 // Start error monitoring (no-op unless VITE_SENTRY_DSN is configured).
 initMonitoring()
+
+// Note which QR code (if any) brought this visit, and tidy the address.
+captureSource()
+
+// Sits after <Analytics />, so its effect runs once analytics has started.
+function QrScan() {
+  React.useEffect(() => {
+    const code = takePendingScan()
+    if (code) track('qr_scan', { code })
+  }, [])
+  return null
+}
 
 // Auto-update to the latest deploy. The service worker (skipWaiting +
 // clientsClaim) activates a new build immediately; on top of that we poll for
@@ -69,6 +82,7 @@ createRoot(document.getElementById('root')).render(
     <ErrorBoundary fallback={<Fallback />}>
       <App />
       <Analytics />
+      <QrScan />
     </ErrorBoundary>
   </React.StrictMode>
 )

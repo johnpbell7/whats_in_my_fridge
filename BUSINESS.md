@@ -7,15 +7,15 @@ Anthropic Console (Usage) once you have traffic. The *structure* is what matters
 the per-user caps are deliberately set so a Plus subscriber can never cost more
 than they pay.
 
-_Last updated: 2026-06-06. Update the rates if Anthropic or Stripe change pricing._
+_Last updated: 2026-11-12 (Plus moved to £2.99). Update the rates if Anthropic or Stripe change pricing._
 
 ## Inputs (the knobs)
 
 | Thing | Value | Where it's set |
 |---|---|---|
-| Plus price | **£3.99 / month** | Stripe + landing copy |
-| Stripe fee (UK card) | ~1.5% + 20p ≈ **26p** | stripe.com/gb/pricing |
-| **Net revenue per Plus user** | **≈ £3.73 / month** | (after Stripe) |
+| Plus price | **£2.99 / month** | Stripe + landing copy |
+| Stripe fee (UK card) | ~1.5% + 20p ≈ **24.5p** | stripe.com/gb/pricing |
+| **Net revenue per Plus user** | **≈ £2.75 / month** | (after Stripe) |
 | FX assumption | **$1 ≈ £0.79** (i.e. £1 ≈ $1.27) | update to spot rate |
 
 ### Per-tier AI limits (`server/auth.js`)
@@ -57,9 +57,9 @@ Rough token estimates per call (image + prompt in, item/answer JSON out):
 - 200 Haiku chats × $0.0075 = **$1.50**
 - **≈ $2.34 / month ≈ £1.85**
 
-Net revenue is **£3.73**, so even a power user who burns every credit leaves you
-**≈ £1.88 margin**. A *typical* user (say 8 scans + 25 chats) costs **~£0.20/mo** —
-margin ~£3.53.
+Net revenue is **£2.75**, so even a power user who burns every credit leaves you
+**≈ £0.90 margin**. A *typical* user (say 8 scans + 25 chats) costs **~£0.20/mo** —
+margin ~£2.55.
 
 **Free user, maxing out:**
 
@@ -72,11 +72,11 @@ effective "marketing spend" to acquire someone who might convert.
 
 ## Break-even (why the caps matter)
 
-A Plus user only stops being profitable if their AI cost exceeds their **£3.73**
-net revenue (≈ $4.74). At current rates that would take:
+A Plus user only stops being profitable if their AI cost exceeds their **£2.75**
+net revenue (≈ $3.47). At current rates that would take:
 
-- **~340 Sonnet scans**, or
-- **~630 chat questions**
+- **~250 Sonnet scans**, or
+- **~460 chat questions**
 
 …in a single month. Both are **far above** the 60-scan / 200-chat caps. **The
 limits guarantee every Plus subscriber is profitable** — by design, they

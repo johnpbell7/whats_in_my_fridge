@@ -131,7 +131,7 @@ on, then less as you trust it.
 
 ### How the money circulates
 ```
-Subscribers pay £3.99  ->  Apple / Google / Stripe  ->  your bank
+Subscribers pay £2.99  ->  Apple / Google / Stripe  ->  your bank
 Your card (kept funded from that)  ->  Anthropic auto-reload  ->  AI usage
 ```
 Subscription income lands in your bank; Anthropic quietly charges your card; you

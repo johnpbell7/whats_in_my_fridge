@@ -1,4 +1,4 @@
-// Stripe subscription checkout (Plus, £3.99/month). Lives entirely server-side
+// Stripe subscription checkout (Plus, £2.99/month). Lives entirely server-side
 // — the secret key never reaches the browser. Flow:
 //   1. /api/checkout      → create a Checkout Session, return its URL
 //   2. user pays on Stripe's hosted page

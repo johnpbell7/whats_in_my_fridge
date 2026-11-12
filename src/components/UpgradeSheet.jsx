@@ -96,7 +96,7 @@ export default function UpgradeSheet({ onClose, reason = '' }) {
         </ul>
 
         <div className="upgrade-price">
-          <span className="upgrade-amount">£3.99</span>
+          <span className="upgrade-amount">£2.99</span>
           <span className="upgrade-per">/ month</span>
         </div>
 
@@ -107,7 +107,7 @@ export default function UpgradeSheet({ onClose, reason = '' }) {
         ) : (
           <>
             <button className="btn btn-primary btn-block" onClick={subscribe} disabled={busy}>
-              {busy ? 'Starting checkout…' : 'Subscribe — £3.99/month'}
+              {busy ? 'Starting checkout…' : 'Subscribe — £2.99/month'}
             </button>
             {error && <p className="auth-error" role="alert">{error}</p>}
           </>

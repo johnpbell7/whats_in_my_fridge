@@ -5,6 +5,7 @@
 // (Project → Analytics → Enable) — until then these calls are harmless no-ops.
 
 import { track as vercelTrack } from '@vercel/analytics'
+import { firstSource } from './source.js'
 
 export { Analytics } from '@vercel/analytics/react'
 
@@ -23,7 +24,7 @@ function fbTrack(name, props) {
     if (typeof window === 'undefined' || typeof window.fbq !== 'function') return
     const mapped = FB_EVENTS[name]
     // give the paid conversion a value so the ad system can report ROAS
-    const params = name === 'subscribed' ? { currency: 'GBP', value: 3.99, ...props } : props
+    const params = name === 'subscribed' ? { currency: 'GBP', value: 2.99, ...props } : props
     if (mapped) window.fbq('track', mapped, params)
     else window.fbq('trackCustom', name, props)
   } catch {
@@ -31,8 +32,17 @@ function fbTrack(name, props) {
   }
 }
 
+// Conversions carry the QR code the person first came in on (see source.js).
+const WITH_SOURCE = new Set(['signup', 'upgrade_started', 'subscribed'])
+
 // Wrapped so analytics can never throw into the app.
 export function track(name, props) {
+  try {
+    const source = WITH_SOURCE.has(name) ? firstSource() : null
+    if (source) props = { ...props, source }
+  } catch {
+    /* never let the source lookup stop the event */
+  }
   try {
     vercelTrack(name, props)
   } catch {

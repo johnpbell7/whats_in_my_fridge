@@ -15,6 +15,13 @@
       "schedule": "0 21 * * *"
     }
   ],
+  "redirects": [
+    {
+      "source": "/qr/:code",
+      "destination": "/?utm_source=qr&utm_medium=qr&utm_campaign=:code",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

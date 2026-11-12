@@ -3,7 +3,7 @@
 A practical, low-budget plan to get the first real users. The app is live at
 **https://app.whatsinmyfridge.co.uk** (marketing site: https://www.whatsinmyfridge.co.uk).
 Positioning: *snap your fridge or a receipt, AI logs it, you waste less food and
-always know what to cook.* Free to use; Plus is £3.99/mo with a 14-day trial.
+always know what to cook.* Free to use; Plus is £2.99/mo with a 14-day trial.
 
 > Measure everything: Vercel Web Analytics is wired with `signup`,
 > `upgrade_started` and `subscribed` events — enable Web Analytics in the Vercel
@@ -64,7 +64,7 @@ wasting food?").
 > The UK bins ~£700 of food per household a year and I was definitely guilty.
 > You take a photo of your fridge or a receipt, it recognises the items and logs
 > them, warns you what's about to go off, and suggests meals from what you've
-> already got. It's free (there's an optional £3.99 Plus tier). Genuinely keen
+> already got. It's free (there's an optional £2.99 Plus tier). Genuinely keen
 > for feedback — what would make it actually useful for you?
 > https://app.whatsinmyfridge.co.uk
 
@@ -83,7 +83,7 @@ wasting food?").
 > Hi PH 👋 I'm John. I built What's in my Fridge because I was sick of buying
 > duplicates and binning food that quietly went off. Snap your fridge or a
 > receipt, AI logs it, and it tells you what to cook from what you already have —
-> so you waste less and save money. Free to use; Plus (£3.99/mo) raises the AI
+> so you waste less and save money. Free to use; Plus (£2.99/mo) raises the AI
 > limits. Would genuinely love your feedback on the scan accuracy and the dinner
 > suggestions.
 

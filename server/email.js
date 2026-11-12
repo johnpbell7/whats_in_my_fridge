@@ -93,7 +93,7 @@ export function welcomeEmail() {
         <li><strong>Add it to your home screen</strong> so it's one tap away.</li>
       </ul>
       ${button('https://app.whatsinmyfridge.co.uk', 'Open the app')}
-      <p style="font-size:13px;color:#8a8170;margin:14px 0 0">After 14 days, dinner-from-a-photo stays free — keep the rest with Plus for £3.99/month.</p>
+      <p style="font-size:13px;color:#8a8170;margin:14px 0 0">After 14 days, dinner-from-a-photo stays free — keep the rest with Plus for £2.99/month.</p>
     `)
   }
 }
@@ -104,7 +104,7 @@ export function trialReminderEmail(daysLeft) {
     subject: `Your trial ends ${when} — keep your fridge & list`,
     html: shell(`Your trial ends ${when}`, `
       <p style="font-size:15px;line-height:1.55;color:#5d5648;margin:0">When your trial ends, dinner-from-a-photo stays free — but your <strong>fridge, shopping list and saved meals will lock</strong>. Keep them all with Plus.</p>
-      ${button('https://app.whatsinmyfridge.co.uk', 'Keep everything — £3.99/month')}
+      ${button('https://app.whatsinmyfridge.co.uk', 'Keep everything — £2.99/month')}
       <p style="font-size:13px;color:#8a8170;margin:14px 0 0">No card? No worries — you'll just move to the free plan with the dinner feature.</p>
     `)
   }
@@ -120,7 +120,7 @@ export function reengagementEmail(unsubUrl) {
       `
       <p style="font-size:15px;line-height:1.55;color:#5d5648;margin:0 0 10px">Not sure what to cook? Snap whatever's in your fridge and we'll turn it into a few real dinner ideas, plus what to buy — that bit's <strong>always free</strong>.</p>
       ${button('https://app.whatsinmyfridge.co.uk', "See tonight's dinner")}
-      <p style="font-size:13px;color:#8a8170;margin:16px 0 0">Your saved fridge, shopping list and meals are still here too — pick them back up any time with Plus for £3.99/month.</p>
+      <p style="font-size:13px;color:#8a8170;margin:16px 0 0">Your saved fridge, shopping list and meals are still here too — pick them back up any time with Plus for £2.99/month.</p>
     `,
       unsubUrl ? ` · <a href="${unsubUrl}" style="color:#8a8170">Unsubscribe</a>` : ''
     )
@@ -160,7 +160,7 @@ export function founderSnapshotEmail(s) {
         ${row('💷', 'Est. revenue', `£${s.mrr}/mo`, `· ~£${s.arr}/yr`)}
         ${row('📈', 'Est. take-home', `~£${s.takeHomeMo}/mo`, '· after costs & tax')}
       </table>
-      <p style="font-size:12px;color:#8a8170;line-height:1.5;margin:14px 0 0">Estimates from your finance model (paying × £3.99, minus AI/infra/Stripe/~tax). Stripe is the source of truth for exact revenue. Sweet spot: ~10,000 users.</p>
+      <p style="font-size:12px;color:#8a8170;line-height:1.5;margin:14px 0 0">Estimates from your finance model (paying × £2.99, minus AI/infra/Stripe/~tax). Stripe is the source of truth for exact revenue. Sweet spot: ~10,000 users.</p>
     `
     )
   }

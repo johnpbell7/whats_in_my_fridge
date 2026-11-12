@@ -10,6 +10,12 @@ thresholds** (frozen into 2026/27) and the token-cost estimates in `BUSINESS.md`
 _Last updated: 2026-07-03. Estimates — confirm tax with an accountant, and refine
 AI costs from the real Anthropic Usage figures._
 
+> **Price change, 12 Nov 2026: Plus is now £2.99 a month.** The tables below were
+> worked at £3.99. At £2.99 each subscriber leaves about **£31 a year** (not £42),
+> so at 5% paying: 1,000 users → **£608** profit, 5,000 → **£4,857**,
+> 10,000 → **£9,884**, 20,000 → **£20,404** (before tax). To match the £3.99
+> figures, about **7%** of users need to pay instead of 5%.
+
 ---
 
 ## 1. Fixed costs — the "paid bracket" (Supabase etc.)

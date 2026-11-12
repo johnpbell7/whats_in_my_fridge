@@ -137,7 +137,7 @@ export default function AccountSheet({ onClose, onReport }) {
           <div className="btn btn-block upgrade-cta skeleton-btn" aria-hidden="true" />
         ) : me && !me.paid ? (
           <button className="btn btn-primary btn-block upgrade-cta" onClick={() => upgrade.show('account')}>
-            <IconSparkle size={18} /> {me.trial ? 'Keep Plus — £3.99/month' : 'Upgrade to Plus — £3.99/month'}
+            <IconSparkle size={18} /> {me.trial ? 'Keep Plus — £2.99/month' : 'Upgrade to Plus — £2.99/month'}
           </button>
         ) : (
           me &&

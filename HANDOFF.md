@@ -26,7 +26,7 @@ codebase, deployed on Vercel, backed by Supabase + Stripe + the Anthropic API.
 
 ### Core product principles (keep these)
 - **Free hook, paid depth.** One genuinely useful thing is always free; the
-  powerful/repeat features are the paid tier ("Plus", £3.99/mo).
+  powerful/repeat features are the paid tier ("Plus", £2.99/mo).
 - **Never charge twice for the same AI output.** Generated results are cached by
   id and by name so re-opening never re-bills a credit.
 - **Estimates are labelled as estimates**, always with a disclaimer; never imply
@@ -141,7 +141,7 @@ also runs the cron, the email preview, and unsubscribe).
 
 ## 7. Payments (Stripe — `server/stripe.js`)
 
-- **Subscription** at £3.99/mo (`STRIPE_PRICE_ID`).
+- **Subscription** at £2.99/mo (`STRIPE_PRICE_ID`).
 - **Checkout** (`/api/checkout` → `checkout-confirm`) and **billing portal**
   (`/api/billing-portal`) for managing/cancelling.
 - **Webhook** (`/api/stripe-webhook`, raw body, verified with
