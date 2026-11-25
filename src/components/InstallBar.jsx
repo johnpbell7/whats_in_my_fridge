@@ -48,10 +48,10 @@ export default function InstallBar({ onGuide, onPhone }) {
     <div className="install-bar" role="region" aria-label="Add to home screen">
       <IconHome size={18} />
       <span className="install-bar-t">
-        {mobile ? 'Add it to your home screen so it opens like an app.' : 'Use it on your phone, where your fridge is.'}
+        {mobile ? 'No App Store needed.' : 'Use it on your phone, where your fridge is.'}
       </span>
       <button type="button" className="install-bar-btn" onClick={act}>
-        {mobile ? (canPrompt() ? 'Install' : 'Show me') : 'Show code'}
+        {mobile ? 'Add to home screen' : 'Show code'}
       </button>
       <button type="button" className="install-bar-x" onClick={close} aria-label="Hide for now">
         <IconClose size={16} />
